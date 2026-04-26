@@ -1,0 +1,303 @@
+{
+    "tasks": [
+        // ── 资源编译（两套配置共用同一个 .rc 源文件）──────────────────────
+        {
+            "type": "shell",
+            "label": "Compile Resource (Debug)",
+            "command": "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\rc.exe",
+            "args": [
+                "/nologo",
+                "/I", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\shared",
+                "/I", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\um",
+                "/fo", "${workspaceFolder}\\build\\debug\\Qahse.res",
+                "${workspaceFolder}\\resources\\Qahse.rc"
+            ],
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": [],
+            "group": "build",
+            "detail": "编译 Debug 资源文件"
+        },
+        {
+            "type": "shell",
+            "label": "Compile Resource (Release)",
+            "command": "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\rc.exe",
+            "args": [
+                "/nologo",
+                "/I", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\shared",
+                "/I", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\um",
+                "/fo", "${workspaceFolder}\\build\\release\\Qahse.res",
+                "${workspaceFolder}\\resources\\Qahse.rc"
+            ],
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": [],
+            "group": "build",
+            "detail": "编译  资源文件"
+        },
+        {
+            "type": "shell",
+            "label": "Compile Resource (Release Extreme)",
+            "command": "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.26100.0\\x64\\rc.exe",
+            "args": [
+                "/nologo",
+                "/I", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\shared",
+                "/I", "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\um",
+                "/fo", "${workspaceFolder}\\build\\release_extreme\\Qahse.res",
+                "${workspaceFolder}\\resources\\Qahse.rc"
+            ],
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": [],
+            "group": "build",
+            "detail": "编译 Release Extreme 资源文件"
+        },
+
+        // ── Debug 构建 ────────────────────────────────────────────────────
+        // 注意：Debug 必须使用 /MDd，确保与 msvcprtd/ucrtbased 调试符号一致。
+        //       调试性通过 /Zi /Od /Ob0 /RTC1 + 链接器 /DEBUG:FULL 实现。
+        {
+            "type": "shell",
+            "label": "C/C++: Build Debug",
+            "command": "${workspaceFolder}\\.vscode\\build_with_msvc_env.cmd",
+            "args": [
+                //# 下面定义编译选项
+                "/EHsc", "/std:c++20", "/Zc:__cplusplus",
+                "/MDd",                         // Debug CRT，解决 __imp__free_dbg / __imp__CrtDbgReport
+                "/Zi", "/Od", "/Ob0", "/RTC1",  // 调试信息 + 关优化 + 运行时检查
+                "/wd4251", "/wd4275",
+                "/MP", "/W3", "/sdl", "/permissive-",
+                "/openmp", "/arch:AVX2",
+                "/FS", "/utf-8", "/bigobj", "/Zm999",
+                "/D_DEBUG", "/DNOMINMAX", "/D_CRT_SECURE_NO_WARNINGS", "/DEIGEN_USE_MKL_ALL",
+                "/nologo",
+
+                //#下面定义头文件引用
+                "/I", "${workspaceFolder}\\include\\eigen-3.4.1",//#Eigen 3.4.1 头文件目录
+                "/I", "${workspaceFolder}\\Project\\OpenXLSX-master\\OpenXLSX",//#OpenXLSX 头文件目录
+                "/I", "${workspaceFolder}\\Project\\OpenXLSX-master\\build\\OpenXLSX",//#OpenXLSX 构建目录（包含生成的头文件）
+                "/I", "${workspaceFolder}\\Project\\spectra-master\\include",//#Spectra 头文件目录
+                "/I", "C:\\Program Files (x86)\\Intel\\oneAPI\\mkl\\latest\\include",//Intel MKL 头文件目录
+                "/I", "${workspaceFolder}\\include",//fmt,boost,libinterpolate 等第三方库头文件目录
+                "/I", "${workspaceFolder}\\src",//项目源代码目录当中的头文件目录
+                //#下面定义编译链接参数
+
+                "@${workspaceFolder}\\src\\sources.rsp",
+                "/Fe${workspaceFolder}\\build\\debug\\Qahse.exe",
+                "/Fo${workspaceFolder}\\build\\debug\\obj\\",
+                "/Fd${workspaceFolder}\\build\\debug\\obj\\vc143.pdb",
+                "/link",
+                "/SUBSYSTEM:CONSOLE",
+                "/DEBUG:FULL", "/INCREMENTAL", "/OPT:NOREF", "/OPT:NOICF",
+                "/PDB:${workspaceFolder}\\build\\debug\\Qahse.pdb",
+
+                //# 下面定义链接库和库目录
+                "/LIBPATH:C:\\Program Files (x86)\\Intel\\oneAPI\\mkl\\latest\\lib",
+                "/LIBPATH:C:\\Program Files (x86)\\Intel\\oneAPI\\compiler\\latest\\lib",
+                "/LIBPATH:${workspaceFolder}\\lib\\Debug_d",
+                "mkl_intel_lp64_dll.lib",//# Intel MKL 链接库，必须使用 DLL 版本以确保与 /MDd 调试 CRT 兼容
+                "mkl_intel_thread_dll.lib",//# Intel MKL 链接库，必须使用 DLL 版本以确保与 /MDd 调试 CRT 兼容
+                "mkl_core_dll.lib",//# Intel MKL 链接库，必须使用 DLL 版本以确保与 /MDd 调试 CRT 兼容
+                "libiomp5md.lib",//# Intel OpenMP 运行时库，必须使用 DLL 版本以确保与 /MDd 调试 CRT 兼容
+                "fmtd.lib",//# fmt 调试库，必须使用 d 版本以确保与 /MDd 调试 CRT 兼容
+                "gtest.lib",//# Google Test 链接库，必须使用 Debug 版本以确保与 /MDd 调试 CRT 兼容
+                "gmock.lib",//# Google Mock 链接库，必须使用 Debug 版本以确保与 /MDd 调试 CRT 兼容
+                "OpenXLSXd.lib",//# OpenXLSX 调试库，必须使用 Debug 版本以确保与 /MDd 调试 CRT 兼容
+                "Chrono_core_d.lib",//# Chrono 核心调试库，必须使用 Debug 版本以确保与 /MDd 调试 CRT 兼容
+
+                //# 下面链接生成的资源文件
+                "${workspaceFolder}\\build\\debug\\Qahse.res"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "shell": {
+                    "executable": "C:\\Windows\\System32\\cmd.exe",
+                    "args": ["/d", "/c"]
+                }
+            },
+            "problemMatcher": ["$msCompile"],
+            "group": { "kind": "build", "isDefault": false },
+            "dependsOn": ["Compile Resource (Debug)"],
+            "detail": "Debug 构建：/Zi /Od /RTC1，使用 Debug Chrono 库目录"
+        },
+
+        // ── Release 构建 ──────────────────────────────────────────────────
+        {
+            "type": "shell",
+            "label": "C/C++: Build Release",
+            "command": "${workspaceFolder}\\.vscode\\build_with_msvc_env.cmd",
+            "args": [
+                //# 下面定义编译选项
+                "/EHsc", "/std:c++20", "/Zc:__cplusplus",
+                "/MD",
+                "/O2", "/Ob2", "/Ot", "/Oi", "/GL", "/Gy",
+                "/wd4251", "/wd4275",
+                "/MP", "/W3", "/sdl", "/permissive-",
+                "/openmp", "/arch:AVX2",
+                "/FS", "/utf-8", "/bigobj", "/Zm999",
+                "/DNDEBUG", "/DNOMINMAX", "/D_CRT_SECURE_NO_WARNINGS", "/DEIGEN_USE_MKL_ALL",
+                "/nologo",
+
+                //# 下面定义头文件引用
+                "/I", "${workspaceFolder}\\include\\eigen-3.4.1",//#Eigen 3.4.1 头文件目录
+                "/I", "${workspaceFolder}\\Project\\OpenXLSX-master\\OpenXLSX",//#OpenXLSX 头文件目录
+                "/I", "${workspaceFolder}\\Project\\OpenXLSX-master\\build\\OpenXLSX",//#OpenXLSX 构建目录（包含生成的头文件）
+                "/I", "${workspaceFolder}\\Project\\spectra-master\\include",//#Spectra 头文件目录
+                "/I", "C:\\Program Files (x86)\\Intel\\oneAPI\\mkl\\latest\\include",//Intel MKL 头文件目录
+                "/I", "${workspaceFolder}\\include",//fmt,boost,libinterpolate 等第三方库头文件目录
+                "/I", "${workspaceFolder}\\src",//项目源代码目录当中的头文件目录
+
+                //# 下面定义编译链接参数
+                "@${workspaceFolder}\\src\\sources.rsp",
+                "/Fe${workspaceFolder}\\build\\release\\Qahse.exe",
+                "/Fo${workspaceFolder}\\build\\release\\obj\\",
+                "/Fd${workspaceFolder}\\build\\release\\obj\\vc143.pdb",
+                "/link",
+                "/SUBSYSTEM:CONSOLE",
+                "/OPT:REF", "/OPT:ICF", "/LTCG", "/DEBUG:NONE",
+
+                //# 下面定义链接库和库目录
+                "/LIBPATH:${workspaceFolder}\\..\\Qahse\\Qahse\\include_headers\\OpenBlas\\lib",
+                "/LIBPATH:C:\\Program Files (x86)\\Intel\\oneAPI\\mkl\\latest\\lib",
+                "/LIBPATH:C:\\Program Files (x86)\\Intel\\oneAPI\\compiler\\latest\\lib",
+                "/LIBPATH:${workspaceFolder}\\..\\Qahse\\Qahse\\Project\\chrono-9.0.1\\build\\lib\\Release",
+                "/LIBPATH:${workspaceFolder}\\lib\\Release_d",//
+                "mkl_intel_lp64_dll.lib",//# Intel MKL 链接库，必须使用 DLL 版本以确保与 /MD Release CRT 兼容
+                "mkl_intel_thread_dll.lib",//# Intel MKL 链接库，必须使用 DLL 版本以确保与 /MD Release CRT 兼容
+                "mkl_core_dll.lib",//# Intel MKL 链接库，必须使用 DLL 版本以确保与 /MD Release CRT 兼容
+                "libiomp5md.lib",//# Intel OpenMP 运行时库，必须使用 DLL 版本以确保与 /MD Release CRT 兼容
+                "fmt.lib",//# fmt 库，必须使用 Release 版本以确保与 /MD Release CRT 兼容
+                "OpenXLSX.lib",//# OpenXLSX 库，必须使用 Release 版本以确保与 /MD Release CRT 兼容
+
+                //# 下面链接生成的资源文件
+                "${workspaceFolder}\\build\\release\\Qahse.res"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "shell": {
+                    "executable": "C:\\Windows\\System32\\cmd.exe",
+                    "args": ["/d", "/c"]
+                }
+            },
+            "problemMatcher": ["$msCompile"],
+            "group": { "kind": "build", "isDefault": true },
+            "dependsOn": ["Compile Resource (Release)"],
+            "detail": "Release 构建：全优化，关闭调试信息"
+        },
+
+
+        // ── 单元测试构建（Yaml + IO + Math 统一） ───────────────────────
+        {            "type": "shell",
+            "label": "C/C++: Build Unit Tests",
+            "command": "${workspaceFolder}\\.vscode\\build_with_msvc_env.cmd",
+            "args": [
+                //# 下面定义编译选项
+                "/EHsc", "/std:c++20", "/Zc:__cplusplus",
+                "/MDd",
+                "/Zi", "/Od", "/Ob0", "/RTC1",
+                "/wd4251", "/wd4275",
+                "/MP", "/W3", "/permissive-",
+                "/FS", "/utf-8", "/bigobj", "/Zm999",
+                "/DNDEBUG", "/DNOMINMAX", "/D_CRT_SECURE_NO_WARNINGS", "/DEIGEN_USE_MKL_ALL",
+                "/nologo",
+
+                //# 下面定义头文件引用
+                "/I", "${workspaceFolder}\\include\\eigen-3.4.1",//#Eigen 3.4.1 头文件目录
+                "/I", "${workspaceFolder}\\Project\\OpenXLSX-master\\OpenXLSX",//#OpenXLSX 头文件目录
+                "/I", "${workspaceFolder}\\Project\\OpenXLSX-master\\build\\OpenXLSX",//#OpenXLSX 构建目录（包含生成的头文件）
+                "/I", "${workspaceFolder}\\Project\\spectra-master\\include",//#Spectra 头文件目录
+                "/I", "C:\\Program Files (x86)\\Intel\\oneAPI\\mkl\\latest\\include",//Intel MKL 头文件目录
+                "/I", "${workspaceFolder}\\include",//fmt,boost,libinterpolate，Chrono 等第三方库头文件目录
+                "/I", "${workspaceFolder}\\src",//项目源代码目录当中的头文件目录
+                "/I", "${workspaceFolder}\\Test\\Io\\math",//单元测试源代码目录当中的头文件目录
+
+                //# 下面定义编译链接参数
+                "@${workspaceFolder}\\Test\\test_sources.rsp",
+                "/Fe${workspaceFolder}\\build\\test\\UnitTests.exe",
+                "/Fo${workspaceFolder}\\build\\test\\obj\\",
+                "/Fd${workspaceFolder}\\build\\test\\obj\\vc143.pdb",
+                "/link",
+                "/SUBSYSTEM:CONSOLE",
+                "/DEBUG:FULL",
+
+                //# 下面定义链接库和库目录
+                "/LIBPATH:${workspaceFolder}\\..\\Qahse\\Qahse\\include_headers\\OpenBlas\\lib",
+                "/LIBPATH:C:\\Program Files (x86)\\Intel\\oneAPI\\mkl\\latest\\lib",
+                "/LIBPATH:C:\\Program Files (x86)\\Intel\\oneAPI\\compiler\\latest\\lib",
+                "/LIBPATH:${workspaceFolder}\\lib\\Debug_d",
+                "mkl_intel_lp64_dll.lib",//# Intel MKL 链接库，必须使用 DLL 版本以确保与 /MDd 调试 CRT 兼容
+                "mkl_intel_thread_dll.lib",//# Intel MKL 链接库，必须使用 DLL 版本以确保与 /MDd 调试 CRT 兼容
+                "mkl_core_dll.lib",//# Intel MKL 链接库，必须使用 DLL 版本以确保与 /MDd 调试 CRT 兼容
+                "libiomp5md.lib",//# Intel OpenMP 运行时库，必须使用 DLL 版本以确保与 /MDd 调试 CRT 兼容
+                "fmtd.lib",//# fmt 调试库，必须使用 d 版本以确保与 /MDd 调试 CRT 兼容
+                "gtest.lib",//# Google Test 链接库，必须使用 Debug 版本以确保与 /MDd 调试 CRT 兼容
+                "gmock.lib",//# Google Mock 链接库，必须使用 Debug 版本以确保与 /MDd 调试 CRT 兼容
+                "OpenXLSXd.lib"//# OpenXLSX 调试库，必须使用 Debug 版本以确保与 /MDd 调试 CRT 兼容
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "shell": {
+                    "executable": "C:\\Windows\\System32\\cmd.exe",
+                    "args": ["/d", "/c"]
+                }
+            },
+            "problemMatcher": ["$msCompile"],
+            "group": { "kind": "test", "isDefault": true },
+            "detail": "构建全部 IO 模块单元测试（Yaml/IO/Math，gtest）"
+        },
+        {
+            "type": "shell",
+            "label": "C/C++: Build Unit Tests (Release)",
+            "command": "${workspaceFolder}\\.vscode\\build_with_msvc_env.cmd",
+            "args": [
+                "/EHsc", "/std:c++20", "/Zc:__cplusplus",
+                "/MD",
+                "/O2", "/Ob2", "/Ot", "/Oi", "/GL", "/Gy",
+                "/wd4251", "/wd4275",
+                "/MP", "/W3", "/permissive-",
+                "/openmp", "/arch:AVX2",
+                "/FS", "/utf-8", "/bigobj", "/Zm999",
+                "/DNDEBUG", "/DNOMINMAX", "/D_CRT_SECURE_NO_WARNINGS", "/DEIGEN_USE_MKL_ALL",
+                "/nologo",
+
+                "/I", "${workspaceFolder}\\include\\eigen-3.4.1",
+                "/I", "${workspaceFolder}\\Project\\OpenXLSX-master\\OpenXLSX",
+                "/I", "${workspaceFolder}\\Project\\OpenXLSX-master\\build\\OpenXLSX",
+                "/I", "${workspaceFolder}\\Project\\spectra-master\\include",
+                "/I", "C:\\Program Files (x86)\\Intel\\oneAPI\\mkl\\latest\\include",
+                "/I", "${workspaceFolder}\\include",
+                "/I", "${workspaceFolder}\\src",
+                "/I", "${workspaceFolder}\\Test\\Io\\math",
+
+                "@${workspaceFolder}\\Test\\test_sources.rsp",
+                "/Fe${workspaceFolder}\\build\\test\\UnitTests_release.exe",
+                "/Fo${workspaceFolder}\\build\\test\\obj\\",
+                "/Fd${workspaceFolder}\\build\\test\\obj\\vc143_release.pdb",
+                "/link",
+                "/SUBSYSTEM:CONSOLE",
+                "/OPT:REF", "/OPT:ICF", "/LTCG", "/DEBUG:NONE",
+
+                "/LIBPATH:${workspaceFolder}\\..\\Qahse\\Qahse\\include_headers\\OpenBlas\\lib",
+                "/LIBPATH:C:\\Program Files (x86)\\Intel\\oneAPI\\mkl\\latest\\lib",
+                "/LIBPATH:C:\\Program Files (x86)\\Intel\\oneAPI\\compiler\\latest\\lib",
+                "/LIBPATH:${workspaceFolder}\\lib\\Release_d",
+                "mkl_intel_lp64_dll.lib",
+                "mkl_intel_thread_dll.lib",
+                "mkl_core_dll.lib",
+                "libiomp5md.lib",
+                "fmt.lib",
+                "${workspaceFolder}\\project\\googletest-main\\build_md_release\\lib\\Release\\gtest.lib",
+                "${workspaceFolder}\\project\\googletest-main\\build_md_release\\lib\\Release\\gmock.lib",
+                "OpenXLSX.lib"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "shell": {
+                    "executable": "C:\\Windows\\System32\\cmd.exe",
+                    "args": ["/d", "/c"]
+                }
+            },
+            "problemMatcher": ["$msCompile"],
+            "group": { "kind": "test", "isDefault": false },
+            "detail": "构建 Release 运行库版本单元测试（/MD）"
+        }
+    ],
+    "version": "2.0.0"
+}

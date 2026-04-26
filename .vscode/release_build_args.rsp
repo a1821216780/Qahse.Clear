@@ -1,0 +1,58 @@
+/EHsc
+/std:c++20
+/Zc:__cplusplus
+/MD
+/O2
+/Ob2
+/Ot
+/Oi
+/GL
+/Gy
+/wd4251
+/wd4275
+/MP
+/W3
+/sdl
+/permissive-
+/openmp
+/arch:AVX2
+/FS
+/utf-8
+/bigobj
+/Zm999
+/DNDEBUG
+/DNOMINMAX
+/D_CRT_SECURE_NO_WARNINGS
+/DEIGEN_USE_MKL_ALL
+/nologo
+/I".\include\eigen-3.4.1"
+/I".\Project\OpenXLSX-master\OpenXLSX"
+/I".\Project\OpenXLSX-master\build\OpenXLSX"
+/I".\Project\spectra-master\include"
+/I"C:\Program Files (x86)\Intel\oneAPI\mkl\latest\include"
+/I".\include"
+/I".\src"
+@.\src\sources.rsp
+/Fe.\build\release\Qahse.exe
+/Fo.\build\release\obj\
+/Fd.\build\release\obj\vc143.pdb
+/link
+/SUBSYSTEM:CONSOLE
+/OPT:REF
+/OPT:ICF
+/LTCG
+/DEBUG:NONE
+/LIBPATH:.\..\Qahse\Qahse\include_headers\OpenBlas\lib
+/LIBPATH:"C:\Program Files (x86)\Intel\oneAPI\mkl\latest\lib"
+/LIBPATH:"C:\Program Files (x86)\Intel\oneAPI\compiler\latest\lib"
+/LIBPATH:.\..\Qahse\Qahse\Project\chrono-9.0.1\build\lib\Release
+/LIBPATH:.\lib\Release_d
+"C:\Program Files (x86)\Intel\oneAPI\mkl\latest\lib\mkl_intel_lp64_dll.lib"
+"C:\Program Files (x86)\Intel\oneAPI\mkl\latest\lib\mkl_intel_thread_dll.lib"
+"C:\Program Files (x86)\Intel\oneAPI\mkl\latest\lib\mkl_core_dll.lib"
+"C:\Program Files (x86)\Intel\oneAPI\compiler\latest\lib\libiomp5md.lib"
+".\lib\Release_d\fmt.lib"
+".\lib\Release_d\gtest.lib"
+".\lib\Release_d\gmock.lib"
+".\lib\Release_d\OpenXLSX.lib"
+.\build\release\Qahse.res

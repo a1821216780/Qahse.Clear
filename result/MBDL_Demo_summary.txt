@@ -1,0 +1,14 @@
+Qahse.MBDL summary
+input_file=demo\MBDL\Qahse_MBDL_Main_DEMO.qmd
+output_csv=./result\MBDL_Demo_states.csv
+start_time=0
+duration=2
+time_step=0.01
+steps=200
+chrono_solver=SPARSE_LU
+chrono_timestepper=EULER_IMPLICIT_LINEARIZED
+nodes=13
+rigid_bodies=1
+beam_elements=12
+constraints=2
+loads=1

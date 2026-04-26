@@ -1,0 +1,11 @@
+# kind|type|value|expected
+enum|Color|red|Red
+enum|Mode|manual|Manual
+bool|bool|1|true
+int|int|-42|-42
+float|float|3.5|3.5
+double|double|2.75|2.75
+vector|int|1, 2, 3|3
+vector|float|1.5 2.5 3.5|3
+rowvector|double|4.5,5.5,6.5|3
+matrix|double|1,2;3,4|2x2

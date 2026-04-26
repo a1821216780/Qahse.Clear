@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{C6D7E8F9-A0B1-2345-6789-ABCDEF012345}</ProjectGuid>
+    <RootNamespace>UnitTests</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>..\build\test\</OutDir>
+    <IntDir>..\build\test\debug_obj\</IntDir>
+    <TargetName>UnitTests</TargetName>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalOptions>/Zc:__cplusplus /bigobj /Zm999 /utf-8 /FS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>..\include\eigen-3.4.1;..\Project\OpenXLSX-master\OpenXLSX;..\Project\OpenXLSX-master\build\OpenXLSX;..\Project\spectra-master\include;C:\Program Files (x86)\Intel\oneAPI\mkl\latest\include;..\include;..\src;..\Test\IO\math;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;NDEBUG;UNICODE;_UNICODE;NOMINMAX;_CRT_SECURE_NO_WARNINGS;EIGEN_USE_MKL_ALL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <Optimization>Disabled</Optimization>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ProgramDataBaseFileName>..\build\test\debug_obj\vc143.pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <ExceptionHandling>SyncCThrow</ExceptionHandling>
+      <ConformanceMode>true</ConformanceMode>
+      <DisableSpecificWarnings>4251;4275</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>mkl_intel_lp64_dll.lib;mkl_intel_thread_dll.lib;mkl_core_dll.lib;libiomp5md.lib;fmtd.lib;gtest.lib;gmock.lib;OpenXLSXd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib\Debug_d;C:\Program Files (x86)\Intel\oneAPI\mkl\latest\lib;C:\Program Files (x86)\Intel\oneAPI\compiler\latest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <LinkIncremental>true</LinkIncremental>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Test\test_main.cpp" />
+    <ClCompile Include="..\src\IO\LogHelper.cpp" />
+    <ClCompile Include="..\src\IO\BinaryFileHandler.cpp" />
+    <ClCompile Include="..\src\IO\MSExcel.cpp" />
+    <ClCompile Include="..\src\IO\Outfile.cpp" />
+    <ClCompile Include="..\src\MBDL\MBDLInput.cpp" />
+    <ClCompile Include="..\Test\IO\ZStringEnumTests.cpp" />
+    <ClCompile Include="..\Test\IO\ZStringConvertTests.cpp" />
+    <ClCompile Include="..\Test\IO\ZFileTests.cpp" />
+    <ClCompile Include="..\Test\IO\ZFileComprehensiveTests.cpp" />
+    <ClCompile Include="..\Test\IO\ZStringComprehensiveTests.cpp" />
+    <ClCompile Include="..\Test\IO\ZPathTests.cpp" />
+    <ClCompile Include="..\Test\IO\OtherHelperTests.cpp" />
+    <ClCompile Include="..\Test\IO\BinaryFileHandlerTests.cpp" />
+    <ClCompile Include="..\Test\IO\MSExcelTests.cpp" />
+    <ClCompile Include="..\Test\IO\OutfileTests.cpp" />
+    <ClCompile Include="..\Test\IO\YamlTests.cpp" />
+    <ClCompile Include="..\Test\WindL\WindLIOTests.cpp" />
+    <ClCompile Include="..\src\Math\Vec3.cpp" />
+    <ClCompile Include="..\src\Math\Vec3f.cpp" />
+    <ClCompile Include="..\src\Math\IntegrationHelper.cpp" />
+    <ClCompile Include="..\src\Math\LinearAlgebraHelper.cpp" />
+    <ClCompile Include="..\src\Math\FrequenceHelper.cpp" />
+    <ClCompile Include="..\Test\Math\MathHelperTests.cpp" />
+    <ClCompile Include="..\Test\Math\Vec3QuaternionTests.cpp" />
+    <ClCompile Include="..\Test\Math\LinearAlgebraHelperTests.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\IO\Outfile.h" />
+    <ClInclude Include="..\src\IO\MSExcel.h" />
+    <ClInclude Include="..\src\IO\BinaryFileHandler.h" />
+    <ClInclude Include="..\src\IO\IOutFile.h" />
+    <ClInclude Include="..\src\IO\ILog.h" />
+    <ClInclude Include="..\src\IO\LogHelper.h" />
+    <ClInclude Include="..\src\IO\Serializer.hpp" />
+    <ClInclude Include="..\src\IO\Yaml.hpp" />
+    <ClInclude Include="..\src\WindL\WindL_IO_Subs.hpp" />
+    <ClInclude Include="..\src\MBDL\MBDLInput.h" />
+    <ClInclude Include="..\src\MBDL\MBDLTypes.h" />
+    <ClInclude Include="..\src\Params.h" />
+    <ClInclude Include="..\src\Math\IntegrationHelper.h" />
+    <ClInclude Include="..\src\Math\Vec3.h" />
+    <ClInclude Include="..\src\Math\LinearAlgebraHelper.h" />
+    <ClInclude Include="..\src\Math\Quaternion.h" />
+    <ClInclude Include="..\src\Math\Vec3f.h" />
+    <ClInclude Include="..\src\Math\FrequenceHelper.h" />
+    <ClInclude Include="..\src\version.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

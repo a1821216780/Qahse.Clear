@@ -1,0 +1,47 @@
+-- =============================================================================
+-- Qahse.MBDL v0.1 standalone structural dynamics input
+-- Format: sectioned text. Columns before " - " are parsed; text after it is comment.
+-- =============================================================================
+
+[Simulation]
+0.0         StartTime          - s
+2.0         Duration           - s
+0.01        TimeStep           - s
+9.80665     Gravity            - m/s^2, applied as global -Z
+1           OutputEvery        - output every N integration steps
+1           ChronoThreads      - Chrono worker threads
+true        AutomaticGravity   - let Chrono FEA elements include gravity
+SPARSE_LU   Solver             - SPARSE_LU or SPARSE_QR
+EULER_IMPLICIT_LINEARIZED Timestepper - HHT/NEWMARK/TRAPEZOIDAL/EULER_IMPLICIT_LINEARIZED
+./result    OutputDir          - result directory
+MBDL_Demo   OutputName         - output file prefix
+
+[Nodes]
+-- id             x      y      z      fixed  nodal_mass  Ixx  Iyy  Izz
+TowerBase         0.0    0.0    0.0    true   0.0         0.0  0.0  0.0
+TowerTop          0.0    0.0    90.0   false  0.0         0.0  0.0  0.0
+
+[BeamSections]
+-- id       area   Iyy    Izz    J      E        G        density  rayleigh_alpha rayleigh_beta
+TowerSteel 1.20   0.45   0.45   0.90   2.10e11  8.08e10  7850.0   0.0            1.0e-4
+
+[Beams]
+-- id     nodeA      nodeB     section     elements  ydir_x ydir_y ydir_z
+Tower     TowerBase  TowerTop  TowerSteel  12        1.0    0.0    0.0
+
+[RigidBodies]
+-- id       x     y     z      rx ry rz  mass       Ixx       Iyy       Izz       fixed
+Nacelle     0.0   0.0   90.0   0  0  0   240000.0   4.0e6     2.5e6     2.5e6     false
+
+[Constraints]
+-- id            type      target...
+BaseFixed        FIX_NODE  TowerBase
+TowerTopToRNA    MATE      NODE TowerTop BODY Nacelle true true true true true true
+
+[PointLoads]
+-- id        kind target    Fx       Fy Fz  Mx My Mz  local
+TowerPush    NODE TowerTop  100000.0 0  0   0  0  0   false
+
+[Outputs]
+NODE TowerTop
+BODY Nacelle

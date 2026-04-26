@@ -1,0 +1,17 @@
+build/debug/mkl_avx2.2.dll
+build
+include
+project
+lib
+*.vtk
+*.bak
+*.vtu
+*.out
+*.png
+*.sum
+*.wnd
+*.f90
+*.mod
+*.pdf
+*.bts
+.vs

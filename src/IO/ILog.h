@@ -1,0 +1,131 @@
+//**********************************************************************************************************************************
+// 许可证说明
+// 版权所有(C) 2021, 2025  赵子祯
+//
+// 根据 Boost 软件许可证 - 版本 1.0 - 2003年8月17日
+// 您不得使用此文件，除非符合许可证。
+// 您可以在以下网址获得许可证副本
+//
+//     http://www.hawtc.cn/licenses.txt
+//
+// 该软件按“原样”提供，不提供任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性、所有权和非侵权。在任何情况下，版权持有人或任何分
+// 发软件的人都不对任何索赔、损害或其他责任负责，无论是在合同诉讼、侵权诉讼或其他诉讼中，还是在软件使用或其他交易中产生的。
+//
+//**********************************************************************************************************************************
+
+// ───────────────────────────────── File Info ─────────────────────────────────
+//
+// 该文件定义日志输出的基础接口，负责统一描述日志实现所需的生命周期控制。
+// 具体实现可用于文本日志、格式化日志或其他输出通道的抽象封装。
+//
+// ──────────────────────────────────────────────────────────────────────────────
+
+#pragma once
+
+#include <string>
+#include <memory>
+
+
+
+/**
+ * @brief VTK 可视化输出基础接口类
+ *
+ * @details 所有 VTK 格式输出实现类均需继承该抽象基类。
+ * VTK（Visualization Toolkit）常用于风机仿真结果的三维可视化输出。
+ * 派生类需实现 OutVTKClose() 方法以正确关闭并刷新 VTK 输出流。
+ *
+ * @note 该类通过 LogData::IO_VTK（shared_ptr 容器）统一管理生命周期，
+ * 程序结束时由 LogHelper::EndProgram() 统一关闭所有 VTK 文件。
+ *
+ * @code
+ * // 典型派生类实现示例：
+ * class MyVTKOutput : public BASE_VTK {
+ * public:
+ *     void OutVTKClose() override {
+ *         // 关闭并保存 VTK 文件
+ *         vtk_writer_.close();
+ *     }
+ * private:
+ *     std::ofstream vtk_writer_; ///< VTK 文件写入流
+ * };
+ *
+ * // 注册到日志系统：
+ * LogData::IO_VTK.push_back(std::make_shared<MyVTKOutput>());
+ * @endcode
+ */
+class BASE_VTK
+{
+public:
+	virtual ~BASE_VTK() = default; ///< 虚析构函数，确保派生类正确析构
+
+	/**
+	 * @brief 关闭并刷新 VTK 输出文件
+	 *
+	 * @details 纯虚函数，派生类必须实现。
+	 * 在调用后，派生类应确保所有 VTK 数据已写入磁盘，
+	 * 文件句柄已释放，资源已清理。
+	 *
+	 * @code
+	 * // 程序正常/异常退出时，LogHelper 自动调用：
+	 * for (auto& vtk : LogData::IO_VTK) {
+	 *     vtk->OutVTKClose();
+	 * }
+	 * @endcode
+	 */
+	virtual void OutVTKClose() = 0;
+};
+
+// /**
+//  * @brief 邮件发送接口抽象基类
+//  *
+//  * @details 定义统一的邮件发送接口，具体实现（SMTP、第三方 SDK 等）
+//  * 由派生类完成。该接口允许 Qahse 框架在仿真完成或发生错误时
+//  * 自动发送通知邮件给相关人员。
+//  *
+//  * 邮件实例通过 Datastore::EmailSet（shared_ptr）存储，
+//  * 可在任何模块中通过 LogHelper 触发邮件发送。
+//  *
+//  * @code
+//  * // 典型派生类实现示例（SMTP 版本）：
+//  * class SmtpEmail : public Email {
+//  * public:
+//  *     void SendEmail(const std::string& subject,
+//  *                    const std::string& body,
+//  *                    const std::string& to) override {
+//  *         // 此处实现 SMTP 发送逻辑
+//  *         smtp_client_.send(to, subject, body);
+//  *     }
+//  * };
+//  *
+//  * // 注册到日志系统：
+//  * Datastore::EmailSet = std::make_shared<SmtpEmail>();
+//  * @endcode
+//  */
+// class Email
+// {
+// public:
+// 	virtual ~Email() = default; ///< 虚析构函数，确保派生类正确析构
+
+// 	/**
+// 	 * @brief 发送电子邮件通知
+// 	 *
+// 	 * @param subject 邮件主题（标题），应简明描述事件内容，
+// 	 *                例如 "Qahse 仿真完成通知" 或 "Qahse 运行错误报告"
+// 	 * @param body    邮件正文内容，可包含仿真参数、错误信息、运行时间等详细信息
+// 	 * @param to      收件人邮箱地址，格式如 "user@example.com"
+// 	 *
+// 	 * @note 纯虚函数，派生类必须实现具体的邮件发送逻辑。
+// 	 *
+// 	 * @code
+// 	 * // 典型调用场景（仿真完成通知）：
+// 	 * if (Datastore::EmailSet) {
+// 	 *     Datastore::EmailSet->SendEmail(
+// 	 *         "NREL_5MW 仿真完成",
+// 	 *         "仿真已于 2025-08-09 10:30 完成，结果已保存至 ./Result/",
+// 	 *         "engineer@example.com"
+// 	 *     );
+// 	 * }
+// 	 * @endcode
+// 	 */
+// 	virtual void SendEmail(const std::string &subject, const std::string &body, const std::string &to) = 0;
+// };
