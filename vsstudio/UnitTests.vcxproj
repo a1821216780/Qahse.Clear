@@ -95,7 +95,8 @@
     <ClInclude Include="..\src\IO\LogHelper.h" />
     <ClInclude Include="..\src\IO\Serializer.hpp" />
     <ClInclude Include="..\src\IO\Yaml.hpp" />
-    <ClInclude Include="..\src\WindL\WindL_IO_Subs.hpp" />
+    <ClInclude Include="..\src\WindL\WindL_Type.hpp" />
+    <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp" />
     <ClInclude Include="..\src\MBDL\MBDLInput.h" />
     <ClInclude Include="..\src\MBDL\MBDLTypes.h" />
     <ClInclude Include="..\src\Params.h" />

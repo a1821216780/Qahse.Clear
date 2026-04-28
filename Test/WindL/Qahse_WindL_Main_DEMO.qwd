@@ -1,0 +1,72 @@
+-- =============================================================================
+-- Qahse.WindL v1.0.0 .qwd 风场定义文件: von Kármán NTM 湍流 (IEC 61400-1 Ed.3)
+-- =============================================================================
+
+---------------------- WIndL 工作模式定义  --------------------------------
+0           Mode            - 模式: 0 生成风文件 或 1 读取风文件以供程序使用
+
+---------------------- 生成风文件的设置{used only Mode=1}  -----------------
+true        CalWu           - 是否计算纵向风场(false表示横向风速为0）3个方向不能同时为0，否则报错
+true        CalWv           - 是否计算横向风场(false表示横向风速为0）
+true        CalWw           - 是否计算垂向风场(false表示横向风速为0）
+true        WrBlwnd         - 写出Bladed .wnd 2进制风文件(used only Mode=0)
+true        WrTrbts         - 写出Turbsim .bts 2进制风文件(used only Mode=0)
+true        WrTrwnd         - 写出Turbsim .wnd 2进制风文件(used only Mode=0)
+
+---------------------- 读取风文件的设置{used only Mode=1}  -----------------
+0           VFlowAng        - 垂直入流角(deg){used only Blaed wnd}
+0           HFlowAng        - 水平入流角(deg){used only Blaed wnd}
+true        CycleWind       - 是否时域边界镜像循环（如果风文件时长小于仿真时间且循环设置为false时，仿真会直接报错)
+"E:\data\WindL_V_15_seed_1895701.wnd"   TurWindFile     - 风文件的路径: {必须包含文件拓展.wnd或者.bts,至于是Turbsim或者Bladed的风文件，系统会自动读取}
+0           InterpMethod    - 插值方法: {TRILINEAR=0;CUBIC=1}
+
+---------------------- 风场与风机参数 --------------------------------------
+2318573     RandSeed        - RandSeed1(-){c++ int类型 -2147483648 to 2147483647}
+36          NumPointY       - 水平网格点矩阵维度(-) 
+36          NumPointZ       - 垂直网格点矩阵维度(-)
+150         LenWidthY       - 水平网格宽度(m)
+150         LenHeightZ      - 垂直网格高度(m)
+660         WindDuration    - 分析时间序列的长度(s)
+0.05        TimeStep        - 时间步长(s) =1.0/fs(hz)
+84          HubHt           - 机舱轮毂高度(m)
+
+---------------------- 风场气象边界条件 ------------------------------------
+3           TurbModel       - 湍流风谱模型{IEC Kal=0;IEC VKal=1;B Mann = 2;B Kal=3;B vKal=4;B I-VKal=5;User Self Spectra=6;User Self wind Speed =7},只计算Calw*对应方向的谱
+"./Qahse_WindL_User_Defined_Spectra_DEMO.dat"          UserTurbFile    - 用户自定义谱或时间序列输入文件的文件名(必须包含文件拓展.dat文件) (used only TurbModel = 6 or 7)
+ture        UseIECSimmga    - 是否使用IEC来规范化自定义谱的湍流度,否则的话直接使用谱积分{used only TurbModel=6}
+1           IECStandard     - 标准版次:   {IEC 61400 ED2=0;IEC 61400 ED3=1;IEC 61400 ED4=2}
+1           IECClass        - 风力机等级: {I类=0;II类=1;III类=2;S类=3}
+1           TurbulenceClass - 湍流等级:   {A(高)=0;B(中)=1;C(低)=2;}
+1           WindModel       - 湍流风模型:{NTM=0;ETM=1;EWM1=2;EWM50=3;EOG=4;EDC=5;ECD=6;EWS=7} (used only TurbModel!=6 and 7 )
+0           ShearType       - 剪切类型: {PL(幂律)=0；LOG(对数)=1；用户自定义(参考高度处自动归一化=2}
+""          UserShearFile   - 用户自定义谱或时间序列输入文件的文件名(必须包含文件拓展.dat文件) (used only ShearType = 2)
+-1          RefHt           - 参考高度(m){IEC当中用来描述风廓线和风谱的重要参数，=-1时表示与HubHt相同，当与HubHt不同时会警告}
+11.4        MeanWindSpeed   - 参考高度处的平均风速(m/s)
+default     PLExp           - 幂律指数(-) ( used only ShearType=0 )
+default     Z0              - 地表粗糙度(s) ( used only ShearType=1 )
+
+---------------------- 符合 Bladed 风谱模型的参数 ---------------------------
+default     MannScalelength - 尺度长度由L = 0.8 Λ1 (Λ1 如IEC 61400‐1第 3版所定义)给出。当风机轮毂高度z>60m时,IEC第3版的推荐值为33.6m( used only TurbModel=2，4,5 )
+default     MannGamma       - 默认为IEC第3版的推荐值3.9( used only TurbModel=2 )
+default     MannMaxL        - 该值应明显大于转子直径,以避免在横向和垂直方向出现周期性。默认为尺度长度的8倍( used only TurbModel=2 )
+default     VxLu            - 湍流u方向的纵向长度尺度( used only TurbModel=3,4 and CalWu = true)
+default     VxLv            - 湍流v方向的纵向长度尺度( used only TurbModel=3,4 and CalWv = true)
+default     VxLw            - 湍流w方向的纵向长度尺度( used only TurbModel=3,4 and CalWw = true)
+default     VyLu            - 湍流u方向的横向长度尺度( used only TurbModel=4 and CalWu = true)
+default     VyLv            - 湍流v方向的横向长度尺度( used only TurbModel=4 and CalWv = true)
+default     VyLw            - 湍流w方向的横向长度尺度( used only TurbModel=4 and CalWw = true)
+default     VzLu            - 湍流u方向的垂向长度尺度( used only TurbModel=4 and CalWu = true)
+default     VzLv            - 湍流v方向的垂向长度尺度( used only TurbModel=4 and CalWv = true)
+default     VzLw            - 湍流w方向的垂向长度尺度( used only TurbModel=4 and CalWw = true)
+0.01        Roughness       - 地表粗糙度(m)( used only TurbModel=5 )
+
+---------------------- 相干系数模型参数 -------------------------------------
+# 需要注意的是Bladed系列的湍流风谱模型有对应的相干系数模型(当选择了default时，会自动选择对应的相干系数模型）
+default     CohMod1 - u-component coherence model ("GENERAL","IEC","default")
+default     CohMod2 - v-component coherence model ("GENERAL","IEC","default") 
+default     CohMod3 - w-component coherence model ("GENERAL","IEC","default")
+
+---------------------- 输出控制 --------------------------------------------
+./result    WrWndPath        - 风文件输出路径{used only Mode=0}
+"Test_Demo_wind" WrWndName           - 输出风文件名称
+true        SumPrint        - 风文件的对应描述文件,与WrWndName一致，只是拓展名不一样{used only Mode=0}

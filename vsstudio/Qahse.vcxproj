@@ -138,7 +138,6 @@
     <ClInclude Include="..\..\HawtC3\src\IO\IO\CheckError.h" />
     <ClInclude Include="..\..\HawtC3\src\IO\IO\Extensions.h" />
     <ClInclude Include="..\..\HawtC3\src\IO\IO\FileParser.h" />
-    <ClInclude Include="..\..\HawtC3\src\IO\IO\InputFileParser.h" />
     <ClInclude Include="..\..\HawtC3\src\IO\IO\magic_enum.hpp" />
     <ClInclude Include="..\..\HawtC3\src\IO\IO\MSExcel.h" />
     <ClInclude Include="..\..\HawtC3\src\IO\IO\OtherHelper.h" />
@@ -154,7 +153,8 @@
     <ClInclude Include="..\src\IO\LogHelper.h" />
     <ClInclude Include="..\src\IO\Serializer.hpp" />
     <ClInclude Include="..\src\IO\Yaml.hpp" />
-    <ClInclude Include="..\src\WindL\WindL_IO_Subs.hpp" />
+    <ClInclude Include="..\src\WindL\WindL_Type.hpp" />
+    <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp" />
     <ClInclude Include="..\src\Params.h" />
     <ClInclude Include="..\src\Math\IntegrationHelper.h" />
     <ClInclude Include="..\src\Math\Vec3.h" />

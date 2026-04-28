@@ -139,7 +139,10 @@
     <ClInclude Include="..\src\IO\Yaml.hpp">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\WindL\WindL_InputPar.hpp">
+    <ClInclude Include="..\src\WindL\WindL_Type.hpp">
+      <Filter>Header Files\WindL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp">
       <Filter>Header Files\WindL</Filter>
     </ClInclude>
     <ClInclude Include="..\src\MBDL\MBDLInput.h">

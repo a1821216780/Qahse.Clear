@@ -86,7 +86,10 @@
     <ClInclude Include="..\src\IO\Yaml.hpp">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\WindL\WindL_IO_Subs.hpp">
+    <ClInclude Include="..\src\WindL\WindL_Type.hpp">
+      <Filter>Header Files\WindL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp">
       <Filter>Header Files\WindL</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Params.h">
@@ -123,9 +126,6 @@
       <Filter>Header Files\IO</Filter>
     </ClInclude>
     <ClInclude Include="..\..\HawtC3\src\IO\IO\FileParser.h">
-      <Filter>Header Files\IO</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\HawtC3\src\IO\IO\InputFileParser.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
     <ClInclude Include="..\..\HawtC3\src\IO\IO\magic_enum.hpp">

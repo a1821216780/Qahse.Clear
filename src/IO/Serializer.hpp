@@ -1,237 +1,724 @@
-//**********************************************************************************************************************************
-// 许可证说明
-// 版权所有(C) 2021, 2025  赵子祯
-//
-// 根据 Boost 软件许可证 - 版本 1.0 - 2003年8月17日
-// 您不得使用此文件，除非符合许可证。
-// 您可以在以下网址获得许可证副本
-//
-//     http://www.hawtc.cn/licenses.txt
-//
-// 该软件按“原样”提供，不提供任何明示或暗示的保证，包括但不限于适销性、特定用途的适用性、所有权和非侵权。在任何情况下，版权持有人或任何分
-// 发软件的人都不对任何索赔、损害或其他责任负责，无论是在合同诉讼、侵权诉讼或其他诉讼中，还是在软件使用或其他交易中产生的。
-//
-//**********************************************************************************************************************************
-
-// ───────────────────────────────── File Info ─────────────────────────────────
-//
-// 该文件提供一个面向文本、YAML 和二进制文件的通用序列化基类，支持多种持久化格式和
-// 模式，适合配置文件和数据交换使用。
-//
-// ──────────────────────────────────────────────────────────────────────────────
-
 #pragma once
 
-#include <algorithm>
 #include <cctype>
-#include <cstdint>
-#include <filesystem>
-#include <fstream>
-#include <iomanip>
-#include <locale>
-#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
-#include <utility>
-#include <variant>
 #include <vector>
+
 #include <Eigen/Dense>
 
-#include "IO/ZPath.hpp"
-#include "IO/LogHelper.h"
+#include "IO/Yaml.hpp"
+#include "IO/ZFile.hpp"
 #include "IO/ZString.hpp"
 
-/**
- * @brief 面向文本、YAML 和二进制文件的通用序列化基类。
- *
- * Serializer 通过统一的 ReadOrWrite() 接口，把派生类成员映射到具体的存储格式，
- * 并支持以下场景：
- * - 关键字输入格式：保留原始行、注释与布局，适合人工编辑的配置文件。
- * - YAML：按层级键值方式读写，便于与外部工具互操作。
- * - 二进制：以带版本标识的紧凑格式保存结构化数据。
- *
- * 派生类只需要重写 SerializeFields()，并在其中对需要持久化的成员调用 ReadOrWrite()。
- *
- * \code
- * class DemoSerializer : public Serializer
- * {
- * public:
- *     int version = 0;
- *     std::string name;
- *
- *     void SerializeFields() override
- *     {
- *         ReadOrWrite("version", version);
- *         ReadOrWrite("name", name);
- *     }
- * };
- *
- * DemoSerializer serializer;
- * serializer.ReadTextFile("demo.qwd");
- * serializer.WriteYamlFile("demo.yaml");
- * \endcode
- */
 class Serializer
 {
 public:
-#pragma region 定义基本的类型
-    /**
-     * @brief 输入/输出模式。
-     */
-    enum class Mode
-    {
-        /// @brief 读取模式，表示正在从文件加载数据。
-        Read,
-        /// @brief 写入模式，表示正在准备数据以保存到文件。
-        Write
-    };
 
-    /**
-     * @brief 当前使用的持久化格式。
-     */
-    enum class Format
-    {
-        /// @brief 文本格式，保留原始行、注释与布局，适合人工编辑的配置文件。
-        KeywordInput,
-        /// @brief YAML 格式，按层级键值方式读写，便于与外部工具互操作。
-        Yaml,
-    };
+	enum class Mode
+	{
+		Read,
+		Write
+	};
 
-    /// @brief 获取当前模式。
-    /// @return 当前模式。
-    Mode GetMode() const
-    {
-        return mode;
-    }
+	enum class Format
+	{
+		KeywordInput,
+		Yaml
+	};
+
+	Serializer() = default;
+
+	explicit Serializer(const std::string &filePath, Format fmt)
+	{
+		if (fmt == Format::KeywordInput)
+			ReadTextFile(filePath);
+		else
+			ReadYamlFile(filePath);
+	}
+
+	Mode GetMode() const
+	{
+		return mode_;
+	}
+
+	void SetValueFirst(bool enabled)
+	{
+		valueFirst_ = enabled;
+	}
+
+	bool IsValueFirst() const
+	{
+		return valueFirst_;
+	}
+
+	void ReadTextFile(const std::string &path)
+	{
+		SetMode(Mode::Read, Format::KeywordInput);
+		inputLines_.clear();
+		inputIndex_.clear();
+
+		if (ZFile::Exists(path))
+		{
+			auto lines = ZFile::ReadAllLines(path);
+			if (!lines.empty())
+				lines[0] = ZString::RemoveUtf8Bom(lines[0]);
+			ParseKeywordLines(lines);
+		}
+
+		SerializeFields();
+	}
+
+	void WriteTextFile(const std::string &path)
+	{
+		SetMode(Mode::Write, Format::KeywordInput);
+		SerializeFields();
+
+		std::vector<std::string> outputLines;
+		outputLines.reserve(inputLines_.size());
+		for (const auto &line : inputLines_)
+			outputLines.push_back(line.raw);
+		ZFile::WriteAllLines(path, outputLines);
+	}
+
+	void ReadYamlFile(const std::string &path)
+	{
+		SetMode(Mode::Read, Format::Yaml);
+		yamlValues_.clear();
+		yamlOrder_.clear();
+
+		if (ZFile::Exists(path))
+		{
+			YML yaml(path);
+			for (const auto &node : yaml.nodeList)
+			{
+				const std::string key = yaml.GetNodeKey(node);
+				const std::string value = node->value.value_or("");
+				yamlValues_[key] = value;
+				yamlOrder_.push_back(key);
+			}
+		}
+
+		SerializeFields();
+	}
+
+	void WriteYamlFile(const std::string &path)
+	{
+		SetMode(Mode::Write, Format::Yaml);
+		yamlValues_.clear();
+		yamlOrder_.clear();
+
+		SerializeFields();
+
+		YML yaml;
+		for (const auto &key : yamlOrder_)
+			yaml.AddNode(key, yamlValues_.at(key));
+		if (!yamlOrder_.empty())
+			yaml.save(path);
+	}
+
+	template <typename E>
+	bool TryParseEnumToken(const std::string &token, E &value)
+	{
+		static_assert(std::is_enum_v<E>, "TryParseEnumToken requires enum type.");
+
+		try
+		{
+			value = ZString::StringToEnum<E>(token, true);
+			return true;
+		}
+		catch (...) {}
+
+		try
+		{
+			const auto numeric = ZString::StringTo<std::underlying_type_t<E>>(token);
+			auto parsed = magic_enum::enum_cast<E>(numeric);
+			if (parsed)
+			{
+				value = *parsed;
+				return true;
+			}
+		}
+		catch (...) {}
+
+		return false;
+	}
 
 protected:
-    /**
-     * @brief 切换内部模式和格式。
-     * @param nextMode 目标模式。
-     * @param nextFormat 目标格式。
-     */
-    void SetMode(Mode nextMode, Format nextFormat)
-    {
-        mode = nextMode;
-        format = nextFormat;
-    }
+	void SetMode(Mode mode, Format format)
+	{
+		mode_ = mode;
+		format_ = format;
+	}
 
-    /// @brief 判断当前是否处于读取模式。
-    /// @return 如果当前是读取模式则返回 true，否则返回 false。
-    bool IsReadMode() const
-    {
-        return mode == Mode::Read;
-    }
+	bool IsReadMode() const
+	{
+		return mode_ == Mode::Read;
+	}
 
-    /// @brief 获取当前格式。
-    /// @return 当前持久化格式。
-    Format GetFormat() const
-    {
-        return format;
-    }
+	Format GetFormat() const
+	{
+		return format_;
+	}
 
-    /**
-     * @brief 关键字输入文件中的原始行信息。用来在序列化时进行精确的行级读写，保留注释和布局。
-     *
-     * 该结构会保留原始文本、解析出的键值、注释以及参数标记，便于写回时保持
-     * 原始文件的布局和注释风格。
-     */
-    struct InputLine
-    {
-        /// @brief 原始整行文本。
-        std::string raw;
-        /// @brief 解析出的值 token。
-        std::string valueToken;
-        /// @brief 参数名。
-        std::string key;
-        /// @brief 行尾注释。
-        std::string comment;
-        /// @brief 是否是有效参数行。
-        bool isParameter = false;
-        /// @brief 读取时该值是否带引号。
-        bool wasQuoted = false;
-        /// @brief 原始引号字符。
-        char quote = '"';
+	void ReadOrWrite(const std::string &key, std::string &value)
+	{
+		if (IsReadMode())
+		{
+			const std::string token = ReadValue(key);
+			if (!token.empty() && !IsDefaultToken(token))
+				value = token;
+		}
+		else
+		{
+			WriteValue(key, value);
+		}
+	}
 
-        /// 对于一些高级的格式，例如多行矩阵或者多行向量其一般文本格式非常复杂，
-        /// 甚至可能包含多行，因此在解析时会将这些行合并成一个 InputLine 来处理，以便在写回时保持原始格式。
-    };
+	void ReadOrWrite(const std::string &key, bool &value)
+	{
+		if (IsReadMode())
+		{
+			const std::string token = ReadValue(key);
+			if (!token.empty() && !IsDefaultToken(token))
+				value = ParseBool(token);
+		}
+		else
+		{
+			WriteValue(key, FormatBool(value));
+		}
+	}
+
+	template <typename T, std::enable_if_t<std::is_arithmetic_v<T> && !std::is_same_v<T, bool>, int> = 0>
+	void ReadOrWrite(const std::string &key, T &value)
+	{
+		ReadOrWriteArithmetic(key, value);
+	}
+
+	template <typename E, std::enable_if_t<std::is_enum_v<E>, int> = 0>
+	void ReadOrWrite(const std::string &key, E &value)
+	{
+		if (IsReadMode())
+		{
+			const std::string token = ReadValue(key);
+			if (!token.empty() && !IsDefaultToken(token))
+			{
+				E parsed{};
+				if ( TryParseEnumToken(token, parsed))
+					value = parsed;
+			}
+		}
+		else
+		{
+			auto name = magic_enum::enum_name(value);
+			WriteValue(key, name.empty() ? std::to_string(static_cast<int>(value)) : std::string(name));
+		}
+	}
+
+	template <typename T>
+	void ReadOrWrite(const std::string &key, std::vector<T> &value)
+	{
+		if (IsReadMode())
+		{
+			const std::string token = ReadValue(key);
+			if (token.empty() || IsDefaultToken(token))
+				return;
+
+			if (GetFormat() == Format::Yaml)
+				ReadYamlVector(key, value);
+			else
+				ReadKeywordVector(token, value);
+		}
+		else
+		{
+			if (GetFormat() == Format::Yaml)
+				WriteValue(key, YML::ToYmlValueString(value));
+			else
+				WriteValue(key, VectorToKeywordString(value));
+		}
+	}
+
+	template <typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+	void ReadOrWrite(const std::string &key, Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols> &value)
+	{
+		using MatrixType = Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols>;
+
+		if (IsReadMode())
+		{
+			const std::string token = ReadValue(key);
+			if (token.empty() || IsDefaultToken(token))
+				return;
+
+			if (GetFormat() == Format::Yaml)
+				ReadYamlEigen(key, value);
+			else
+				ReadKeywordEigen(token, value);
+		}
+		else
+		{
+			if (GetFormat() == Format::Yaml)
+				WriteValue(key, YML::ToYmlValueString(value));
+			else
+				WriteValue(key, EigenToKeywordString(value));
+		}
+	}
+
+	virtual void SerializeFields()
+	{
+	}
 
 private:
+	struct InputLine
+	{
+		std::string raw;
+		std::string valueToken;
+		std::string key;
+		std::string comment;
+		bool isParameter = false;
+		bool wasQuoted = false;
+		char quote = '"';
+	};
 
-    /**
-     * @brief 文本分词结果。
-     * @note 用于解析关键字输入文件并保留 token 的原始跨度。
-     */
-    struct Token
-    {
-        /// @brief token 文本。
-        std::string text;
-        /// @brief token 起始位置。
-        std::size_t begin = 0;
-        /// @brief token 结束位置。
-        std::size_t end = 0;
-        /// @brief token 是否被引号包裹。
-        bool quoted = false;
-        /// @brief 引号字符。
-        char quote = '"';
-    };
+	struct Token
+	{
+		std::string text;
+		std::size_t begin = 0;
+		std::size_t end = 0;
+		bool quoted = false;
+		char quote = '"';
+	};
 
-#pragma endregion 定义基本的类型
+	Mode mode_ = Mode::Read;
+	Format format_ = Format::KeywordInput;
+	bool valueFirst_ = false;
+	std::vector<InputLine> inputLines_;
+	std::unordered_map<std::string, std::size_t> inputIndex_;
+	std::unordered_map<std::string, std::string> yamlValues_;
+	std::vector<std::string> yamlOrder_;
 
-#pragma region 类当中的局部变量
+	std::string ReadValue(const std::string &key) const
+	{
+		return format_ == Format::KeywordInput ? ReadKeywordToken(key) : ReadYamlValue(key);
+	}
 
-private:
-    /// @brief 当前运行模式。
-    Mode mode = Mode::Read;
-    /// @brief 当前序列化格式。
-    Format format = Format::KeywordInput;
-    /// @brief 关键字输入文件的解析结果。
-    std::vector<InputLine> inputLines;
-    /// @brief 关键字到输入行索引的映射。
-    std::unordered_map<std::string, std::size_t> inputIndex;
-    /// @brief YAML 键值缓存，键为完整层级路径。
-    std::unordered_map<std::string, std::string> yamlValues;
-    /// @brief YAML 输出顺序。
-    std::vector<std::string> yamlOrder;
-    /// @brief 二进制输出顺序。
-    std::vector<std::string> binaryOrder;
+	void WriteValue(const std::string &key, const std::string &value)
+	{
+		if (format_ == Format::KeywordInput)
+			WriteKeywordToken(key, value);
+		else
+			WriteYamlValue(key, value);
+	}
 
-#pragma endregion 类当中的局部变量
+	void ParseKeywordLines(const std::vector<std::string> &lines)
+	{
+		inputLines_.clear();
+		inputIndex_.clear();
 
-#pragma region 定义构造和析构函数
+		for (const auto &raw : lines)
+		{
+			InputLine line;
+			line.raw = raw;
 
-    /// @brief 构造一个默认以关键字输入格式工作的序列化器。
-    Serializer() = delete; // default;
+			const auto tokens = TokenizeLine(raw);
+			if (tokens.empty())
+			{
+				inputLines_.push_back(line);
+				continue;
+			}
 
-    /// @brief 直接定义一个构造函数，允许在创建时指定文件路径和格式
-    /// @param filePath 输入或输出文件路径；如果不为空，则会根据 fmt 自动调用对应的加载或保存方法。
-    /// @param fmt 指定的输出格式；根据该格式会调用对应的加载或保存方法。
-    Serializer(const std::string &filePath, const Format &fmt)
-    {
+			if (valueFirst_)
+			{
+				if (tokens.size() >= 2)
+				{
+					line.valueToken = tokens[0].text;
+					line.key = tokens[1].text;
+					line.wasQuoted = tokens[0].quoted;
+					line.quote = tokens[0].quote;
+				}
+				else
+				{
+					line.key = tokens[0].text;
+				}
+			}
+			else
+			{
+				line.key = tokens[0].text;
+				if (tokens.size() >= 2)
+				{
+					line.valueToken = tokens[1].text;
+					line.wasQuoted = tokens[1].quoted;
+					line.quote = tokens[1].quote;
+				}
+			}
 
-        this->mode = Mode::Read; // 先设置为读取模式以便调用加载方法
-        this->format = fmt;      // 设置格式后调用对应的加载方法
-    }
+			line.isParameter = !line.key.empty();
+			const std::size_t commentPos = FindCommentStart(raw);
+			if (commentPos != std::string::npos)
+				line.comment = ZString::Trim(raw.substr(commentPos));
 
-#pragma endregion 定义构造和析构函数
+			if (line.isParameter)
+				inputIndex_[Upper(line.key)] = inputLines_.size();
+			inputLines_.push_back(line);
+		}
+	}
 
+	std::size_t FindCommentStart(const std::string &line) const
+	{
+		bool inQuote = false;
+		char quote = '"';
+		for (std::size_t i = 0; i < line.size(); ++i)
+		{
+			const char ch = line[i];
+			if (inQuote)
+			{
+				if (ch == quote)
+					inQuote = false;
+				continue;
+			}
 
+			if (ch == '"' || ch == '\'')
+			{
+				inQuote = true;
+				quote = ch;
+			}
+			else if (ch == '#' || ch == '!')
+			{
+				return i;
+			}
+			else if (valueFirst_ && ch == '-' && i > 0 && std::isspace(static_cast<unsigned char>(line[i - 1])))
+			{
+				return i;
+			}
+		}
+		return std::string::npos;
+	}
 
+	std::vector<Token> TokenizeLine(const std::string &line) const
+	{
+		std::vector<Token> tokens;
+		std::size_t i = 0;
+		const std::size_t n = line.size();
 
-#pragma region 虚函数,需要继承来实现
-    /**
-     * @brief 派生类重写的字段序列化入口。
-     *
-     * 在读取或写入文件时会调用该函数。派生类应在此集中调用 ReadOrWrite()，
-     * 将所有需要持久化的成员映射到具体键名。
-     */
-    virtual void SerializeFields()
-    {
-    }
+		while (i < n && std::isspace(static_cast<unsigned char>(line[i])))
+			++i;
+		if (i >= n)
+			return tokens;
+		if (line[i] == '#' || line[i] == '!')
+			return tokens;
+		if (i + 1 < n && line[i] == '-' && line[i + 1] == '-')
+			return tokens;
 
-#pragma endregion 虚函数, 需要继承来实现
+		while (i < n)
+		{
+			while (i < n && (std::isspace(static_cast<unsigned char>(line[i])) || line[i] == '=' || line[i] == ':'))
+				++i;
+			if (i >= n || line[i] == '#' || line[i] == '!')
+				break;
+			if (line[i] == '-' && tokens.size() >= 2)
+				break;
+
+			Token token;
+			token.begin = i;
+			if (line[i] == '"' || line[i] == '\'')
+			{
+				token.quoted = true;
+				token.quote = line[i++];
+				token.begin = i;
+				while (i < n && line[i] != token.quote)
+					token.text.push_back(line[i++]);
+				token.end = i;
+				if (i < n)
+					++i;
+			}
+			else
+			{
+				while (i < n && !std::isspace(static_cast<unsigned char>(line[i])) &&
+				       line[i] != '=' && line[i] != ':' && line[i] != '#' && line[i] != '!')
+				{
+					if (line[i] == '-' && tokens.size() >= 2)
+						break;
+					token.text.push_back(line[i++]);
+				}
+				token.end = i;
+			}
+
+			if (!token.text.empty())
+				tokens.push_back(token);
+			if (tokens.size() >= 2)
+				break;
+		}
+
+		return tokens;
+	}
+
+	std::string ReadKeywordToken(const std::string &key) const
+	{
+		const auto it = inputIndex_.find(Upper(key));
+		return it == inputIndex_.end() ? std::string{} : inputLines_[it->second].valueToken;
+	}
+
+	void WriteKeywordToken(const std::string &key, const std::string &value)
+	{
+		const std::string upperKey = Upper(key);
+		const auto it = inputIndex_.find(upperKey);
+		if (it != inputIndex_.end())
+		{
+			auto &line = inputLines_[it->second];
+			const std::string formatted = FormatKeywordValue(value);
+			std::ostringstream out;
+			if (valueFirst_)
+				out << formatted << "\t" << line.key;
+			else
+				out << line.key << " = " << formatted;
+			if (!line.comment.empty())
+				out << "  " << line.comment;
+			line.raw = out.str();
+			line.valueToken = value;
+			return;
+		}
+
+		InputLine line;
+		line.key = key;
+		line.valueToken = value;
+		line.isParameter = true;
+
+		std::ostringstream out;
+		if (valueFirst_)
+			out << FormatKeywordValue(value) << "\t" << key;
+		else
+			out << key << " = " << FormatKeywordValue(value);
+		line.raw = out.str();
+
+		inputIndex_[upperKey] = inputLines_.size();
+		inputLines_.push_back(line);
+	}
+
+	static std::string FormatKeywordValue(const std::string &value)
+	{
+		const bool quote = value.empty() || value.find_first_of(" \t:=#!") != std::string::npos;
+		return quote ? ("\"" + value + "\"") : value;
+	}
+
+	std::string ReadYamlValue(const std::string &key) const
+	{
+		const auto it = yamlValues_.find(key);
+		return it == yamlValues_.end() ? std::string{} : it->second;
+	}
+
+	void WriteYamlValue(const std::string &key, const std::string &value)
+	{
+		if (yamlValues_.find(key) == yamlValues_.end())
+			yamlOrder_.push_back(key);
+		yamlValues_[key] = value;
+	}
+
+	template <typename T>
+	void ReadYamlVector(const std::string &key, std::vector<T> &value)
+	{
+		const std::string yamlValue = ReadYamlValue(key);
+		if (yamlValue.empty())
+			return;
+
+		try
+		{
+			if constexpr (std::is_same_v<T, bool>)
+				value = YML::YmlToBoolArray(yamlValue);
+			else if constexpr (std::is_same_v<T, int>)
+				value = YML::YmlToIntArray(yamlValue);
+			else if constexpr (std::is_same_v<T, double>)
+				value = YML::YmlToDoubleArray(yamlValue);
+			else if constexpr (std::is_same_v<T, float>)
+				value = YML::YmlToFloatArray(yamlValue);
+			else if constexpr (std::is_same_v<T, std::string>)
+				value = YML::YmlToStringArray(yamlValue);
+			else
+			{
+				auto tokens = yml_detail::splitScalarList(yamlValue);
+				value.clear();
+				value.reserve(tokens.size());
+				for (const auto &token : tokens)
+					value.push_back(ZString::StringTo<T>(token));
+			}
+		}
+		catch (...) {}
+	}
+
+	template <typename T>
+	static void ReadKeywordVector(const std::string &token, std::vector<T> &value)
+	{
+		value.clear();
+		std::string cleaned = token;
+		if (!cleaned.empty() && cleaned.front() == '[')
+			cleaned.erase(0, 1);
+		if (!cleaned.empty() && cleaned.back() == ']')
+			cleaned.pop_back();
+
+		auto tokens = ZString::Split(cleaned, ',');
+		for (auto &part : tokens)
+		{
+			part = ZString::Trim(part);
+			if (part.empty())
+				continue;
+			try { value.push_back(ZString::StringTo<T>(part)); }
+			catch (...) {}
+		}
+	}
+
+	template <typename T>
+	static std::string VectorToKeywordString(const std::vector<T> &value)
+	{
+		std::ostringstream out;
+		out << "[";
+		for (std::size_t i = 0; i < value.size(); ++i)
+		{
+			if (i != 0)
+				out << ", ";
+			if constexpr (std::is_same_v<T, std::string>)
+				out << "\"" << value[i] << "\"";
+			else if constexpr (std::is_same_v<T, bool>)
+				out << (value[i] ? "True" : "False");
+			else
+				out << value[i];
+		}
+		out << "]";
+		return out.str();
+	}
+
+	template <typename MatrixType>
+	static void ReadKeywordEigen(const std::string &token, MatrixType &value)
+	{
+		using Scalar = typename MatrixType::Scalar;
+		constexpr bool isColVector = MatrixType::ColsAtCompileTime == 1 && MatrixType::RowsAtCompileTime != 1;
+		constexpr bool isRowVector = MatrixType::RowsAtCompileTime == 1 && MatrixType::ColsAtCompileTime != 1;
+		try
+		{
+			if constexpr (isColVector || isRowVector)
+			{
+				auto vec = ZString::StringToEigen<Eigen::Matrix<Scalar, Eigen::Dynamic, 1>>(token);
+				value = vec.template cast<Scalar>();
+			}
+			else
+			{
+				std::size_t rowCount = 1;
+				for (char ch : token)
+				{
+					if (ch == ';' || ch == '\n')
+						++rowCount;
+				}
+				if constexpr (MatrixType::RowsAtCompileTime != Eigen::Dynamic)
+					rowCount = static_cast<std::size_t>(MatrixType::RowsAtCompileTime);
+				auto mat = ZString::StringToEigenMatrix<Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>>(token, rowCount);
+				value = mat;
+			}
+		}
+		catch (...) {}
+	}
+
+	template <typename MatrixType>
+	void ReadYamlEigen(const std::string &key, MatrixType &value)
+	{
+		const std::string yamlValue = ReadYamlValue(key);
+		if (yamlValue.empty())
+			return;
+
+		using Scalar = typename MatrixType::Scalar;
+		constexpr bool isColVector = MatrixType::ColsAtCompileTime == 1 && MatrixType::RowsAtCompileTime != 1;
+		constexpr bool isRowVector = MatrixType::RowsAtCompileTime == 1 && MatrixType::ColsAtCompileTime != 1;
+		try
+		{
+			if constexpr ((isColVector || isRowVector) && MatrixType::SizeAtCompileTime != Eigen::Dynamic)
+			{
+				auto vec = YML::YmlToVector(yamlValue);
+				value.resize(vec.size(), 1);
+				for (Eigen::Index i = 0; i < vec.size(); ++i)
+					value(static_cast<int>(i)) = static_cast<Scalar>(vec(i));
+			}
+			else
+			{
+				auto matrix = YML::YmlToMatrix(yamlValue);
+				value.resize(matrix.RowCount, matrix.ColumnCount);
+				for (int r = 0; r < matrix.RowCount; ++r)
+					for (int c = 0; c < matrix.ColumnCount; ++c)
+						value(r, c) = static_cast<Scalar>(matrix.data(r, c));
+			}
+		}
+		catch (...) {}
+	}
+
+	template <typename MatrixType>
+	static std::string EigenToKeywordString(const MatrixType &value)
+	{
+		std::ostringstream out;
+		if (value.rows() == 1 || value.cols() == 1)
+		{
+			for (Eigen::Index i = 0; i < value.size(); ++i)
+			{
+				if (i != 0)
+					out << ' ';
+				out << value(static_cast<int>(i));
+			}
+		}
+		else
+		{
+			for (Eigen::Index r = 0; r < value.rows(); ++r)
+			{
+				if (r != 0)
+					out << "; ";
+				for (Eigen::Index c = 0; c < value.cols(); ++c)
+				{
+					if (c != 0)
+						out << ' ';
+					out << value(r, c);
+				}
+			}
+		}
+		return out.str();
+	}
+
+	static bool IsDefaultToken(const std::string &token)
+	{
+		return Upper(token) == "DEFAULT";
+	}
+
+	static bool ParseBool(const std::string &token)
+	{
+		const std::string upper = Upper(ZString::Trim(token));
+		if (upper == "TRUE" || upper == "TURE" || upper == "1" || upper == "YES" || upper == "ON")
+			return true;
+		if (upper == "FALSE" || upper == "0" || upper == "NO" || upper == "OFF")
+			return false;
+		try { return ZString::StringToBool(token); }
+		catch (...) { return false; }
+	}
+
+	static std::string FormatBool(bool value)
+	{
+		return value ? "True" : "False";
+	}
+
+	static std::string Upper(const std::string &value)
+	{
+		return ZString::ToUpper(std::string(value));
+	}
+
+	template <typename T>
+	void ReadOrWriteArithmetic(const std::string &key, T &value)
+	{
+		if (IsReadMode())
+		{
+			const std::string token = ReadValue(key);
+			if (!token.empty() && !IsDefaultToken(token))
+			{
+				try { value = ZString::StringTo<T>(token); }
+				catch (...) {}
+			}
+		}
+		else
+		{
+			WriteValue(key, YML::ToYmlValueString(value));
+		}
+	}
 };

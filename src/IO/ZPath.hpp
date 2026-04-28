@@ -27,6 +27,8 @@
 #include <initializer_list>
 #include <string>
 
+#include "LogHelper.h"
+
 class ZPath
 {
 public:
@@ -277,6 +279,17 @@ public:
 		return std::filesystem::path(filePath);
 	}
 
+		/// @brief 解析相对于当前文件路径的路径。
+	static std::string ResolvePath(const std::string &baseFilePath,
+	                               const std::string &relative)
+	{
+		if (relative.empty()) return {};
+		std::filesystem::path base(baseFilePath);
+		std::filesystem::path rel(relative);
+		if (rel.is_absolute()) return relative;
+		return (base.parent_path() / rel).lexically_normal().string();
+	}
+
 #pragma region 兼容HawtC2之前版本的路径检查方法
 
 	/**
@@ -483,6 +496,8 @@ public:
 			Path = std::filesystem::absolute(Path).string(); ///< 绝对化路径
 		}
 	}
+
+
 
 #pragma endregion 兼容HawtC2之前版本的路径检查方法
 };

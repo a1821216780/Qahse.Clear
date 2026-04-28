@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__ide__getDiagnostics",
+      "Bash(cl /nologo /c /std:c++17 /I\"src\" /I\"include/eigen-3.4.1\" /EHsc _test_compile.cpp)",
+      "Bash(where cl.exe)",
+      "Read(//c/Program Files/**)",
+      "Bash(g++ --version)",
+      "Bash(cmd.exe /d /c \".vscode\\\\build_with_msvc_env.cmd\")",
+      "Bash(cmd.exe /d /c \"\".vscode\\\\build_with_msvc_env.cmd\" /EHsc /std:c++20 /Zc:__cplusplus /MDd /Zi /wd4251 /wd4275 /W3 /permissive- /FS /utf-8 /bigobj /Zm999 /DNOMINMAX /D_CRT_SECURE_NO_WARNINGS /DEIGEN_USE_MKL_ALL /nologo /I \"include/eigen-3.4.1\" /I \"include\" /I \"src\" /I \"Test\" /c \"Test/WindL/WindLIOTests.cpp\" /Fo\"build/test/obj/WindLIOTests.obj\" 2>&1\"\" | tail -40)",
+      "Bash(cmd.exe /d /c \"F:\\\\Qahse.Clear\\\\Test\\\\_build_windl_test.cmd\")",
+      "Bash(\"F:/Qahse.Clear/Test/_build_windl_test.cmd\")",
+      "Bash(cmd.exe /d /c \"F:\\\\Qahse.Clear\\\\Test\\\\_build_release_test.cmd\")",
+      "Bash(echo \"Exit: $?\")"
+    ]
+  }
+}
