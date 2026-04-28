@@ -1,0 +1,48 @@
+-- WindL SimWind demo: Bladed General Kaimal spectrum
+
+0           Mode
+3           TurbModel
+0           WindModel
+true        CalWu
+true        CalWv
+true        CalWw
+true        WrBlwnd
+true        WrTrbts
+true        WrTrwnd
+
+120031      RandSeed
+5           NumPointY
+5           NumPointZ
+60          LenWidthY
+60          LenHeightZ
+25.6        WindDuration
+0.2         TimeStep
+90          HubHt
+90          RefHt
+12.0        MeanWindSpeed
+0           ShearType
+0.16        PLExp
+1           IECStandard
+1           IECClass
+1           TurbulenceClass
+0           ScaleIEC
+
+default     VxLu
+default     VxLv
+default     VxLw
+default     VyLu
+default     VyLv
+default     VyLw
+default     VzLu
+default     VzLv
+default     VzLw
+default     CohMod1
+default     CohMod2
+default     CohMod3
+12.0        CohDecayU
+0           CohDecayV
+0           CohDecayW
+
+"./result"  WrWndPath
+"SimWind_Bladed_Kaimal" WrWndName
+true        SumPrint

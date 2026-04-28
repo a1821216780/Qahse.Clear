@@ -1,0 +1,178 @@
+{
+  "base": "demo\\WindL\\result\\SimWind_Bladed_Kaimal",
+  "checks": [
+    {
+      "name": "u_sigma_matches_sum_target",
+      "measured": 2.096437761187421,
+      "target": 2.044,
+      "relative_error": 0.025654481989931966,
+      "passed": true
+    },
+    {
+      "name": "v_sigma_matches_sum_target",
+      "measured": 1.635199544417124,
+      "target": 1.6352,
+      "relative_error": 2.786098801926633e-07,
+      "passed": true
+    },
+    {
+      "name": "w_sigma_matches_sum_target",
+      "measured": 1.022000288918694,
+      "target": 1.022,
+      "relative_error": 2.8269930927613416e-07,
+      "passed": true
+    },
+    {
+      "name": "bladed_u_normalized_unit_std",
+      "measured": 1.0000040971742237,
+      "target": 1.0,
+      "relative_error": 4.097174223671729e-06,
+      "passed": true
+    },
+    {
+      "name": "bladed_v_normalized_unit_std",
+      "measured": 0.9999969610633023,
+      "target": 1.0,
+      "relative_error": 3.0389366977301435e-06,
+      "passed": true
+    },
+    {
+      "name": "bladed_w_normalized_unit_std",
+      "measured": 1.0000027457770408,
+      "target": 1.0,
+      "relative_error": 2.745777040846775e-06,
+      "passed": true
+    }
+  ],
+  "plots": [
+    "demo\\WindL\\result\\SimWind_Bladed_Kaimal_validation\\SimWind_Bladed_Kaimal_hub_timeseries.png",
+    "demo\\WindL\\result\\SimWind_Bladed_Kaimal_validation\\SimWind_Bladed_Kaimal_u_first_plane.png",
+    "demo\\WindL\\result\\SimWind_Bladed_Kaimal_validation\\SimWind_Bladed_Kaimal_histograms.png"
+  ],
+  "sum": {
+    "stats": {
+      "u": {
+        "mean": 11.95322587,
+        "sigma": 2.096437718,
+        "ti_percent": 17.47031432
+      },
+      "v": {
+        "mean": 4.527628272e-17,
+        "sigma": 1.6352,
+        "ti_percent": 13.62666667
+      },
+      "w": {
+        "mean": -3.953868483e-17,
+        "sigma": 1.022,
+        "ti_percent": 8.516666667
+      }
+    },
+    "target_sigma": [
+      2.044,
+      1.6352,
+      1.022
+    ],
+    "warnings": []
+  },
+  "bts_header": {
+    "file_id": 7,
+    "nz": 5,
+    "ny": 5,
+    "ntwr": 0,
+    "nt": 128,
+    "dz": 15.0,
+    "dy": 15.0,
+    "dt": 0.20000000298023224,
+    "uhub": 12.0,
+    "hub_height": 90.0,
+    "zbottom": 60.0,
+    "description": "Qahse WindL SimWind"
+  },
+  "bts_stats": [
+    {
+      "mean": 11.95322631751707,
+      "sigma": 2.096437761187421,
+      "ti_percent": 17.47031467656184
+    },
+    {
+      "mean": -5.69444373113015e-07,
+      "sigma": 1.635199544417124,
+      "ti_percent": 13.6266628701427
+    },
+    {
+      "mean": -6.242000511802459e-07,
+      "sigma": 1.022000288918694,
+      "ti_percent": 8.51666907432245
+    }
+  ],
+  "bladed_wnd_header": {
+    "record1": -99,
+    "record2": 7,
+    "header_bytes": 92,
+    "ncomp": 3,
+    "nz": 5,
+    "ny": 5,
+    "nt": 128,
+    "dz": 15.0,
+    "dy": 15.0,
+    "dx": 2.4000000953674316,
+    "mean_wind": 12.0,
+    "length_scales": [
+      340.20001220703125,
+      340.20001220703125,
+      340.20001220703125,
+      113.4000015258789,
+      113.4000015258789,
+      113.4000015258789,
+      27.719999313354492,
+      27.719999313354492,
+      27.719999313354492
+    ],
+    "max_freq_or_unused": 2.5,
+    "seed": 120031
+  },
+  "bladed_wnd_normalized_stats": [
+    {
+      "mean": -3.1250000000149215e-06,
+      "sigma": 1.0000040971742237,
+      "ti_percent": 100.00040971742237
+    },
+    {
+      "mean": 7.187500000001012e-06,
+      "sigma": 0.9999969610633023,
+      "ti_percent": 99.99969610633023
+    },
+    {
+      "mean": -9.374999999955946e-07,
+      "sigma": 1.0000027457770408,
+      "ti_percent": 100.00027457770409
+    }
+  ],
+  "turbsim_compatible_wnd_header": {
+    "record1": -99,
+    "record2": 4,
+    "header_bytes": null,
+    "ncomp": 3,
+    "nz": 5,
+    "ny": 5,
+    "nt": 128,
+    "dz": 15.0,
+    "dy": 15.0,
+    "dx": 2.4000000953674316,
+    "mean_wind": 12.0,
+    "length_scales": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "max_freq_or_unused": 0.0,
+    "seed": 120031
+  },
+  "passed": true
+}

@@ -1,0 +1,38 @@
+-- WindL SimWind performance-only case.
+-- This file records the requested large-grid target. Current SimWind performs
+-- a strict-coherence preflight estimate and refuses this run by default.
+-- See SimWind_Performance_Assessment.md.
+
+0           Mode
+3           TurbModel
+0           WindModel
+true        CalWu
+true        CalWv
+true        CalWw
+true        WrBlwnd
+true        WrTrbts
+true        WrTrwnd
+
+2318573     RandSeed
+100         NumPointY
+100         NumPointZ
+150         LenWidthY
+150         LenHeightZ
+660         WindDuration
+0.05        TimeStep
+84          HubHt
+84          RefHt
+11.4        MeanWindSpeed
+0           ShearType
+0.2         PLExp
+1           IECStandard
+1           IECClass
+1           TurbulenceClass
+0           ScaleIEC
+default     CohMod1
+default     CohMod2
+default     CohMod3
+
+"./result"  WrWndPath
+"SimWind_LargeGrid_100x100_PERF_ONLY" WrWndName
+true        SumPrint

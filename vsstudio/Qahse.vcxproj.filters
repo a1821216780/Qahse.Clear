@@ -28,6 +28,9 @@
     <Filter Include="Header Files\WindL">
       <UniqueIdentifier>{A1B2C3D4-0001-0001-0001-000000000007}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\WindL">
+      <UniqueIdentifier>{A1B2C3D4-0001-0001-0001-000000000008}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp">
@@ -60,6 +63,9 @@
     <ClCompile Include="..\src\Math\Vec3f.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\WindL\SimWind.cpp">
+      <Filter>Source Files\WindL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\IO\Outfile.h">
@@ -87,6 +93,9 @@
       <Filter>Header Files\IO</Filter>
     </ClInclude>
     <ClInclude Include="..\src\WindL\WindL_Type.hpp">
+      <Filter>Header Files\WindL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WindL\SimWind.hpp">
       <Filter>Header Files\WindL</Filter>
     </ClInclude>
     <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp">

@@ -1,0 +1,48 @@
+-- WindL SimWind demo: Bladed improved von Karman spectrum
+
+0           Mode
+5           TurbModel
+0           WindModel
+true        CalWu
+true        CalWv
+true        CalWw
+true        WrBlwnd
+true        WrTrbts
+true        WrTrwnd
+
+120041      RandSeed
+5           NumPointY
+5           NumPointZ
+60          LenWidthY
+60          LenHeightZ
+25.6        WindDuration
+0.2         TimeStep
+90          HubHt
+90          RefHt
+12.0        MeanWindSpeed
+1           ShearType
+0.03        Z0
+1           IECStandard
+1           IECClass
+1           TurbulenceClass
+
+45.0        Latitude
+0.16        TI_u
+0.13        TI_v
+0.08        TI_w
+340.0       VxLu
+260.0       VxLv
+120.0       VxLw
+170.0       VyLu
+130.0       VyLv
+60.0        VyLw
+90.0        VzLu
+65.0        VzLv
+30.0        VzLw
+default     CohMod1
+default     CohMod2
+default     CohMod3
+
+"./result"  WrWndPath
+"SimWind_Bladed_ImprovedVonKarman" WrWndName
+true        SumPrint

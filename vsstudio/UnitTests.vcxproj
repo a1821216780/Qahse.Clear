@@ -64,7 +64,6 @@
     <ClCompile Include="..\src\IO\BinaryFileHandler.cpp" />
     <ClCompile Include="..\src\IO\MSExcel.cpp" />
     <ClCompile Include="..\src\IO\Outfile.cpp" />
-    <ClCompile Include="..\src\MBDL\MBDLInput.cpp" />
     <ClCompile Include="..\Test\IO\ZStringEnumTests.cpp" />
     <ClCompile Include="..\Test\IO\ZStringConvertTests.cpp" />
     <ClCompile Include="..\Test\IO\ZFileTests.cpp" />
@@ -77,11 +76,13 @@
     <ClCompile Include="..\Test\IO\OutfileTests.cpp" />
     <ClCompile Include="..\Test\IO\YamlTests.cpp" />
     <ClCompile Include="..\Test\WindL\WindLIOTests.cpp" />
+    <ClCompile Include="..\Test\WindL\SimWindTests.cpp" />
     <ClCompile Include="..\src\Math\Vec3.cpp" />
     <ClCompile Include="..\src\Math\Vec3f.cpp" />
     <ClCompile Include="..\src\Math\IntegrationHelper.cpp" />
     <ClCompile Include="..\src\Math\LinearAlgebraHelper.cpp" />
     <ClCompile Include="..\src\Math\FrequenceHelper.cpp" />
+    <ClCompile Include="..\src\WindL\SimWind.cpp" />
     <ClCompile Include="..\Test\Math\MathHelperTests.cpp" />
     <ClCompile Include="..\Test\Math\Vec3QuaternionTests.cpp" />
     <ClCompile Include="..\Test\Math\LinearAlgebraHelperTests.cpp" />
@@ -96,9 +97,8 @@
     <ClInclude Include="..\src\IO\Serializer.hpp" />
     <ClInclude Include="..\src\IO\Yaml.hpp" />
     <ClInclude Include="..\src\WindL\WindL_Type.hpp" />
+    <ClInclude Include="..\src\WindL\SimWind.hpp" />
     <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp" />
-    <ClInclude Include="..\src\MBDL\MBDLInput.h" />
-    <ClInclude Include="..\src\MBDL\MBDLTypes.h" />
     <ClInclude Include="..\src\Params.h" />
     <ClInclude Include="..\src\Math\IntegrationHelper.h" />
     <ClInclude Include="..\src\Math\Vec3.h" />

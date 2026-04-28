@@ -114,6 +114,7 @@ void ExpectWindLInputEqual(const WindLInput &expected, const WindLInput &actual)
 	EXPECT_FIELD_DOUBLE_EQ(hubHeight);
 	EXPECT_FIELD_DOUBLE_EQ(refHeight);
 	EXPECT_FIELD_EQ(shearType);
+	EXPECT_FIELD_EQ(windProfileType);
 	EXPECT_FIELD_DOUBLE_EQ(shearExp);
 	EXPECT_FIELD_DOUBLE_EQ(roughness);
 	EXPECT_FIELD_DOUBLE_EQ(horAngle);
@@ -133,6 +134,17 @@ void ExpectWindLInputEqual(const WindLInput &expected, const WindLInput &actual)
 	EXPECT_FIELD_EQ(interpMethod);
 	EXPECT_FIELD_EQ(userTurbFile);
 	EXPECT_FIELD_EQ(useIECSimmga);
+	EXPECT_FIELD_EQ(scaleIEC);
+	EXPECT_FIELD_DOUBLE_EQ(etmC);
+	EXPECT_FIELD_DOUBLE_EQ(usableTime);
+	EXPECT_FIELD_DOUBLE_EQ(analysisTime);
+	EXPECT_FIELD_DOUBLE_EQ(richardson);
+	EXPECT_FIELD_DOUBLE_EQ(uStar);
+	EXPECT_FIELD_DOUBLE_EQ(zOverL);
+	EXPECT_FIELD_DOUBLE_EQ(mixingLayerDepth);
+	EXPECT_FIELD_DOUBLE_EQ(reynoldsUW);
+	EXPECT_FIELD_DOUBLE_EQ(reynoldsUV);
+	EXPECT_FIELD_DOUBLE_EQ(reynoldsVW);
 	EXPECT_FIELD_DOUBLE_EQ(vkLu);
 	EXPECT_FIELD_DOUBLE_EQ(vkLv);
 	EXPECT_FIELD_DOUBLE_EQ(vkLw);
@@ -657,10 +669,13 @@ TEST(WindLIO_Boundary, DefaultWindLInputValues)
 	EXPECT_EQ(in.turbModel, TurbModel::IEC_KAIMAL);
 	EXPECT_EQ(in.windModel, WindModel::NTM);
 	EXPECT_EQ(in.shearType, ShearType::PL);
+	EXPECT_EQ(in.windProfileType, WindProfileType::DEFAULT_PROFILE);
 	// 数值默认值
 	EXPECT_DOUBLE_EQ(in.shearExp, 0.2);
 	EXPECT_DOUBLE_EQ(in.refHeight, -1.0);
 	EXPECT_DOUBLE_EQ(in.roughness, 0.01);
+	EXPECT_EQ(in.scaleIEC, -1);
+	EXPECT_DOUBLE_EQ(in.etmC, 2.0);
 	// 开关默认值
 	EXPECT_TRUE(in.calWu);
 	EXPECT_TRUE(in.calWv);

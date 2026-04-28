@@ -1,0 +1,41 @@
+-- WindL SimWind demo: Bladed Mann header with SimWind strict-coherence synthesis
+
+0           Mode
+2           TurbModel
+0           WindModel
+true        CalWu
+true        CalWv
+true        CalWw
+true        WrBlwnd
+true        WrTrbts
+true        WrTrwnd
+
+120051      RandSeed
+50           NumPointY
+50           NumPointZ
+60          LenWidthY
+60          LenHeightZ
+660.6        WindDuration
+0.05         TimeStep
+90          HubHt
+90          RefHt
+12.0        MeanWindSpeed
+0           ShearType
+0.16        PLExp
+1           IECStandard
+1           IECClass
+1           TurbulenceClass
+
+33.6        MannScalelength
+3.9         MannGamma
+268.8       MannMaxL
+128         MannNx
+64          MannNy
+64          MannNz
+default     CohMod1
+default     CohMod2
+default     CohMod3
+
+"./result"  WrWndPath
+"SimWind_Mann" WrWndName
+true        SumPrint

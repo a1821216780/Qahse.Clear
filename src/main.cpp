@@ -35,6 +35,7 @@
 #include "io/ZConsole.hpp"
 #include "io/LogHelper.h"
 #include "io/ZString.hpp"
+#include "WindL/SimWind.hpp"
 
 #ifdef _WIN32
 
@@ -85,7 +86,9 @@ int main(int argc, char *argv[])
 
         // 对argc, char *argv进行赋值
         ZConsole::Write(" >");
-        auto cmds = ZString::Split(ZConsole::ReadLine(), ' ', true);
+        std::string line;
+        std::getline(std::cin, line);
+        auto cmds = ZString::Split(line, ' ', true);
         argc = cmds.size() + 1;
         argv = new char *[argc];
         for (size_t i = 1; i < argc; i++)
@@ -95,6 +98,42 @@ int main(int argc, char *argv[])
         }
     }
 
+
+    for (int i = 1; i < argc; ++i)
+    {
+        const std::string arg = argv[i] ? argv[i] : "";
+        if (arg == "--qwd")
+        {
+            if (i + 1 >= argc)
+            {
+                std::cerr << "--qwd requires a .qwd file path\n";
+                return 2;
+            }
+
+            try
+            {
+                std::cout << " Running WindL SimWind with input file \"" << argv[i + 1] << "\".\n" << std::flush;
+                const auto result = SimWind::GenerateFromFile(argv[i + 1], [](const std::string &message) {
+                    std::cout << message << std::endl;
+                });
+                std::cout << "SimWind generated wind files:\n";
+                if (!result.btsPath.empty())
+                    std::cout << "  BTS: " << result.btsPath << "\n";
+                if (!result.bladedWndPath.empty())
+                    std::cout << "  Bladed WND: " << result.bladedWndPath << "\n";
+                if (!result.turbsimWndPath.empty())
+                    std::cout << "  TurbSim-compatible WND: " << result.turbsimWndPath << "\n";
+                if (!result.sumPath.empty())
+                    std::cout << "  SUM: " << result.sumPath << "\n";
+                return 0;
+            }
+            catch (const std::exception &ex)
+            {
+                std::cerr << "SimWind failed: " << ex.what() << "\n";
+                return 1;
+            }
+        }
+    }
 
     return 0;
 }

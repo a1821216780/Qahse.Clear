@@ -15,9 +15,6 @@
     <Filter Include="Source Files\Math">
       <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000002}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\MBDL">
-      <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000003}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\WindL">
       <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000004}</UniqueIdentifier>
     </Filter>
@@ -26,9 +23,6 @@
     </Filter>
     <Filter Include="Header Files\Math">
       <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000006}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\MBDL">
-      <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000007}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\WindL">
       <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000008}</UniqueIdentifier>
@@ -49,9 +43,6 @@
     </ClCompile>
     <ClCompile Include="..\src\IO\Outfile.cpp">
       <Filter>Source Files\IO</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\MBDL\MBDLInput.cpp">
-      <Filter>Source Files\MBDL</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Math\Vec3.cpp">
       <Filter>Source Files\Math</Filter>
@@ -104,6 +95,9 @@
     <ClCompile Include="..\Test\WindL\WindLIOTests.cpp">
       <Filter>Source Files\WindL</Filter>
     </ClCompile>
+    <ClCompile Include="..\Test\WindL\SimWindTests.cpp">
+      <Filter>Source Files\WindL</Filter>
+    </ClCompile>
     <ClCompile Include="..\Test\Math\MathHelperTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -112,6 +106,9 @@
     </ClCompile>
     <ClCompile Include="..\Test\Math\LinearAlgebraHelperTests.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\WindL\SimWind.cpp">
+      <Filter>Source Files\WindL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -142,14 +139,11 @@
     <ClInclude Include="..\src\WindL\WindL_Type.hpp">
       <Filter>Header Files\WindL</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp">
+    <ClInclude Include="..\src\WindL\SimWind.hpp">
       <Filter>Header Files\WindL</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\MBDL\MBDLInput.h">
-      <Filter>Header Files\MBDL</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\MBDL\MBDLTypes.h">
-      <Filter>Header Files\MBDL</Filter>
+    <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp">
+      <Filter>Header Files\WindL</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Params.h">
       <Filter>Header Files</Filter>

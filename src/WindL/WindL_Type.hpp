@@ -65,7 +65,8 @@ enum class WindModel
 	EOG = 4,   ///< Extreme Operating Gust
 	EDC = 5,   ///< Extreme Direction Change
 	ECD = 6,   ///< Extreme Coherent Gust with Direction Change
-	EWS = 7	   ///< Extreme Wind Shear
+	EWS = 7,   ///< Extreme Wind Shear
+	UNIFORM = 8 ///< Steady uniform wind without turbulence
 };
 
 /// @brief IEC 标准版次
@@ -99,6 +100,16 @@ enum class ShearType
 	PL = 0,	 ///< 幂律 (Power Law)
 	LOG = 1, ///< 对数律 (Logarithmic)
 	USER = 2 ///< 用户自定义
+};
+
+/// @brief TurbSim-style wind profile selector used by SimWind.
+enum class WindProfileType
+{
+	DEFAULT_PROFILE = 0,
+	IEC = 1,
+	PL = 2,
+	LOG = 3,
+	USER = 4
 };
 
 /// @brief 生成方法
@@ -184,6 +195,7 @@ struct WindLInput
 	double hubHeight = 0.0;
 	double refHeight = -1.0; // -1 表示与 HubHt 相同
 	ShearType shearType = ShearType::PL;
+	WindProfileType windProfileType = WindProfileType::DEFAULT_PROFILE;
 	double shearExp = 0.2;	 // 默认幂律指数
 	double roughness = 0.01; // 地表粗糙度 (m)
 	double horAngle = 0.0;
@@ -209,6 +221,17 @@ struct WindLInput
 	// ---- 用户自定义谱/时间序列文件 ----
 	std::string userTurbFile; // 用户自定义谱或时间序列 .dat 文件路径
 	bool useIECSimmga = false;
+	int scaleIEC = -1; // -1 derives from UseIECSimmga; 0/1/2 follow TurbSim ScaleIEC.
+	double etmC = 2.0;
+	double usableTime = 0.0;
+	double analysisTime = 0.0;
+	double richardson = 0.0;
+	double uStar = 0.0;
+	double zOverL = 0.0;
+	double mixingLayerDepth = 0.0;
+	double reynoldsUW = 0.0;
+	double reynoldsUV = 0.0;
+	double reynoldsVW = 0.0;
 
 	// ---- von Kármán / Bladed 纵向 (x) 长度尺度 (default 表示由程序根据标准计算) ----
 	double vkLu = 0.0;
