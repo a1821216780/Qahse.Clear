@@ -82,13 +82,13 @@ namespace windl_io_detail
 	{
 		if (input.windModel == WindModel::EWM1)
 		{
-			input.ewmReturn = 1;
-			input.ewmType = EWMType::Turbulent;
+			if (input.ewmReturn <= 0)
+				input.ewmReturn = 1;
 		}
 		else if (input.windModel == WindModel::EWM50)
 		{
-			input.ewmReturn = 50;
-			input.ewmType = EWMType::Turbulent;
+			if (input.ewmReturn <= 0)
+				input.ewmReturn = 50;
 		}
 	}
 

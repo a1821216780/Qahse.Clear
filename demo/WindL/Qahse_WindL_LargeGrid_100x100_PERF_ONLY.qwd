@@ -1,6 +1,6 @@
 -- WindL SimWind performance-only case.
 -- This file records the requested large-grid target. Current SimWind performs
--- a strict-coherence preflight estimate and refuses this run by default.
+-- a preflight estimate, continues the run, and reports measured progress/ETA.
 -- See SimWind_Performance_Assessment.md.
 
 0           Mode

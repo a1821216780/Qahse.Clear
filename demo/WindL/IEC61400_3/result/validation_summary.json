@@ -1,0 +1,2486 @@
+{
+  "passed": true,
+  "elapsed_seconds": 40.76841650001006,
+  "case_count": 16,
+  "failed_cases": [],
+  "overview_plot": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\iec61400_3_hub_sigma_overview.png",
+  "cases": [
+    {
+      "base": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\IEC3_NTM_IECKAI",
+      "checks": [
+        {
+          "name": "u_sigma_matches_sum_target",
+          "measured": 2.1276899785254684,
+          "target": 2.044,
+          "relative_error": 0.04094421649973989,
+          "passed": true
+        },
+        {
+          "name": "v_sigma_matches_sum_target",
+          "measured": 1.6482334793412603,
+          "target": 1.6352,
+          "relative_error": 0.007970572004195396,
+          "passed": true
+        },
+        {
+          "name": "w_sigma_matches_sum_target",
+          "measured": 1.0253065038177935,
+          "target": 1.022,
+          "relative_error": 0.003235326631891894,
+          "passed": true
+        },
+        {
+          "name": "bladed_u_normalized_unit_std",
+          "measured": 1.0000084382376402,
+          "target": 1.0,
+          "relative_error": 8.438237640184809e-06,
+          "passed": true
+        },
+        {
+          "name": "bladed_v_normalized_unit_std",
+          "measured": 1.0000058327937313,
+          "target": 1.0,
+          "relative_error": 5.832793731341823e-06,
+          "passed": true
+        },
+        {
+          "name": "bladed_w_normalized_unit_std",
+          "measured": 1.0000019040276795,
+          "target": 1.0,
+          "relative_error": 1.9040276795223576e-06,
+          "passed": true
+        },
+        {
+          "name": "u_hub_sigma_matches_target",
+          "measured": 2.0440029286236996,
+          "target": 2.044,
+          "relative_error": 1.4327904596622329e-06,
+          "passed": true
+        },
+        {
+          "name": "v_hub_sigma_matches_target",
+          "measured": 1.6352080190763225,
+          "target": 1.6352,
+          "relative_error": 4.904033954580252e-06,
+          "passed": true
+        },
+        {
+          "name": "w_hub_sigma_matches_target",
+          "measured": 1.022007276070512,
+          "target": 1.022,
+          "relative_error": 7.119442770914502e-06,
+          "passed": true
+        }
+      ],
+      "plots": [
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_NTM_IECKAI_hub_timeseries.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_NTM_IECKAI_u_first_plane.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_NTM_IECKAI_histograms.png"
+      ],
+      "sum": {
+        "stats": {
+          "u": {
+            "mean": 12.16293331,
+            "sigma": 2.127689141,
+            "ti_percent": 17.73074284
+          },
+          "v": {
+            "mean": 1.040834086e-18,
+            "sigma": 1.648234797,
+            "ti_percent": 13.73528997
+          },
+          "w": {
+            "mean": 1.977584763e-17,
+            "sigma": 1.025306541,
+            "ti_percent": 8.544221177
+          }
+        },
+        "target_sigma": [
+          2.044,
+          1.6352,
+          1.022
+        ],
+        "warnings": []
+      },
+      "bts_header": {
+        "file_id": 7,
+        "nz": 5,
+        "ny": 5,
+        "ntwr": 0,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dt": 0.20000000298023224,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": 63.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "bts_stats": [
+        {
+          "mean": 12.162933194017615,
+          "sigma": 2.1276899785254684,
+          "ti_percent": 17.73074982104557
+        },
+        {
+          "mean": -5.668638755995659e-07,
+          "sigma": 1.6482334793412603,
+          "ti_percent": 13.735278994510502
+        },
+        {
+          "mean": 2.0909314964789872e-07,
+          "sigma": 1.0253065038177935,
+          "ti_percent": 8.54422086514828
+        }
+      ],
+      "bladed_wnd_header": {
+        "record1": -99,
+        "record2": 5,
+        "header_bytes": null,
+        "ncomp": 3,
+        "nz": 5,
+        "ny": 5,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dx": 2.4000000953674316,
+        "mean_wind": 12.0,
+        "length_scales": [
+          340.20001220703125,
+          340.20001220703125,
+          340.20001220703125,
+          113.4000015258789,
+          113.4000015258789,
+          113.4000015258789,
+          27.719999313354492,
+          27.719999313354492,
+          27.719999313354492
+        ],
+        "max_freq_or_unused": 2.5,
+        "seed": 260429
+      },
+      "bladed_wnd_normalized_stats": [
+        {
+          "mean": -1.8124999999997727e-05,
+          "sigma": 1.0000084382376402,
+          "ti_percent": 100.00084382376401
+        },
+        {
+          "mean": 1.875000000004512e-06,
+          "sigma": 1.0000058327937313,
+          "ti_percent": 100.00058327937313
+        },
+        {
+          "mean": 8.124999999994387e-06,
+          "sigma": 1.0000019040276795,
+          "ti_percent": 100.00019040276796
+        }
+      ],
+      "passed": true,
+      "run": {
+        "qwd": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_NTM_IECKAI.qwd",
+        "skipped": false,
+        "returncode": 0,
+        "elapsed_seconds": 2.19619019998936,
+        "stdout_tail": "lapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n    v-component matrices (uncorrelated spatial phases).\n      frequency progress 0% (ETA unknown until first block completes).\n      frequency progress 3%, elapsed 0s, ETA 0s.\n      frequency progress 10%, elapsed 0s, ETA 0s.\n      frequency progress 19%, elapsed 0s, ETA 0s.\n      frequency progress 29%, elapsed 0s, ETA 0s.\n      frequency progress 39%, elapsed 0s, ETA 0s.\n      frequency progress 48%, elapsed 0s, ETA 0s.\n      frequency progress 58%, elapsed 0s, ETA 0s.\n      frequency progress 68%, elapsed 0s, ETA 0s.\n      frequency progress 77%, elapsed 0s, ETA 0s.\n      frequency progress 87%, elapsed 0s, ETA 0s.\n      frequency progress 97%, elapsed 0s, ETA 0s.\n      frequency progress 100%, elapsed 0s, ETA 0s.\n      FFTW batch inverse transform for all grid points.\n      FFTW batch inverse transform complete in 0s.\n      copy-out progress 2%, elapsed 0s, ETA 0s.\n      copy-out progress 9%, elapsed 0s, ETA 0s.\n      copy-out progress 19%, elapsed 0s, ETA 0s.\n      copy-out progress 28%, elapsed 0s, ETA 0s.\n      copy-out progress 38%, elapsed 0s, ETA 0s.\n      copy-out progress 47%, elapsed 0s, ETA 0s.\n      copy-out progress 56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n    w-component matrices (uncorrelated spatial phases).\n      frequency progress 0% (ETA unknown until first block completes).\n      frequency progress 3%, elapsed 0s, ETA 0s.\n      frequency progress 10%, elapsed 0s, ETA 0s.\n      frequency progress 19%, elapsed 0s, ETA 0s.\n      frequency progress 29%, elapsed 0s, ETA 0s.\n      frequency progress 39%, elapsed 0s, ETA 0s.\n      frequency progress 48%, elapsed 0s, ETA 0s.\n      frequency progress 58%, elapsed 0s, ETA 0s.\n      frequency progress 68%, elapsed 0s, ETA 0s.\n      frequency progress 77%, elapsed 0s, ETA 0s.\n      frequency progress 87%, elapsed 0s, ETA 0s.\n      frequency progress 97%, elapsed 0s, ETA 0s.\n      frequency progress 100%, elapsed 0s, ETA 0s.\n      FFTW batch inverse transform for all grid points.\n      FFTW batch inverse transform complete in 0s.\n      copy-out progress 2%, elapsed 0s, ETA 0s.\n      copy-out progress 9%, elapsed 0s, ETA 0s.\n      copy-out progress 19%, elapsed 0s, ETA 0s.\n      copy-out progress 28%, elapsed 0s, ETA 0s.\n      copy-out progress 38%, elapsed 0s, ETA 0s.\n      copy-out progress 47%, elapsed 0s, ETA 0s.\n      copy-out progress 56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n Generating time series for all points.\n Applying mean wind profile and IEC event shape.\n Computing generated-field statistics.\n Writing requested wind output files.\n Generating AeroDyn/TurbSim binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_NTM_IECKAI.bts\".\n Generating Bladed binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_NTM_IECKAI.wnd\".\n Writing statistics to summary file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_NTM_IECKAI.sum\".\n Processing complete. 0.27 CPU seconds used.\nSimWind generated wind files:\n  BTS: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_NTM_IECKAI.bts\n  Bladed WND: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_NTM_IECKAI.wnd\n  SUM: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_NTM_IECKAI.sum\n",
+        "stderr_tail": ""
+      },
+      "bts_hub_stats": {
+        "u_sigma": 2.0440029286236996,
+        "v_sigma": 1.6352080190763225,
+        "w_sigma": 1.022007276070512,
+        "u_mean": 11.749776913112402
+      }
+    },
+    {
+      "base": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\IEC3_ETM_IECKAI",
+      "checks": [
+        {
+          "name": "u_sigma_matches_sum_target",
+          "measured": 3.1625936014321696,
+          "target": 3.12256,
+          "relative_error": 0.012820762909974382,
+          "passed": true
+        },
+        {
+          "name": "v_sigma_matches_sum_target",
+          "measured": 2.517958876811833,
+          "target": 2.498048,
+          "relative_error": 0.007970574149028856,
+          "passed": true
+        },
+        {
+          "name": "w_sigma_matches_sum_target",
+          "measured": 1.5663312661526325,
+          "target": 1.56128,
+          "relative_error": 0.003235336488414965,
+          "passed": true
+        },
+        {
+          "name": "bladed_u_normalized_unit_std",
+          "measured": 0.9999922858747383,
+          "target": 1.0,
+          "relative_error": 7.714125261681914e-06,
+          "passed": true
+        },
+        {
+          "name": "bladed_v_normalized_unit_std",
+          "measured": 1.0000058327937313,
+          "target": 1.0,
+          "relative_error": 5.832793731341823e-06,
+          "passed": true
+        },
+        {
+          "name": "bladed_w_normalized_unit_std",
+          "measured": 1.0000019040276795,
+          "target": 1.0,
+          "relative_error": 1.9040276795223576e-06,
+          "passed": true
+        },
+        {
+          "name": "u_hub_sigma_matches_target",
+          "measured": 3.1225581965146145,
+          "target": 3.12256,
+          "relative_error": 5.775662871094479e-07,
+          "passed": true
+        },
+        {
+          "name": "v_hub_sigma_matches_target",
+          "measured": 2.498060255827767,
+          "target": 2.498048,
+          "relative_error": 4.906161838089464e-06,
+          "passed": true
+        },
+        {
+          "name": "w_hub_sigma_matches_target",
+          "measured": 1.5612912038262081,
+          "target": 1.56128,
+          "relative_error": 7.176051834467301e-06,
+          "passed": true
+        }
+      ],
+      "plots": [
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_ETM_IECKAI_hub_timeseries.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_ETM_IECKAI_u_first_plane.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_ETM_IECKAI_histograms.png"
+      ],
+      "sum": {
+        "stats": {
+          "u": {
+            "mean": 12.16293331,
+            "sigma": 3.162588868,
+            "ti_percent": 26.35490723
+          },
+          "v": {
+            "mean": -8.902600879e-17,
+            "sigma": 2.517960884,
+            "ti_percent": 20.98300737
+          },
+          "w": {
+            "mean": 1.051936316e-16,
+            "sigma": 1.566331308,
+            "ti_percent": 13.0527609
+          }
+        },
+        "target_sigma": [
+          3.12256,
+          2.498048,
+          1.56128
+        ],
+        "warnings": []
+      },
+      "bts_header": {
+        "file_id": 7,
+        "nz": 5,
+        "ny": 5,
+        "ntwr": 0,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dt": 0.20000000298023224,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": 63.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "bts_stats": [
+        {
+          "mean": 12.162932708418925,
+          "sigma": 3.1625936014321696,
+          "ti_percent": 26.35494667860141
+        },
+        {
+          "mean": -8.659816375811147e-07,
+          "sigma": 2.517958876811833,
+          "ti_percent": 20.98299064009861
+        },
+        {
+          "mean": 2.2276726785008805e-07,
+          "sigma": 1.5663312661526325,
+          "ti_percent": 13.052760551271938
+        }
+      ],
+      "bladed_wnd_header": {
+        "record1": -99,
+        "record2": 5,
+        "header_bytes": null,
+        "ncomp": 3,
+        "nz": 5,
+        "ny": 5,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dx": 2.4000000953674316,
+        "mean_wind": 12.0,
+        "length_scales": [
+          340.20001220703125,
+          340.20001220703125,
+          340.20001220703125,
+          113.4000015258789,
+          113.4000015258789,
+          113.4000015258789,
+          27.719999313354492,
+          27.719999313354492,
+          27.719999313354492
+        ],
+        "max_freq_or_unused": 2.5,
+        "seed": 260429
+      },
+      "bladed_wnd_normalized_stats": [
+        {
+          "mean": 8.124999999949979e-06,
+          "sigma": 0.9999922858747383,
+          "ti_percent": 99.99922858747384
+        },
+        {
+          "mean": 1.875000000004512e-06,
+          "sigma": 1.0000058327937313,
+          "ti_percent": 100.00058327937313
+        },
+        {
+          "mean": 8.124999999994387e-06,
+          "sigma": 1.0000019040276795,
+          "ti_percent": 100.00019040276796
+        }
+      ],
+      "passed": true,
+      "run": {
+        "qwd": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_ETM_IECKAI.qwd",
+        "skipped": false,
+        "returncode": 0,
+        "elapsed_seconds": 0.4591083000123035,
+        "stdout_tail": "lapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n    v-component matrices (uncorrelated spatial phases).\n      frequency progress 0% (ETA unknown until first block completes).\n      frequency progress 3%, elapsed 0s, ETA 0s.\n      frequency progress 10%, elapsed 0s, ETA 0s.\n      frequency progress 19%, elapsed 0s, ETA 0s.\n      frequency progress 29%, elapsed 0s, ETA 0s.\n      frequency progress 39%, elapsed 0s, ETA 0s.\n      frequency progress 48%, elapsed 0s, ETA 0s.\n      frequency progress 58%, elapsed 0s, ETA 0s.\n      frequency progress 68%, elapsed 0s, ETA 0s.\n      frequency progress 77%, elapsed 0s, ETA 0s.\n      frequency progress 87%, elapsed 0s, ETA 0s.\n      frequency progress 97%, elapsed 0s, ETA 0s.\n      frequency progress 100%, elapsed 0s, ETA 0s.\n      FFTW batch inverse transform for all grid points.\n      FFTW batch inverse transform complete in 0s.\n      copy-out progress 2%, elapsed 0s, ETA 0s.\n      copy-out progress 9%, elapsed 0s, ETA 0s.\n      copy-out progress 19%, elapsed 0s, ETA 0s.\n      copy-out progress 28%, elapsed 0s, ETA 0s.\n      copy-out progress 38%, elapsed 0s, ETA 0s.\n      copy-out progress 47%, elapsed 0s, ETA 0s.\n      copy-out progress 56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n    w-component matrices (uncorrelated spatial phases).\n      frequency progress 0% (ETA unknown until first block completes).\n      frequency progress 3%, elapsed 0s, ETA 0s.\n      frequency progress 10%, elapsed 0s, ETA 0s.\n      frequency progress 19%, elapsed 0s, ETA 0s.\n      frequency progress 29%, elapsed 0s, ETA 0s.\n      frequency progress 39%, elapsed 0s, ETA 0s.\n      frequency progress 48%, elapsed 0s, ETA 0s.\n      frequency progress 58%, elapsed 0s, ETA 0s.\n      frequency progress 68%, elapsed 0s, ETA 0s.\n      frequency progress 77%, elapsed 0s, ETA 0s.\n      frequency progress 87%, elapsed 0s, ETA 0s.\n      frequency progress 97%, elapsed 0s, ETA 0s.\n      frequency progress 100%, elapsed 0s, ETA 0s.\n      FFTW batch inverse transform for all grid points.\n      FFTW batch inverse transform complete in 0s.\n      copy-out progress 2%, elapsed 0s, ETA 0s.\n      copy-out progress 9%, elapsed 0s, ETA 0s.\n      copy-out progress 19%, elapsed 0s, ETA 0s.\n      copy-out progress 28%, elapsed 0s, ETA 0s.\n      copy-out progress 38%, elapsed 0s, ETA 0s.\n      copy-out progress 47%, elapsed 0s, ETA 0s.\n      copy-out progress 56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n Generating time series for all points.\n Applying mean wind profile and IEC event shape.\n Computing generated-field statistics.\n Writing requested wind output files.\n Generating AeroDyn/TurbSim binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_ETM_IECKAI.bts\".\n Generating Bladed binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_ETM_IECKAI.wnd\".\n Writing statistics to summary file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_ETM_IECKAI.sum\".\n Processing complete. 0.26 CPU seconds used.\nSimWind generated wind files:\n  BTS: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_ETM_IECKAI.bts\n  Bladed WND: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_ETM_IECKAI.wnd\n  SUM: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_ETM_IECKAI.sum\n",
+        "stderr_tail": ""
+      },
+      "bts_hub_stats": {
+        "u_sigma": 3.1225581965146145,
+        "v_sigma": 2.498060255827767,
+        "w_sigma": 1.5612912038262081,
+        "u_mean": 11.749774914603936
+      }
+    },
+    {
+      "base": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\IEC3_EWM1_Turb",
+      "checks": [
+        {
+          "name": "u_sigma_matches_sum_target",
+          "measured": 7.65991887104687,
+          "target": 7.7,
+          "relative_error": 0.005205341422484385,
+          "passed": true
+        },
+        {
+          "name": "v_sigma_matches_sum_target",
+          "measured": 6.209098912371325,
+          "target": 6.16,
+          "relative_error": 0.007970602657682633,
+          "passed": true
+        },
+        {
+          "name": "w_sigma_matches_sum_target",
+          "measured": 3.862456059603624,
+          "target": 3.85,
+          "relative_error": 0.0032353401567854698,
+          "passed": true
+        },
+        {
+          "name": "bladed_u_normalized_unit_std",
+          "measured": 0.9999919155540397,
+          "target": 1.0,
+          "relative_error": 8.084445960343523e-06,
+          "passed": true
+        },
+        {
+          "name": "bladed_v_normalized_unit_std",
+          "measured": 1.0000058327937313,
+          "target": 1.0,
+          "relative_error": 5.832793731341823e-06,
+          "passed": true
+        },
+        {
+          "name": "bladed_w_normalized_unit_std",
+          "measured": 1.0000019040276795,
+          "target": 1.0,
+          "relative_error": 1.9040276795223576e-06,
+          "passed": true
+        },
+        {
+          "name": "u_hub_sigma_matches_target",
+          "measured": 7.7000206182657545,
+          "target": 7.7,
+          "relative_error": 2.677696851205158e-06,
+          "passed": true
+        },
+        {
+          "name": "v_hub_sigma_matches_target",
+          "measured": 6.160030014053264,
+          "target": 6.16,
+          "relative_error": 4.872411244169231e-06,
+          "passed": true
+        },
+        {
+          "name": "w_hub_sigma_matches_target",
+          "measured": 3.8500276418773436,
+          "target": 3.85,
+          "relative_error": 7.179708400908655e-06,
+          "passed": true
+        }
+      ],
+      "plots": [
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EWM1_Turb_hub_timeseries.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EWM1_Turb_u_first_plane.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EWM1_Turb_histograms.png"
+      ],
+      "sum": {
+        "stats": {
+          "u": {
+            "mean": 12.16293331,
+            "sigma": 7.659926052,
+            "ti_percent": 63.8327171
+          },
+          "v": {
+            "mean": -1.35447209e-16,
+            "sigma": 6.209103686,
+            "ti_percent": 51.74253072
+          },
+          "w": {
+            "mean": -1.557087792e-16,
+            "sigma": 3.862456148,
+            "ti_percent": 32.18713457
+          }
+        },
+        "target_sigma": [
+          7.7,
+          6.16,
+          3.85
+        ],
+        "warnings": []
+      },
+      "bts_header": {
+        "file_id": 7,
+        "nz": 5,
+        "ny": 5,
+        "ntwr": 0,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dt": 0.20000000298023224,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": 63.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "bts_stats": [
+        {
+          "mean": 12.162935431003396,
+          "sigma": 7.65991887104687,
+          "ti_percent": 63.83265725872392
+        },
+        {
+          "mean": -2.5515634025552456e-06,
+          "sigma": 6.209098912371325,
+          "ti_percent": 51.742490936427714
+        },
+        {
+          "mean": 5.493274649026602e-07,
+          "sigma": 3.862456059603624,
+          "ti_percent": 32.1871338300302
+        }
+      ],
+      "bladed_wnd_header": {
+        "record1": -99,
+        "record2": 5,
+        "header_bytes": null,
+        "ncomp": 3,
+        "nz": 5,
+        "ny": 5,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dx": 2.4000000953674316,
+        "mean_wind": 12.0,
+        "length_scales": [
+          340.20001220703125,
+          340.20001220703125,
+          340.20001220703125,
+          113.4000015258789,
+          113.4000015258789,
+          113.4000015258789,
+          27.719999313354492,
+          27.719999313354492,
+          27.719999313354492
+        ],
+        "max_freq_or_unused": 2.5,
+        "seed": 260429
+      },
+      "bladed_wnd_normalized_stats": [
+        {
+          "mean": -8.750000000006252e-06,
+          "sigma": 0.9999919155540397,
+          "ti_percent": 99.99919155540397
+        },
+        {
+          "mean": 1.875000000004512e-06,
+          "sigma": 1.0000058327937313,
+          "ti_percent": 100.00058327937313
+        },
+        {
+          "mean": 8.124999999994387e-06,
+          "sigma": 1.0000019040276795,
+          "ti_percent": 100.00019040276796
+        }
+      ],
+      "passed": true,
+      "run": {
+        "qwd": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_EWM1_Turb.qwd",
+        "skipped": false,
+        "returncode": 0,
+        "elapsed_seconds": 0.4685623000259511,
+        "stdout_tail": "56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n    v-component matrices (uncorrelated spatial phases).\n      frequency progress 0% (ETA unknown until first block completes).\n      frequency progress 3%, elapsed 0s, ETA 0s.\n      frequency progress 10%, elapsed 0s, ETA 0s.\n      frequency progress 19%, elapsed 0s, ETA 0s.\n      frequency progress 29%, elapsed 0s, ETA 0s.\n      frequency progress 39%, elapsed 0s, ETA 0s.\n      frequency progress 48%, elapsed 0s, ETA 0s.\n      frequency progress 58%, elapsed 0s, ETA 0s.\n      frequency progress 68%, elapsed 0s, ETA 0s.\n      frequency progress 77%, elapsed 0s, ETA 0s.\n      frequency progress 87%, elapsed 0s, ETA 0s.\n      frequency progress 97%, elapsed 0s, ETA 0s.\n      frequency progress 100%, elapsed 0s, ETA 0s.\n      FFTW batch inverse transform for all grid points.\n      FFTW batch inverse transform complete in 0s.\n      copy-out progress 2%, elapsed 0s, ETA 0s.\n      copy-out progress 9%, elapsed 0s, ETA 0s.\n      copy-out progress 19%, elapsed 0s, ETA 0s.\n      copy-out progress 28%, elapsed 0s, ETA 0s.\n      copy-out progress 38%, elapsed 0s, ETA 0s.\n      copy-out progress 47%, elapsed 0s, ETA 0s.\n      copy-out progress 56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n    w-component matrices (uncorrelated spatial phases).\n      frequency progress 0% (ETA unknown until first block completes).\n      frequency progress 3%, elapsed 0s, ETA 0s.\n      frequency progress 10%, elapsed 0s, ETA 0s.\n      frequency progress 19%, elapsed 0s, ETA 0s.\n      frequency progress 29%, elapsed 0s, ETA 0s.\n      frequency progress 39%, elapsed 0s, ETA 0s.\n      frequency progress 48%, elapsed 0s, ETA 0s.\n      frequency progress 58%, elapsed 0s, ETA 0s.\n      frequency progress 68%, elapsed 0s, ETA 0s.\n      frequency progress 77%, elapsed 0s, ETA 0s.\n      frequency progress 87%, elapsed 0s, ETA 0s.\n      frequency progress 97%, elapsed 0s, ETA 0s.\n      frequency progress 100%, elapsed 0s, ETA 0s.\n      FFTW batch inverse transform for all grid points.\n      FFTW batch inverse transform complete in 0s.\n      copy-out progress 2%, elapsed 0s, ETA 0s.\n      copy-out progress 9%, elapsed 0s, ETA 0s.\n      copy-out progress 19%, elapsed 0s, ETA 0s.\n      copy-out progress 28%, elapsed 0s, ETA 0s.\n      copy-out progress 38%, elapsed 0s, ETA 0s.\n      copy-out progress 47%, elapsed 0s, ETA 0s.\n      copy-out progress 56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n Generating time series for all points.\n Applying mean wind profile and IEC event shape.\n Computing generated-field statistics.\n Writing requested wind output files.\n Generating AeroDyn/TurbSim binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM1_Turb.bts\".\n Generating Bladed binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM1_Turb.wnd\".\n Writing statistics to summary file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM1_Turb.sum\".\n Processing complete. 0.26 CPU seconds used.\nSimWind generated wind files:\n  BTS: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM1_Turb.bts\n  Bladed WND: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM1_Turb.wnd\n  SUM: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM1_Turb.sum\n",
+        "stderr_tail": ""
+      },
+      "bts_hub_stats": {
+        "u_sigma": 7.7000206182657545,
+        "v_sigma": 6.160030014053264,
+        "w_sigma": 3.8500276418773436,
+        "u_mean": 11.749787009235721
+      }
+    },
+    {
+      "base": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\IEC3_EWM50_Turb",
+      "checks": [
+        {
+          "name": "u_sigma_matches_sum_target",
+          "measured": 7.65991887104687,
+          "target": 7.7,
+          "relative_error": 0.005205341422484385,
+          "passed": true
+        },
+        {
+          "name": "v_sigma_matches_sum_target",
+          "measured": 6.209098912371325,
+          "target": 6.16,
+          "relative_error": 0.007970602657682633,
+          "passed": true
+        },
+        {
+          "name": "w_sigma_matches_sum_target",
+          "measured": 3.862456059603624,
+          "target": 3.85,
+          "relative_error": 0.0032353401567854698,
+          "passed": true
+        },
+        {
+          "name": "bladed_u_normalized_unit_std",
+          "measured": 0.9999919155540397,
+          "target": 1.0,
+          "relative_error": 8.084445960343523e-06,
+          "passed": true
+        },
+        {
+          "name": "bladed_v_normalized_unit_std",
+          "measured": 1.0000058327937313,
+          "target": 1.0,
+          "relative_error": 5.832793731341823e-06,
+          "passed": true
+        },
+        {
+          "name": "bladed_w_normalized_unit_std",
+          "measured": 1.0000019040276795,
+          "target": 1.0,
+          "relative_error": 1.9040276795223576e-06,
+          "passed": true
+        },
+        {
+          "name": "u_hub_sigma_matches_target",
+          "measured": 7.7000206182657545,
+          "target": 7.7,
+          "relative_error": 2.677696851205158e-06,
+          "passed": true
+        },
+        {
+          "name": "v_hub_sigma_matches_target",
+          "measured": 6.160030014053264,
+          "target": 6.16,
+          "relative_error": 4.872411244169231e-06,
+          "passed": true
+        },
+        {
+          "name": "w_hub_sigma_matches_target",
+          "measured": 3.8500276418773436,
+          "target": 3.85,
+          "relative_error": 7.179708400908655e-06,
+          "passed": true
+        }
+      ],
+      "plots": [
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EWM50_Turb_hub_timeseries.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EWM50_Turb_u_first_plane.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EWM50_Turb_histograms.png"
+      ],
+      "sum": {
+        "stats": {
+          "u": {
+            "mean": 12.16293331,
+            "sigma": 7.659926052,
+            "ti_percent": 63.8327171
+          },
+          "v": {
+            "mean": -1.35447209e-16,
+            "sigma": 6.209103686,
+            "ti_percent": 51.74253072
+          },
+          "w": {
+            "mean": -1.557087792e-16,
+            "sigma": 3.862456148,
+            "ti_percent": 32.18713457
+          }
+        },
+        "target_sigma": [
+          7.7,
+          6.16,
+          3.85
+        ],
+        "warnings": []
+      },
+      "bts_header": {
+        "file_id": 7,
+        "nz": 5,
+        "ny": 5,
+        "ntwr": 0,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dt": 0.20000000298023224,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": 63.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "bts_stats": [
+        {
+          "mean": 12.162935431003396,
+          "sigma": 7.65991887104687,
+          "ti_percent": 63.83265725872392
+        },
+        {
+          "mean": -2.5515634025552456e-06,
+          "sigma": 6.209098912371325,
+          "ti_percent": 51.742490936427714
+        },
+        {
+          "mean": 5.493274649026602e-07,
+          "sigma": 3.862456059603624,
+          "ti_percent": 32.1871338300302
+        }
+      ],
+      "bladed_wnd_header": {
+        "record1": -99,
+        "record2": 5,
+        "header_bytes": null,
+        "ncomp": 3,
+        "nz": 5,
+        "ny": 5,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dx": 2.4000000953674316,
+        "mean_wind": 12.0,
+        "length_scales": [
+          340.20001220703125,
+          340.20001220703125,
+          340.20001220703125,
+          113.4000015258789,
+          113.4000015258789,
+          113.4000015258789,
+          27.719999313354492,
+          27.719999313354492,
+          27.719999313354492
+        ],
+        "max_freq_or_unused": 2.5,
+        "seed": 260429
+      },
+      "bladed_wnd_normalized_stats": [
+        {
+          "mean": -8.750000000006252e-06,
+          "sigma": 0.9999919155540397,
+          "ti_percent": 99.99919155540397
+        },
+        {
+          "mean": 1.875000000004512e-06,
+          "sigma": 1.0000058327937313,
+          "ti_percent": 100.00058327937313
+        },
+        {
+          "mean": 8.124999999994387e-06,
+          "sigma": 1.0000019040276795,
+          "ti_percent": 100.00019040276796
+        }
+      ],
+      "passed": true,
+      "run": {
+        "qwd": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_EWM50_Turb.qwd",
+        "skipped": false,
+        "returncode": 0,
+        "elapsed_seconds": 0.5028582999948412,
+        "stdout_tail": "lapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n    v-component matrices (uncorrelated spatial phases).\n      frequency progress 0% (ETA unknown until first block completes).\n      frequency progress 3%, elapsed 0s, ETA 0s.\n      frequency progress 10%, elapsed 0s, ETA 0s.\n      frequency progress 19%, elapsed 0s, ETA 0s.\n      frequency progress 29%, elapsed 0s, ETA 0s.\n      frequency progress 39%, elapsed 0s, ETA 0s.\n      frequency progress 48%, elapsed 0s, ETA 0s.\n      frequency progress 58%, elapsed 0s, ETA 0s.\n      frequency progress 68%, elapsed 0s, ETA 0s.\n      frequency progress 77%, elapsed 0s, ETA 0s.\n      frequency progress 87%, elapsed 0s, ETA 0s.\n      frequency progress 97%, elapsed 0s, ETA 0s.\n      frequency progress 100%, elapsed 0s, ETA 0s.\n      FFTW batch inverse transform for all grid points.\n      FFTW batch inverse transform complete in 0s.\n      copy-out progress 2%, elapsed 0s, ETA 0s.\n      copy-out progress 9%, elapsed 0s, ETA 0s.\n      copy-out progress 19%, elapsed 0s, ETA 0s.\n      copy-out progress 28%, elapsed 0s, ETA 0s.\n      copy-out progress 38%, elapsed 0s, ETA 0s.\n      copy-out progress 47%, elapsed 0s, ETA 0s.\n      copy-out progress 56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n    w-component matrices (uncorrelated spatial phases).\n      frequency progress 0% (ETA unknown until first block completes).\n      frequency progress 3%, elapsed 0s, ETA 0s.\n      frequency progress 10%, elapsed 0s, ETA 0s.\n      frequency progress 19%, elapsed 0s, ETA 0s.\n      frequency progress 29%, elapsed 0s, ETA 0s.\n      frequency progress 39%, elapsed 0s, ETA 0s.\n      frequency progress 48%, elapsed 0s, ETA 0s.\n      frequency progress 58%, elapsed 0s, ETA 0s.\n      frequency progress 68%, elapsed 0s, ETA 0s.\n      frequency progress 77%, elapsed 0s, ETA 0s.\n      frequency progress 87%, elapsed 0s, ETA 0s.\n      frequency progress 97%, elapsed 0s, ETA 0s.\n      frequency progress 100%, elapsed 0s, ETA 0s.\n      FFTW batch inverse transform for all grid points.\n      FFTW batch inverse transform complete in 0s.\n      copy-out progress 2%, elapsed 0s, ETA 0s.\n      copy-out progress 9%, elapsed 0s, ETA 0s.\n      copy-out progress 19%, elapsed 0s, ETA 0s.\n      copy-out progress 28%, elapsed 0s, ETA 0s.\n      copy-out progress 38%, elapsed 0s, ETA 0s.\n      copy-out progress 47%, elapsed 0s, ETA 0s.\n      copy-out progress 56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n Generating time series for all points.\n Applying mean wind profile and IEC event shape.\n Computing generated-field statistics.\n Writing requested wind output files.\n Generating AeroDyn/TurbSim binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM50_Turb.bts\".\n Generating Bladed binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM50_Turb.wnd\".\n Writing statistics to summary file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM50_Turb.sum\".\n Processing complete. 0.27 CPU seconds used.\nSimWind generated wind files:\n  BTS: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM50_Turb.bts\n  Bladed WND: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM50_Turb.wnd\n  SUM: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM50_Turb.sum\n",
+        "stderr_tail": ""
+      },
+      "bts_hub_stats": {
+        "u_sigma": 7.7000206182657545,
+        "v_sigma": 6.160030014053264,
+        "w_sigma": 3.8500276418773436,
+        "u_mean": 11.749787009235721
+      }
+    },
+    {
+      "base": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\IEC3_EWM1_Steady",
+      "checks": [
+        {
+          "name": "u_sigma_matches_sum_target",
+          "measured": 1.6632470224140892,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "v_sigma_matches_sum_target",
+          "measured": 0.0,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "w_sigma_matches_sum_target",
+          "measured": 0.0,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "non_turbulent_case_has_finite_values",
+          "measured": 58.55419950993748,
+          "target": "finite",
+          "passed": true
+        },
+        {
+          "name": "steady_ewm_hub_mean",
+          "measured": 55.3547318833446,
+          "target": 56.0,
+          "relative_error": 0.011522644940275027,
+          "passed": true
+        }
+      ],
+      "plots": [
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EWM1_Steady_hub_timeseries.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EWM1_Steady_u_first_plane.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EWM1_Steady_histograms.png"
+      ],
+      "sum": {
+        "stats": {
+          "u": {
+            "mean": 56.39685263,
+            "sigma": 1.663252592,
+            "ti_percent": 2.970093914
+          },
+          "v": {
+            "mean": 0.0,
+            "sigma": 0.0,
+            "ti_percent": 0.0
+          },
+          "w": {
+            "mean": 0.0,
+            "sigma": 0.0,
+            "ti_percent": 0.0
+          }
+        },
+        "target_sigma": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "warnings": []
+      },
+      "bts_header": {
+        "file_id": 7,
+        "nz": 5,
+        "ny": 5,
+        "ntwr": 0,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dt": 0.20000000298023224,
+        "uhub": 56.0,
+        "hub_height": 90.0,
+        "zbottom": 63.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "bts_stats": [
+        {
+          "mean": 56.396849122954244,
+          "sigma": 1.6632470224140892,
+          "ti_percent": 2.9700839685965876
+        },
+        {
+          "mean": 0.0,
+          "sigma": 0.0,
+          "ti_percent": 0.0
+        },
+        {
+          "mean": 0.0,
+          "sigma": 0.0,
+          "ti_percent": 0.0
+        }
+      ],
+      "passed": true,
+      "run": {
+        "qwd": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_EWM1_Steady.qwd",
+        "skipped": false,
+        "returncode": 0,
+        "elapsed_seconds": 0.2480562000127975,
+        "stdout_tail": "\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m\u001b[96m     ------------------------------------------------------------------------------------------     \n\u001b[0m\u001b[96m     !       000                                00     00    00  0000000   00000  000000      !     \n\u001b[0m\u001b[96m     !     0     0    000      000      00000   00    00    00  0        0       00     00    !     \n\u001b[0m\u001b[96m     !     0     0  0     0  0     0   0     0  00   0000   00  000000  0       00      00    !     \n\u001b[0m\u001b[96m     !      000    0      0 0       0 0     0    0  0   0  0   0        0       00     00     !     \n\u001b[0m\u001b[96m     !             0 0000   0  000    0     0     00     00    0000000   00000  0000000       !     \n\u001b[0m\u001b[96m     !             0        0     0                                                           !     \n\u001b[0m\u001b[96m     !            0          0000                                                             !     \n\u001b[0m\u001b[96m     !                                                                                        !     \n\u001b[0m\u001b[91m!                    Copyright (c) HawtC2.Team.ZZZ,\u8d75\u5b50\u796f licensed under GPL v3 .                   !\n\u001b[0m\u001b[96m     !                                                                                        !     \n\u001b[0m\u001b[92m     !   Copyright (c)  Key Laboratory of Jiangsu province High-Tech design of wind turbine   !     \n\u001b[0m\u001b[92m     !                                                                                        !     \n\u001b[0m\u001b[92m           ******                 Running Qahse (v3.0.0  2026-4)                  ******            \n\u001b[0m\u001b[96m     ------------------------------------------------------------------------------------------     \n\u001b[0m\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m MKL\n Running WindL SimWind with input file \"F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_EWM1_Steady.qwd\".\n Reading and normalizing the SimWind input file.\n Grid/time prepared: 5 x 5, steps=64, strict-coherence components=1, estimated peak memory=0.00 GiB, estimated Cholesky FLOPs=1.615e+05.\n Calculating the spectral and transfer function matrices:\n  component 1/3 skipped.\n  component 2/3 skipped.\n  component 3/3 skipped.\n Generating time series for all points.\n Applying mean wind profile and IEC event shape.\n Computing generated-field statistics.\n Writing requested wind output files.\n Generating AeroDyn/TurbSim binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM1_Steady.bts\".\n Writing statistics to summary file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM1_Steady.sum\".\n Processing complete. 0.04 CPU seconds used.\nSimWind generated wind files:\n  BTS: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM1_Steady.bts\n  SUM: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM1_Steady.sum\n",
+        "stderr_tail": ""
+      },
+      "bts_hub_stats": {
+        "u_sigma": 7.105427357601002e-15,
+        "v_sigma": 0.0,
+        "w_sigma": 0.0,
+        "u_mean": 55.3547318833446
+      }
+    },
+    {
+      "base": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\IEC3_EWM50_Steady",
+      "checks": [
+        {
+          "name": "u_sigma_matches_sum_target",
+          "measured": 2.079072164165738,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "v_sigma_matches_sum_target",
+          "measured": 0.0,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "w_sigma_matches_sum_target",
+          "measured": 0.0,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "non_turbulent_case_has_finite_values",
+          "measured": 73.1927481034873,
+          "target": "finite",
+          "passed": true
+        },
+        {
+          "name": "steady_ewm_hub_mean",
+          "measured": 69.19341364040184,
+          "target": 70.0,
+          "relative_error": 0.011522662279973669,
+          "passed": true
+        }
+      ],
+      "plots": [
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EWM50_Steady_hub_timeseries.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EWM50_Steady_u_first_plane.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EWM50_Steady_histograms.png"
+      ],
+      "sum": {
+        "stats": {
+          "u": {
+            "mean": 70.49606578,
+            "sigma": 2.07906574,
+            "ti_percent": 2.970093914
+          },
+          "v": {
+            "mean": 0.0,
+            "sigma": 0.0,
+            "ti_percent": 0.0
+          },
+          "w": {
+            "mean": 0.0,
+            "sigma": 0.0,
+            "ti_percent": 0.0
+          }
+        },
+        "target_sigma": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "warnings": []
+      },
+      "bts_header": {
+        "file_id": 7,
+        "nz": 5,
+        "ny": 5,
+        "ntwr": 0,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dt": 0.20000000298023224,
+        "uhub": 70.0,
+        "hub_height": 90.0,
+        "zbottom": 63.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "bts_stats": [
+        {
+          "mean": 70.49607812989389,
+          "sigma": 2.079072164165738,
+          "ti_percent": 2.9701030916653397
+        },
+        {
+          "mean": 0.0,
+          "sigma": 0.0,
+          "ti_percent": 0.0
+        },
+        {
+          "mean": 0.0,
+          "sigma": 0.0,
+          "ti_percent": 0.0
+        }
+      ],
+      "passed": true,
+      "run": {
+        "qwd": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_EWM50_Steady.qwd",
+        "skipped": false,
+        "returncode": 0,
+        "elapsed_seconds": 0.2590474000026006,
+        "stdout_tail": "\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m\u001b[96m     ------------------------------------------------------------------------------------------     \n\u001b[0m\u001b[96m     !       000                                00     00    00  0000000   00000  000000      !     \n\u001b[0m\u001b[96m     !     0     0    000      000      00000   00    00    00  0        0       00     00    !     \n\u001b[0m\u001b[96m     !     0     0  0     0  0     0   0     0  00   0000   00  000000  0       00      00    !     \n\u001b[0m\u001b[96m     !      000    0      0 0       0 0     0    0  0   0  0   0        0       00     00     !     \n\u001b[0m\u001b[96m     !             0 0000   0  000    0     0     00     00    0000000   00000  0000000       !     \n\u001b[0m\u001b[96m     !             0        0     0                                                           !     \n\u001b[0m\u001b[96m     !            0          0000                                                             !     \n\u001b[0m\u001b[96m     !                                                                                        !     \n\u001b[0m\u001b[91m!                    Copyright (c) HawtC2.Team.ZZZ,\u8d75\u5b50\u796f licensed under GPL v3 .                   !\n\u001b[0m\u001b[96m     !                                                                                        !     \n\u001b[0m\u001b[92m     !   Copyright (c)  Key Laboratory of Jiangsu province High-Tech design of wind turbine   !     \n\u001b[0m\u001b[92m     !                                                                                        !     \n\u001b[0m\u001b[92m           ******                 Running Qahse (v3.0.0  2026-4)                  ******            \n\u001b[0m\u001b[96m     ------------------------------------------------------------------------------------------     \n\u001b[0m\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m MKL\n Running WindL SimWind with input file \"F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_EWM50_Steady.qwd\".\n Reading and normalizing the SimWind input file.\n Grid/time prepared: 5 x 5, steps=64, strict-coherence components=1, estimated peak memory=0.00 GiB, estimated Cholesky FLOPs=1.615e+05.\n Calculating the spectral and transfer function matrices:\n  component 1/3 skipped.\n  component 2/3 skipped.\n  component 3/3 skipped.\n Generating time series for all points.\n Applying mean wind profile and IEC event shape.\n Computing generated-field statistics.\n Writing requested wind output files.\n Generating AeroDyn/TurbSim binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM50_Steady.bts\".\n Writing statistics to summary file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM50_Steady.sum\".\n Processing complete. 0.05 CPU seconds used.\nSimWind generated wind files:\n  BTS: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM50_Steady.bts\n  SUM: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWM50_Steady.sum\n",
+        "stderr_tail": ""
+      },
+      "bts_hub_stats": {
+        "u_sigma": 0.0,
+        "v_sigma": 0.0,
+        "w_sigma": 0.0,
+        "u_mean": 69.19341364040184
+      }
+    },
+    {
+      "base": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\IEC3_EOG",
+      "checks": [
+        {
+          "name": "u_sigma_matches_sum_target",
+          "measured": 1.714422963635174,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "v_sigma_matches_sum_target",
+          "measured": 0.0,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "w_sigma_matches_sum_target",
+          "measured": 0.0,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "non_turbulent_case_has_finite_values",
+          "measured": 17.1192079303539,
+          "target": "finite",
+          "passed": true
+        },
+        {
+          "name": "eog_u_variation",
+          "measured": 5.592285653815958,
+          "target": "> 0.5 m/s",
+          "passed": true
+        }
+      ],
+      "plots": [
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EOG_hub_timeseries.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EOG_u_first_plane.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EOG_histograms.png"
+      ],
+      "sum": {
+        "stats": {
+          "u": {
+            "mean": 12.44915582,
+            "sigma": 1.714422555,
+            "ti_percent": 14.28685463
+          },
+          "v": {
+            "mean": 0.0,
+            "sigma": 0.0,
+            "ti_percent": 0.0
+          },
+          "w": {
+            "mean": 0.0,
+            "sigma": 0.0,
+            "ti_percent": 0.0
+          }
+        },
+        "target_sigma": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "warnings": []
+      },
+      "bts_header": {
+        "file_id": 7,
+        "nz": 5,
+        "ny": 5,
+        "ntwr": 0,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dt": 0.20000000298023224,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": 63.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "bts_stats": [
+        {
+          "mean": 12.449155444598352,
+          "sigma": 1.714422963635174,
+          "ti_percent": 14.286858030293116
+        },
+        {
+          "mean": 0.0,
+          "sigma": 0.0,
+          "ti_percent": 0.0
+        },
+        {
+          "mean": 0.0,
+          "sigma": 0.0,
+          "ti_percent": 0.0
+        }
+      ],
+      "passed": true,
+      "run": {
+        "qwd": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_EOG.qwd",
+        "skipped": false,
+        "returncode": 0,
+        "elapsed_seconds": 0.4558270999987144,
+        "stdout_tail": "\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m\u001b[96m     ------------------------------------------------------------------------------------------     \n\u001b[0m\u001b[96m     !       000                                00     00    00  0000000   00000  000000      !     \n\u001b[0m\u001b[96m     !     0     0    000      000      00000   00    00    00  0        0       00     00    !     \n\u001b[0m\u001b[96m     !     0     0  0     0  0     0   0     0  00   0000   00  000000  0       00      00    !     \n\u001b[0m\u001b[96m     !      000    0      0 0       0 0     0    0  0   0  0   0        0       00     00     !     \n\u001b[0m\u001b[96m     !             0 0000   0  000    0     0     00     00    0000000   00000  0000000       !     \n\u001b[0m\u001b[96m     !             0        0     0                                                           !     \n\u001b[0m\u001b[96m     !            0          0000                                                             !     \n\u001b[0m\u001b[96m     !                                                                                        !     \n\u001b[0m\u001b[91m!                    Copyright (c) HawtC2.Team.ZZZ,\u8d75\u5b50\u796f licensed under GPL v3 .                   !\n\u001b[0m\u001b[96m     !                                                                                        !     \n\u001b[0m\u001b[92m     !   Copyright (c)  Key Laboratory of Jiangsu province High-Tech design of wind turbine   !     \n\u001b[0m\u001b[92m     !                                                                                        !     \n\u001b[0m\u001b[92m           ******                 Running Qahse (v3.0.0  2026-4)                  ******            \n\u001b[0m\u001b[96m     ------------------------------------------------------------------------------------------     \n\u001b[0m\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m MKL\n Running WindL SimWind with input file \"F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_EOG.qwd\".\n Reading and normalizing the SimWind input file.\n Grid/time prepared: 5 x 5, steps=64, strict-coherence components=0, estimated peak memory=0.00 GiB, estimated Cholesky FLOPs=0.000e+00.\n WindModel is a deterministic IEC event; generating event field without spectral turbulence.\n Applying mean wind profile and IEC event shape.\n Computing generated-field statistics.\n Writing requested wind output files.\n Generating AeroDyn/TurbSim binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EOG.bts\".\n Writing statistics to summary file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EOG.sum\".\n Processing complete. 0.23 CPU seconds used.\nSimWind generated wind files:\n  BTS: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EOG.bts\n  SUM: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EOG.sum\n",
+        "stderr_tail": ""
+      },
+      "bts_hub_stats": {
+        "u_sigma": 1.586502599179297,
+        "v_sigma": 0.0,
+        "w_sigma": 0.0,
+        "u_mean": 12.036000547993329
+      }
+    },
+    {
+      "base": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\IEC3_EDC",
+      "checks": [
+        {
+          "name": "u_sigma_matches_sum_target",
+          "measured": 0.952384006106394,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "v_sigma_matches_sum_target",
+          "measured": 2.486114800598494,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "w_sigma_matches_sum_target",
+          "measured": 0.0,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "non_turbulent_case_has_finite_values",
+          "measured": 13.013660546815508,
+          "target": "finite",
+          "passed": true
+        },
+        {
+          "name": "direction_change_variation",
+          "measured": 31.940060723740764,
+          "target": "> 1 deg",
+          "passed": true
+        }
+      ],
+      "plots": [
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EDC_hub_timeseries.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EDC_u_first_plane.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EDC_histograms.png"
+      ],
+      "sum": {
+        "stats": {
+          "u": {
+            "mean": 11.4198187,
+            "sigma": 0.9523841687,
+            "ti_percent": 7.93653474
+          },
+          "v": {
+            "mean": 3.29531932,
+            "sigma": 2.486116721,
+            "ti_percent": 20.71763934
+          },
+          "w": {
+            "mean": 0.0,
+            "sigma": 0.0,
+            "ti_percent": 0.0
+          }
+        },
+        "target_sigma": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "warnings": []
+      },
+      "bts_header": {
+        "file_id": 7,
+        "nz": 5,
+        "ny": 5,
+        "ntwr": 0,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dt": 0.20000000298023224,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": 63.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "bts_stats": [
+        {
+          "mean": 11.419817944277733,
+          "sigma": 0.952384006106394,
+          "ti_percent": 7.936533384219949
+        },
+        {
+          "mean": 3.2953166720851783,
+          "sigma": 2.486114800598494,
+          "ti_percent": 20.71762333832078
+        },
+        {
+          "mean": 0.0,
+          "sigma": 0.0,
+          "ti_percent": 0.0
+        }
+      ],
+      "passed": true,
+      "run": {
+        "qwd": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_EDC.qwd",
+        "skipped": false,
+        "returncode": 0,
+        "elapsed_seconds": 0.25841049998416565,
+        "stdout_tail": "\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m\u001b[96m     ------------------------------------------------------------------------------------------     \n\u001b[0m\u001b[96m     !       000                                00     00    00  0000000   00000  000000      !     \n\u001b[0m\u001b[96m     !     0     0    000      000      00000   00    00    00  0        0       00     00    !     \n\u001b[0m\u001b[96m     !     0     0  0     0  0     0   0     0  00   0000   00  000000  0       00      00    !     \n\u001b[0m\u001b[96m     !      000    0      0 0       0 0     0    0  0   0  0   0        0       00     00     !     \n\u001b[0m\u001b[96m     !             0 0000   0  000    0     0     00     00    0000000   00000  0000000       !     \n\u001b[0m\u001b[96m     !             0        0     0                                                           !     \n\u001b[0m\u001b[96m     !            0          0000                                                             !     \n\u001b[0m\u001b[96m     !                                                                                        !     \n\u001b[0m\u001b[91m!                    Copyright (c) HawtC2.Team.ZZZ,\u8d75\u5b50\u796f licensed under GPL v3 .                   !\n\u001b[0m\u001b[96m     !                                                                                        !     \n\u001b[0m\u001b[92m     !   Copyright (c)  Key Laboratory of Jiangsu province High-Tech design of wind turbine   !     \n\u001b[0m\u001b[92m     !                                                                                        !     \n\u001b[0m\u001b[92m           ******                 Running Qahse (v3.0.0  2026-4)                  ******            \n\u001b[0m\u001b[96m     ------------------------------------------------------------------------------------------     \n\u001b[0m\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m MKL\n Running WindL SimWind with input file \"F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_EDC.qwd\".\n Reading and normalizing the SimWind input file.\n Grid/time prepared: 5 x 5, steps=64, strict-coherence components=0, estimated peak memory=0.00 GiB, estimated Cholesky FLOPs=0.000e+00.\n WindModel is a deterministic IEC event; generating event field without spectral turbulence.\n Applying mean wind profile and IEC event shape.\n Computing generated-field statistics.\n Writing requested wind output files.\n Generating AeroDyn/TurbSim binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EDC.bts\".\n Writing statistics to summary file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EDC.sum\".\n Processing complete. 0.05 CPU seconds used.\nSimWind generated wind files:\n  BTS: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EDC.bts\n  SUM: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EDC.sum\n",
+        "stderr_tail": ""
+      },
+      "bts_hub_stats": {
+        "u_sigma": 0.7054582741098737,
+        "v_sigma": 2.392222017277197,
+        "w_sigma": 0.0,
+        "u_mean": 11.031908640179296
+      }
+    },
+    {
+      "base": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\IEC3_ECD",
+      "checks": [
+        {
+          "name": "u_sigma_matches_sum_target",
+          "measured": 1.7524841982165857,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "v_sigma_matches_sum_target",
+          "measured": 9.197308514519978,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "w_sigma_matches_sum_target",
+          "measured": 0.0,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "non_turbulent_case_has_finite_values",
+          "measured": 24.26054297500733,
+          "target": "finite",
+          "passed": true
+        },
+        {
+          "name": "direction_change_variation",
+          "measured": 59.99985486897853,
+          "target": "> 1 deg",
+          "passed": true
+        }
+      ],
+      "plots": [
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_ECD_hub_timeseries.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_ECD_u_first_plane.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_ECD_histograms.png"
+      ],
+      "sum": {
+        "stats": {
+          "u": {
+            "mean": 14.56810885,
+            "sigma": 1.752483996,
+            "ti_percent": 14.6040333
+          },
+          "v": {
+            "mean": 11.07450252,
+            "sigma": 9.197312614,
+            "ti_percent": 76.64427179
+          },
+          "w": {
+            "mean": 0.0,
+            "sigma": 0.0,
+            "ti_percent": 0.0
+          }
+        },
+        "target_sigma": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "warnings": []
+      },
+      "bts_header": {
+        "file_id": 7,
+        "nz": 5,
+        "ny": 5,
+        "ntwr": 0,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dt": 0.20000000298023224,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": 63.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "bts_stats": [
+        {
+          "mean": 14.568107553390622,
+          "sigma": 1.7524841982165857,
+          "ti_percent": 14.604034985138215
+        },
+        {
+          "mean": 11.074506594228547,
+          "sigma": 9.197308514519978,
+          "ti_percent": 76.64423762099982
+        },
+        {
+          "mean": 0.0,
+          "sigma": 0.0,
+          "ti_percent": 0.0
+        }
+      ],
+      "passed": true,
+      "run": {
+        "qwd": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_ECD.qwd",
+        "skipped": false,
+        "returncode": 0,
+        "elapsed_seconds": 0.2661291000258643,
+        "stdout_tail": "\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m\u001b[96m     ------------------------------------------------------------------------------------------     \n\u001b[0m\u001b[96m     !       000                                00     00    00  0000000   00000  000000      !     \n\u001b[0m\u001b[96m     !     0     0    000      000      00000   00    00    00  0        0       00     00    !     \n\u001b[0m\u001b[96m     !     0     0  0     0  0     0   0     0  00   0000   00  000000  0       00      00    !     \n\u001b[0m\u001b[96m     !      000    0      0 0       0 0     0    0  0   0  0   0        0       00     00     !     \n\u001b[0m\u001b[96m     !             0 0000   0  000    0     0     00     00    0000000   00000  0000000       !     \n\u001b[0m\u001b[96m     !             0        0     0                                                           !     \n\u001b[0m\u001b[96m     !            0          0000                                                             !     \n\u001b[0m\u001b[96m     !                                                                                        !     \n\u001b[0m\u001b[91m!                    Copyright (c) HawtC2.Team.ZZZ,\u8d75\u5b50\u796f licensed under GPL v3 .                   !\n\u001b[0m\u001b[96m     !                                                                                        !     \n\u001b[0m\u001b[92m     !   Copyright (c)  Key Laboratory of Jiangsu province High-Tech design of wind turbine   !     \n\u001b[0m\u001b[92m     !                                                                                        !     \n\u001b[0m\u001b[92m           ******                 Running Qahse (v3.0.0  2026-4)                  ******            \n\u001b[0m\u001b[96m     ------------------------------------------------------------------------------------------     \n\u001b[0m\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m MKL\n Running WindL SimWind with input file \"F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_ECD.qwd\".\n Reading and normalizing the SimWind input file.\n Grid/time prepared: 5 x 5, steps=64, strict-coherence components=0, estimated peak memory=0.00 GiB, estimated Cholesky FLOPs=0.000e+00.\n WindModel is a deterministic IEC event; generating event field without spectral turbulence.\n Applying mean wind profile and IEC event shape.\n Computing generated-field statistics.\n Writing requested wind output files.\n Generating AeroDyn/TurbSim binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_ECD.bts\".\n Writing statistics to summary file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_ECD.sum\".\n Processing complete. 0.03 CPU seconds used.\nSimWind generated wind files:\n  BTS: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_ECD.bts\n  SUM: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_ECD.sum\n",
+        "stderr_tail": ""
+      },
+      "bts_hub_stats": {
+        "u_sigma": 1.6843688864159438,
+        "v_sigma": 9.052612592053926,
+        "w_sigma": 0.0,
+        "u_mean": 14.23949883581752
+      }
+    },
+    {
+      "base": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\IEC3_EWS",
+      "checks": [
+        {
+          "name": "u_sigma_matches_sum_target",
+          "measured": 1.2253329025975466,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "v_sigma_matches_sum_target",
+          "measured": 0.0,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "w_sigma_matches_sum_target",
+          "measured": 0.0,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "non_turbulent_case_has_finite_values",
+          "measured": 16.042912015338455,
+          "target": "finite",
+          "passed": true
+        },
+        {
+          "name": "ews_spatial_shear_variation",
+          "measured": 5.3852447473241885,
+          "target": "> 0.2 m/s",
+          "passed": true
+        }
+      ],
+      "plots": [
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EWS_hub_timeseries.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EWS_u_first_plane.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_EWS_histograms.png"
+      ],
+      "sum": {
+        "stats": {
+          "u": {
+            "mean": 12.30101603,
+            "sigma": 1.225330249,
+            "ti_percent": 10.21108541
+          },
+          "v": {
+            "mean": 0.0,
+            "sigma": 0.0,
+            "ti_percent": 0.0
+          },
+          "w": {
+            "mean": 0.0,
+            "sigma": 0.0,
+            "ti_percent": 0.0
+          }
+        },
+        "target_sigma": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "warnings": []
+      },
+      "bts_header": {
+        "file_id": 7,
+        "nz": 5,
+        "ny": 5,
+        "ntwr": 0,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dt": 0.20000000298023224,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": 63.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "bts_stats": [
+        {
+          "mean": 12.301014114083205,
+          "sigma": 1.2253329025975466,
+          "ti_percent": 10.211107521646221
+        },
+        {
+          "mean": 0.0,
+          "sigma": 0.0,
+          "ti_percent": 0.0
+        },
+        {
+          "mean": 0.0,
+          "sigma": 0.0,
+          "ti_percent": 0.0
+        }
+      ],
+      "passed": true,
+      "run": {
+        "qwd": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_EWS.qwd",
+        "skipped": false,
+        "returncode": 0,
+        "elapsed_seconds": 0.25019259998225607,
+        "stdout_tail": "\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m\u001b[96m     ------------------------------------------------------------------------------------------     \n\u001b[0m\u001b[96m     !       000                                00     00    00  0000000   00000  000000      !     \n\u001b[0m\u001b[96m     !     0     0    000      000      00000   00    00    00  0        0       00     00    !     \n\u001b[0m\u001b[96m     !     0     0  0     0  0     0   0     0  00   0000   00  000000  0       00      00    !     \n\u001b[0m\u001b[96m     !      000    0      0 0       0 0     0    0  0   0  0   0        0       00     00     !     \n\u001b[0m\u001b[96m     !             0 0000   0  000    0     0     00     00    0000000   00000  0000000       !     \n\u001b[0m\u001b[96m     !             0        0     0                                                           !     \n\u001b[0m\u001b[96m     !            0          0000                                                             !     \n\u001b[0m\u001b[96m     !                                                                                        !     \n\u001b[0m\u001b[91m!                    Copyright (c) HawtC2.Team.ZZZ,\u8d75\u5b50\u796f licensed under GPL v3 .                   !\n\u001b[0m\u001b[96m     !                                                                                        !     \n\u001b[0m\u001b[92m     !   Copyright (c)  Key Laboratory of Jiangsu province High-Tech design of wind turbine   !     \n\u001b[0m\u001b[92m     !                                                                                        !     \n\u001b[0m\u001b[92m           ******                 Running Qahse (v3.0.0  2026-4)                  ******            \n\u001b[0m\u001b[96m     ------------------------------------------------------------------------------------------     \n\u001b[0m\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m MKL\n Running WindL SimWind with input file \"F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_EWS.qwd\".\n Reading and normalizing the SimWind input file.\n Grid/time prepared: 5 x 5, steps=64, strict-coherence components=0, estimated peak memory=0.00 GiB, estimated Cholesky FLOPs=0.000e+00.\n WindModel is a deterministic IEC event; generating event field without spectral turbulence.\n Applying mean wind profile and IEC event shape.\n Computing generated-field statistics.\n Writing requested wind output files.\n Generating AeroDyn/TurbSim binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWS.bts\".\n Writing statistics to summary file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWS.sum\".\n Processing complete. 0.04 CPU seconds used.\nSimWind generated wind files:\n  BTS: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWS.bts\n  SUM: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_EWS.sum\n",
+        "stderr_tail": ""
+      },
+      "bts_hub_stats": {
+        "u_sigma": 0.12569667665770023,
+        "v_sigma": 0.0,
+        "w_sigma": 0.0,
+        "u_mean": 11.611704012950867
+      }
+    },
+    {
+      "base": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\IEC3_UNIFORM",
+      "checks": [
+        {
+          "name": "u_sigma_matches_sum_target",
+          "measured": 0.6498095051934286,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "v_sigma_matches_sum_target",
+          "measured": 0.0,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "w_sigma_matches_sum_target",
+          "measured": 0.0,
+          "target": 0.0,
+          "relative_error": 0.0,
+          "passed": true
+        },
+        {
+          "name": "non_turbulent_case_has_finite_values",
+          "measured": 13.013660436321556,
+          "target": "finite",
+          "passed": true
+        }
+      ],
+      "plots": [
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_UNIFORM_hub_timeseries.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_UNIFORM_u_first_plane.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\IEC3_UNIFORM_histograms.png"
+      ],
+      "sum": {
+        "stats": {
+          "u": {
+            "mean": 12.16293331,
+            "sigma": 0.6498106518,
+            "ti_percent": 5.415088765
+          },
+          "v": {
+            "mean": 0.0,
+            "sigma": 0.0,
+            "ti_percent": 0.0
+          },
+          "w": {
+            "mean": 0.0,
+            "sigma": 0.0,
+            "ti_percent": 0.0
+          }
+        },
+        "target_sigma": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "warnings": []
+      },
+      "bts_header": {
+        "file_id": 7,
+        "nz": 5,
+        "ny": 5,
+        "ntwr": 0,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dt": 0.20000000298023224,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": 63.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "bts_stats": [
+        {
+          "mean": 12.162930170390267,
+          "sigma": 0.6498095051934286,
+          "ti_percent": 5.415079209945238
+        },
+        {
+          "mean": 0.0,
+          "sigma": 0.0,
+          "ti_percent": 0.0
+        },
+        {
+          "mean": 0.0,
+          "sigma": 0.0,
+          "ti_percent": 0.0
+        }
+      ],
+      "passed": true,
+      "run": {
+        "qwd": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_UNIFORM.qwd",
+        "skipped": false,
+        "returncode": 0,
+        "elapsed_seconds": 0.28699130000313744,
+        "stdout_tail": "\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m\u001b[96m     ------------------------------------------------------------------------------------------     \n\u001b[0m\u001b[96m     !       000                                00     00    00  0000000   00000  000000      !     \n\u001b[0m\u001b[96m     !     0     0    000      000      00000   00    00    00  0        0       00     00    !     \n\u001b[0m\u001b[96m     !     0     0  0     0  0     0   0     0  00   0000   00  000000  0       00      00    !     \n\u001b[0m\u001b[96m     !      000    0      0 0       0 0     0    0  0   0  0   0        0       00     00     !     \n\u001b[0m\u001b[96m     !             0 0000   0  000    0     0     00     00    0000000   00000  0000000       !     \n\u001b[0m\u001b[96m     !             0        0     0                                                           !     \n\u001b[0m\u001b[96m     !            0          0000                                                             !     \n\u001b[0m\u001b[96m     !                                                                                        !     \n\u001b[0m\u001b[91m!                    Copyright (c) HawtC2.Team.ZZZ,\u8d75\u5b50\u796f licensed under GPL v3 .                   !\n\u001b[0m\u001b[96m     !                                                                                        !     \n\u001b[0m\u001b[92m     !   Copyright (c)  Key Laboratory of Jiangsu province High-Tech design of wind turbine   !     \n\u001b[0m\u001b[92m     !                                                                                        !     \n\u001b[0m\u001b[92m           ******                 Running Qahse (v3.0.0  2026-4)                  ******            \n\u001b[0m\u001b[96m     ------------------------------------------------------------------------------------------     \n\u001b[0m\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m MKL\n Running WindL SimWind with input file \"F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\IEC3_UNIFORM.qwd\".\n Reading and normalizing the SimWind input file.\n Grid/time prepared: 5 x 5, steps=64, strict-coherence components=0, estimated peak memory=0.00 GiB, estimated Cholesky FLOPs=0.000e+00.\n WindModel=UNIFORM; generating mean profile only without turbulence.\n Applying mean wind profile and IEC event shape.\n Computing generated-field statistics.\n Writing requested wind output files.\n Generating AeroDyn/TurbSim binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_UNIFORM.bts\".\n Writing statistics to summary file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_UNIFORM.sum\".\n Processing complete. 0.06 CPU seconds used.\nSimWind generated wind files:\n  BTS: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_UNIFORM.bts\n  SUM: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\IEC3_UNIFORM.sum\n",
+        "stderr_tail": ""
+      },
+      "bts_hub_stats": {
+        "u_sigma": 1.7763568394002505e-15,
+        "v_sigma": 0.0,
+        "w_sigma": 0.0,
+        "u_mean": 11.749774636358493
+      }
+    },
+    {
+      "base": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\Spectrum_IECVKM",
+      "checks": [
+        {
+          "name": "u_sigma_matches_sum_target",
+          "measured": 2.1283896108351685,
+          "target": 2.044,
+          "relative_error": 0.041286502365542314,
+          "passed": true
+        },
+        {
+          "name": "v_sigma_matches_sum_target",
+          "measured": 2.0663966874636204,
+          "target": 2.044,
+          "relative_error": 0.010957283494921886,
+          "passed": true
+        },
+        {
+          "name": "w_sigma_matches_sum_target",
+          "measured": 2.066395304386377,
+          "target": 2.044,
+          "relative_error": 0.010956606842650164,
+          "passed": true
+        },
+        {
+          "name": "bladed_u_normalized_unit_std",
+          "measured": 0.9999997080968324,
+          "target": 1.0,
+          "relative_error": 2.919031676373862e-07,
+          "passed": true
+        },
+        {
+          "name": "bladed_v_normalized_unit_std",
+          "measured": 1.0000063958840384,
+          "target": 1.0,
+          "relative_error": 6.39588403839042e-06,
+          "passed": true
+        },
+        {
+          "name": "bladed_w_normalized_unit_std",
+          "measured": 0.9999944027810153,
+          "target": 1.0,
+          "relative_error": 5.59721898474308e-06,
+          "passed": true
+        },
+        {
+          "name": "u_hub_sigma_matches_target",
+          "measured": 2.0440044044888923,
+          "target": 2.044,
+          "relative_error": 2.154838009918496e-06,
+          "passed": true
+        },
+        {
+          "name": "v_hub_sigma_matches_target",
+          "measured": 2.0440232835549126,
+          "target": 2.044,
+          "relative_error": 1.13911716793275e-05,
+          "passed": true
+        },
+        {
+          "name": "w_hub_sigma_matches_target",
+          "measured": 2.044003647824348,
+          "target": 2.044,
+          "relative_error": 1.7846498766725885e-06,
+          "passed": true
+        }
+      ],
+      "plots": [
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\Spectrum_IECVKM_hub_timeseries.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\Spectrum_IECVKM_u_first_plane.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\Spectrum_IECVKM_histograms.png"
+      ],
+      "sum": {
+        "stats": {
+          "u": {
+            "mean": 12.16293331,
+            "sigma": 2.128390151,
+            "ti_percent": 17.73658459
+          },
+          "v": {
+            "mean": 1.029731855e-16,
+            "sigma": 2.066395666,
+            "ti_percent": 17.21996388
+          },
+          "w": {
+            "mean": 1.897093593e-16,
+            "sigma": 2.066395666,
+            "ti_percent": 17.21996388
+          }
+        },
+        "target_sigma": [
+          2.044,
+          2.044,
+          2.044
+        ],
+        "warnings": []
+      },
+      "bts_header": {
+        "file_id": 7,
+        "nz": 5,
+        "ny": 5,
+        "ntwr": 0,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dt": 0.20000000298023224,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": 63.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "bts_stats": [
+        {
+          "mean": 12.162932655750435,
+          "sigma": 2.1283896108351685,
+          "ti_percent": 17.73658009029307
+        },
+        {
+          "mean": -6.853711159493514e-07,
+          "sigma": 2.0663966874636204,
+          "ti_percent": 17.21997239553017
+        },
+        {
+          "mean": -4.977728074351262e-07,
+          "sigma": 2.066395304386377,
+          "ti_percent": 17.219960869886474
+        }
+      ],
+      "bladed_wnd_header": {
+        "record1": -99,
+        "record2": 3,
+        "header_bytes": null,
+        "ncomp": 3,
+        "nz": 5,
+        "ny": 5,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dx": 2.4000000953674316,
+        "mean_wind": 12.0,
+        "length_scales": [
+          147.0,
+          147.0,
+          147.0,
+          147.0,
+          147.0,
+          147.0,
+          147.0,
+          147.0,
+          147.0
+        ],
+        "max_freq_or_unused": 2.5,
+        "seed": 260429
+      },
+      "bladed_wnd_normalized_stats": [
+        {
+          "mean": -7.500000000000284e-06,
+          "sigma": 0.9999997080968324,
+          "ti_percent": 99.99997080968323
+        },
+        {
+          "mean": -8.125000000003269e-06,
+          "sigma": 1.0000063958840384,
+          "ti_percent": 100.00063958840384
+        },
+        {
+          "mean": -5.624999999991331e-06,
+          "sigma": 0.9999944027810153,
+          "ti_percent": 99.99944027810153
+        }
+      ],
+      "passed": true,
+      "run": {
+        "qwd": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\Spectrum_IECVKM.qwd",
+        "skipped": false,
+        "returncode": 0,
+        "elapsed_seconds": 0.47184409998590127,
+        "stdout_tail": "lapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n    v-component matrices (uncorrelated spatial phases).\n      frequency progress 0% (ETA unknown until first block completes).\n      frequency progress 3%, elapsed 0s, ETA 0s.\n      frequency progress 10%, elapsed 0s, ETA 0s.\n      frequency progress 19%, elapsed 0s, ETA 0s.\n      frequency progress 29%, elapsed 0s, ETA 0s.\n      frequency progress 39%, elapsed 0s, ETA 0s.\n      frequency progress 48%, elapsed 0s, ETA 0s.\n      frequency progress 58%, elapsed 0s, ETA 0s.\n      frequency progress 68%, elapsed 0s, ETA 0s.\n      frequency progress 77%, elapsed 0s, ETA 0s.\n      frequency progress 87%, elapsed 0s, ETA 0s.\n      frequency progress 97%, elapsed 0s, ETA 0s.\n      frequency progress 100%, elapsed 0s, ETA 0s.\n      FFTW batch inverse transform for all grid points.\n      FFTW batch inverse transform complete in 0s.\n      copy-out progress 2%, elapsed 0s, ETA 0s.\n      copy-out progress 9%, elapsed 0s, ETA 0s.\n      copy-out progress 19%, elapsed 0s, ETA 0s.\n      copy-out progress 28%, elapsed 0s, ETA 0s.\n      copy-out progress 38%, elapsed 0s, ETA 0s.\n      copy-out progress 47%, elapsed 0s, ETA 0s.\n      copy-out progress 56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n    w-component matrices (uncorrelated spatial phases).\n      frequency progress 0% (ETA unknown until first block completes).\n      frequency progress 3%, elapsed 0s, ETA 0s.\n      frequency progress 10%, elapsed 0s, ETA 0s.\n      frequency progress 19%, elapsed 0s, ETA 0s.\n      frequency progress 29%, elapsed 0s, ETA 0s.\n      frequency progress 39%, elapsed 0s, ETA 0s.\n      frequency progress 48%, elapsed 0s, ETA 0s.\n      frequency progress 58%, elapsed 0s, ETA 0s.\n      frequency progress 68%, elapsed 0s, ETA 0s.\n      frequency progress 77%, elapsed 0s, ETA 0s.\n      frequency progress 87%, elapsed 0s, ETA 0s.\n      frequency progress 97%, elapsed 0s, ETA 0s.\n      frequency progress 100%, elapsed 0s, ETA 0s.\n      FFTW batch inverse transform for all grid points.\n      FFTW batch inverse transform complete in 0s.\n      copy-out progress 2%, elapsed 0s, ETA 0s.\n      copy-out progress 9%, elapsed 0s, ETA 0s.\n      copy-out progress 19%, elapsed 0s, ETA 0s.\n      copy-out progress 28%, elapsed 0s, ETA 0s.\n      copy-out progress 38%, elapsed 0s, ETA 0s.\n      copy-out progress 47%, elapsed 0s, ETA 0s.\n      copy-out progress 56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n Generating time series for all points.\n Applying mean wind profile and IEC event shape.\n Computing generated-field statistics.\n Writing requested wind output files.\n Generating AeroDyn/TurbSim binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_IECVKM.bts\".\n Generating Bladed binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_IECVKM.wnd\".\n Writing statistics to summary file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_IECVKM.sum\".\n Processing complete. 0.27 CPU seconds used.\nSimWind generated wind files:\n  BTS: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_IECVKM.bts\n  Bladed WND: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_IECVKM.wnd\n  SUM: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_IECVKM.sum\n",
+        "stderr_tail": ""
+      },
+      "bts_hub_stats": {
+        "u_sigma": 2.0440044044888923,
+        "v_sigma": 2.0440232835549126,
+        "w_sigma": 2.044003647824348,
+        "u_mean": 11.74977399586647
+      }
+    },
+    {
+      "base": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\Spectrum_BladedKaimal",
+      "checks": [
+        {
+          "name": "u_sigma_matches_sum_target",
+          "measured": 2.1276899785254684,
+          "target": 2.044,
+          "relative_error": 0.04094421649973989,
+          "passed": true
+        },
+        {
+          "name": "v_sigma_matches_sum_target",
+          "measured": 1.6482334793412603,
+          "target": 1.6352,
+          "relative_error": 0.007970572004195396,
+          "passed": true
+        },
+        {
+          "name": "w_sigma_matches_sum_target",
+          "measured": 1.0253065038177935,
+          "target": 1.022,
+          "relative_error": 0.003235326631891894,
+          "passed": true
+        },
+        {
+          "name": "bladed_u_normalized_unit_std",
+          "measured": 1.0000084382376402,
+          "target": 1.0,
+          "relative_error": 8.438237640184809e-06,
+          "passed": true
+        },
+        {
+          "name": "bladed_v_normalized_unit_std",
+          "measured": 1.0000058327937313,
+          "target": 1.0,
+          "relative_error": 5.832793731341823e-06,
+          "passed": true
+        },
+        {
+          "name": "bladed_w_normalized_unit_std",
+          "measured": 1.0000019040276795,
+          "target": 1.0,
+          "relative_error": 1.9040276795223576e-06,
+          "passed": true
+        },
+        {
+          "name": "u_hub_sigma_matches_target",
+          "measured": 2.0440029286236996,
+          "target": 2.044,
+          "relative_error": 1.4327904596622329e-06,
+          "passed": true
+        },
+        {
+          "name": "v_hub_sigma_matches_target",
+          "measured": 1.6352080190763225,
+          "target": 1.6352,
+          "relative_error": 4.904033954580252e-06,
+          "passed": true
+        },
+        {
+          "name": "w_hub_sigma_matches_target",
+          "measured": 1.022007276070512,
+          "target": 1.022,
+          "relative_error": 7.119442770914502e-06,
+          "passed": true
+        }
+      ],
+      "plots": [
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\Spectrum_BladedKaimal_hub_timeseries.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\Spectrum_BladedKaimal_u_first_plane.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\Spectrum_BladedKaimal_histograms.png"
+      ],
+      "sum": {
+        "stats": {
+          "u": {
+            "mean": 12.16293331,
+            "sigma": 2.127689141,
+            "ti_percent": 17.73074284
+          },
+          "v": {
+            "mean": 1.040834086e-18,
+            "sigma": 1.648234797,
+            "ti_percent": 13.73528997
+          },
+          "w": {
+            "mean": 1.977584763e-17,
+            "sigma": 1.025306541,
+            "ti_percent": 8.544221177
+          }
+        },
+        "target_sigma": [
+          2.044,
+          1.6352,
+          1.022
+        ],
+        "warnings": []
+      },
+      "bts_header": {
+        "file_id": 7,
+        "nz": 5,
+        "ny": 5,
+        "ntwr": 0,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dt": 0.20000000298023224,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": 63.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "bts_stats": [
+        {
+          "mean": 12.162933194017615,
+          "sigma": 2.1276899785254684,
+          "ti_percent": 17.73074982104557
+        },
+        {
+          "mean": -5.668638755995659e-07,
+          "sigma": 1.6482334793412603,
+          "ti_percent": 13.735278994510502
+        },
+        {
+          "mean": 2.0909314964789872e-07,
+          "sigma": 1.0253065038177935,
+          "ti_percent": 8.54422086514828
+        }
+      ],
+      "bladed_wnd_header": {
+        "record1": -99,
+        "record2": 7,
+        "header_bytes": 84,
+        "ncomp": 3,
+        "nz": 5,
+        "ny": 5,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dx": 2.4000000953674316,
+        "mean_wind": 12.0,
+        "length_scales": [
+          340.20001220703125,
+          340.20001220703125,
+          340.20001220703125,
+          113.4000015258789,
+          113.4000015258789,
+          113.4000015258789,
+          27.719999313354492,
+          27.719999313354492,
+          27.719999313354492
+        ],
+        "max_freq_or_unused": 2.5,
+        "seed": 260429
+      },
+      "bladed_wnd_normalized_stats": [
+        {
+          "mean": -1.8124999999997727e-05,
+          "sigma": 1.0000084382376402,
+          "ti_percent": 100.00084382376401
+        },
+        {
+          "mean": 1.875000000004512e-06,
+          "sigma": 1.0000058327937313,
+          "ti_percent": 100.00058327937313
+        },
+        {
+          "mean": 8.124999999994387e-06,
+          "sigma": 1.0000019040276795,
+          "ti_percent": 100.00019040276796
+        }
+      ],
+      "passed": true,
+      "run": {
+        "qwd": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\Spectrum_BladedKaimal.qwd",
+        "skipped": false,
+        "returncode": 0,
+        "elapsed_seconds": 0.4999958999978844,
+        "stdout_tail": "ogress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n    v-component matrices (uncorrelated spatial phases).\n      frequency progress 0% (ETA unknown until first block completes).\n      frequency progress 3%, elapsed 0s, ETA 0s.\n      frequency progress 10%, elapsed 0s, ETA 0s.\n      frequency progress 19%, elapsed 0s, ETA 0s.\n      frequency progress 29%, elapsed 0s, ETA 0s.\n      frequency progress 39%, elapsed 0s, ETA 0s.\n      frequency progress 48%, elapsed 0s, ETA 0s.\n      frequency progress 58%, elapsed 0s, ETA 0s.\n      frequency progress 68%, elapsed 0s, ETA 0s.\n      frequency progress 77%, elapsed 0s, ETA 0s.\n      frequency progress 87%, elapsed 0s, ETA 0s.\n      frequency progress 97%, elapsed 0s, ETA 0s.\n      frequency progress 100%, elapsed 0s, ETA 0s.\n      FFTW batch inverse transform for all grid points.\n      FFTW batch inverse transform complete in 0s.\n      copy-out progress 2%, elapsed 0s, ETA 0s.\n      copy-out progress 9%, elapsed 0s, ETA 0s.\n      copy-out progress 19%, elapsed 0s, ETA 0s.\n      copy-out progress 28%, elapsed 0s, ETA 0s.\n      copy-out progress 38%, elapsed 0s, ETA 0s.\n      copy-out progress 47%, elapsed 0s, ETA 0s.\n      copy-out progress 56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n    w-component matrices (uncorrelated spatial phases).\n      frequency progress 0% (ETA unknown until first block completes).\n      frequency progress 3%, elapsed 0s, ETA 0s.\n      frequency progress 10%, elapsed 0s, ETA 0s.\n      frequency progress 19%, elapsed 0s, ETA 0s.\n      frequency progress 29%, elapsed 0s, ETA 0s.\n      frequency progress 39%, elapsed 0s, ETA 0s.\n      frequency progress 48%, elapsed 0s, ETA 0s.\n      frequency progress 58%, elapsed 0s, ETA 0s.\n      frequency progress 68%, elapsed 0s, ETA 0s.\n      frequency progress 77%, elapsed 0s, ETA 0s.\n      frequency progress 87%, elapsed 0s, ETA 0s.\n      frequency progress 97%, elapsed 0s, ETA 0s.\n      frequency progress 100%, elapsed 0s, ETA 0s.\n      FFTW batch inverse transform for all grid points.\n      FFTW batch inverse transform complete in 0s.\n      copy-out progress 2%, elapsed 0s, ETA 0s.\n      copy-out progress 9%, elapsed 0s, ETA 0s.\n      copy-out progress 19%, elapsed 0s, ETA 0s.\n      copy-out progress 28%, elapsed 0s, ETA 0s.\n      copy-out progress 38%, elapsed 0s, ETA 0s.\n      copy-out progress 47%, elapsed 0s, ETA 0s.\n      copy-out progress 56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n Generating time series for all points.\n Applying mean wind profile and IEC event shape.\n Computing generated-field statistics.\n Writing requested wind output files.\n Generating AeroDyn/TurbSim binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedKaimal.bts\".\n Generating Bladed binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedKaimal.wnd\".\n Writing statistics to summary file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedKaimal.sum\".\n Processing complete. 0.28 CPU seconds used.\nSimWind generated wind files:\n  BTS: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedKaimal.bts\n  Bladed WND: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedKaimal.wnd\n  SUM: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedKaimal.sum\n",
+        "stderr_tail": ""
+      },
+      "bts_hub_stats": {
+        "u_sigma": 2.0440029286236996,
+        "v_sigma": 1.6352080190763225,
+        "w_sigma": 1.022007276070512,
+        "u_mean": 11.749776913112402
+      }
+    },
+    {
+      "base": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\Spectrum_BladedVK",
+      "checks": [
+        {
+          "name": "u_sigma_matches_sum_target",
+          "measured": 2.1283896108351685,
+          "target": 2.044,
+          "relative_error": 0.041286502365542314,
+          "passed": true
+        },
+        {
+          "name": "v_sigma_matches_sum_target",
+          "measured": 1.6531173499708962,
+          "target": 1.6352,
+          "relative_error": 0.010957283494921859,
+          "passed": true
+        },
+        {
+          "name": "w_sigma_matches_sum_target",
+          "measured": 1.0331976521931885,
+          "target": 1.022,
+          "relative_error": 0.010956606842650164,
+          "passed": true
+        },
+        {
+          "name": "bladed_u_normalized_unit_std",
+          "measured": 0.9999997080968324,
+          "target": 1.0,
+          "relative_error": 2.919031676373862e-07,
+          "passed": true
+        },
+        {
+          "name": "bladed_v_normalized_unit_std",
+          "measured": 1.0000063958840384,
+          "target": 1.0,
+          "relative_error": 6.39588403839042e-06,
+          "passed": true
+        },
+        {
+          "name": "bladed_w_normalized_unit_std",
+          "measured": 0.9999944027810153,
+          "target": 1.0,
+          "relative_error": 5.59721898474308e-06,
+          "passed": true
+        },
+        {
+          "name": "u_hub_sigma_matches_target",
+          "measured": 2.0440044044888923,
+          "target": 2.044,
+          "relative_error": 2.154838009918496e-06,
+          "passed": true
+        },
+        {
+          "name": "v_hub_sigma_matches_target",
+          "measured": 1.6352186268439302,
+          "target": 1.6352,
+          "relative_error": 1.1391171679408975e-05,
+          "passed": true
+        },
+        {
+          "name": "w_hub_sigma_matches_target",
+          "measured": 1.022001823912174,
+          "target": 1.022,
+          "relative_error": 1.7846498766725885e-06,
+          "passed": true
+        }
+      ],
+      "plots": [
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\Spectrum_BladedVK_hub_timeseries.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\Spectrum_BladedVK_u_first_plane.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\Spectrum_BladedVK_histograms.png"
+      ],
+      "sum": {
+        "stats": {
+          "u": {
+            "mean": 12.16293331,
+            "sigma": 2.128390151,
+            "ti_percent": 17.73658459
+          },
+          "v": {
+            "mean": 4.038436252e-17,
+            "sigma": 1.653116533,
+            "ti_percent": 13.7759711
+          },
+          "w": {
+            "mean": 9.485467967e-17,
+            "sigma": 1.033197833,
+            "ti_percent": 8.609981941
+          }
+        },
+        "target_sigma": [
+          2.044,
+          1.6352,
+          1.022
+        ],
+        "warnings": []
+      },
+      "bts_header": {
+        "file_id": 7,
+        "nz": 5,
+        "ny": 5,
+        "ntwr": 0,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dt": 0.20000000298023224,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": 63.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "bts_stats": [
+        {
+          "mean": 12.162932655750435,
+          "sigma": 2.1283896108351685,
+          "ti_percent": 17.73658009029307
+        },
+        {
+          "mean": -5.482968927772447e-07,
+          "sigma": 1.6531173499708962,
+          "ti_percent": 13.775977916424134
+        },
+        {
+          "mean": -2.488864037175631e-07,
+          "sigma": 1.0331976521931885,
+          "ti_percent": 8.609980434943237
+        }
+      ],
+      "bladed_wnd_header": {
+        "record1": -99,
+        "record2": 3,
+        "header_bytes": null,
+        "ncomp": 3,
+        "nz": 5,
+        "ny": 5,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dx": 2.4000000953674316,
+        "mean_wind": 12.0,
+        "length_scales": [
+          147.0,
+          147.0,
+          147.0,
+          147.0,
+          147.0,
+          147.0,
+          147.0,
+          147.0,
+          147.0
+        ],
+        "max_freq_or_unused": 2.5,
+        "seed": 260429
+      },
+      "bladed_wnd_normalized_stats": [
+        {
+          "mean": -7.500000000000284e-06,
+          "sigma": 0.9999997080968324,
+          "ti_percent": 99.99997080968323
+        },
+        {
+          "mean": -8.125000000003269e-06,
+          "sigma": 1.0000063958840384,
+          "ti_percent": 100.00063958840384
+        },
+        {
+          "mean": -5.624999999991331e-06,
+          "sigma": 0.9999944027810153,
+          "ti_percent": 99.99944027810153
+        }
+      ],
+      "passed": true,
+      "run": {
+        "qwd": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\Spectrum_BladedVK.qwd",
+        "skipped": false,
+        "returncode": 0,
+        "elapsed_seconds": 0.46479910000925884,
+        "stdout_tail": "TA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n    v-component matrices (uncorrelated spatial phases).\n      frequency progress 0% (ETA unknown until first block completes).\n      frequency progress 3%, elapsed 0s, ETA 0s.\n      frequency progress 10%, elapsed 0s, ETA 0s.\n      frequency progress 19%, elapsed 0s, ETA 0s.\n      frequency progress 29%, elapsed 0s, ETA 0s.\n      frequency progress 39%, elapsed 0s, ETA 0s.\n      frequency progress 48%, elapsed 0s, ETA 0s.\n      frequency progress 58%, elapsed 0s, ETA 0s.\n      frequency progress 68%, elapsed 0s, ETA 0s.\n      frequency progress 77%, elapsed 0s, ETA 0s.\n      frequency progress 87%, elapsed 0s, ETA 0s.\n      frequency progress 97%, elapsed 0s, ETA 0s.\n      frequency progress 100%, elapsed 0s, ETA 0s.\n      FFTW batch inverse transform for all grid points.\n      FFTW batch inverse transform complete in 0s.\n      copy-out progress 2%, elapsed 0s, ETA 0s.\n      copy-out progress 9%, elapsed 0s, ETA 0s.\n      copy-out progress 19%, elapsed 0s, ETA 0s.\n      copy-out progress 28%, elapsed 0s, ETA 0s.\n      copy-out progress 38%, elapsed 0s, ETA 0s.\n      copy-out progress 47%, elapsed 0s, ETA 0s.\n      copy-out progress 56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n    w-component matrices (uncorrelated spatial phases).\n      frequency progress 0% (ETA unknown until first block completes).\n      frequency progress 3%, elapsed 0s, ETA 0s.\n      frequency progress 10%, elapsed 0s, ETA 0s.\n      frequency progress 19%, elapsed 0s, ETA 0s.\n      frequency progress 29%, elapsed 0s, ETA 0s.\n      frequency progress 39%, elapsed 0s, ETA 0s.\n      frequency progress 48%, elapsed 0s, ETA 0s.\n      frequency progress 58%, elapsed 0s, ETA 0s.\n      frequency progress 68%, elapsed 0s, ETA 0s.\n      frequency progress 77%, elapsed 0s, ETA 0s.\n      frequency progress 87%, elapsed 0s, ETA 0s.\n      frequency progress 97%, elapsed 0s, ETA 0s.\n      frequency progress 100%, elapsed 0s, ETA 0s.\n      FFTW batch inverse transform for all grid points.\n      FFTW batch inverse transform complete in 0s.\n      copy-out progress 2%, elapsed 0s, ETA 0s.\n      copy-out progress 9%, elapsed 0s, ETA 0s.\n      copy-out progress 19%, elapsed 0s, ETA 0s.\n      copy-out progress 28%, elapsed 0s, ETA 0s.\n      copy-out progress 38%, elapsed 0s, ETA 0s.\n      copy-out progress 47%, elapsed 0s, ETA 0s.\n      copy-out progress 56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n Generating time series for all points.\n Applying mean wind profile and IEC event shape.\n Computing generated-field statistics.\n Writing requested wind output files.\n Generating AeroDyn/TurbSim binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedVK.bts\".\n Generating Bladed binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedVK.wnd\".\n Writing statistics to summary file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedVK.sum\".\n Processing complete. 0.27 CPU seconds used.\nSimWind generated wind files:\n  BTS: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedVK.bts\n  Bladed WND: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedVK.wnd\n  SUM: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedVK.sum\n",
+        "stderr_tail": ""
+      },
+      "bts_hub_stats": {
+        "u_sigma": 2.0440044044888923,
+        "v_sigma": 1.6352186268439302,
+        "w_sigma": 1.022001823912174,
+        "u_mean": 11.74977399586647
+      }
+    },
+    {
+      "base": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\Spectrum_BladedIVK",
+      "checks": [
+        {
+          "name": "u_sigma_matches_sum_target",
+          "measured": 2.1283896108351685,
+          "target": 2.044,
+          "relative_error": 0.041286502365542314,
+          "passed": true
+        },
+        {
+          "name": "v_sigma_matches_sum_target",
+          "measured": 1.6531173499708962,
+          "target": 1.6352,
+          "relative_error": 0.010957283494921859,
+          "passed": true
+        },
+        {
+          "name": "w_sigma_matches_sum_target",
+          "measured": 1.0331976521931885,
+          "target": 1.022,
+          "relative_error": 0.010956606842650164,
+          "passed": true
+        },
+        {
+          "name": "bladed_u_normalized_unit_std",
+          "measured": 0.9999997080968324,
+          "target": 1.0,
+          "relative_error": 2.919031676373862e-07,
+          "passed": true
+        },
+        {
+          "name": "bladed_v_normalized_unit_std",
+          "measured": 1.0000063958840384,
+          "target": 1.0,
+          "relative_error": 6.39588403839042e-06,
+          "passed": true
+        },
+        {
+          "name": "bladed_w_normalized_unit_std",
+          "measured": 0.9999944027810153,
+          "target": 1.0,
+          "relative_error": 5.59721898474308e-06,
+          "passed": true
+        },
+        {
+          "name": "u_hub_sigma_matches_target",
+          "measured": 2.0440044044888923,
+          "target": 2.044,
+          "relative_error": 2.154838009918496e-06,
+          "passed": true
+        },
+        {
+          "name": "v_hub_sigma_matches_target",
+          "measured": 1.6352186268439302,
+          "target": 1.6352,
+          "relative_error": 1.1391171679408975e-05,
+          "passed": true
+        },
+        {
+          "name": "w_hub_sigma_matches_target",
+          "measured": 1.022001823912174,
+          "target": 1.022,
+          "relative_error": 1.7846498766725885e-06,
+          "passed": true
+        }
+      ],
+      "plots": [
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\Spectrum_BladedIVK_hub_timeseries.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\Spectrum_BladedIVK_u_first_plane.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\Spectrum_BladedIVK_histograms.png"
+      ],
+      "sum": {
+        "stats": {
+          "u": {
+            "mean": 12.16293331,
+            "sigma": 2.128390151,
+            "ti_percent": 17.73658459
+          },
+          "v": {
+            "mean": 4.038436252e-17,
+            "sigma": 1.653116533,
+            "ti_percent": 13.7759711
+          },
+          "w": {
+            "mean": 9.485467967e-17,
+            "sigma": 1.033197833,
+            "ti_percent": 8.609981941
+          }
+        },
+        "target_sigma": [
+          2.044,
+          1.6352,
+          1.022
+        ],
+        "warnings": []
+      },
+      "bts_header": {
+        "file_id": 7,
+        "nz": 5,
+        "ny": 5,
+        "ntwr": 0,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dt": 0.20000000298023224,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": 63.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "bts_stats": [
+        {
+          "mean": 12.162932655750435,
+          "sigma": 2.1283896108351685,
+          "ti_percent": 17.73658009029307
+        },
+        {
+          "mean": -5.482968927772447e-07,
+          "sigma": 1.6531173499708962,
+          "ti_percent": 13.775977916424134
+        },
+        {
+          "mean": -2.488864037175631e-07,
+          "sigma": 1.0331976521931885,
+          "ti_percent": 8.609980434943237
+        }
+      ],
+      "bladed_wnd_header": {
+        "record1": -99,
+        "record2": 4,
+        "header_bytes": null,
+        "ncomp": 3,
+        "nz": 5,
+        "ny": 5,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dx": 2.4000000953674316,
+        "mean_wind": 12.0,
+        "length_scales": [
+          147.0,
+          147.0,
+          147.0,
+          147.0,
+          147.0,
+          147.0,
+          147.0,
+          147.0,
+          147.0
+        ],
+        "max_freq_or_unused": 2.5,
+        "seed": 260429
+      },
+      "bladed_wnd_normalized_stats": [
+        {
+          "mean": -7.500000000000284e-06,
+          "sigma": 0.9999997080968324,
+          "ti_percent": 99.99997080968323
+        },
+        {
+          "mean": -8.125000000003269e-06,
+          "sigma": 1.0000063958840384,
+          "ti_percent": 100.00063958840384
+        },
+        {
+          "mean": -5.624999999991331e-06,
+          "sigma": 0.9999944027810153,
+          "ti_percent": 99.99944027810153
+        }
+      ],
+      "passed": true,
+      "run": {
+        "qwd": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\Spectrum_BladedIVK.qwd",
+        "skipped": false,
+        "returncode": 0,
+        "elapsed_seconds": 0.5247301000053994,
+        "stdout_tail": "\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n    v-component matrices (uncorrelated spatial phases).\n      frequency progress 0% (ETA unknown until first block completes).\n      frequency progress 3%, elapsed 0s, ETA 0s.\n      frequency progress 10%, elapsed 0s, ETA 0s.\n      frequency progress 19%, elapsed 0s, ETA 0s.\n      frequency progress 29%, elapsed 0s, ETA 0s.\n      frequency progress 39%, elapsed 0s, ETA 0s.\n      frequency progress 48%, elapsed 0s, ETA 0s.\n      frequency progress 58%, elapsed 0s, ETA 0s.\n      frequency progress 68%, elapsed 0s, ETA 0s.\n      frequency progress 77%, elapsed 0s, ETA 0s.\n      frequency progress 87%, elapsed 0s, ETA 0s.\n      frequency progress 97%, elapsed 0s, ETA 0s.\n      frequency progress 100%, elapsed 0s, ETA 0s.\n      FFTW batch inverse transform for all grid points.\n      FFTW batch inverse transform complete in 0s.\n      copy-out progress 2%, elapsed 0s, ETA 0s.\n      copy-out progress 9%, elapsed 0s, ETA 0s.\n      copy-out progress 19%, elapsed 0s, ETA 0s.\n      copy-out progress 28%, elapsed 0s, ETA 0s.\n      copy-out progress 38%, elapsed 0s, ETA 0s.\n      copy-out progress 47%, elapsed 0s, ETA 0s.\n      copy-out progress 56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n    w-component matrices (uncorrelated spatial phases).\n      frequency progress 0% (ETA unknown until first block completes).\n      frequency progress 3%, elapsed 0s, ETA 0s.\n      frequency progress 10%, elapsed 0s, ETA 0s.\n      frequency progress 19%, elapsed 0s, ETA 0s.\n      frequency progress 29%, elapsed 0s, ETA 0s.\n      frequency progress 39%, elapsed 0s, ETA 0s.\n      frequency progress 48%, elapsed 0s, ETA 0s.\n      frequency progress 58%, elapsed 0s, ETA 0s.\n      frequency progress 68%, elapsed 0s, ETA 0s.\n      frequency progress 77%, elapsed 0s, ETA 0s.\n      frequency progress 87%, elapsed 0s, ETA 0s.\n      frequency progress 97%, elapsed 0s, ETA 0s.\n      frequency progress 100%, elapsed 0s, ETA 0s.\n      FFTW batch inverse transform for all grid points.\n      FFTW batch inverse transform complete in 0s.\n      copy-out progress 2%, elapsed 0s, ETA 0s.\n      copy-out progress 9%, elapsed 0s, ETA 0s.\n      copy-out progress 19%, elapsed 0s, ETA 0s.\n      copy-out progress 28%, elapsed 0s, ETA 0s.\n      copy-out progress 38%, elapsed 0s, ETA 0s.\n      copy-out progress 47%, elapsed 0s, ETA 0s.\n      copy-out progress 56%, elapsed 0s, ETA 0s.\n      copy-out progress 66%, elapsed 0s, ETA 0s.\n      copy-out progress 75%, elapsed 0s, ETA 0s.\n      copy-out progress 84%, elapsed 0s, ETA 0s.\n      copy-out progress 94%, elapsed 0s, ETA 0s.\n      copy-out progress 100%, elapsed 0s, ETA 0s.\n    component complete.\n Generating time series for all points.\n Applying mean wind profile and IEC event shape.\n Computing generated-field statistics.\n Writing requested wind output files.\n Generating AeroDyn/TurbSim binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedIVK.bts\".\n Generating Bladed binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedIVK.wnd\".\n Writing statistics to summary file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedIVK.sum\".\n Processing complete. 0.32 CPU seconds used.\nSimWind generated wind files:\n  BTS: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedIVK.bts\n  Bladed WND: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedIVK.wnd\n  SUM: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_BladedIVK.sum\n",
+        "stderr_tail": ""
+      },
+      "bts_hub_stats": {
+        "u_sigma": 2.0440044044888923,
+        "v_sigma": 1.6352186268439302,
+        "w_sigma": 1.022001823912174,
+        "u_mean": 11.74977399586647
+      }
+    },
+    {
+      "base": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\Spectrum_Mann",
+      "checks": [
+        {
+          "name": "u_sigma_matches_sum_target",
+          "measured": 1.6944153462775504,
+          "target": 2.044,
+          "relative_error": 0.1710296740325096,
+          "passed": true
+        },
+        {
+          "name": "v_sigma_matches_sum_target",
+          "measured": 1.7133467945708565,
+          "target": 1.6352,
+          "relative_error": 0.04779035871505412,
+          "passed": true
+        },
+        {
+          "name": "w_sigma_matches_sum_target",
+          "measured": 0.6850616947636017,
+          "target": 1.022,
+          "relative_error": 0.3296852301726011,
+          "passed": true
+        },
+        {
+          "name": "bladed_u_normalized_unit_std",
+          "measured": 0.9999979118657886,
+          "target": 1.0,
+          "relative_error": 2.0881342114309476e-06,
+          "passed": true
+        },
+        {
+          "name": "bladed_v_normalized_unit_std",
+          "measured": 1.0000065740360082,
+          "target": 1.0,
+          "relative_error": 6.574036008233364e-06,
+          "passed": true
+        },
+        {
+          "name": "bladed_w_normalized_unit_std",
+          "measured": 1.0000003395231845,
+          "target": 1.0,
+          "relative_error": 3.3952318445606977e-07,
+          "passed": true
+        },
+        {
+          "name": "u_hub_sigma_matches_target",
+          "measured": 2.0440086155074106,
+          "target": 2.044,
+          "relative_error": 4.215023195011315e-06,
+          "passed": true
+        },
+        {
+          "name": "v_hub_sigma_matches_target",
+          "measured": 1.6352015955898387,
+          "target": 1.6352,
+          "relative_error": 9.757765647619774e-07,
+          "passed": true
+        },
+        {
+          "name": "w_hub_sigma_matches_target",
+          "measured": 1.0220014092358667,
+          "target": 1.022,
+          "relative_error": 1.378900065232194e-06,
+          "passed": true
+        }
+      ],
+      "plots": [
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\Spectrum_Mann_hub_timeseries.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\Spectrum_Mann_u_first_plane.png",
+        "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result\\plots\\Spectrum_Mann_histograms.png"
+      ],
+      "sum": {
+        "stats": {
+          "u": {
+            "mean": 12.22820415,
+            "sigma": 1.694414044,
+            "ti_percent": 14.12011703
+          },
+          "v": {
+            "mean": 0.05617403896,
+            "sigma": 1.713347546,
+            "ti_percent": 14.27789621
+          },
+          "w": {
+            "mean": 0.01654313452,
+            "sigma": 0.6850613617,
+            "ti_percent": 5.708844681
+          }
+        },
+        "target_sigma": [
+          2.044,
+          1.6352,
+          1.022
+        ],
+        "warnings": []
+      },
+      "bts_header": {
+        "file_id": 7,
+        "nz": 5,
+        "ny": 5,
+        "ntwr": 0,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dt": 0.20000000298023224,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": 63.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "bts_stats": [
+        {
+          "mean": 12.228204750339973,
+          "sigma": 1.6944153462775504,
+          "ti_percent": 14.120127885646253
+        },
+        {
+          "mean": 0.05617340959671104,
+          "sigma": 1.7133467945708565,
+          "ti_percent": 14.277889954757137
+        },
+        {
+          "mean": 0.016542694634122626,
+          "sigma": 0.6850616947636017,
+          "ti_percent": 5.708847456363348
+        }
+      ],
+      "bladed_wnd_header": {
+        "record1": -99,
+        "record2": 8,
+        "header_bytes": 132,
+        "ncomp": 3,
+        "nz": 5,
+        "ny": 5,
+        "nt": 64,
+        "dz": 18.0,
+        "dy": 18.0,
+        "dx": 2.4000000953674316,
+        "mean_wind": 12.0,
+        "length_scales": [
+          33.599998474121094,
+          33.599998474121094,
+          33.599998474121094,
+          33.599998474121094,
+          33.599998474121094,
+          33.599998474121094,
+          33.599998474121094,
+          33.599998474121094,
+          33.599998474121094
+        ],
+        "max_freq_or_unused": 2.5,
+        "seed": 260429
+      },
+      "bladed_wnd_normalized_stats": [
+        {
+          "mean": -3.750000000000142e-06,
+          "sigma": 0.9999979118657886,
+          "ti_percent": 99.99979118657886
+        },
+        {
+          "mean": 3.1249999999793944e-06,
+          "sigma": 1.0000065740360082,
+          "ti_percent": 100.00065740360083
+        },
+        {
+          "mean": -1.8124999999988843e-05,
+          "sigma": 1.0000003395231845,
+          "ti_percent": 100.00003395231845
+        }
+      ],
+      "passed": true,
+      "run": {
+        "qwd": "F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\Spectrum_Mann.qwd",
+        "skipped": false,
+        "returncode": 0,
+        "elapsed_seconds": 0.5081188000040129,
+        "stdout_tail": "\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m\u001b[96m     ------------------------------------------------------------------------------------------     \n\u001b[0m\u001b[96m     !       000                                00     00    00  0000000   00000  000000      !     \n\u001b[0m\u001b[96m     !     0     0    000      000      00000   00    00    00  0        0       00     00    !     \n\u001b[0m\u001b[96m     !     0     0  0     0  0     0   0     0  00   0000   00  000000  0       00      00    !     \n\u001b[0m\u001b[96m     !      000    0      0 0       0 0     0    0  0   0  0   0        0       00     00     !     \n\u001b[0m\u001b[96m     !             0 0000   0  000    0     0     00     00    0000000   00000  0000000       !     \n\u001b[0m\u001b[96m     !             0        0     0                                                           !     \n\u001b[0m\u001b[96m     !            0          0000                                                             !     \n\u001b[0m\u001b[96m     !                                                                                        !     \n\u001b[0m\u001b[91m!                    Copyright (c) HawtC2.Team.ZZZ,\u8d75\u5b50\u796f licensed under GPL v3 .                   !\n\u001b[0m\u001b[96m     !                                                                                        !     \n\u001b[0m\u001b[92m     !   Copyright (c)  Key Laboratory of Jiangsu province High-Tech design of wind turbine   !     \n\u001b[0m\u001b[92m     !                                                                                        !     \n\u001b[0m\u001b[92m           ******                 Running Qahse (v3.0.0  2026-4)                  ******            \n\u001b[0m\u001b[96m     ------------------------------------------------------------------------------------------     \n\u001b[0m\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m\u001b[92mDebug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f Debug \u8c03\u8bd5\u6a21\u5f0f develop by \u8d75\u5b50\u796f\n\u001b[0m MKL\n Running WindL SimWind with input file \"F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\cases\\Spectrum_Mann.qwd\".\n Reading and normalizing the SimWind input file.\n Grid/time prepared: 5 x 5, steps=64, strict-coherence components=0, estimated peak memory=0.00 GiB, estimated Cholesky FLOPs=0.000e+00.\n Calculating Mann 3D spectral tensor field: 64 x 8 x 8.\n      Mann tensor progress 2%, elapsed 0s, ETA 0s.\n      Mann tensor progress 9%, elapsed 0s, ETA 0s.\n      Mann tensor progress 19%, elapsed 0s, ETA 0s.\n      Mann tensor progress 28%, elapsed 0s, ETA 0s.\n      Mann tensor progress 38%, elapsed 0s, ETA 0s.\n      Mann tensor progress 47%, elapsed 0s, ETA 0s.\n      Mann tensor progress 56%, elapsed 0s, ETA 0s.\n      Mann tensor progress 66%, elapsed 0s, ETA 0s.\n      Mann tensor progress 75%, elapsed 0s, ETA 0s.\n      Mann tensor progress 84%, elapsed 0s, ETA 0s.\n      Mann tensor progress 94%, elapsed 0s, ETA 0s.\n      Mann tensor progress 100%, elapsed 0s, ETA 0s.\n      Mann 3D FFTW inverse transform.\n Generating Mann time series for all points.\n Applying mean wind profile and IEC event shape.\n Computing generated-field statistics.\n Writing requested wind output files.\n Generating AeroDyn/TurbSim binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_Mann.bts\".\n Generating Bladed binary full-field file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_Mann.wnd\".\n Writing statistics to summary file \"F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_Mann.sum\".\n Processing complete. 0.31 CPU seconds used.\nSimWind generated wind files:\n  BTS: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_Mann.bts\n  Bladed WND: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_Mann.wnd\n  SUM: F:\\\\Qahse.Clear\\\\demo\\\\WindL\\\\IEC61400_3\\\\result\\Spectrum_Mann.sum\n",
+        "stderr_tail": ""
+      },
+      "bts_hub_stats": {
+        "u_sigma": 2.0440086155074106,
+        "v_sigma": 1.6352015955898387,
+        "w_sigma": 1.0220014092358667,
+        "u_mean": 11.990342621545382
+      }
+    }
+  ]
+}

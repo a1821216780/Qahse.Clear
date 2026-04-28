@@ -25,6 +25,7 @@ true        WrTrwnd
 1           IECStandard
 1           IECClass
 1           TurbulenceClass
+1           ScaleIEC
 
 33.6        MannScalelength
 3.9         MannGamma

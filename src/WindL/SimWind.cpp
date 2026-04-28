@@ -55,6 +55,8 @@ struct SimWindConfig
 	double mannGamma = 0.0;
 	double mannMaxL = 0.0;
 	int mannFftPoints = 0;
+	int mannGridY = 0;
+	int mannGridZ = 0;
 	int scaleIEC = 0;
 	std::array<double, 3> sigma{0.0, 0.0, 0.0};
 	std::array<double, 3> integralScale{0.0, 0.0, 0.0};
@@ -164,6 +166,59 @@ struct FftwBatchPlan1D
 	{
 		const std::size_t index = static_cast<std::size_t>(step) * static_cast<std::size_t>(nTransforms) + static_cast<std::size_t>(transform);
 		return data[index][0];
+	}
+};
+
+struct FftwComplexVolume
+{
+	int nx = 0;
+	int ny = 0;
+	int nz = 0;
+	fftw_complex *data = nullptr;
+
+	FftwComplexVolume(int nx, int ny, int nz)
+	    : nx(nx), ny(ny), nz(nz)
+	{
+		const std::size_t total = static_cast<std::size_t>(nx) * ny * nz;
+		data = static_cast<fftw_complex *>(fftw_malloc(sizeof(fftw_complex) * total));
+		if (data == nullptr)
+			throw std::runtime_error("FFTW failed to allocate SimWind 3D Mann buffers.");
+		std::memset(data, 0, sizeof(fftw_complex) * total);
+	}
+
+	~FftwComplexVolume()
+	{
+		if (data != nullptr)
+			fftw_free(data);
+	}
+
+	FftwComplexVolume(const FftwComplexVolume &) = delete;
+	FftwComplexVolume &operator=(const FftwComplexVolume &) = delete;
+
+	std::size_t Index(int ix, int iy, int iz) const
+	{
+		return (static_cast<std::size_t>(ix) * ny + static_cast<std::size_t>(iy)) * nz + static_cast<std::size_t>(iz);
+	}
+
+	void Set(int ix, int iy, int iz, const std::complex<double> &value)
+	{
+		const std::size_t index = Index(ix, iy, iz);
+		data[index][0] = value.real();
+		data[index][1] = value.imag();
+	}
+
+	double Real(int ix, int iy, int iz) const
+	{
+		return data[Index(ix, iy, iz)][0];
+	}
+
+	void ExecuteBackward()
+	{
+		fftw_plan plan = fftw_plan_dft_3d(nx, ny, nz, data, data, FFTW_BACKWARD, FFTW_ESTIMATE);
+		if (plan == nullptr)
+			throw std::runtime_error("FFTW failed to create SimWind 3D Mann IFFT plan.");
+		fftw_execute(plan);
+		fftw_destroy_plan(plan);
 	}
 };
 
@@ -330,6 +385,16 @@ bool IsMann(TurbModel value)
 	return value == TurbModel::B_MANN;
 }
 
+bool IsEwmWindModel(WindModel model)
+{
+	return model == WindModel::EWM1 || model == WindModel::EWM50;
+}
+
+bool IsSteadyEwmWindModel(const WindLInput &input)
+{
+	return IsEwmWindModel(input.windModel) && input.ewmType == EWMType::Steady;
+}
+
 bool IsIecSpectralModel(TurbModel value)
 {
 	return value == TurbModel::IEC_KAIMAL || value == TurbModel::IEC_VKAIMAL;
@@ -355,6 +420,11 @@ bool IsDeterministicEventWindModel(WindModel model)
 bool IsUniformWindModel(WindModel model)
 {
 	return model == WindModel::UNIFORM;
+}
+
+double SteadyEwmHubSpeed(const SimWindConfig &cfg)
+{
+	return cfg.input.windModel == WindModel::EWM1 ? ExtremeWindSpeed1(cfg) : ExtremeWindSpeed50(cfg);
 }
 
 bool UsesSpectralTurbulenceGeneration(const WindLInput &input)
@@ -509,7 +579,7 @@ void ApplyIecDefaults(SimWindConfig &cfg)
 			const double c = ClampPositive(in.etmC, 2.0);
 			cfg.sigma[0] = c * iref * (0.072 * (vAve / c + 3.0) * (cfg.uHub / c - 4.0) + 10.0);
 		}
-		else if (in.windModel == WindModel::EWM1 || in.windModel == WindModel::EWM50)
+		else if (IsEwmWindModel(in.windModel))
 		{
 			cfg.sigma[0] = in.ewmType == EWMType::Turbulent ? 0.11 * ExtremeWindSpeed50(cfg) : 0.0;
 		}
@@ -519,10 +589,16 @@ void ApplyIecDefaults(SimWindConfig &cfg)
 		}
 	}
 
-	if (IsVonKarman(in.turbModel))
+	if (in.turbModel == TurbModel::IEC_VKAIMAL)
 	{
 		cfg.sigma[1] = in.tiV > 0.0 ? FractionalTI(in.tiV) * cfg.uHub : cfg.sigma[0];
 		cfg.sigma[2] = in.tiW > 0.0 ? FractionalTI(in.tiW) * cfg.uHub : cfg.sigma[0];
+		cfg.integralScale = {3.5 * cfg.lambda, 3.5 * cfg.lambda, 3.5 * cfg.lambda};
+	}
+	else if (in.turbModel == TurbModel::B_VKAL || in.turbModel == TurbModel::B_IVKAL)
+	{
+		cfg.sigma[1] = in.tiV > 0.0 ? FractionalTI(in.tiV) * cfg.uHub : 0.8 * cfg.sigma[0];
+		cfg.sigma[2] = in.tiW > 0.0 ? FractionalTI(in.tiW) * cfg.uHub : 0.5 * cfg.sigma[0];
 		cfg.integralScale = {3.5 * cfg.lambda, 3.5 * cfg.lambda, 3.5 * cfg.lambda};
 	}
 	else
@@ -600,6 +676,14 @@ void BuildGridAndProfiles(SimWindConfig &cfg)
 		{
 			u = LinearInterpolate(cfg.userShear.heights, cfg.userShear.windSpeeds, z);
 		}
+		else if (IsUniformWindModel(in.windModel))
+		{
+			u = cfg.uHub;
+		}
+		else if (IsSteadyEwmWindModel(in))
+		{
+			u = cfg.uHub * std::pow(z / std::max(cfg.hubHeight, kTiny), 0.11);
+		}
 		else if (in.shearType == ShearType::LOG || in.windProfileType == WindProfileType::LOG)
 		{
 			const double z0 = std::clamp(in.roughness, 1.0e-5, cfg.refHeight * 0.95);
@@ -624,6 +708,18 @@ void EstimateGenerationCost(SimWindConfig &cfg)
 {
 	cfg.strictCoherenceComponents = 0;
 	cfg.estimatedCholeskyFlops = 0.0;
+	if (IsMann(cfg.input.turbModel))
+	{
+		const double nMann = static_cast<double>(std::max(cfg.mannFftPoints, 1)) *
+		                     static_cast<double>(std::max(cfg.mannGridY, 1)) *
+		                     static_cast<double>(std::max(cfg.mannGridZ, 1));
+		const double mannBytes = 3.0 * nMann * sizeof(fftw_complex);
+		const double fieldBytes = 3.0 * static_cast<double>(cfg.nSteps) *
+		                          static_cast<double>(cfg.nPoints) * sizeof(double);
+		cfg.estimatedPeakMemoryGiB = (mannBytes + fieldBytes) / (1024.0 * 1024.0 * 1024.0);
+		return;
+	}
+
 	double strictMatrixBytes = 0.0;
 	for (int comp = 0; comp < 3; ++comp)
 	{
@@ -677,6 +773,8 @@ SimWindConfig BuildConfig(const WindLInput &input)
 	cfg.dz = cfg.nz > 1 ? cfg.gridHeight / (cfg.nz - 1) : 0.0;
 	cfg.hubHeight = input.hubHeight;
 	cfg.uHub = input.meanWindSpeed;
+	if (IsSteadyEwmWindModel(input))
+		cfg.uHub = SteadyEwmHubSpeed(cfg);
 	cfg.refHeight = input.refHeight > 0.0 ? input.refHeight : input.hubHeight;
 	cfg.effectiveRotorDiameter = input.rotorDiameter > 0.0 ? input.rotorDiameter : input.fieldDimZ;
 	cfg.zBottom = input.hubHeight + 0.5 * cfg.effectiveRotorDiameter - input.fieldDimZ;
@@ -693,11 +791,10 @@ SimWindConfig BuildConfig(const WindLInput &input)
 	cfg.mannGamma = input.mannGamma > 0.0 ? input.mannGamma : 3.9;
 	cfg.mannMaxL = input.mannMaxL > 0.0 ? input.mannMaxL : 8.0 * cfg.mannLength;
 	cfg.mannFftPoints = input.mannNx > 0 ? input.mannNx : cfg.nSteps;
+	cfg.mannGridY = input.mannNy > 0 ? std::max(input.mannNy, cfg.ny) : cfg.ny;
+	cfg.mannGridZ = input.mannNz > 0 ? std::max(input.mannNz, cfg.nz) : cfg.nz;
 	if (IsMann(input.turbModel))
-	{
 		cfg.integralScale = {cfg.mannLength, cfg.mannLength, cfg.mannLength};
-		cfg.warnings.push_back("B_MANN writes a Bladed Mann header; spectral synthesis currently uses a Mann-length von Karman surrogate, not the full 3D Mann spectral tensor.");
-	}
 	if (input.turbModel == TurbModel::USER_SPECTRA)
 	{
 		cfg.userSpectra = ReadUserSpectra(input.userTurbFile);
@@ -707,10 +804,22 @@ SimWindConfig BuildConfig(const WindLInput &input)
 	BuildGridAndProfiles(cfg);
 	for (int comp = 0; comp < 3; ++comp)
 	{
-		cfg.useKronecker[static_cast<std::size_t>(comp)] = ShouldUseKroneckerApproximation(cfg, comp);
-		cfg.kroneckerFreqLimit[static_cast<std::size_t>(comp)] = EstimateKroneckerFreqLimit(cfg, comp);
+		if (IsMann(input.turbModel))
+		{
+			cfg.useKronecker[static_cast<std::size_t>(comp)] = false;
+			cfg.kroneckerFreqLimit[static_cast<std::size_t>(comp)] = 0;
+		}
+		else
+		{
+			cfg.useKronecker[static_cast<std::size_t>(comp)] = ShouldUseKroneckerApproximation(cfg, comp);
+			cfg.kroneckerFreqLimit[static_cast<std::size_t>(comp)] = EstimateKroneckerFreqLimit(cfg, comp);
+		}
 	}
 	EstimateGenerationCost(cfg);
+	if (IsMann(input.turbModel) && cfg.mannFftPoints < cfg.nSteps)
+		cfg.warnings.push_back("MannNx is smaller than the output time-step count; the synthesized Mann box is sampled periodically in time.");
+	if (IsMann(input.turbModel) && cfg.scaleIEC < 1)
+		cfg.warnings.push_back("B_MANN uses MannAlphaEps for absolute energy because ScaleIEC=0; set ScaleIEC=1 or 2 to match IEC target sigma exactly.");
 	for (int comp = 0; comp < 3; ++comp)
 	{
 		if (cfg.useKronecker[static_cast<std::size_t>(comp)])
@@ -763,12 +872,8 @@ double SpectrumAtMeanU(const SimWindConfig &cfg, int comp, double freq, double u
 
 	if (IsVonKarman(cfg.input.turbModel) || IsMann(cfg.input.turbModel))
 	{
-		const double lScale = IsMann(cfg.input.turbModel)
-		                          ? cfg.integralScale[static_cast<std::size_t>(comp)]
-		                          : cfg.integralScale[0];
-		const double sigma = IsMann(cfg.input.turbModel)
-		                         ? cfg.sigma[static_cast<std::size_t>(comp)]
-		                         : cfg.sigma[0];
+		const double lScale = cfg.integralScale[static_cast<std::size_t>(comp)];
+		const double sigma = cfg.sigma[static_cast<std::size_t>(comp)];
 		const double lOverU = std::max(lScale, kTiny) / meanU;
 		const double flu2 = std::pow(freq * lOverU, 2.0);
 		const double tmp = 1.0 + 71.0 * flu2;
@@ -995,6 +1100,111 @@ void ScaleZeroMeanComponent(std::vector<double> &values, double targetSigma)
 		for (double &value : values)
 			value *= scale;
 	}
+}
+
+int HubPointIndex(const SimWindConfig &cfg)
+{
+	int hubIy = 0;
+	double bestY = std::numeric_limits<double>::max();
+	for (int iy = 0; iy < cfg.ny; ++iy)
+	{
+		const double delta = std::abs(cfg.yCoords[static_cast<std::size_t>(iy)]);
+		if (delta < bestY)
+		{
+			bestY = delta;
+			hubIy = iy;
+		}
+	}
+
+	int hubIz = 0;
+	double bestZ = std::numeric_limits<double>::max();
+	for (int iz = 0; iz < cfg.nz; ++iz)
+	{
+		const double delta = std::abs(cfg.zCoords[static_cast<std::size_t>(iz)] - cfg.hubHeight);
+		if (delta < bestZ)
+		{
+			bestZ = delta;
+			hubIz = iz;
+		}
+	}
+
+	return GridIndex(cfg, hubIz, hubIy);
+}
+
+double HubPointSigma(const SimWindConfig &cfg, const std::vector<double> &values)
+{
+	if (values.empty() || cfg.nSteps <= 0 || cfg.nPoints <= 0)
+		return 0.0;
+
+	const int point = HubPointIndex(cfg);
+	double mean = 0.0;
+	for (int t = 0; t < cfg.nSteps; ++t)
+		mean += values[static_cast<std::size_t>(t) * cfg.nPoints + point];
+	mean /= static_cast<double>(cfg.nSteps);
+
+	double sum2 = 0.0;
+	for (int t = 0; t < cfg.nSteps; ++t)
+	{
+		const double delta = values[static_cast<std::size_t>(t) * cfg.nPoints + point] - mean;
+		sum2 += delta * delta;
+	}
+	return std::sqrt(sum2 / static_cast<double>(cfg.nSteps));
+}
+
+void ScaleComponentToHubSigma(const SimWindConfig &cfg, std::vector<double> &values, double targetSigma)
+{
+	if (targetSigma <= 0.0 || values.empty())
+		return;
+
+	const double actual = HubPointSigma(cfg, values);
+	if (actual <= kTiny)
+		return;
+
+	const double scale = targetSigma / actual;
+	for (double &value : values)
+		value *= scale;
+}
+
+void ScaleComponentPerPointSigma(const SimWindConfig &cfg, std::vector<double> &values, double targetSigma)
+{
+	if (targetSigma <= 0.0 || values.empty() || cfg.nSteps <= 0 || cfg.nPoints <= 0)
+		return;
+
+	for (int point = 0; point < cfg.nPoints; ++point)
+	{
+		double mean = 0.0;
+		for (int t = 0; t < cfg.nSteps; ++t)
+			mean += values[static_cast<std::size_t>(t) * cfg.nPoints + point];
+		mean /= static_cast<double>(cfg.nSteps);
+
+		double sum2 = 0.0;
+		for (int t = 0; t < cfg.nSteps; ++t)
+		{
+			const double delta = values[static_cast<std::size_t>(t) * cfg.nPoints + point] - mean;
+			sum2 += delta * delta;
+		}
+
+		const double actual = std::sqrt(sum2 / static_cast<double>(cfg.nSteps));
+		if (actual <= kTiny)
+			continue;
+
+		const double scale = targetSigma / actual;
+		for (int t = 0; t < cfg.nSteps; ++t)
+			values[static_cast<std::size_t>(t) * cfg.nPoints + point] *= scale;
+	}
+}
+
+void ApplyScaleIecForComponent(const SimWindConfig &cfg, WindField &field, int comp)
+{
+	if (cfg.scaleIEC < 1)
+		return;
+
+	auto &values = field.component[static_cast<std::size_t>(comp)];
+	const double targetSigma = cfg.sigma[static_cast<std::size_t>(comp)];
+	if (cfg.scaleIEC == 1 || comp > 0)
+		ScaleComponentToHubSigma(cfg, values, targetSigma);
+	else
+		ScaleComponentPerPointSigma(cfg, values, targetSigma);
 }
 
 WindField AllocateField(const SimWindConfig &cfg)
@@ -1254,8 +1464,217 @@ void GenerateSpectralComponent(const SimWindConfig &cfg, int comp, std::mt19937_
 		}
 	}
 
-	ScaleZeroMeanComponent(field.component[static_cast<std::size_t>(comp)], cfg.sigma[static_cast<std::size_t>(comp)]);
+	ApplyScaleIecForComponent(cfg, field, comp);
 	Report(cfg, "    component complete.");
+}
+
+double DftWaveNumber(int index, int count, double length)
+{
+	const int signedIndex = index <= count / 2 ? index : index - count;
+	return 2.0 * kPi * static_cast<double>(signedIndex) / std::max(length, kTiny);
+}
+
+bool MannLowerCholesky(const SimWindConfig &cfg,
+                       double k1,
+                       double k2,
+                       double k3,
+                       std::array<double, 6> &lower)
+{
+	lower.fill(0.0);
+
+	const double gamma = cfg.mannGamma;
+	const double length = std::max(cfg.mannLength, kTiny);
+	const double alphaEps = cfg.input.mannAlphaEps > 0.0 ? cfg.input.mannAlphaEps : 0.05;
+	const double k03 = k3 + gamma * k1;
+	const double k0sq = k1 * k1 + k2 * k2 + k03 * k03;
+	if (k0sq <= 1.0e-30)
+		return false;
+
+	const double k0 = std::sqrt(k0sq);
+	const double k0L = k0 * length;
+	const double k0L2 = k0L * k0L;
+	const double energy = alphaEps * std::pow(length, 5.0 / 3.0) *
+	                      k0L2 * k0L2 / std::pow(1.0 + k0L2, 17.0 / 6.0);
+	const double c0 = energy / (4.0 * kPi * k0sq * k0sq);
+	if (c0 <= 0.0 || !std::isfinite(c0))
+		return false;
+
+	const double phi00Iso = c0 * (k2 * k2 + k03 * k03);
+	const double phi11Iso = c0 * (k1 * k1 + k03 * k03);
+	const double phi22Iso = c0 * (k1 * k1 + k2 * k2);
+	const double phi01Iso = -c0 * k1 * k2;
+	const double phi02Iso = -c0 * k1 * k03;
+	const double phi12Iso = -c0 * k2 * k03;
+
+	double a00 = phi00Iso + 2.0 * gamma * phi02Iso + gamma * gamma * phi22Iso;
+	double a01 = phi01Iso + gamma * phi12Iso;
+	double a02 = phi02Iso + gamma * phi22Iso;
+	double a11 = phi11Iso;
+	double a12 = phi12Iso;
+	double a22 = phi22Iso;
+
+	const double baseJitter = std::max((std::abs(a00) + std::abs(a11) + std::abs(a22)) * 1.0e-12, 1.0e-30);
+	for (int attempt = 0; attempt < 8; ++attempt)
+	{
+		const double jitter = baseJitter * std::pow(10.0, attempt);
+		const double b00 = a00 + jitter;
+		const double b11 = a11 + jitter;
+		const double b22 = a22 + jitter;
+		if (b00 <= 0.0)
+			continue;
+
+		const double l00 = std::sqrt(b00);
+		const double l10 = a01 / l00;
+		const double l20 = a02 / l00;
+		const double d11 = b11 - l10 * l10;
+		if (d11 <= 0.0)
+			continue;
+
+		const double l11 = std::sqrt(d11);
+		const double l21 = (a12 - l20 * l10) / l11;
+		const double d22 = b22 - l20 * l20 - l21 * l21;
+		if (d22 <= 0.0)
+			continue;
+
+		lower = {l00, l10, l11, l20, l21, std::sqrt(d22)};
+		return true;
+	}
+
+	return false;
+}
+
+int NearestMannIndex(double coord, double minCoord, double width, int count)
+{
+	if (count <= 1 || width <= kTiny)
+		return 0;
+	const double position = (coord - minCoord) / width * static_cast<double>(count - 1);
+	return std::clamp(static_cast<int>(std::lround(position)), 0, count - 1);
+}
+
+WindField GenerateMannWindField(const SimWindConfig &cfg)
+{
+	const int nx = std::max(2, cfg.mannFftPoints);
+	const int ny = std::max(1, cfg.mannGridY);
+	const int nz = std::max(1, cfg.mannGridZ);
+	const double lx = std::max(cfg.uHub * cfg.duration, cfg.uHub * cfg.dt * static_cast<double>(nx));
+	const double ly = std::max(cfg.gridWidth, kTiny);
+	const double lz = std::max(cfg.gridHeight, kTiny);
+	const double dkVolume = (2.0 * kPi / lx) * (2.0 * kPi / ly) * (2.0 * kPi / lz);
+	const double fftScale = std::sqrt(std::max(dkVolume, 0.0)) * static_cast<double>(nx) * ny * nz;
+
+	Report(cfg,
+	       " Calculating Mann 3D spectral tensor field: " + std::to_string(nx) + " x " +
+	           std::to_string(ny) + " x " + std::to_string(nz) + ".");
+
+	FftwComplexVolume uHat(nx, ny, nz);
+	FftwComplexVolume vHat(nx, ny, nz);
+	FftwComplexVolume wHat(nx, ny, nz);
+	std::mt19937_64 rng(static_cast<std::uint64_t>(cfg.input.turbSeed));
+	std::normal_distribution<double> normal(0.0, 1.0);
+	const double invSqrt2 = 1.0 / std::sqrt(2.0);
+	const int reportEvery = std::max(1, nx / 10);
+	const auto start = std::chrono::steady_clock::now();
+
+	for (int ix = 0; ix < nx; ++ix)
+	{
+		const int nix = (nx - ix) % nx;
+		const double k1 = DftWaveNumber(ix, nx, lx);
+		for (int iy = 0; iy < ny; ++iy)
+		{
+			const int niy = (ny - iy) % ny;
+			const double k2 = DftWaveNumber(iy, ny, ly);
+			for (int iz = 0; iz < nz; ++iz)
+			{
+				const int niz = (nz - iz) % nz;
+				const std::size_t index = uHat.Index(ix, iy, iz);
+				const std::size_t mirror = uHat.Index(nix, niy, niz);
+				if (index > mirror)
+					continue;
+
+				std::array<double, 6> lower{};
+				const double k3 = DftWaveNumber(iz, nz, lz);
+				if (!MannLowerCholesky(cfg, k1, k2, k3, lower))
+					continue;
+
+				const bool selfConjugate = index == mirror;
+				const auto gaussian = [&]() -> std::complex<double>
+				{
+					if (selfConjugate)
+						return {normal(rng), 0.0};
+					return {normal(rng) * invSqrt2, normal(rng) * invSqrt2};
+				};
+
+				const auto z0 = gaussian();
+				const auto z1 = gaussian();
+				const auto z2 = gaussian();
+				const std::complex<double> u = fftScale * lower[0] * z0;
+				const std::complex<double> v = fftScale * (lower[1] * z0 + lower[2] * z1);
+				const std::complex<double> w = fftScale * (lower[3] * z0 + lower[4] * z1 + lower[5] * z2);
+				uHat.Set(ix, iy, iz, u);
+				vHat.Set(ix, iy, iz, v);
+				wHat.Set(ix, iy, iz, w);
+				if (!selfConjugate)
+				{
+					uHat.Set(nix, niy, niz, std::conj(u));
+					vHat.Set(nix, niy, niz, std::conj(v));
+					wHat.Set(nix, niy, niz, std::conj(w));
+				}
+			}
+		}
+
+		if (ix == 0 || (ix + 1) % reportEvery == 0 || ix + 1 == nx)
+		{
+			const int completed = ix + 1;
+			const int percent = static_cast<int>(std::round(100.0 * completed / std::max(nx, 1)));
+			const double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+			const double perStep = elapsed / static_cast<double>(completed);
+			const double remaining = perStep * static_cast<double>(nx - completed);
+			Report(cfg,
+			       "      Mann tensor progress " + std::to_string(percent) +
+			           "%, elapsed " + FormatDuration(elapsed) +
+			           ", ETA " + FormatDuration(remaining) + ".");
+		}
+	}
+
+	Report(cfg, "      Mann 3D FFTW inverse transform.");
+	uHat.ExecuteBackward();
+	vHat.ExecuteBackward();
+	wHat.ExecuteBackward();
+
+	WindField field = AllocateField(cfg);
+	const double invN = 1.0 / (static_cast<double>(nx) * ny * nz);
+	const double yMin = -0.5 * cfg.gridWidth;
+	const double zMin = cfg.zBottom;
+	for (int iz = 0; iz < cfg.nz; ++iz)
+	{
+		const int miz = NearestMannIndex(cfg.zCoords[static_cast<std::size_t>(iz)], zMin, cfg.gridHeight, nz);
+		for (int iy = 0; iy < cfg.ny; ++iy)
+		{
+			const int miy = NearestMannIndex(cfg.yCoords[static_cast<std::size_t>(iy)], yMin, cfg.gridWidth, ny);
+			const int point = GridIndex(cfg, iz, iy);
+			for (int t = 0; t < cfg.nSteps; ++t)
+			{
+				const int mix = t % nx;
+				field.At(0, t, point) = invN * uHat.Real(mix, miy, miz);
+				field.At(1, t, point) = invN * vHat.Real(mix, miy, miz);
+				field.At(2, t, point) = invN * wHat.Real(mix, miy, miz);
+			}
+		}
+	}
+
+	for (int comp = 0; comp < 3; ++comp)
+	{
+		if (!ComponentEnabled(cfg.input, comp))
+		{
+			std::fill(field.component[static_cast<std::size_t>(comp)].begin(),
+			          field.component[static_cast<std::size_t>(comp)].end(),
+			          0.0);
+			continue;
+		}
+		ApplyScaleIecForComponent(cfg, field, comp);
+	}
+
+	return field;
 }
 
 void ApplyMeanAndEvents(const SimWindConfig &cfg, WindField &field)
@@ -1402,6 +1821,15 @@ WindField GenerateWindField(const SimWindConfig &cfg)
 		return field;
 	}
 
+	if (IsMann(cfg.input.turbModel))
+	{
+		WindField field = GenerateMannWindField(cfg);
+		Report(cfg, " Generating Mann time series for all points.");
+		Report(cfg, " Applying mean wind profile and IEC event shape.");
+		ApplyMeanAndEvents(cfg, field);
+		return field;
+	}
+
 	Report(cfg, " Calculating the spectral and transfer function matrices:");
 	WindField field = AllocateField(cfg);
 	std::mt19937_64 rng(static_cast<std::uint64_t>(cfg.input.turbSeed));
@@ -1471,24 +1899,6 @@ double LengthScaleOrDefault(double value, double fallback)
 	return value > 0.0 ? value : std::max(fallback, kTiny);
 }
 
-int BladedHeaderByteCount(int modelId, int componentCount)
-{
-	int bytes = 2 + 2;
-	if (modelId >= 7)
-		bytes += 2 * 4;
-	if (modelId == 4)
-		bytes += 4 + 6 * 4;
-
-	bytes += 12 * 4;
-	if (componentCount == 3)
-		bytes += 6 * 4;
-	if (modelId == 7)
-		bytes += 2 * 4;
-	if (modelId == 8)
-		bytes += 16 * 4;
-	return bytes;
-}
-
 float BladedTiPercent(const std::array<SimWindComponentStats, 3> &stats, const SimWindConfig &cfg, int comp)
 {
 	const double ti = std::max(stats[static_cast<std::size_t>(comp)].sigma / std::max(cfg.uHub, kTiny), 1.0e-6);
@@ -1552,7 +1962,6 @@ void WriteBladedWnd(const SimWindConfig &cfg,
 
 	const int modelId = BladedModelId(cfg.input.turbModel);
 	const int componentCount = 3;
-	const int headerBytes = BladedHeaderByteCount(modelId, componentCount);
 
 	const float zLu = static_cast<float>(LengthScaleOrDefault(cfg.input.vzLu, cfg.integralScale[0]));
 	const float yLu = static_cast<float>(LengthScaleOrDefault(cfg.input.vyLu, cfg.integralScale[0]));
@@ -1569,9 +1978,11 @@ void WriteBladedWnd(const SimWindConfig &cfg,
 	WriteScalar<std::int16_t>(out, static_cast<std::int16_t>(-99));
 	WriteScalar<std::int16_t>(out, static_cast<std::int16_t>(modelId));
 
+	std::streampos headerOffsetPos = std::streampos(-1);
 	if (modelId >= 7)
 	{
-		WriteScalar<std::int32_t>(out, static_cast<std::int32_t>(headerBytes));
+		headerOffsetPos = out.tellp();
+		WriteScalar<std::int32_t>(out, static_cast<std::int32_t>(0));
 		WriteScalar<std::int32_t>(out, static_cast<std::int32_t>(componentCount));
 	}
 
@@ -1617,18 +2028,25 @@ void WriteBladedWnd(const SimWindConfig &cfg,
 		WriteScalar<float>(out, static_cast<float>(cfg.mannLength));
 		WriteScalar<float>(out, static_cast<float>(std::max(stats[1].sigma, kTiny) / std::max(stats[0].sigma, kTiny)));
 		WriteScalar<float>(out, static_cast<float>(std::max(stats[2].sigma, kTiny) / std::max(stats[0].sigma, kTiny)));
-		WriteScalar<float>(out, static_cast<float>(cfg.mannMaxL));
-		WriteScalar<float>(out, 0.0f);
-		WriteScalar<std::int32_t>(out, 0);
-		WriteScalar<std::int32_t>(out, cfg.mannFftPoints);
-		WriteScalar<std::int32_t>(out, 0);
+		WriteScalar<float>(out, static_cast<float>(cfg.mannMaxL > 0.0 ? cfg.mannMaxL : 8.0 * std::max(cfg.mannLength, 0.0)));
 		WriteScalar<float>(out, 0.0f);
 		WriteScalar<float>(out, 0.0f);
 		WriteScalar<std::int32_t>(out, 0);
-		WriteScalar<std::int32_t>(out, cfg.input.mannNy);
-		WriteScalar<std::int32_t>(out, cfg.input.mannNz);
+		WriteScalar<std::int32_t>(out, cfg.nSteps);
+		WriteScalar<std::int32_t>(out, 0);
+		WriteScalar<std::int32_t>(out, 0);
+		WriteScalar<std::int32_t>(out, 0);
 		WriteScalar<float>(out, 0.0f);
 		WriteScalar<float>(out, 0.0f);
+	}
+
+	if (modelId >= 7)
+	{
+		const std::streampos endPos = out.tellp();
+		const auto headerBytes = static_cast<std::int32_t>(endPos - headerOffsetPos - static_cast<std::streamoff>(4));
+		out.seekp(headerOffsetPos);
+		WriteScalar<std::int32_t>(out, headerBytes);
+		out.seekp(endPos);
 	}
 
 	const std::array<double, 3> means{stats[0].mean, stats[1].mean, stats[2].mean};

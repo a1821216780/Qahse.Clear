@@ -142,7 +142,7 @@ def read_bladed_wnd(path: Path) -> dict:
         if ncomp == 3:
             length_scales.extend(read_scalar(fh, "f") for _ in range(6))
         if record2 >= 7 and header_bytes is not None:
-            fh.seek(header_bytes)
+            fh.seek(8 + header_bytes)
 
         nt = half_nt * 2
         raw = np.fromfile(fh, dtype="<i2", count=nt * nz * ny * ncomp)

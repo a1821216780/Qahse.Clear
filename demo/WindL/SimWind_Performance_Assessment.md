@@ -7,7 +7,7 @@
 | `Qahse_WindL_Bladed_Kaimal_DEMO.qwd` | 3 | Bladed General Kaimal header (`Record 2 = 7`) plus `.bts` and TurbSim-compatible `.ts.wnd`. |
 | `Qahse_WindL_Bladed_ImprovedVonKarman_DEMO.qwd` | 5 | Bladed improved von Karman header (`Record 2 = 4`) with explicit length scales and TI values. |
 | `Qahse_WindL_Mann_DEMO.qwd` | 2 | Bladed Mann header (`Record 2 = 8`) with Mann length/gamma/max wavelength fields. |
-| `Qahse_WindL_LargeGrid_100x100_PERF_ONLY.qwd` | 3 | Records the requested 100 x 100, 660 s, 0.05 s case. SimWind preflight refuses this strict-coherence run by default. |
+| `Qahse_WindL_LargeGrid_100x100_PERF_ONLY.qwd` | 3 | Requested 100 x 100, 660 s, 0.05 s case. SimWind now runs it with preflight memory/FLOP estimates and measured ETA progress. |
 
 ## Format notes
 
@@ -40,31 +40,36 @@ Derived SimWind dimensions:
 
 - Spatial points: `Np = 100 * 100 = 10,000`.
 - Requested time steps: `660 / 0.05 = 13,200`.
-- SimWind FFT-padded steps: `Nt = 16,384`.
-- Positive frequency bins used by the strict-coherence loop: about `8,191` per velocity component.
+- SimWind time steps: `Nt = 13,200`.
+- Positive frequency bins: `6,599`.
 
-Current strict-coherence cost:
+Current generated-case cost estimate:
 
-- One full double coherence matrix: `Np^2 * 8 = 800,000,000 bytes`, about `763 MiB`.
-- Cholesky lower matrix: another about `763 MiB`.
-- The current Cholesky helper takes the matrix by value, so peak matrix storage is about three such matrices during factorization, before spectrum and wind-field arrays.
-- One component spectrum array: `Nt * Np * sizeof(complex<double>) = 2.44 GiB`.
-- Three-component wind field: `3 * Nt * Np * sizeof(double) = 3.66 GiB`.
-- Practical peak memory is therefore above `8 GiB` before allocator overhead, file buffers, and temporary vectors.
+- The Bladed Kaimal large-grid demo has IEC coherence only on `u`; `v/w` are synthesized with uncorrelated spatial phases, matching the current TurbSim-style default coherence settings.
+- For the `u` component, WindL uses the legacy Kronecker coherence acceleration for the first `2,863` positive frequencies and then diagonal high-frequency synthesis.
+- SimWind preflight estimate: peak memory `4.92 GiB`; Cholesky work `1.909e9` FLOPs.
+- One component spectrum array: `13,200 * 10,000 * sizeof(complex<double>)`, about `1.97 GiB`.
+- Three-component wind field: `3 * 13,200 * 10,000 * sizeof(double)`, about `2.95 GiB`.
 
-Operation count:
+Measured Release run:
 
-- Dense Cholesky cost per frequency is roughly `Np^3 / 3 = 3.33e11` floating-point operations.
-- Per component: `3.33e11 * 8191 = 2.73e15` floating-point operations.
-- For three components: about `8.19e15` floating-point operations.
-- At an ideal sustained `1 TFLOP/s`, Cholesky alone is about `2.3 h`; at `100 GFLOP/s`, about `22.8 h`. The current portable C++ implementation is not a blocked BLAS/LAPACK implementation, so real runtime is expected to be much worse and memory/cache limited.
+- Command: `build\release\Qahse.exe --qwd demo\WindL\Qahse_WindL_LargeGrid_100x100_PERF_ONLY.qwd`.
+- Machine run completed successfully in `186.27 s` wall time; SimWind reported `184.12 CPU seconds used`.
+- Console output included preflight memory/FLOP estimates, component-stage progress, frequency progress, FFT stage progress, copy-out progress, and ETA.
+- Python validation command passed:
+  - `python demo\WindL\validate_simwind_output.py --base demo\WindL\result\SimWind_LargeGrid_100x100_PERF_ONLY --tolerance 0.50 --plot-dir demo\WindL\result\SimWind_LargeGrid_100x100_validation --json demo\WindL\result\SimWind_LargeGrid_100x100_validation.json`
 
 Output size if generated with all three binary outputs:
 
-- One 3-component full-field int16 file at padded length: `3 * 2 * 10,000 * 16,384 = 983,040,000 bytes`, about `938 MiB`.
-- `.bts`, Bladed `.wnd`, and TurbSim-compatible `.ts.wnd` together would be about `2.8 GiB`, plus headers and `.sum`.
+- One 3-component full-field int16 file: `3 * 2 * 10,000 * 13,200 = 792,000,000 bytes`, about `755 MiB`, plus header.
+- Generated files:
+  - `.bts`: `792,000,089 bytes`
+  - Bladed `.wnd`: `792,000,092 bytes`
+  - TurbSim-compatible `.ts.wnd`: `792,000,104 bytes`
+  - `.sum`: `1,407 bytes`
 
-Conclusion:
+Validation summary:
 
-- The 100 x 100, 660 s, 0.05 s case is not practical with the current strict full-coherence Cholesky implementation.
-- For production-scale 100 x 100 grids, the implementation needs a dedicated high-performance path: blocked threaded LAPACK/BLAS, reduced temporary copies, streaming output, and likely a mathematically different synthesis method for Mann/Bladed spectral-tensor grids. That would change the performance profile but is outside this strict-coherence path.
+- BTS physical statistics passed the validation tolerance: `u` sigma `2.3754` vs target `1.981` (`19.9%` high with `ScaleIEC=0`), `v` sigma `1.5490` vs `1.5848`, `w` sigma `0.9691` vs `0.9905`.
+- Bladed `.wnd` normalized component standard deviations were all within `6e-8` of `1.0`.
+- Plots were written to `demo\WindL\result\SimWind_LargeGrid_100x100_validation`.
