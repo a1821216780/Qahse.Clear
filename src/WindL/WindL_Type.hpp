@@ -52,7 +52,8 @@ enum class TurbModel
 	B_VKAL = 4,			///< Bladed von Kármán
 	B_IVKAL = 5,		///< Bladed Improved von Kármán
 	USER_SPECTRA = 6,	///< 用户自定义风谱
-	USER_WIND_SPEED = 7 ///< 用户自定义风速时间序列
+	USER_WIND_SPEED = 7, ///< 用户自定义风速时间序列
+	USRVKM = 8 ///< 用户 profile 驱动 von Karman 风谱
 };
 
 /// @brief 湍流风模型（IEC 事件类型）
@@ -130,7 +131,9 @@ enum class CohModel
 {
 	IEC = 0,
 	GENERAL = 1,
-	DEFAULT_COH = 2
+	DEFAULT_COH = 2,
+	NONE = 3,
+	API = 4
 };
 
 /// @brief EWM 类型
@@ -274,6 +277,7 @@ struct WindLInput
 	double cohDecayW = 0.0;
 	double cohScaleB = 0.0;
 	double cohExp = 0.0;
+	bool allowCohApprox = true;
 
 	// ---- IEC 事件 / EWM 参数 ----
 	EWMType ewmType = EWMType::Turbulent;
@@ -350,6 +354,11 @@ struct UserSpectraData
 {
 	/// @brief 频率点数
 	int numFrequencies = 0;
+
+	/// @brief u/v/w 分量谱缩放因子
+	double specScale1 = 1.0;
+	double specScale2 = 1.0;
+	double specScale3 = 1.0;
 
 	/// @brief 频率 (Hz)
 	std::vector<double> frequencies;

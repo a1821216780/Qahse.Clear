@@ -1,0 +1,13 @@
+-- Phase-2 demo: user shear/profile table for USRVKM
+6 NumUSRz - Number of heights
+1.00 StdScale1 - u standard deviation scale
+0.78 StdScale2 - v standard deviation scale
+0.55 StdScale3 - w standard deviation scale
+Height WindSpeed WindDirection StandardDeviation LengthScale
+!Begin
+40.0 8.5 350.0 1.40 28.0
+60.0 10.2 355.0 1.60 35.0
+80.0 11.7 359.0 1.80 42.0
+100.0 13.0 2.0 2.00 50.0
+120.0 14.1 7.0 2.15 58.0
+140.0 15.0 12.0 2.30 66.0

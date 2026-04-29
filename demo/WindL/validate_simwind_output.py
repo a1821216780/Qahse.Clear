@@ -34,7 +34,7 @@ def read_scalar(fh: BinaryIO, fmt: str):
 
 def parse_sum(path: Path) -> dict:
     text = path.read_text(encoding="utf-8", errors="ignore")
-    result: dict = {"stats": {}, "target_sigma": None, "warnings": []}
+    result: dict = {"stats": {}, "target_sigma": None, "warnings": [], "derived": {}}
 
     sigma_match = re.search(
         r"SigmaU/SigmaV/SigmaW:\s*([-+0-9.eE]+),\s*([-+0-9.eE]+),\s*([-+0-9.eE]+)",
@@ -57,6 +57,16 @@ def parse_sum(path: Path) -> dict:
 
     for warning in re.findall(r"^\s*-\s*(.+)$", text, flags=re.MULTILINE):
         result["warnings"].append(warning)
+
+    for key in ("ZL", "L", "UStar", "UStarDiab", "ZI"):
+        match = re.search(rf"\b{key}:\s*([-+0-9.eE]+)", text)
+        if match:
+            result["derived"][key] = float(match.group(1))
+
+    for key in ("AllowCohApprox", "UserDirectionProfile", "UserSigmaProfile", "UserLengthScaleProfile", "ReynoldsStressActive"):
+        match = re.search(rf"\b{key}:\s*(true|false)", text, flags=re.IGNORECASE)
+        if match:
+            result["derived"][key] = match.group(1).lower() == "true"
 
     return result
 
@@ -189,6 +199,36 @@ def component_stats(data: np.ndarray, uhub: float) -> list[dict]:
     return stats
 
 
+def hub_indices_from_data(data: np.ndarray) -> tuple[int, int]:
+    return data.shape[1] // 2, data.shape[2] // 2
+
+
+def hub_series(data: np.ndarray) -> np.ndarray:
+    mid_z, mid_y = hub_indices_from_data(data)
+    return np.asarray(data[:, mid_z, mid_y, :], dtype=np.float64)
+
+
+def covariance_matrix(series: np.ndarray) -> np.ndarray:
+    centered = np.asarray(series, dtype=np.float64) - np.mean(series, axis=0, keepdims=True)
+    if centered.shape[0] <= 1:
+        return np.zeros((centered.shape[1], centered.shape[1]), dtype=np.float64)
+    return (centered.T @ centered) / float(centered.shape[0])
+
+
+def power_spectral_density(series: np.ndarray, dt: float) -> tuple[np.ndarray, np.ndarray]:
+    values = np.asarray(series, dtype=np.float64)
+    centered = values - float(np.mean(values))
+    if centered.size < 2 or dt <= 0.0:
+        return np.zeros(0, dtype=np.float64), np.zeros(0, dtype=np.float64)
+
+    freq = np.fft.rfftfreq(centered.size, d=dt)
+    fft_values = np.fft.rfft(centered)
+    psd = (dt / centered.size) * np.square(np.abs(fft_values))
+    if psd.size > 2:
+        psd[1:-1] *= 2.0
+    return freq, psd
+
+
 def make_plots(data: np.ndarray, dt: float, output_dir: Path, prefix: str) -> list[str]:
     if plt is None:
         return []
@@ -215,6 +255,24 @@ def make_plots(data: np.ndarray, dt: float, output_dir: Path, prefix: str) -> li
     plt.close(fig)
     paths.append(str(path))
 
+    fig, ax = plt.subplots(figsize=(8, 4))
+    hub = hub_series(data)
+    for comp, name in enumerate(names):
+        freq, psd = power_spectral_density(hub[:, comp], dt)
+        mask = (freq > 0.0) & np.isfinite(psd) & (psd > 0.0)
+        if np.any(mask):
+            ax.loglog(freq[mask], psd[mask], label=name, linewidth=0.9)
+    ax.set_xlabel("frequency [Hz]")
+    ax.set_ylabel("PSD [(m/s)^2/Hz]")
+    ax.set_title("Hub-point one-sided PSD")
+    ax.grid(True, which="both", alpha=0.25)
+    ax.legend()
+    path = output_dir / f"{prefix}_hub_psd.png"
+    fig.tight_layout()
+    fig.savefig(path, dpi=160)
+    plt.close(fig)
+    paths.append(str(path))
+
     fig, ax = plt.subplots(figsize=(6, 5))
     image = ax.imshow(data[0, :, :, 0], origin="lower", aspect="auto")
     ax.set_title("u component, first plane")
@@ -222,6 +280,22 @@ def make_plots(data: np.ndarray, dt: float, output_dir: Path, prefix: str) -> li
     ax.set_ylabel("vertical index")
     fig.colorbar(image, ax=ax, label="m/s")
     path = output_dir / f"{prefix}_u_first_plane.png"
+    fig.tight_layout()
+    fig.savefig(path, dpi=160)
+    plt.close(fig)
+    paths.append(str(path))
+
+    fig, ax = plt.subplots(figsize=(5, 4))
+    cov = covariance_matrix(hub)
+    image = ax.imshow(cov, cmap="coolwarm")
+    ax.set_xticks(range(3), names)
+    ax.set_yticks(range(3), names)
+    ax.set_title("Hub covariance matrix")
+    fig.colorbar(image, ax=ax, label="(m/s)^2")
+    for i in range(3):
+        for j in range(3):
+            ax.text(j, i, f"{cov[i, j]:.3f}", ha="center", va="center", fontsize=8)
+    path = output_dir / f"{prefix}_hub_covariance.png"
     fig.tight_layout()
     fig.savefig(path, dpi=160)
     plt.close(fig)
@@ -244,7 +318,7 @@ def make_plots(data: np.ndarray, dt: float, output_dir: Path, prefix: str) -> li
     return paths
 
 
-def validate(base: Path, tolerance: float, plot_dir: Path | None) -> dict:
+def validate(base: Path, tolerance: float, plot_dir: Path | None, check_sum_sigma: bool = True) -> dict:
     sum_path = base.with_suffix(".sum")
     bts_path = base.with_suffix(".bts")
     bladed_path = base.with_suffix(".wnd")
@@ -260,8 +334,12 @@ def validate(base: Path, tolerance: float, plot_dir: Path | None) -> dict:
         bts = read_bts(bts_path)
         report["bts_header"] = bts["header"]
         report["bts_stats"] = component_stats(bts["data"], bts["header"]["uhub"])
+        hub = hub_series(bts["data"])
+        report["hub_point_index"] = {"iy": int(bts["data"].shape[2] // 2), "iz": int(bts["data"].shape[1] // 2)}
+        report["hub_stats"] = component_stats(hub.reshape((hub.shape[0], 1, 1, hub.shape[1])), bts["header"]["uhub"])
+        report["hub_covariance"] = covariance_matrix(hub).tolist()
         target_sigma = report["sum"].get("target_sigma")
-        if target_sigma:
+        if check_sum_sigma and target_sigma:
             for idx, name in enumerate(("u", "v", "w")):
                 measured = report["bts_stats"][idx]["sigma"]
                 target = target_sigma[idx]

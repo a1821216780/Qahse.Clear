@@ -27,6 +27,28 @@ constexpr double kPi = 3.141592653589793238462643383279502884;
 constexpr double kRad = kPi / 180.0;
 constexpr double kTiny = 1.0e-12;
 constexpr double kHugeDecay = 1.0e9;
+constexpr double kOmega = 7.2921159e-5;
+
+struct ReynoldsStressSetup
+{
+	std::array<double, 3> target{0.0, 0.0, 0.0};
+	std::array<bool, 3> skip{true, true, true};
+	bool active = false;
+};
+
+struct MeteorologyClosure
+{
+	double richardson = 0.0;
+	double zL = 0.0;
+	double moninLength = std::numeric_limits<double>::infinity();
+	double uStar = 0.0;
+	double uStarDiab = 0.0;
+	double mixingLayerDepth = 0.0;
+	double coriolis = 0.0;
+	std::array<double, 3> defaultGeneralCohDecay{0.0, 0.0, 0.0};
+	std::array<double, 3> defaultGeneralCohB{0.0, 0.0, 0.0};
+	ReynoldsStressSetup reynoldsStress;
+};
 
 struct SimWindConfig
 {
@@ -65,20 +87,29 @@ struct SimWindConfig
 	std::array<CohModel, 3> cohModel{CohModel::DEFAULT_COH, CohModel::DEFAULT_COH, CohModel::DEFAULT_COH};
 	std::array<bool, 3> useKronecker{false, false, false};
 	std::array<int, 3> kroneckerFreqLimit{0, 0, 0};
+	std::array<bool, 3> hasExplicitCohDecay{false, false, false};
+	bool hasExplicitCohB = false;
 	std::vector<double> yCoords;
 	std::vector<double> zCoords;
 	std::vector<double> meanUByZ;
 	std::vector<double> y;
 	std::vector<double> z;
 	std::vector<double> meanU;
+	std::vector<double> directionByZ;
+	std::array<std::vector<double>, 3> sigmaByZ;
+	std::array<std::vector<double>, 3> lengthScaleByZ;
 	std::filesystem::path outputBase;
 	UserSpectraData userSpectra;
 	UserShearData userShear;
 	bool hasUserSpectra = false;
 	bool hasUserShear = false;
+	bool hasUserDirectionProfile = false;
+	bool hasUserSigmaProfile = false;
+	bool hasUserLengthScaleProfile = false;
 	double estimatedPeakMemoryGiB = 0.0;
 	double estimatedCholeskyFlops = 0.0;
 	int strictCoherenceComponents = 0;
+	MeteorologyClosure met;
 	SimWindProgressCallback progress;
 	std::vector<std::string> warnings;
 };
@@ -246,6 +277,68 @@ void Report(const SimWindConfig &cfg, const std::string &message)
 		cfg.progress(message);
 }
 
+bool HasProfileColumn(const std::vector<double> &heights, const std::vector<double> &values)
+{
+	return !heights.empty() && heights.size() == values.size();
+}
+
+double UserStdScale(const UserShearData &data, int comp)
+{
+	switch (comp)
+	{
+	case 0: return data.stdScale1 > 0.0 ? data.stdScale1 : 1.0;
+	case 1: return data.stdScale2 > 0.0 ? data.stdScale2 : 1.0;
+	default: return data.stdScale3 > 0.0 ? data.stdScale3 : 1.0;
+	}
+}
+
+double InterpolateProfile(const std::vector<double> &heights, const std::vector<double> &values, double z);
+double NormalizeDirectionDegrees(double value)
+{
+	double wrapped = std::fmod(value, 360.0);
+	if (wrapped < 0.0)
+		wrapped += 360.0;
+	return wrapped;
+}
+
+double InterpolateWrappedDirection(const std::vector<double> &heights,
+                                   const std::vector<double> &directions,
+                                   double z)
+{
+	if (heights.empty() || directions.empty())
+		return 0.0;
+	const std::size_t n = std::min(heights.size(), directions.size());
+	if (n == 1 || z <= heights.front())
+		return NormalizeDirectionDegrees(directions.front());
+	if (z >= heights[n - 1])
+		return NormalizeDirectionDegrees(directions[n - 1]);
+
+	const auto upper = std::upper_bound(heights.begin(), heights.begin() + static_cast<std::ptrdiff_t>(n), z);
+	const std::size_t i1 = static_cast<std::size_t>(std::distance(heights.begin(), upper));
+	const std::size_t i0 = i1 - 1;
+	const double span = std::max(heights[i1] - heights[i0], kTiny);
+	const double a = (z - heights[i0]) / span;
+	double d0 = NormalizeDirectionDegrees(directions[i0]);
+	double d1 = NormalizeDirectionDegrees(directions[i1]);
+	double delta = d1 - d0;
+	if (delta > 180.0)
+		delta -= 360.0;
+	else if (delta < -180.0)
+		delta += 360.0;
+	return NormalizeDirectionDegrees(d0 + a * delta);
+}
+
+void AppendWarning(std::vector<std::string> &warnings, const std::string &text)
+{
+	if (std::find(warnings.begin(), warnings.end(), text) == warnings.end())
+		warnings.push_back(text);
+}
+
+std::vector<std::string> &MutableWarnings(const SimWindConfig &cfg)
+{
+	return const_cast<std::vector<std::string> &>(cfg.warnings);
+}
+
 std::string FormatGiB(double value)
 {
 	std::ostringstream out;
@@ -377,7 +470,8 @@ bool IsVonKarman(TurbModel value)
 {
 	return value == TurbModel::IEC_VKAIMAL ||
 	       value == TurbModel::B_VKAL ||
-	       value == TurbModel::B_IVKAL;
+	       value == TurbModel::B_IVKAL ||
+	       value == TurbModel::USRVKM;
 }
 
 bool IsMann(TurbModel value)
@@ -398,6 +492,91 @@ bool IsSteadyEwmWindModel(const WindLInput &input)
 bool IsIecSpectralModel(TurbModel value)
 {
 	return value == TurbModel::IEC_KAIMAL || value == TurbModel::IEC_VKAIMAL;
+}
+
+bool IsSyntheticStochasticModel(const WindLInput &input);
+
+double StabilityPsiM(double zOverL)
+{
+	if (zOverL >= 0.0)
+		return -5.0 * std::min(zOverL, 1.0);
+
+	const double tmp = std::pow(1.0 - 15.0 * zOverL, 0.25);
+	double psiM = -std::log(0.125 * std::pow(1.0 + tmp, 2.0) * (1.0 + tmp * tmp)) +
+	              2.0 * std::atan(tmp) - 0.5 * kPi;
+	return -psiM;
+}
+
+double MoninLengthFromZL(double hubHeight, double zL)
+{
+	if (std::abs(zL) <= kTiny)
+		return std::numeric_limits<double>::infinity();
+	return hubHeight / zL;
+}
+
+double ZOverLAtHeight(double height, double moninLength)
+{
+	if (!std::isfinite(moninLength) || std::abs(moninLength) <= kTiny)
+		return 0.0;
+	return height / moninLength;
+}
+
+double DeriveZLFromRichardson(double richardson)
+{
+	if (richardson <= 0.0)
+		return richardson;
+	if (richardson < 0.16667)
+		return std::min(richardson / (1.0 - 5.0 * richardson), 1.0);
+	return 1.0;
+}
+
+double DiabaticLogWindSpeed(double height,
+                            double refHeight,
+                            double refSpeed,
+                            double roughness,
+                            double moninLength)
+{
+	if (height <= 0.0 || refHeight <= 0.0 || roughness <= 0.0)
+		return 0.0;
+	const double z0 = std::clamp(roughness, 1.0e-5, refHeight * 0.95);
+	const double psiHt = StabilityPsiM(ZOverLAtHeight(height, moninLength));
+	const double psiRef = StabilityPsiM(ZOverLAtHeight(refHeight, moninLength));
+	const double denom = std::log(refHeight / z0) - psiRef;
+	if (std::abs(denom) <= kTiny)
+		return 0.0;
+	return refSpeed * (std::log(height / z0) - psiHt) / denom;
+}
+
+double UstarDiabatic(double uRef, double refHeight, double roughness, double zLAtRef)
+{
+	const double z0 = std::clamp(roughness, 1.0e-5, refHeight * 0.95);
+	const double psiRef = StabilityPsiM(zLAtRef);
+	const double denom = std::log(refHeight / z0) - psiRef;
+	if (uRef <= 0.0 || refHeight <= 0.0 || std::abs(denom) <= kTiny)
+		return 0.0;
+	return 0.4 * uRef / denom;
+}
+
+double DefaultMixingLayerDepth(double uStar,
+                               double uStarDiab,
+                               double uRef,
+                               double refHeight,
+                               double roughness,
+                               double coriolis)
+{
+	const double z0 = std::clamp(roughness, 1.0e-5, refHeight * 0.95);
+	if (uStar < uStarDiab || std::abs(coriolis) <= 1.0e-8)
+		return (0.04 * uRef) / (1.0e-4 * std::max(std::log10(refHeight / z0), 1.0e-3));
+	return uStar / (6.0 * std::abs(coriolis));
+}
+
+double DefaultIecProfileExponent(const SimWindConfig &cfg)
+{
+	if (IsSteadyEwmWindModel(cfg.input))
+		return 0.11;
+	if (cfg.input.iecEdition == IecStandard::ED3 || cfg.input.iecEdition == IecStandard::ED4)
+		return 0.14;
+	return 0.2;
 }
 
 bool ComponentEnabled(const WindLInput &input, int comp)
@@ -434,12 +613,41 @@ bool UsesSpectralTurbulenceGeneration(const WindLInput &input)
 	       input.turbModel != TurbModel::USER_WIND_SPEED;
 }
 
+bool IsSyntheticStochasticModel(const WindLInput &input)
+{
+	return UsesSpectralTurbulenceGeneration(input);
+}
+
+bool HasExplicitReynoldsTarget(double value)
+{
+	return std::abs(value) > kTiny;
+}
+
+bool HasAnyMeteorologyHints(const WindLInput &input)
+{
+	return std::abs(input.richardson) > kTiny ||
+	       input.uStar > 0.0 ||
+	       std::abs(input.zOverL) > kTiny ||
+	       input.mixingLayerDepth > 0.0 ||
+	       HasExplicitReynoldsTarget(input.reynoldsUW) ||
+	       HasExplicitReynoldsTarget(input.reynoldsUV) ||
+	       HasExplicitReynoldsTarget(input.reynoldsVW);
+}
+
 bool UsesStrictCoherence(const SimWindConfig &cfg, int comp)
 {
 	if (!UsesSpectralTurbulenceGeneration(cfg.input))
 		return false;
-	return ComponentEnabled(cfg.input, comp) &&
-	       cfg.cohDecay[static_cast<std::size_t>(comp)] < kHugeDecay * 0.5;
+	if (!ComponentEnabled(cfg.input, comp))
+		return false;
+
+	const CohModel model = cfg.cohModel[static_cast<std::size_t>(comp)];
+	if (model == CohModel::NONE)
+		return false;
+	if (model == CohModel::API)
+		return comp == 0;
+
+	return cfg.cohDecay[static_cast<std::size_t>(comp)] < kHugeDecay * 0.5;
 }
 
 bool SupportsKroneckerApproximation(const SimWindConfig &cfg, int comp)
@@ -447,6 +655,10 @@ bool SupportsKroneckerApproximation(const SimWindConfig &cfg, int comp)
 	if (!UsesStrictCoherence(cfg, comp))
 		return false;
 	if (cfg.ny <= 1 || cfg.nz <= 1)
+		return false;
+	if (!cfg.input.allowCohApprox)
+		return false;
+	if (cfg.cohModel[static_cast<std::size_t>(comp)] == CohModel::API)
 		return false;
 	if (cfg.cohModel[static_cast<std::size_t>(comp)] == CohModel::GENERAL && cfg.input.cohExp > 0.0)
 		return false;
@@ -495,7 +707,7 @@ int EstimateKroneckerFreqLimit(const SimWindConfig &cfg, int comp)
 	return std::clamp(static_cast<int>(fThresh / cfg.df), 1, std::max(cfg.nFreq - 1, 1));
 }
 
-double LinearInterpolate(const std::vector<double> &x, const std::vector<double> &y, double xi)
+double InterpolateProfile(const std::vector<double> &x, const std::vector<double> &y, double xi)
 {
 	if (x.empty() || y.empty())
 		return 0.0;
@@ -511,6 +723,11 @@ double LinearInterpolate(const std::vector<double> &x, const std::vector<double>
 	const double span = std::max(x[i1] - x[i0], kTiny);
 	const double a = (xi - x[i0]) / span;
 	return y[i0] * (1.0 - a) + y[i1] * a;
+}
+
+double LinearInterpolate(const std::vector<double> &x, const std::vector<double> &y, double xi)
+{
+	return InterpolateProfile(x, y, xi);
 }
 
 void ValidateInput(const WindLInput &input)
@@ -531,6 +748,14 @@ void ValidateInput(const WindLInput &input)
 		throw std::runtime_error("SimWind requires HubHt to be positive.");
 	if (!input.calWu && !input.calWv && !input.calWw)
 		throw std::runtime_error("At least one of CalWu, CalWv, or CalWw must be true.");
+	if (input.cohMod2 == CohModel::API || input.cohMod3 == CohModel::API)
+		throw std::runtime_error("API coherence model is valid only for the u component (CohMod1).");
+	if (input.turbModel == TurbModel::USER_SPECTRA && input.userTurbFile.empty())
+		throw std::runtime_error("USER_SPECTRA requires TurbFilePath/UserTurbFile.");
+	if (input.turbModel == TurbModel::USER_WIND_SPEED && input.userTurbFile.empty())
+		throw std::runtime_error("USER_WIND_SPEED requires TurbFilePath/UserTurbFile.");
+	if (input.turbModel == TurbModel::USRVKM && input.userShearFile.empty())
+		throw std::runtime_error("USRVKM requires UserShearFile.");
 }
 
 void ApplyIecDefaults(SimWindConfig &cfg)
@@ -626,14 +851,242 @@ void ApplyIecDefaults(SimWindConfig &cfg)
 
 std::array<CohModel, 3> ResolveCoherenceModels(const WindLInput &input)
 {
-	const CohModel fallback = IsIecSpectralModel(input.turbModel) ? CohModel::IEC : CohModel::GENERAL;
 	std::array<CohModel, 3> models{input.cohMod1, input.cohMod2, input.cohMod3};
-	for (auto &model : models)
+	for (int comp = 0; comp < 3; ++comp)
 	{
-		if (model == CohModel::DEFAULT_COH)
-			model = fallback;
+		auto &model = models[static_cast<std::size_t>(comp)];
+		if (model != CohModel::DEFAULT_COH)
+			continue;
+
+		switch (input.turbModel)
+		{
+		case TurbModel::IEC_KAIMAL:
+		case TurbModel::IEC_VKAIMAL:
+		case TurbModel::USRVKM:
+			model = comp == 0 ? CohModel::IEC : CohModel::NONE;
+			break;
+		case TurbModel::USER_SPECTRA:
+			model = comp == 0 ? CohModel::GENERAL : CohModel::NONE;
+			break;
+		default:
+			model = CohModel::GENERAL;
+			break;
+		}
 	}
 	return models;
+}
+
+void LoadUserShearIfNeeded(SimWindConfig &cfg)
+{
+	const auto &in = cfg.input;
+	if (!(in.shearType == ShearType::USER ||
+	      in.windProfileType == WindProfileType::USER ||
+	      in.turbModel == TurbModel::USRVKM))
+		return;
+	if (in.userShearFile.empty())
+		return;
+	cfg.userShear = ReadUserShear(in.userShearFile);
+	cfg.hasUserShear = !cfg.userShear.heights.empty();
+}
+
+void AppendModelConsumptionNotes(SimWindConfig &cfg)
+{
+	if (cfg.input.turbModel == TurbModel::USER_WIND_SPEED && HasAnyMeteorologyHints(cfg.input))
+	{
+		AppendWarning(cfg.warnings,
+		              "USER_WIND_SPEED imports the supplied time series without inferred stability, coherence, or Reynolds-stress corrections.");
+	}
+
+	if (!IsSyntheticStochasticModel(cfg.input) &&
+	    (HasExplicitReynoldsTarget(cfg.input.reynoldsUW) ||
+	     HasExplicitReynoldsTarget(cfg.input.reynoldsUV) ||
+	     HasExplicitReynoldsTarget(cfg.input.reynoldsVW)))
+	{
+		AppendWarning(cfg.warnings,
+		              "Reynolds-stress targets are only applied to synthetic stochastic turbulence models; the current wind model skips this step.");
+	}
+}
+
+double ProfileValueAtHub(const SimWindConfig &cfg, const std::vector<double> &valuesByZ)
+{
+	if (cfg.zCoords.empty() || valuesByZ.empty())
+		return 0.0;
+	return LinearInterpolate(cfg.zCoords, valuesByZ, cfg.hubHeight);
+}
+
+double LocalSigmaAtZ(const SimWindConfig &cfg, int comp, int iz)
+{
+	if (cfg.hasUserSigmaProfile &&
+	    iz >= 0 &&
+	    static_cast<std::size_t>(iz) < cfg.sigmaByZ[static_cast<std::size_t>(comp)].size())
+		return std::max(cfg.sigmaByZ[static_cast<std::size_t>(comp)][static_cast<std::size_t>(iz)], 0.0);
+	return cfg.sigma[static_cast<std::size_t>(comp)];
+}
+
+double LocalLengthScaleAtZ(const SimWindConfig &cfg, int comp, int iz)
+{
+	if (cfg.hasUserLengthScaleProfile &&
+	    iz >= 0 &&
+	    static_cast<std::size_t>(iz) < cfg.lengthScaleByZ[static_cast<std::size_t>(comp)].size())
+		return std::max(cfg.lengthScaleByZ[static_cast<std::size_t>(comp)][static_cast<std::size_t>(iz)], kTiny);
+	return std::max(cfg.integralScale[static_cast<std::size_t>(comp)], kTiny);
+}
+
+void ApplyUserProfileTurbulenceOverrides(SimWindConfig &cfg)
+{
+	if (cfg.hasUserSigmaProfile)
+	{
+		for (int comp = 0; comp < 3; ++comp)
+			cfg.sigma[static_cast<std::size_t>(comp)] = ProfileValueAtHub(cfg, cfg.sigmaByZ[static_cast<std::size_t>(comp)]);
+	}
+
+	if (cfg.hasUserLengthScaleProfile)
+	{
+		for (int comp = 0; comp < 3; ++comp)
+			cfg.integralScale[static_cast<std::size_t>(comp)] = ProfileValueAtHub(cfg, cfg.lengthScaleByZ[static_cast<std::size_t>(comp)]);
+	}
+}
+
+void NormalizeAndValidateUserSpectra(UserSpectraData &data)
+{
+	const std::size_t n = data.frequencies.size();
+	if (n < 3 || data.uPsd.size() != n || data.vPsd.size() != n || data.wPsd.size() != n)
+		throw std::runtime_error("USER_SPECTRA requires at least 3 rows with Frequency/uPSD/vPSD/wPSD.");
+	if (data.specScale1 <= 0.0 || data.specScale2 <= 0.0 || data.specScale3 <= 0.0)
+		throw std::runtime_error("USER_SPECTRA requires SpecScale1/2/3 to be positive.");
+
+	struct UserSpectraRow
+	{
+		double f = 0.0;
+		double u = 0.0;
+		double v = 0.0;
+		double w = 0.0;
+	};
+
+	std::vector<UserSpectraRow> rows(n);
+	for (std::size_t i = 0; i < n; ++i)
+	{
+		if (data.uPsd[i] <= 0.0 || data.vPsd[i] <= 0.0 || data.wPsd[i] <= 0.0)
+			throw std::runtime_error("USER_SPECTRA requires strictly positive u/v/w PSD values.");
+		rows[i] = {data.frequencies[i], data.uPsd[i], data.vPsd[i], data.wPsd[i]};
+	}
+
+	std::sort(rows.begin(), rows.end(), [](const UserSpectraRow &a, const UserSpectraRow &b) { return a.f < b.f; });
+	for (std::size_t i = 1; i < rows.size(); ++i)
+	{
+		if (rows[i].f <= rows[i - 1].f + kTiny)
+			throw std::runtime_error("USER_SPECTRA requires unique frequencies in strictly ascending order.");
+	}
+
+	for (std::size_t i = 0; i < rows.size(); ++i)
+	{
+		data.frequencies[i] = rows[i].f;
+		data.uPsd[i] = rows[i].u;
+		data.vPsd[i] = rows[i].v;
+		data.wPsd[i] = rows[i].w;
+	}
+	data.numFrequencies = static_cast<int>(rows.size());
+}
+
+void ResolveMeteorologyClosure(SimWindConfig &cfg)
+{
+	cfg.met.richardson = cfg.input.richardson;
+	cfg.met.zL = std::abs(cfg.input.zOverL) > kTiny
+	                 ? cfg.input.zOverL
+	                 : DeriveZLFromRichardson(cfg.input.richardson);
+	cfg.met.moninLength = MoninLengthFromZL(cfg.hubHeight, cfg.met.zL);
+	cfg.met.coriolis = 2.0 * kOmega * std::sin(std::abs(cfg.input.latitude) * kRad);
+
+	const double zLAtRef = ZOverLAtHeight(cfg.refHeight, cfg.met.moninLength);
+	cfg.met.uStarDiab = UstarDiabatic(cfg.input.meanWindSpeed,
+	                                  cfg.refHeight,
+	                                  cfg.input.roughness,
+	                                  zLAtRef);
+	cfg.met.uStar = cfg.input.uStar > 0.0 ? cfg.input.uStar : cfg.met.uStarDiab;
+
+	if (cfg.input.mixingLayerDepth > 0.0)
+		cfg.met.mixingLayerDepth = cfg.input.mixingLayerDepth;
+	else
+		cfg.met.mixingLayerDepth = DefaultMixingLayerDepth(cfg.met.uStar,
+		                                                   cfg.met.uStarDiab,
+		                                                   cfg.input.meanWindSpeed,
+		                                                   cfg.refHeight,
+		                                                   cfg.input.roughness,
+		                                                   cfg.met.coriolis);
+
+	if (IsSyntheticStochasticModel(cfg.input) && cfg.met.zL < 0.0 &&
+	    (!std::isfinite(cfg.met.mixingLayerDepth) || cfg.met.mixingLayerDepth <= 0.0))
+	{
+		throw std::runtime_error("Unstable synthetic turbulence generation requires a positive mixing-layer depth (ZI).");
+	}
+
+	const double stabilityFactor = std::clamp(1.0 + 0.35 * cfg.met.zL, 0.65, 1.50);
+	const double baseDecay = std::max(cfg.uHub, 0.1) * stabilityFactor;
+	cfg.met.defaultGeneralCohDecay = {baseDecay, 0.75 * baseDecay, 0.75 * baseDecay};
+
+	const double mixingScale = std::max({cfg.lc,
+	                                     cfg.hubHeight,
+	                                     cfg.met.mixingLayerDepth > 0.0 ? 0.25 * cfg.met.mixingLayerDepth : 0.0,
+	                                     1.0});
+	const double baseB = 0.12 / mixingScale;
+	cfg.met.defaultGeneralCohB = {baseB, baseB, baseB};
+
+	const bool explicitUW = HasExplicitReynoldsTarget(cfg.input.reynoldsUW);
+	const bool explicitUV = HasExplicitReynoldsTarget(cfg.input.reynoldsUV);
+	const bool explicitVW = HasExplicitReynoldsTarget(cfg.input.reynoldsVW);
+
+	cfg.met.reynoldsStress.skip = {true, true, true};
+	cfg.met.reynoldsStress.target = {0.0, 0.0, 0.0};
+	if (IsSyntheticStochasticModel(cfg.input))
+	{
+		cfg.met.reynoldsStress.target[0] = explicitUW ? cfg.input.reynoldsUW : -(cfg.met.uStar * cfg.met.uStar);
+		cfg.met.reynoldsStress.skip[0] = !(explicitUW || cfg.met.uStar > kTiny);
+		cfg.met.reynoldsStress.target[1] = explicitUV ? cfg.input.reynoldsUV : 0.0;
+		cfg.met.reynoldsStress.target[2] = explicitVW ? cfg.input.reynoldsVW : 0.0;
+		cfg.met.reynoldsStress.skip[1] = !explicitUV;
+		cfg.met.reynoldsStress.skip[2] = !explicitVW;
+	}
+	cfg.met.reynoldsStress.active = !cfg.met.reynoldsStress.skip[0] ||
+	                                !cfg.met.reynoldsStress.skip[1] ||
+	                                !cfg.met.reynoldsStress.skip[2];
+}
+
+void ApplyMeteorologyCoherenceDefaults(SimWindConfig &cfg)
+{
+	for (int comp = 0; comp < 3; ++comp)
+	{
+		const std::size_t cs = static_cast<std::size_t>(comp);
+		const CohModel model = cfg.cohModel[cs];
+		if (model == CohModel::NONE)
+		{
+			cfg.cohDecay[cs] = kHugeDecay;
+			cfg.cohB[cs] = 0.0;
+			continue;
+		}
+		if (model == CohModel::GENERAL)
+		{
+			if (!cfg.hasExplicitCohDecay[cs])
+				cfg.cohDecay[cs] = cfg.met.defaultGeneralCohDecay[cs];
+			if (!cfg.hasExplicitCohB)
+				cfg.cohB[cs] = cfg.met.defaultGeneralCohB[cs];
+		}
+	}
+}
+
+void ValidateResolvedUserInputs(const SimWindConfig &cfg)
+{
+	if (cfg.input.turbModel == TurbModel::USRVKM)
+	{
+		if (!cfg.hasUserShear)
+			throw std::runtime_error("USRVKM requires a readable UserShearFile with profile rows.");
+		if (!HasProfileColumn(cfg.userShear.heights, cfg.userShear.windSpeeds) ||
+		    !HasProfileColumn(cfg.userShear.heights, cfg.userShear.windDirections) ||
+		    !HasProfileColumn(cfg.userShear.heights, cfg.userShear.standardDeviations) ||
+		    !HasProfileColumn(cfg.userShear.heights, cfg.userShear.lengthScales))
+		{
+			throw std::runtime_error("USRVKM requires UserShearFile columns Height/U/WindDir/Sigma/L with matching row counts.");
+		}
+	}
 }
 
 void BuildGridAndProfiles(SimWindConfig &cfg)
@@ -642,6 +1095,11 @@ void BuildGridAndProfiles(SimWindConfig &cfg)
 	cfg.yCoords.resize(static_cast<std::size_t>(cfg.ny));
 	cfg.zCoords.resize(static_cast<std::size_t>(cfg.nz));
 	cfg.meanUByZ.resize(static_cast<std::size_t>(cfg.nz));
+	cfg.directionByZ.assign(static_cast<std::size_t>(cfg.nz), 0.0);
+	for (auto &values : cfg.sigmaByZ)
+		values.assign(static_cast<std::size_t>(cfg.nz), 0.0);
+	for (auto &values : cfg.lengthScaleByZ)
+		values.assign(static_cast<std::size_t>(cfg.nz), 0.0);
 	cfg.y.resize(static_cast<std::size_t>(cfg.nPoints));
 	cfg.z.resize(static_cast<std::size_t>(cfg.nPoints));
 	cfg.meanU.resize(static_cast<std::size_t>(cfg.nPoints));
@@ -661,11 +1119,26 @@ void BuildGridAndProfiles(SimWindConfig &cfg)
 		}
 	}
 
-	if ((in.shearType == ShearType::USER || in.windProfileType == WindProfileType::USER) && !in.userShearFile.empty())
+	LoadUserShearIfNeeded(cfg);
+	cfg.hasUserDirectionProfile = cfg.hasUserShear && HasProfileColumn(cfg.userShear.heights, cfg.userShear.windDirections);
+	cfg.hasUserSigmaProfile = cfg.hasUserShear && HasProfileColumn(cfg.userShear.heights, cfg.userShear.standardDeviations);
+	cfg.hasUserLengthScaleProfile = cfg.hasUserShear && HasProfileColumn(cfg.userShear.heights, cfg.userShear.lengthScales);
+
+	if (cfg.hasUserShear)
 	{
-		cfg.userShear = ReadUserShear(in.userShearFile);
-		cfg.hasUserShear = !cfg.userShear.heights.empty();
+		if (!cfg.userShear.windDirections.empty() && !cfg.hasUserDirectionProfile)
+			AppendWarning(cfg.warnings, "UserShear wind-direction column size does not match the height column; direction profile is ignored.");
+		if (!cfg.userShear.standardDeviations.empty() && !cfg.hasUserSigmaProfile)
+			AppendWarning(cfg.warnings, "UserShear standard-deviation column size does not match the height column; sigma profile is ignored.");
+		if (!cfg.userShear.lengthScales.empty() && !cfg.hasUserLengthScaleProfile)
+			AppendWarning(cfg.warnings, "UserShear length-scale column size does not match the height column; length-scale profile is ignored.");
 	}
+
+	const double luBase = std::max(cfg.integralScale[0], kTiny);
+	const std::array<double, 3> lengthRatios{
+	    1.0,
+	    std::max(cfg.integralScale[1], kTiny) / luBase,
+	    std::max(cfg.integralScale[2], kTiny) / luBase};
 
 	for (int iz = 0; iz < cfg.nz; ++iz)
 	{
@@ -686,8 +1159,15 @@ void BuildGridAndProfiles(SimWindConfig &cfg)
 		}
 		else if (in.shearType == ShearType::LOG || in.windProfileType == WindProfileType::LOG)
 		{
-			const double z0 = std::clamp(in.roughness, 1.0e-5, cfg.refHeight * 0.95);
-			u = cfg.uHub * std::log(z / z0) / std::max(std::log(cfg.refHeight / z0), kTiny);
+			u = DiabaticLogWindSpeed(z,
+			                         cfg.refHeight,
+			                         cfg.input.meanWindSpeed,
+			                         in.roughness,
+			                         cfg.met.moninLength);
+		}
+		else if (in.windProfileType == WindProfileType::IEC)
+		{
+			u = cfg.uHub * std::pow(z / std::max(cfg.refHeight, kTiny), DefaultIecProfileExponent(cfg));
 		}
 		else
 		{
@@ -696,6 +1176,22 @@ void BuildGridAndProfiles(SimWindConfig &cfg)
 
 		const double uClamped = std::max(0.0, u);
 		cfg.meanUByZ[static_cast<std::size_t>(iz)] = uClamped;
+		if (cfg.hasUserDirectionProfile)
+			cfg.directionByZ[static_cast<std::size_t>(iz)] =
+			    InterpolateWrappedDirection(cfg.userShear.heights, cfg.userShear.windDirections, z);
+		if (cfg.hasUserSigmaProfile)
+		{
+			const double sigmaBase = std::max(0.0, InterpolateProfile(cfg.userShear.heights, cfg.userShear.standardDeviations, z));
+			for (int comp = 0; comp < 3; ++comp)
+				cfg.sigmaByZ[static_cast<std::size_t>(comp)][static_cast<std::size_t>(iz)] = sigmaBase * UserStdScale(cfg.userShear, comp);
+		}
+		if (cfg.hasUserLengthScaleProfile)
+		{
+			const double lengthBase = std::max(kTiny, InterpolateProfile(cfg.userShear.heights, cfg.userShear.lengthScales, z));
+			for (int comp = 0; comp < 3; ++comp)
+				cfg.lengthScaleByZ[static_cast<std::size_t>(comp)][static_cast<std::size_t>(iz)] =
+				    std::max(lengthBase * lengthRatios[static_cast<std::size_t>(comp)], kTiny);
+		}
 		for (int iy = 0; iy < cfg.ny; ++iy)
 		{
 			const int p = GridIndex(cfg, iz, iy);
@@ -781,6 +1277,8 @@ SimWindConfig BuildConfig(const WindLInput &input)
 	cfg.dx = cfg.uHub * cfg.dt;
 	cfg.scaleIEC = input.scaleIEC >= 0 ? input.scaleIEC : (input.useIECSimmga ? 2 : 0);
 	cfg.cohModel = ResolveCoherenceModels(input);
+	cfg.hasExplicitCohDecay = {input.cohDecayU > 0.0, input.cohDecayV > 0.0, input.cohDecayW > 0.0};
+	cfg.hasExplicitCohB = input.cohScaleB > 0.0;
 
 	if (cfg.zBottom <= 0.0)
 		cfg.warnings.push_back("Grid bottom is at or below ground; low grid heights are clamped in profile calculations.");
@@ -799,9 +1297,15 @@ SimWindConfig BuildConfig(const WindLInput &input)
 	{
 		cfg.userSpectra = ReadUserSpectra(input.userTurbFile);
 		cfg.hasUserSpectra = !cfg.userSpectra.frequencies.empty();
+		NormalizeAndValidateUserSpectra(cfg.userSpectra);
 	}
 
+	ResolveMeteorologyClosure(cfg);
+	ApplyMeteorologyCoherenceDefaults(cfg);
 	BuildGridAndProfiles(cfg);
+	ValidateResolvedUserInputs(cfg);
+	ApplyUserProfileTurbulenceOverrides(cfg);
+	AppendModelConsumptionNotes(cfg);
 	for (int comp = 0; comp < 3; ++comp)
 	{
 		if (IsMann(input.turbModel))
@@ -829,7 +1333,7 @@ SimWindConfig BuildConfig(const WindLInput &input)
 			note << "Component " << axis
 			     << " uses the legacy WindL Kronecker coherence acceleration for the first "
 			     << cfg.kroneckerFreqLimit[static_cast<std::size_t>(comp)]
-			     << " positive frequencies, then switches to diagonal high-frequency synthesis.";
+			     << " positive frequencies, then switches to diagonal high-frequency synthesis. Set AllowCohApprox=false to force the exact strict-coherence path.";
 			cfg.warnings.push_back(note.str());
 		}
 	}
@@ -842,6 +1346,8 @@ SimWindConfig BuildConfig(const WindLInput &input)
 		        << FormatScientific(cfg.estimatedCholeskyFlops)
 		        << ".";
 		cfg.warnings.push_back(warning.str());
+		if (!cfg.input.allowCohApprox)
+			AppendWarning(cfg.warnings, "AllowCohApprox=false requests the exact strict-coherence path; large grids may run much longer than the approximate path.");
 	}
 
 	const std::filesystem::path outputDir = input.savePath.empty() ? std::filesystem::current_path() : std::filesystem::path(input.savePath);
@@ -852,7 +1358,37 @@ SimWindConfig BuildConfig(const WindLInput &input)
 	return cfg;
 }
 
-double SpectrumAtMeanU(const SimWindConfig &cfg, int comp, double freq, double uMean)
+double UserSpectraScale(const UserSpectraData &data, int comp)
+{
+	if (comp == 0)
+		return data.specScale1;
+	if (comp == 1)
+		return data.specScale2;
+	return data.specScale3;
+}
+
+double InterpolateUserPsdWithEndpointHold(const std::vector<double> &freqs,
+                                          const std::vector<double> &values,
+                                          double freq)
+{
+	if (freqs.empty() || values.empty())
+		return 0.0;
+	const std::size_t n = std::min(freqs.size(), values.size());
+	if (n == 1)
+		return std::max(values.front(), 0.0);
+	if (freq <= freqs.front())
+		return std::max(values.front(), 0.0);
+	if (freq >= freqs[n - 1])
+		return std::max(values[n - 1], 0.0);
+	return std::max(InterpolateProfile(freqs, values, freq), 0.0);
+}
+
+double SpectrumWithParameters(const SimWindConfig &cfg,
+                              int comp,
+                              double freq,
+                              double uMean,
+                              double sigma,
+                              double integralScale)
 {
 	if (freq <= 0.0 || !ComponentEnabled(cfg.input, comp))
 		return 0.0;
@@ -867,14 +1403,12 @@ double SpectrumAtMeanU(const SimWindConfig &cfg, int comp, double freq, double u
 			psd = &data.vPsd;
 		else if (comp == 2)
 			psd = &data.wPsd;
-		return std::max(0.0, LinearInterpolate(data.frequencies, *psd, freq));
+		return UserSpectraScale(data, comp) * InterpolateUserPsdWithEndpointHold(data.frequencies, *psd, freq);
 	}
 
 	if (IsVonKarman(cfg.input.turbModel) || IsMann(cfg.input.turbModel))
 	{
-		const double lScale = cfg.integralScale[static_cast<std::size_t>(comp)];
-		const double sigma = cfg.sigma[static_cast<std::size_t>(comp)];
-		const double lOverU = std::max(lScale, kTiny) / meanU;
+		const double lOverU = std::max(integralScale, kTiny) / meanU;
 		const double flu2 = std::pow(freq * lOverU, 2.0);
 		const double tmp = 1.0 + 71.0 * flu2;
 		const double sigmaL = 2.0 * sigma * sigma * lOverU;
@@ -883,10 +1417,19 @@ double SpectrumAtMeanU(const SimWindConfig &cfg, int comp, double freq, double u
 		return sigmaL * (1.0 + 189.0 * flu2) / std::pow(tmp, 11.0 / 6.0);
 	}
 
-	const double lOverU = std::max(cfg.integralScale[static_cast<std::size_t>(comp)], kTiny) / meanU;
-	const double sigma = cfg.sigma[static_cast<std::size_t>(comp)];
+	const double lOverU = std::max(integralScale, kTiny) / meanU;
 	const double sigmaLU = 4.0 * sigma * sigma * lOverU;
 	return sigmaLU / std::pow(1.0 + 6.0 * lOverU * freq, 5.0 / 3.0);
+}
+
+double SpectrumAtMeanU(const SimWindConfig &cfg, int comp, double freq, double uMean)
+{
+	return SpectrumWithParameters(cfg,
+	                              comp,
+	                              freq,
+	                              uMean,
+	                              cfg.sigma[static_cast<std::size_t>(comp)],
+	                              cfg.integralScale[static_cast<std::size_t>(comp)]);
 }
 
 double SpectrumAt(const SimWindConfig &cfg, int comp, double freq)
@@ -894,20 +1437,41 @@ double SpectrumAt(const SimWindConfig &cfg, int comp, double freq)
 	return SpectrumAtMeanU(cfg, comp, freq, cfg.uHub);
 }
 
-double CoherenceAtDistance(const SimWindConfig &cfg,
-                           int comp,
-                           double freq,
-                           double distance,
-                           double meanU,
-                           double zMean)
+double CoherenceAtOffsets(const SimWindConfig &cfg,
+                          int comp,
+                          double freq,
+                          double dy,
+                          double dz,
+                          double meanU,
+                          double z1,
+                          double z2)
 {
-	const double decay = cfg.cohDecay[static_cast<std::size_t>(comp)];
-	const double b = cfg.cohB[static_cast<std::size_t>(comp)];
-	const double expValue = cfg.input.cohExp > 0.0 ? cfg.input.cohExp : 0.0;
 	const CohModel model = cfg.cohModel[static_cast<std::size_t>(comp)];
+	const double distance = std::sqrt(dy * dy + dz * dz);
 
 	if (distance <= kTiny)
 		return 1.0;
+	if (model == CohModel::NONE)
+		return 0.0;
+
+	if (model == CohModel::API)
+	{
+		if (comp != 0)
+			return 0.0;
+
+		const double zGeom = std::sqrt(std::max(z1, 0.1) * std::max(z2, 0.1)) / 10.0;
+		const double ay = 45.0 * std::pow(std::max(freq, 0.0), 0.92) *
+		                  std::pow(std::abs(dy), 1.0) *
+		                  std::pow(std::max(zGeom, 1.0e-3), -0.40);
+		const double az = 13.0 * std::pow(std::max(freq, 0.0), 0.85) *
+		                  std::pow(std::abs(dz), 1.25) *
+		                  std::pow(std::max(zGeom, 1.0e-3), -0.50);
+		return std::exp(-std::sqrt(ay * ay + az * az) / std::max(cfg.input.meanWindSpeed, 0.1));
+	}
+
+	const double decay = cfg.cohDecay[static_cast<std::size_t>(comp)];
+	const double b = cfg.cohB[static_cast<std::size_t>(comp)];
+	const double expValue = cfg.input.cohExp > 0.0 ? cfg.input.cohExp : 0.0;
 	if (decay >= kHugeDecay * 0.5)
 		return 0.0;
 
@@ -916,7 +1480,7 @@ double CoherenceAtDistance(const SimWindConfig &cfg,
 	if (model == CohModel::IEC)
 		return std::exp(-decay * std::sqrt(std::pow(freq * distU, 2.0) + std::pow(b * distance, 2.0)));
 
-	const double localZ = zMean > 0.0 ? zMean : 0.0;
+	const double localZ = 0.5 * (std::max(z1, 0.0) + std::max(z2, 0.0));
 	const double distExp = expValue > 0.0 && localZ > 0.0 ? -std::pow(distance / localZ, expValue) : -1.0;
 	return std::exp(decay * distExp * std::sqrt(std::pow(freq * distU, 2.0) + std::pow(b * distance, 2.0)));
 }
@@ -941,10 +1505,15 @@ void FillSpectralMatrix(const SimWindConfig &cfg,
 		{
 			const double dy = cfg.y[static_cast<std::size_t>(i)] - cfg.y[static_cast<std::size_t>(j)];
 			const double dz = cfg.z[static_cast<std::size_t>(i)] - cfg.z[static_cast<std::size_t>(j)];
-			const double dist = std::sqrt(dy * dy + dz * dz);
 			const double uMean = std::max(0.5 * (cfg.meanU[static_cast<std::size_t>(i)] + cfg.meanU[static_cast<std::size_t>(j)]), 0.1);
-			const double zMean = std::max(0.5 * (cfg.z[static_cast<std::size_t>(i)] + cfg.z[static_cast<std::size_t>(j)]), 0.1);
-			const double coherence = CoherenceAtDistance(cfg, comp, freq, dist, uMean, zMean);
+			const double coherence = CoherenceAtOffsets(cfg,
+			                                           comp,
+			                                           freq,
+			                                           dy,
+			                                           dz,
+			                                           uMean,
+			                                           cfg.z[static_cast<std::size_t>(i)],
+			                                           cfg.z[static_cast<std::size_t>(j)]);
 			const double value = std::sqrt(std::max(psdByPoint[static_cast<std::size_t>(i)], 0.0) *
 			                               std::max(psdByPoint[static_cast<std::size_t>(j)], 0.0)) *
 			                     coherence;
@@ -1218,6 +1787,70 @@ WindField AllocateField(const SimWindConfig &cfg)
 	return field;
 }
 
+struct UserWindSpatialWeight
+{
+	int index = 0;
+	double weight = 0.0;
+};
+
+std::vector<UserWindSpatialWeight> BuildUserWindSpatialWeights(const UserWindSpeedData &data, double targetY, double targetZ)
+{
+	std::vector<std::pair<double, int>> distances;
+	distances.reserve(data.points.size());
+	for (int src = 0; src < static_cast<int>(data.points.size()); ++src)
+	{
+		const double dy = targetY - data.points[static_cast<std::size_t>(src)].y;
+		const double dz = targetZ - data.points[static_cast<std::size_t>(src)].z;
+		const double d2 = dy * dy + dz * dz;
+		if (d2 <= 1.0e-12)
+			return {{src, 1.0}};
+		distances.emplace_back(d2, src);
+	}
+
+	std::sort(distances.begin(), distances.end(), [](const auto &a, const auto &b) { return a.first < b.first; });
+	const std::size_t keep = std::min<std::size_t>(4, distances.size());
+	std::vector<UserWindSpatialWeight> weights;
+	weights.reserve(keep);
+
+	double weightSum = 0.0;
+	for (std::size_t i = 0; i < keep; ++i)
+	{
+		const double w = 1.0 / std::max(distances[i].first, 1.0e-12);
+		weights.push_back({distances[i].second, w});
+		weightSum += w;
+	}
+
+	if (weightSum <= kTiny)
+		return {};
+	for (auto &item : weights)
+		item.weight /= weightSum;
+	return weights;
+}
+
+double InterpolateUserWindTimeSeries(const std::vector<double> &time,
+                                     const std::vector<double> &values,
+                                     double targetTime)
+{
+	if (time.empty() || values.empty())
+		return 0.0;
+	const std::size_t n = std::min(time.size(), values.size());
+	if (n == 1 || targetTime <= time.front())
+		return values.front();
+	if (targetTime >= time[n - 1])
+		return values[n - 1];
+
+	const auto upper = std::lower_bound(time.begin(), time.begin() + static_cast<std::ptrdiff_t>(n), targetTime);
+	const std::size_t i1 = static_cast<std::size_t>(std::distance(time.begin(), upper));
+	if (i1 == 0)
+		return values.front();
+	const std::size_t i0 = i1 - 1;
+	const double t0 = time[i0];
+	const double t1 = time[i1];
+	const double span = std::max(t1 - t0, kTiny);
+	const double a = (targetTime - t0) / span;
+	return values[i0] * (1.0 - a) + values[i1] * a;
+}
+
 WindField LoadUserWindSpeedField(const SimWindConfig &cfg)
 {
 	const UserWindSpeedData data = ReadUserWindSpeed(cfg.input.userTurbFile);
@@ -1225,35 +1858,36 @@ WindField LoadUserWindSpeedField(const SimWindConfig &cfg)
 		throw std::runtime_error("USER_WIND_SPEED requires a non-empty user wind speed file.");
 
 	WindField field = AllocateField(cfg);
+	if (!std::is_sorted(data.time.begin(), data.time.end()))
+		throw std::runtime_error("USER_WIND_SPEED requires time samples sorted in ascending order.");
+
+	std::vector<std::vector<UserWindSpatialWeight>> weightsByPoint(static_cast<std::size_t>(cfg.nPoints));
 
 	for (int p = 0; p < cfg.nPoints; ++p)
 	{
-		int nearest = 0;
-		double best = std::numeric_limits<double>::max();
-		for (int src = 0; src < static_cast<int>(data.points.size()); ++src)
-		{
-			const double dy = cfg.y[static_cast<std::size_t>(p)] - data.points[static_cast<std::size_t>(src)].y;
-			const double dz = cfg.z[static_cast<std::size_t>(p)] - data.points[static_cast<std::size_t>(src)].z;
-			const double d2 = dy * dy + dz * dz;
-			if (d2 < best)
-			{
-				best = d2;
-				nearest = src;
-			}
-		}
+		weightsByPoint[static_cast<std::size_t>(p)] =
+		    BuildUserWindSpatialWeights(data, cfg.y[static_cast<std::size_t>(p)], cfg.z[static_cast<std::size_t>(p)]);
+		if (weightsByPoint[static_cast<std::size_t>(p)].empty())
+			throw std::runtime_error("USER_WIND_SPEED could not build spatial interpolation weights.");
+	}
 
+	for (int p = 0; p < cfg.nPoints; ++p)
+	{
+		const auto &weights = weightsByPoint[static_cast<std::size_t>(p)];
 		for (int t = 0; t < cfg.nSteps; ++t)
 		{
 			const double targetTime = t * cfg.dt;
-			auto it = std::lower_bound(data.time.begin(), data.time.end(), targetTime);
-			std::size_t srcT = it == data.time.end() ? data.time.size() - 1 : static_cast<std::size_t>(std::distance(data.time.begin(), it));
 			for (int comp = 0; comp < 3; ++comp)
 			{
 				double value = 0.0;
-				const auto ps = static_cast<std::size_t>(nearest);
-				const auto cs = static_cast<std::size_t>(comp);
-				if (ps < data.components.size() && cs < data.components[ps].size() && srcT < data.components[ps][cs].size())
-					value = data.components[ps][cs][srcT];
+				for (const auto &item : weights)
+				{
+					const auto ps = static_cast<std::size_t>(item.index);
+					const auto cs = static_cast<std::size_t>(comp);
+					if (ps >= data.components.size() || cs >= data.components[ps].size())
+						continue;
+					value += item.weight * InterpolateUserWindTimeSeries(data.time, data.components[ps][cs], targetTime);
+				}
 				field.At(comp, t, p) = value;
 			}
 		}
@@ -1272,7 +1906,13 @@ void FillPsdByHeight(const SimWindConfig &cfg,
 	sqrtPsdByZ.resize(static_cast<std::size_t>(cfg.nz));
 	for (int iz = 0; iz < cfg.nz; ++iz)
 	{
-		const double psd = std::max(SpectrumAtMeanU(cfg, comp, freq, cfg.meanUByZ[static_cast<std::size_t>(iz)]), 0.0);
+		const double psd = std::max(SpectrumWithParameters(cfg,
+		                                                   comp,
+		                                                   freq,
+		                                                   cfg.meanUByZ[static_cast<std::size_t>(iz)],
+		                                                   LocalSigmaAtZ(cfg, comp, iz),
+		                                                   LocalLengthScaleAtZ(cfg, comp, iz)),
+		                            0.0);
 		psdByZ[static_cast<std::size_t>(iz)] = psd;
 		sqrtPsdByZ[static_cast<std::size_t>(iz)] = std::sqrt(psd);
 	}
@@ -1353,8 +1993,14 @@ void GenerateSpectralComponent(const SimWindConfig &cfg, int comp, std::mt19937_
 				{
 					const double dz = std::abs(cfg.zCoords[static_cast<std::size_t>(iz)] - cfg.zCoords[static_cast<std::size_t>(kz)]);
 					const double meanU = 0.5 * (cfg.meanUByZ[static_cast<std::size_t>(iz)] + cfg.meanUByZ[static_cast<std::size_t>(kz)]);
-					const double zMean = 0.5 * (cfg.zCoords[static_cast<std::size_t>(iz)] + cfg.zCoords[static_cast<std::size_t>(kz)]);
-					const double coherence = CoherenceAtDistance(cfg, comp, freq, dz, meanU, zMean);
+					const double coherence = CoherenceAtOffsets(cfg,
+					                                           comp,
+					                                           freq,
+					                                           0.0,
+					                                           dz,
+					                                           meanU,
+					                                           cfg.zCoords[static_cast<std::size_t>(iz)],
+					                                           cfg.zCoords[static_cast<std::size_t>(kz)]);
 					const double value = sqrtPsdByZ[static_cast<std::size_t>(iz)] *
 					                     sqrtPsdByZ[static_cast<std::size_t>(kz)] * coherence;
 					sz[static_cast<std::size_t>(iz) * cfg.nz + kz] = value;
@@ -1371,7 +2017,14 @@ void GenerateSpectralComponent(const SimWindConfig &cfg, int comp, std::mt19937_
 				for (int jy = 0; jy < iy; ++jy)
 				{
 					const double dy = std::abs(cfg.yCoords[static_cast<std::size_t>(iy)] - cfg.yCoords[static_cast<std::size_t>(jy)]);
-					const double coherence = CoherenceAtDistance(cfg, comp, freq, dy, representativeU, cfg.hubHeight);
+					const double coherence = CoherenceAtOffsets(cfg,
+					                                           comp,
+					                                           freq,
+					                                           dy,
+					                                           0.0,
+					                                           representativeU,
+					                                           cfg.hubHeight,
+					                                           cfg.hubHeight);
 					sy[static_cast<std::size_t>(iy) * cfg.ny + jy] = coherence;
 					sy[static_cast<std::size_t>(jy) * cfg.ny + iy] = coherence;
 				}
@@ -1677,9 +2330,101 @@ WindField GenerateMannWindField(const SimWindConfig &cfg)
 	return field;
 }
 
+struct HubCovariances
+{
+	double uu = 0.0;
+	double uv = 0.0;
+	double uw = 0.0;
+	double vw = 0.0;
+	double ww = 0.0;
+};
+
+HubCovariances ComputeHubCovariances(const SimWindConfig &cfg, const WindField &field)
+{
+	HubCovariances cov;
+	if (cfg.nSteps <= 0 || cfg.nPoints <= 0)
+		return cov;
+
+	const int point = HubPointIndex(cfg);
+	for (int t = 0; t < cfg.nSteps; ++t)
+	{
+		const double u = field.At(0, t, point);
+		const double v = field.At(1, t, point);
+		const double w = field.At(2, t, point);
+		cov.uu += u * u;
+		cov.uv += u * v;
+		cov.uw += u * w;
+		cov.vw += v * w;
+		cov.ww += w * w;
+	}
+
+	const double inv = 1.0 / static_cast<double>(cfg.nSteps);
+	cov.uu *= inv;
+	cov.uv *= inv;
+	cov.uw *= inv;
+	cov.vw *= inv;
+	cov.ww *= inv;
+	return cov;
+}
+
+void ApplyReynoldsStressScaling(const SimWindConfig &cfg, WindField &field)
+{
+	if (!cfg.met.reynoldsStress.active)
+		return;
+
+	const HubCovariances cov = ComputeHubCovariances(cfg, field);
+	if (cov.uu <= kTiny)
+	{
+		AppendWarning(MutableWarnings(cfg), "Reynolds-stress scaling skipped because the hub u-variance is too small.");
+		return;
+	}
+
+	double alphaUW = (cfg.met.reynoldsStress.target[0] - cov.uw) / cov.uu;
+	double denom = cov.uu * (cov.ww + alphaUW * cov.uw) - cov.uw * cfg.met.reynoldsStress.target[0];
+	double alphaWV = 0.0;
+	if (std::abs(denom) > kTiny)
+	{
+		alphaWV = (cov.uu * (cfg.met.reynoldsStress.target[2] - cov.vw - alphaUW * cov.uv) -
+		           cfg.met.reynoldsStress.target[0] * (cfg.met.reynoldsStress.target[1] - cov.uv)) /
+		          denom;
+	}
+	double alphaUV = (cfg.met.reynoldsStress.target[1] - cov.uv - alphaWV * cov.uw) / cov.uu;
+
+	if (cfg.met.reynoldsStress.skip[0]) alphaUW = 0.0;
+	if (cfg.met.reynoldsStress.skip[1]) alphaUV = 0.0;
+	if (cfg.met.reynoldsStress.skip[2]) alphaWV = 0.0;
+
+	const bool clipped = std::abs(alphaUW) > 1.0 || std::abs(alphaUV) > 1.0 || std::abs(alphaWV) > 1.0;
+	if (clipped)
+	{
+		alphaUW = std::clamp(alphaUW, -1.0, 1.0);
+		alphaUV = std::clamp(alphaUV, -1.0, 1.0);
+		alphaWV = std::clamp(alphaWV, -1.0, 1.0);
+		AppendWarning(MutableWarnings(cfg),
+		              "Reynolds-stress scaling terms exceeded +/-1 and were clipped; cross-component targets may be softened.");
+	}
+	if (std::abs(denom) <= kTiny && (!cfg.met.reynoldsStress.skip[1] || !cfg.met.reynoldsStress.skip[2]))
+	{
+		AppendWarning(MutableWarnings(cfg),
+		              "Reynolds-stress scaling encountered a near-singular hub covariance system; v/w cross-correlation scaling was limited.");
+	}
+
+	for (int point = 0; point < cfg.nPoints; ++point)
+	{
+		for (int t = 0; t < cfg.nSteps; ++t)
+		{
+			const double u = field.At(0, t, point);
+			const double v = field.At(1, t, point);
+			const double w = field.At(2, t, point);
+			field.At(1, t, point) = alphaUV * u + v + alphaWV * w;
+			field.At(2, t, point) = alphaUW * u + w;
+		}
+	}
+}
+
 void ApplyMeanAndEvents(const SimWindConfig &cfg, WindField &field)
 {
-	const double hAngle = cfg.input.horAngle * kRad;
+	const double hAngleBase = cfg.input.horAngle * kRad;
 	const double vAngle = cfg.input.vertAngle * kRad;
 	const bool deterministicEvent = IsDeterministicEventWindModel(cfg.input.windModel);
 	const bool uniformWind = IsUniformWindModel(cfg.input.windModel);
@@ -1689,16 +2434,22 @@ void ApplyMeanAndEvents(const SimWindConfig &cfg, WindField &field)
 		for (int p = 0; p < cfg.nPoints; ++p)
 		{
 			const double meanU = cfg.meanU[static_cast<std::size_t>(p)];
+			const int iz = p / cfg.ny;
+			const double localHAngle = hAngleBase +
+			                           (cfg.hasUserDirectionProfile &&
+			                                    static_cast<std::size_t>(iz) < cfg.directionByZ.size()
+			                                ? cfg.directionByZ[static_cast<std::size_t>(iz)] * kRad
+			                                : 0.0);
 			if (deterministicEvent || uniformWind)
 			{
-				field.At(0, t, p) = meanU * std::cos(hAngle) * std::cos(vAngle);
-				field.At(1, t, p) = meanU * std::sin(hAngle);
+				field.At(0, t, p) = meanU * std::cos(localHAngle) * std::cos(vAngle);
+				field.At(1, t, p) = meanU * std::sin(localHAngle);
 				field.At(2, t, p) = meanU * std::sin(vAngle);
 			}
 			else
 			{
-				field.At(0, t, p) += meanU * std::cos(hAngle) * std::cos(vAngle);
-				field.At(1, t, p) += meanU * std::sin(hAngle);
+				field.At(0, t, p) += meanU * std::cos(localHAngle) * std::cos(vAngle);
+				field.At(1, t, p) += meanU * std::sin(localHAngle);
 				field.At(2, t, p) += meanU * std::sin(vAngle);
 			}
 		}
@@ -1825,6 +2576,11 @@ WindField GenerateWindField(const SimWindConfig &cfg)
 	{
 		WindField field = GenerateMannWindField(cfg);
 		Report(cfg, " Generating Mann time series for all points.");
+		if (cfg.met.reynoldsStress.active)
+		{
+			Report(cfg, " Applying Reynolds-stress scaling before mean-wind addition.");
+			ApplyReynoldsStressScaling(cfg, field);
+		}
 		Report(cfg, " Applying mean wind profile and IEC event shape.");
 		ApplyMeanAndEvents(cfg, field);
 		return field;
@@ -1835,6 +2591,11 @@ WindField GenerateWindField(const SimWindConfig &cfg)
 	std::mt19937_64 rng(static_cast<std::uint64_t>(cfg.input.turbSeed));
 	for (int comp = 0; comp < 3; ++comp)
 		GenerateSpectralComponent(cfg, comp, rng, field);
+	if (cfg.met.reynoldsStress.active)
+	{
+		Report(cfg, " Applying Reynolds-stress scaling before mean-wind addition.");
+		ApplyReynoldsStressScaling(cfg, field);
+	}
 	Report(cfg, " Generating time series for all points.");
 	Report(cfg, " Applying mean wind profile and IEC event shape.");
 	ApplyMeanAndEvents(cfg, field);
@@ -1868,7 +2629,10 @@ std::pair<float, float> ScalingForComponent(const std::vector<double> &values)
 {
 	const auto [minIt, maxIt] = std::minmax_element(values.begin(), values.end());
 	if (minIt == values.end() || std::abs(*maxIt - *minIt) <= kTiny)
-		return {1.0f, 0.0f};
+	{
+		const double value = minIt == values.end() ? 0.0 : *minIt;
+		return {1.0f, static_cast<float>(-value)};
+	}
 	const double slope = 65535.0 / (*maxIt - *minIt);
 	const double offset = -32768.0 - slope * (*minIt);
 	return {static_cast<float>(slope), static_cast<float>(offset)};
@@ -1890,6 +2654,7 @@ int BladedModelId(TurbModel model)
 	case TurbModel::B_KAL: return 7;
 	case TurbModel::B_VKAL: return 3;
 	case TurbModel::B_IVKAL: return 4;
+	case TurbModel::USRVKM: return 3;
 	default: return 4;
 	}
 }
@@ -2171,7 +2936,17 @@ void WriteSummary(const SimWindConfig &cfg,
 	out << "  LC: " << cfg.lc << " m\n";
 	out << "  SigmaU/SigmaV/SigmaW: " << cfg.sigma[0] << ", " << cfg.sigma[1] << ", " << cfg.sigma[2] << " m/s\n";
 	out << "  IntegralScaleU/V/W: " << cfg.integralScale[0] << ", " << cfg.integralScale[1] << ", " << cfg.integralScale[2] << " m\n";
-	out << "  ScaleIEC: " << cfg.scaleIEC << "\n\n";
+	out << "  ScaleIEC: " << cfg.scaleIEC << "\n";
+	out << "  AllowCohApprox: " << (cfg.input.allowCohApprox ? "true" : "false") << "\n";
+	out << "  UserDirectionProfile: " << (cfg.hasUserDirectionProfile ? "true" : "false") << "\n";
+	out << "  UserSigmaProfile: " << (cfg.hasUserSigmaProfile ? "true" : "false") << "\n";
+	out << "  UserLengthScaleProfile: " << (cfg.hasUserLengthScaleProfile ? "true" : "false") << "\n";
+	out << "  ZL: " << cfg.met.zL << "\n";
+	out << "  L: " << cfg.met.moninLength << " m\n";
+	out << "  UStar: " << cfg.met.uStar << " m/s\n";
+	out << "  UStarDiab: " << cfg.met.uStarDiab << " m/s\n";
+	out << "  ZI: " << cfg.met.mixingLayerDepth << " m\n";
+	out << "  ReynoldsStressActive: " << (cfg.met.reynoldsStress.active ? "true" : "false") << "\n\n";
 
 	out << "Bladed Export Parameters\n";
 	out << "  Record2ModelID: " << BladedModelId(cfg.input.turbModel) << "\n";

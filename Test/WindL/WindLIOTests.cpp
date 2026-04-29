@@ -173,6 +173,7 @@ void ExpectWindLInputEqual(const WindLInput &expected, const WindLInput &actual)
 	EXPECT_FIELD_DOUBLE_EQ(cohDecayW);
 	EXPECT_FIELD_DOUBLE_EQ(cohScaleB);
 	EXPECT_FIELD_DOUBLE_EQ(cohExp);
+	EXPECT_FIELD_EQ(allowCohApprox);
 	EXPECT_FIELD_EQ(ewmType);
 	EXPECT_FIELD_EQ(ewmReturn);
 	EXPECT_FIELD_DOUBLE_EQ(gustPeriod);
@@ -209,6 +210,9 @@ void ExpectUserShearEqual(const UserShearData &expected, const UserShearData &ac
 void ExpectUserSpectraEqual(const UserSpectraData &expected, const UserSpectraData &actual)
 {
 	EXPECT_EQ(actual.numFrequencies, expected.numFrequencies);
+	EXPECT_DOUBLE_EQ(actual.specScale1, expected.specScale1);
+	EXPECT_DOUBLE_EQ(actual.specScale2, expected.specScale2);
+	EXPECT_DOUBLE_EQ(actual.specScale3, expected.specScale3);
 	ExpectDoubleVectorEqual(expected.frequencies, actual.frequencies, "frequencies");
 	ExpectDoubleVectorEqual(expected.uPsd, actual.uPsd, "uPsd");
 	ExpectDoubleVectorEqual(expected.vPsd, actual.vPsd, "vPsd");
@@ -315,6 +319,7 @@ TEST(WindLIO_QWD, ReadMainFile_CoherenceModels)
 	EXPECT_EQ(in.cohMod1, CohModel::DEFAULT_COH);
 	EXPECT_EQ(in.cohMod2, CohModel::DEFAULT_COH);
 	EXPECT_EQ(in.cohMod3, CohModel::DEFAULT_COH);
+	EXPECT_TRUE(in.allowCohApprox);
 }
 
 TEST(WindLIO_QWD, ReadMainFile_Paths)
@@ -362,6 +367,44 @@ TEST(WindLIO_YAML, ConvertTextToYaml)
 	EXPECT_EQ(fromYaml.mode, Mode::GENERATE);
 	EXPECT_EQ(fromYaml.gridPtsY, 36);
 	EXPECT_EQ(fromYaml.saveName, "Test_Demo_wind");
+}
+
+TEST(WindLIO_YAML, RoundTripExplicitCoherenceModesAndApproxFlag)
+{
+	const auto dir = TestOutputDir();
+	const auto yamlPath = dir / "coherence_modes_roundtrip.yml";
+
+	auto input = ReadWindLInput(FindTestFile("Qahse_WindL_Main_DEMO.qwd"));
+	input.cohMod1 = CohModel::NONE;
+	input.cohMod2 = CohModel::API;
+	input.cohMod3 = CohModel::GENERAL;
+	input.allowCohApprox = false;
+
+	WriteWindLInput(input, yamlPath.string());
+	const auto fromYaml = ReadWindLInput(yamlPath.string());
+
+	EXPECT_EQ(fromYaml.cohMod1, CohModel::NONE);
+	EXPECT_EQ(fromYaml.cohMod2, CohModel::API);
+	EXPECT_EQ(fromYaml.cohMod3, CohModel::GENERAL);
+	EXPECT_FALSE(fromYaml.allowCohApprox);
+	ExpectWindLInputEqual(input, fromYaml);
+}
+
+TEST(WindLIO_YAML, RoundTripUsrVkmEnum)
+{
+	const auto dir = TestOutputDir();
+	const auto yamlPath = dir / "usrvkm_roundtrip.yml";
+
+	auto input = ReadWindLInput(FindTestFile("Qahse_WindL_Main_DEMO.qwd"));
+	input.turbModel = TurbModel::USRVKM;
+	input.userShearFile = FindTestFile("Qahse_WindL_User_Defined_Shear_DEMO.dat");
+
+	WriteWindLInput(input, yamlPath.string());
+	const auto fromYaml = ReadWindLInput(yamlPath.string());
+
+	EXPECT_EQ(fromYaml.turbModel, TurbModel::USRVKM);
+	EXPECT_EQ(fromYaml.userShearFile, input.userShearFile);
+	ExpectWindLInputEqual(input, fromYaml);
 }
 
 TEST(WindLIO_YAML, ConvertYamlToText)
@@ -501,6 +544,9 @@ TEST(WindLIO_DAT, ReadUserSpectra)
 
 	// 头部关键字
 	EXPECT_EQ(data.numFrequencies, 20000);
+	EXPECT_DOUBLE_EQ(data.specScale1, 1.0);
+	EXPECT_DOUBLE_EQ(data.specScale2, 1.0);
+	EXPECT_DOUBLE_EQ(data.specScale3, 1.0);
 
 	// 数据行数
 	ASSERT_EQ(data.frequencies.size(), 20000u);
@@ -532,6 +578,24 @@ TEST(WindLIO_DAT, ReadUserSpectra)
 		EXPECT_GE(data.vPsd[i], 0.0);
 		EXPECT_GE(data.wPsd[i], 0.0);
 	}
+}
+
+TEST(WindLIO_DAT, UserSpectraSpecScaleRoundTrip)
+{
+	UserSpectraData data;
+	data.numFrequencies = 3;
+	data.specScale1 = 1.2;
+	data.specScale2 = 0.9;
+	data.specScale3 = 1.1;
+	data.frequencies = {0.1, 0.2, 0.4};
+	data.uPsd = {3.0, 2.0, 1.0};
+	data.vPsd = {2.5, 1.5, 0.8};
+	data.wPsd = {1.8, 1.0, 0.5};
+
+	const auto path = TestOutputDir() / "user_spectra_spec_scale.dat";
+	WriteUserSpectra(data, path.string());
+	const auto loaded = ReadUserSpectra(path.string());
+	ExpectUserSpectraEqual(data, loaded);
 }
 
 // ============================================================================

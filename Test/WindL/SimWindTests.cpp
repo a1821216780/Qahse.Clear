@@ -1,8 +1,10 @@
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
+#include <limits>
 #include <string>
 #include <system_error>
 #include <vector>
@@ -119,6 +121,65 @@ std::vector<std::array<double, 3>> ReadBtsPlane(std::ifstream &in, const BtsHead
 		}
 	}
 	return plane;
+}
+
+std::vector<std::array<double, 3>> ReadBtsPointSeries(const std::string &path, int pointIndex = -1)
+{
+	std::ifstream in(path, std::ios::binary);
+	if (!in)
+		return {};
+
+	const BtsHeader header = ReadBtsHeader(in);
+	const int nPoints = header.nz * header.ny;
+	if (pointIndex < 0)
+		pointIndex = (header.nz / 2) * header.ny + (header.ny / 2);
+	if (pointIndex < 0 || pointIndex >= nPoints)
+		return {};
+
+	std::vector<std::array<double, 3>> series(static_cast<std::size_t>(header.nSteps));
+	for (int t = 0; t < header.nSteps; ++t)
+	{
+		for (int p = 0; p < nPoints; ++p)
+		{
+			std::array<double, 3> sample{};
+			for (int comp = 0; comp < 3; ++comp)
+			{
+				const auto raw = ReadScalar<std::int16_t>(in);
+				sample[static_cast<std::size_t>(comp)] = DecodeBtsValue(raw, header.slope[comp], header.offset[comp]);
+			}
+			if (p == pointIndex)
+				series[static_cast<std::size_t>(t)] = sample;
+		}
+	}
+	return series;
+}
+
+double SampleCovariance(const std::vector<std::array<double, 3>> &series, int a, int b)
+{
+	if (series.empty())
+		return 0.0;
+
+	double meanA = 0.0;
+	double meanB = 0.0;
+	for (const auto &sample : series)
+	{
+		meanA += sample[static_cast<std::size_t>(a)];
+		meanB += sample[static_cast<std::size_t>(b)];
+	}
+	meanA /= static_cast<double>(series.size());
+	meanB /= static_cast<double>(series.size());
+
+	double sum = 0.0;
+	for (const auto &sample : series)
+		sum += (sample[static_cast<std::size_t>(a)] - meanA) * (sample[static_cast<std::size_t>(b)] - meanB);
+	return sum / static_cast<double>(series.size());
+}
+
+bool ContainsWarning(const SimWindResult &result, const std::string &needle)
+{
+	return std::any_of(result.warnings.begin(), result.warnings.end(), [&](const std::string &warning) {
+		return warning.find(needle) != std::string::npos;
+	});
 }
 
 WindLInput SmallInput(const std::string &name)
@@ -313,6 +374,141 @@ TEST(WindL_SimWind, UniformWindProducesConstantField)
 	}
 }
 
+TEST(WindL_SimWind, UserShearProfileAffectsUniformMeanField)
+{
+	UserShearData shear;
+	shear.numHeights = 1;
+	shear.heights = {79.0};
+	shear.windSpeeds = {6.0};
+	shear.windDirections = {30.0};
+	shear.standardDeviations = {0.4};
+	shear.lengthScales = {5.0};
+
+	const auto shearPath = SimWindOutputDir() / "user_shear_uniform.dat";
+	WriteUserShear(shear, shearPath.string());
+
+	auto input = SmallInput("user_shear_uniform");
+	input.windModel = WindModel::UNIFORM;
+	input.shearType = ShearType::USER;
+	input.windProfileType = WindProfileType::USER;
+	input.userShearFile = shearPath.string();
+	input.fieldDimZ = 2.0;
+	input.gridPtsZ = 1;
+	input.gridPtsY = 1;
+	input.fieldDimY = 2.0;
+	input.wrBlwnd = false;
+	input.wrTrwnd = false;
+
+	const auto result = SimWind::Generate(input);
+	ASSERT_TRUE(std::filesystem::is_regular_file(result.btsPath));
+
+	std::ifstream bts(result.btsPath, std::ios::binary);
+	ASSERT_TRUE(bts.good());
+	const auto header = ReadBtsHeader(bts);
+	const auto plane = ReadBtsPlane(bts, header, 0);
+	ASSERT_EQ(plane.size(), 1U);
+	EXPECT_NEAR(plane[0][0], 6.0 * std::cos(30.0 * 3.14159265358979323846 / 180.0), 1.0e-5);
+	EXPECT_NEAR(plane[0][1], 6.0 * std::sin(30.0 * 3.14159265358979323846 / 180.0), 1.0e-5);
+}
+
+TEST(WindL_SimWind, UserShearSigmaAndLengthScaleAffectTurbulence)
+{
+	UserShearData low;
+	low.numHeights = 1;
+	low.heights = {79.0};
+	low.windSpeeds = {10.0};
+	low.windDirections = {0.0};
+	low.standardDeviations = {0.1};
+	low.lengthScales = {2.0};
+
+	UserShearData high = low;
+	high.standardDeviations = {1.0};
+	high.lengthScales = {20.0};
+
+	const auto lowPath = SimWindOutputDir() / "user_shear_low.dat";
+	const auto highPath = SimWindOutputDir() / "user_shear_high.dat";
+	WriteUserShear(low, lowPath.string());
+	WriteUserShear(high, highPath.string());
+
+	auto inputLow = SmallInput("user_shear_low");
+	inputLow.shearType = ShearType::USER;
+	inputLow.windProfileType = WindProfileType::USER;
+	inputLow.userShearFile = lowPath.string();
+	inputLow.scaleIEC = 0;
+	inputLow.fieldDimZ = 2.0;
+	inputLow.gridPtsZ = 1;
+	inputLow.gridPtsY = 3;
+	inputLow.fieldDimY = 6.0;
+	inputLow.wrBlwnd = false;
+	inputLow.wrTrwnd = false;
+
+	auto inputHigh = inputLow;
+	inputHigh.saveName = "user_shear_high";
+	inputHigh.userShearFile = highPath.string();
+
+	const auto lowResult = SimWind::Generate(inputLow);
+	const auto highResult = SimWind::Generate(inputHigh);
+	EXPECT_GT(highResult.stats[0].sigma, lowResult.stats[0].sigma * 2.5);
+}
+
+TEST(WindL_SimWind, UserWindSpeedInterpolatesInSpaceAndTime)
+{
+	UserWindSpeedData data;
+	data.nComp = 3;
+	data.nPoints = 2;
+	data.refPtID = 1;
+	data.points = {{-1.0, 79.0}, {1.0, 79.0}};
+	data.time = {0.0, 1.0};
+	data.components = {
+	    {{0.0, 2.0}, {0.0, 0.0}, {0.0, 0.0}},
+	    {{2.0, 4.0}, {0.0, 0.0}, {0.0, 0.0}}};
+
+	const auto dataPath = SimWindOutputDir() / "user_wind_speed_interp.dat";
+	WriteUserWindSpeed(data, dataPath.string());
+
+	auto input = SmallInput("user_wind_speed_interp");
+	input.turbModel = TurbModel::USER_WIND_SPEED;
+	input.userTurbFile = dataPath.string();
+	input.gridPtsY = 3;
+	input.gridPtsZ = 1;
+	input.fieldDimY = 2.0;
+	input.fieldDimZ = 2.0;
+	input.simTime = 1.0;
+	input.timeStep = 0.5;
+	input.wrBlwnd = false;
+	input.wrTrwnd = false;
+
+	const auto result = SimWind::Generate(input);
+	ASSERT_TRUE(std::filesystem::is_regular_file(result.btsPath));
+
+	std::ifstream bts(result.btsPath, std::ios::binary);
+	ASSERT_TRUE(bts.good());
+	const auto header = ReadBtsHeader(bts);
+	const auto plane = ReadBtsPlane(bts, header, 1);
+	ASSERT_EQ(plane.size(), 3U);
+	EXPECT_NEAR(plane[1][0], 2.0, 1.0e-5);
+}
+
+TEST(WindL_SimWind, ApiCoherenceRejectsNonUComponents)
+{
+	auto input = SmallInput("api_coherence_invalid");
+	input.cohMod1 = CohModel::API;
+	input.cohMod2 = CohModel::API;
+	input.cohMod3 = CohModel::NONE;
+	input.wrBlwnd = false;
+	input.wrTrwnd = false;
+
+	try
+	{
+		(void)SimWind::Generate(input);
+		FAIL() << "Expected SimWind to reject API coherence on the v component.";
+	}
+	catch (const std::runtime_error &error)
+	{
+		EXPECT_NE(std::string(error.what()).find("API coherence model is valid only for the u component"), std::string::npos);
+	}
+}
+
 TEST(WindL_SimWind, GeneratesAllBuiltInSpectralModels)
 {
 	struct Case
@@ -350,4 +546,252 @@ TEST(WindL_SimWind, GeneratesAllBuiltInSpectralModels)
 		EXPECT_TRUE(std::filesystem::is_regular_file(result.sumPath)) << item.name;
 		EXPECT_GT(result.stats[0].sigma, 0.01) << item.name;
 	}
+}
+
+TEST(WindL_SimWind, UserSpectraEndpointHoldKeepsLastPsdValue)
+{
+	UserSpectraData data;
+	data.numFrequencies = 3;
+	data.frequencies = {0.1, 0.2, 0.3};
+	data.uPsd = {10.0, 10.0, 10.0};
+	data.vPsd = {5.0, 5.0, 5.0};
+	data.wPsd = {2.0, 2.0, 2.0};
+
+	const auto spectraPath = SimWindOutputDir() / "user_spectra_endpoint_hold.dat";
+	WriteUserSpectra(data, spectraPath.string());
+
+	auto input = SmallInput("user_spectra_endpoint_hold");
+	input.turbModel = TurbModel::USER_SPECTRA;
+	input.userTurbFile = spectraPath.string();
+	input.gridPtsY = 1;
+	input.gridPtsZ = 1;
+	input.fieldDimY = 2.0;
+	input.fieldDimZ = 2.0;
+	input.simTime = 20.0;
+	input.timeStep = 0.1;
+	input.scaleIEC = 0;
+	input.wrBlwnd = false;
+	input.wrTrwnd = false;
+
+	const auto result = SimWind::Generate(input);
+	EXPECT_GT(result.stats[0].sigma, 3.0);
+	EXPECT_GT(result.stats[1].sigma, 2.0);
+	EXPECT_GT(result.stats[2].sigma, 1.0);
+}
+
+TEST(WindL_SimWind, UserSpectraSpecScaleChangesSigma)
+{
+	UserSpectraData base;
+	base.numFrequencies = 3;
+	base.frequencies = {0.1, 0.2, 0.3};
+	base.uPsd = {4.0, 4.0, 4.0};
+	base.vPsd = {1.0, 1.0, 1.0};
+	base.wPsd = {0.5, 0.5, 0.5};
+
+	UserSpectraData scaled = base;
+	scaled.specScale1 = 4.0;
+
+	const auto basePath = SimWindOutputDir() / "user_spectra_scale_base.dat";
+	const auto scaledPath = SimWindOutputDir() / "user_spectra_scale_scaled.dat";
+	WriteUserSpectra(base, basePath.string());
+	WriteUserSpectra(scaled, scaledPath.string());
+
+	auto inputBase = SmallInput("user_spectra_scale_base");
+	inputBase.turbModel = TurbModel::USER_SPECTRA;
+	inputBase.userTurbFile = basePath.string();
+	inputBase.gridPtsY = 1;
+	inputBase.gridPtsZ = 1;
+	inputBase.fieldDimY = 2.0;
+	inputBase.fieldDimZ = 2.0;
+	inputBase.simTime = 12.8;
+	inputBase.timeStep = 0.1;
+	inputBase.scaleIEC = 0;
+	inputBase.wrBlwnd = false;
+	inputBase.wrTrwnd = false;
+
+	auto inputScaled = inputBase;
+	inputScaled.saveName = "user_spectra_scale_scaled";
+	inputScaled.userTurbFile = scaledPath.string();
+
+	const auto baseResult = SimWind::Generate(inputBase);
+	const auto scaledResult = SimWind::Generate(inputScaled);
+	EXPECT_GT(scaledResult.stats[0].sigma, baseResult.stats[0].sigma * 1.7);
+}
+
+TEST(WindL_SimWind, UsrVkmUsesProfileSigmaAndLengthScale)
+{
+	UserShearData low;
+	low.numHeights = 2;
+	low.heights = {70.0, 90.0};
+	low.windSpeeds = {10.0, 10.0};
+	low.windDirections = {0.0, 0.0};
+	low.standardDeviations = {0.15, 0.15};
+	low.lengthScales = {3.0, 3.0};
+
+	UserShearData high = low;
+	high.standardDeviations = {0.8, 0.8};
+	high.lengthScales = {20.0, 20.0};
+
+	const auto lowPath = SimWindOutputDir() / "usrvkm_low.dat";
+	const auto highPath = SimWindOutputDir() / "usrvkm_high.dat";
+	WriteUserShear(low, lowPath.string());
+	WriteUserShear(high, highPath.string());
+
+	auto inputLow = SmallInput("usrvkm_low");
+	inputLow.turbModel = TurbModel::USRVKM;
+	inputLow.userShearFile = lowPath.string();
+	inputLow.scaleIEC = 0;
+	inputLow.gridPtsY = 1;
+	inputLow.gridPtsZ = 3;
+	inputLow.fieldDimY = 2.0;
+	inputLow.fieldDimZ = 20.0;
+	inputLow.wrBlwnd = false;
+	inputLow.wrTrwnd = false;
+
+	auto inputHigh = inputLow;
+	inputHigh.saveName = "usrvkm_high";
+	inputHigh.userShearFile = highPath.string();
+
+	const auto lowResult = SimWind::Generate(inputLow);
+	const auto highResult = SimWind::Generate(inputHigh);
+	EXPECT_GT(highResult.stats[0].sigma, lowResult.stats[0].sigma * 2.5);
+}
+
+TEST(WindL_SimWind, UserDirectionWrapInterpolationAvoidsAngleJump)
+{
+	UserShearData shear;
+	shear.numHeights = 2;
+	shear.heights = {70.0, 90.0};
+	shear.windSpeeds = {8.0, 8.0};
+	shear.windDirections = {359.0, 1.0};
+	shear.standardDeviations = {0.1, 0.1};
+	shear.lengthScales = {5.0, 5.0};
+
+	const auto shearPath = SimWindOutputDir() / "user_shear_wrap.dat";
+	WriteUserShear(shear, shearPath.string());
+
+	auto input = SmallInput("user_shear_wrap");
+	input.windModel = WindModel::UNIFORM;
+	input.shearType = ShearType::USER;
+	input.windProfileType = WindProfileType::USER;
+	input.userShearFile = shearPath.string();
+	input.gridPtsY = 1;
+	input.gridPtsZ = 3;
+	input.fieldDimY = 2.0;
+	input.fieldDimZ = 20.0;
+	input.wrBlwnd = false;
+	input.wrTrwnd = false;
+
+	const auto result = SimWind::Generate(input);
+	const auto plane = ReadBtsPointSeries(result.btsPath);
+	ASSERT_FALSE(plane.empty());
+	EXPECT_GT(plane[0][0], 7.9);
+	EXPECT_NEAR(plane[0][1], 0.0, 0.2);
+}
+
+TEST(WindL_SimWind, ExplicitReynoldsStressTargetsAffectHubCovariance)
+{
+	auto input = SmallInput("reynolds_targets");
+	input.gridPtsY = 1;
+	input.gridPtsZ = 1;
+	input.fieldDimY = 2.0;
+	input.fieldDimZ = 2.0;
+	input.simTime = 25.6;
+	input.timeStep = 0.2;
+	input.scaleIEC = 1;
+	input.uStar = 0.6;
+	input.reynoldsUW = -0.30;
+	input.reynoldsUV = 0.12;
+	input.reynoldsVW = -0.08;
+	input.wrBlwnd = false;
+	input.wrTrwnd = false;
+
+	const auto result = SimWind::Generate(input);
+	const auto series = ReadBtsPointSeries(result.btsPath, 0);
+	ASSERT_FALSE(series.empty());
+
+	EXPECT_NEAR(SampleCovariance(series, 0, 2), input.reynoldsUW, 0.12);
+	EXPECT_NEAR(SampleCovariance(series, 0, 1), input.reynoldsUV, 0.12);
+	EXPECT_NEAR(SampleCovariance(series, 1, 2), input.reynoldsVW, 0.12);
+}
+
+TEST(WindL_SimWind, IecWindProfileUsesDedicatedExponentBranch)
+{
+	auto input = SmallInput("iec_profile_branch");
+	input.windModel = WindModel::EOG;
+	input.eventStart = 999.0;
+	input.shearType = ShearType::PL;
+	input.windProfileType = WindProfileType::IEC;
+	input.iecEdition = IecStandard::ED3;
+	input.gridPtsY = 1;
+	input.gridPtsZ = 3;
+	input.fieldDimY = 2.0;
+	input.fieldDimZ = 20.0;
+	input.wrBlwnd = false;
+	input.wrTrwnd = false;
+
+	const auto result = SimWind::Generate(input);
+	EXPECT_FALSE(ContainsWarning(result, "WindProfileType=IEC currently falls back"));
+
+	const auto lowerSeries = ReadBtsPointSeries(result.btsPath, 0);
+	const auto topSeries = ReadBtsPointSeries(result.btsPath, 2);
+	ASSERT_FALSE(lowerSeries.empty());
+	ASSERT_FALSE(topSeries.empty());
+	const double expectedLow = input.meanWindSpeed * std::pow(70.0 / input.hubHeight, 0.14);
+	const double expectedTop = input.meanWindSpeed * std::pow(90.0 / input.hubHeight, 0.14);
+	EXPECT_NEAR(lowerSeries[0][0], expectedLow, 1.0e-3);
+	EXPECT_NEAR(topSeries[0][0], expectedTop, 1.0e-3);
+}
+
+TEST(WindL_SimWind, LogProfileUsesZL)
+{
+	const auto stablePsi = [](double zOverL)
+	{
+		if (zOverL >= 0.0)
+			return -5.0 * std::min(zOverL, 1.0);
+		const double tmp = std::pow(1.0 - 15.0 * zOverL, 0.25);
+		double psi = -std::log(0.125 * std::pow(1.0 + tmp, 2.0) * (1.0 + tmp * tmp)) +
+		             2.0 * std::atan(tmp) - 0.5 * 3.14159265358979323846;
+		return -psi;
+	};
+	const auto expectedLogSpeed = [&](double z, double zRef, double uRef, double z0, double hubHeight, double zL)
+	{
+		const double moninLength = std::abs(zL) <= 1.0e-12 ? std::numeric_limits<double>::infinity() : hubHeight / zL;
+		const double zOverLHeight = std::isfinite(moninLength) ? z / moninLength : 0.0;
+		const double zOverLRef = std::isfinite(moninLength) ? zRef / moninLength : 0.0;
+		return uRef * (std::log(z / z0) - stablePsi(zOverLHeight)) /
+		       (std::log(zRef / z0) - stablePsi(zOverLRef));
+	};
+
+	auto stable = SmallInput("log_profile_stable");
+	stable.windModel = WindModel::EOG;
+	stable.eventStart = 999.0;
+	stable.shearType = ShearType::LOG;
+	stable.windProfileType = WindProfileType::LOG;
+	stable.roughness = 0.03;
+	stable.zOverL = 0.2;
+	stable.gridPtsY = 1;
+	stable.gridPtsZ = 3;
+	stable.fieldDimY = 2.0;
+	stable.fieldDimZ = 20.0;
+	stable.wrBlwnd = false;
+	stable.wrTrwnd = false;
+
+	auto unstable = stable;
+	unstable.saveName = "log_profile_unstable";
+	unstable.zOverL = -0.2;
+
+	const auto stableResult = SimWind::Generate(stable);
+	const auto unstableResult = SimWind::Generate(unstable);
+	const auto stableLower = ReadBtsPointSeries(stableResult.btsPath, 0);
+	const auto unstableLower = ReadBtsPointSeries(unstableResult.btsPath, 0);
+	ASSERT_FALSE(stableLower.empty());
+	ASSERT_FALSE(unstableLower.empty());
+
+	const double expectedStable = expectedLogSpeed(70.0, stable.hubHeight, stable.meanWindSpeed, stable.roughness, stable.hubHeight, stable.zOverL);
+	const double expectedUnstable = expectedLogSpeed(70.0, unstable.hubHeight, unstable.meanWindSpeed, unstable.roughness, unstable.hubHeight, unstable.zOverL);
+
+	EXPECT_NEAR(stableLower[0][0], expectedStable, 1.0e-3);
+	EXPECT_NEAR(unstableLower[0][0], expectedUnstable, 1.0e-3);
+	EXPECT_GT(std::abs(stableLower[0][0] - unstableLower[0][0]), 1.0e-3);
 }

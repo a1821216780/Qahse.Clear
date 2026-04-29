@@ -55,6 +55,8 @@ namespace windl_io_detail
 		{
 		case CohModel::IEC: return "IEC";
 		case CohModel::GENERAL: return "GENERAL";
+		case CohModel::NONE: return "NONE";
+		case CohModel::API: return "API";
 		case CohModel::DEFAULT_COH: return "default";
 		default: return "default";
 		}
@@ -73,6 +75,10 @@ namespace windl_io_detail
 			return CohModel::IEC;
 		if (upper == "GENERAL" || token == "1")
 			return CohModel::GENERAL;
+		if (upper == "NONE" || token == "3")
+			return CohModel::NONE;
+		if (upper == "API" || token == "4")
+			return CohModel::API;
 
 		try { return ZString::StringToEnum<CohModel>(token, true); }
 		catch (...) { return defaultValue; }
@@ -231,6 +237,7 @@ namespace windl_io_detail
 				Field("CohDecayW", data.cohDecayW),
 				Field("CohScaleB", data.cohScaleB),
 				Field("CohExp", data.cohExp),
+				Field("AllowCohApprox", data.allowCohApprox),
 				Field("EWMType", data.ewmType),
 				Field("EWMReturn", data.ewmReturn),
 				Field("GustPeriod", data.gustPeriod),
@@ -685,6 +692,9 @@ inline UserSpectraData ReadUserSpectra(const std::string &path)
 		YML yaml(path, false);
 		UserSpectraData data;
 		data.numFrequencies = ReadYamlInt(yaml, "NumUSRf", 0);
+		data.specScale1 = ReadYamlDoubleOr(yaml, "SpecScale1", data.specScale1);
+		data.specScale2 = ReadYamlDoubleOr(yaml, "SpecScale2", data.specScale2);
+		data.specScale3 = ReadYamlDoubleOr(yaml, "SpecScale3", data.specScale3);
 		LoadColumns(ReadYamlMatrix(yaml, "Data"), data.frequencies, data.uPsd, data.vPsd, data.wPsd);
 		if (data.numFrequencies == 0)
 			data.numFrequencies = static_cast<int>(data.frequencies.size());
@@ -695,6 +705,9 @@ inline UserSpectraData ReadUserSpectra(const std::string &path)
 	const auto lines = ZFile::ReadAllLines(path);
 	UserSpectraData data;
 	data.numFrequencies = ReadKeywordValue<int>(lines, "NumUSRf", 0);
+	data.specScale1 = ReadKeywordValue<double>(lines, "SpecScale1", data.specScale1);
+	data.specScale2 = ReadKeywordValue<double>(lines, "SpecScale2", data.specScale2);
+	data.specScale3 = ReadKeywordValue<double>(lines, "SpecScale3", data.specScale3);
 	LoadColumns(ReadRowsAfterBegin(lines, 4, static_cast<std::size_t>(std::max(data.numFrequencies, 0))),
 	            data.frequencies,
 	            data.uPsd,
@@ -714,6 +727,9 @@ inline void WriteUserSpectra(const UserSpectraData &data, const std::string &pat
 	{
 		YML yaml;
 		AddYamlValue(yaml, "NumUSRf", data.numFrequencies > 0 ? data.numFrequencies : static_cast<int>(rows.size()));
+		AddYamlValue(yaml, "SpecScale1", data.specScale1);
+		AddYamlValue(yaml, "SpecScale2", data.specScale2);
+		AddYamlValue(yaml, "SpecScale3", data.specScale3);
 		AddYamlNode(yaml, "Data", YML::ToYmlValueString(rows, 2));
 		yaml.save(path);
 		return;
@@ -724,6 +740,9 @@ inline void WriteUserSpectra(const UserSpectraData &data, const std::string &pat
 	lines.push_back("-- Qahse.WindL user spectra table");
 	lines.push_back(std::to_string(data.numFrequencies > 0 ? data.numFrequencies : static_cast<int>(rows.size())) +
 	                " NumUSRf - Number of frequencies");
+	lines.push_back(FormatDouble(data.specScale1) + " SpecScale1 - u spectrum scale");
+	lines.push_back(FormatDouble(data.specScale2) + " SpecScale2 - v spectrum scale");
+	lines.push_back(FormatDouble(data.specScale3) + " SpecScale3 - w spectrum scale");
 	lines.push_back("Frequency uPSD vPSD wPSD");
 	lines.push_back("!Begin");
 	AddRows(lines, rows);

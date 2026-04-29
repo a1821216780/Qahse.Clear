@@ -56,6 +56,7 @@ TURB_MODEL = {
     "B_KAL": 3,
     "B_VKAL": 4,
     "B_IVKAL": 5,
+    "USRVKM": 8,
 }
 
 WIND_MODEL = {
