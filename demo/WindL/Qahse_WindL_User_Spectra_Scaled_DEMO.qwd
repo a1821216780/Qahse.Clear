@@ -1,41 +1,118 @@
--- Phase-2 demo: USER_SPECTRA with SpecScale
-0 Mode
-6 TurbModel
-0 WindModel
-true CalWu
-true CalWv
-true CalWw
-false WrBlwnd
-true WrTrbts
-false WrTrwnd
-1 IECStandard
-0 IECClass
-1 TurbulenceClass
-50 VRef
-90 RotorDiameter
-12 MeanWindSpeed
-90 HubHt
-90 RefHt
-0 ShearType
-0 WindProfileType
-0.14 PLExp
-0.03 Roughness
-1804201 RandSeed
-12 NumPointY
-12 NumPointZ
-90 LenWidthY
-90 LenHeightZ
-240 WindDuration
-0.05 TimeStep
-false CycleWind
-true UseFFT
-false UseIECSimmga
-0 ScaleIEC
-"./Qahse_WindL_User_Spectra_Scaled_DEMO.dat" UserTurbFile
-false AllowCohApprox
-default CohMod1
-default CohMod2
-default CohMod3
-"./result/phase2" WrWndPath
-"Qahse_WindL_User_Spectra_Scaled_DEMO" WrWndName
-true SumPrint
+-- =============================================================================
+-- Qahse.WindL PHASE-2 DEMO: USER_SPECTRA + SpecScale
+-- =============================================================================
+
+---------------------- WIndL 工作模式定义  --------------------------------
+0           Mode            - 模式: 0 生成风文件 或 1 读取风文件 或 2 批量模式
+
+---------------------- 生成风文件的设置{used only Mode=0}  -----------------
+true        CalWu           - 是否计算纵向风场
+true        CalWv           - 是否计算横向风场
+true        CalWw           - 是否计算垂向风场
+false       WrBlwnd         - 写出 Bladed .wnd 二进制风文件
+true        WrTrbts         - 写出 TurbSim .bts 二进制风文件
+false       WrTrwnd         - 写出 TurbSim .wnd 二进制风文件
+
+---------------------- 读取风文件的设置{used only Mode=1}  -----------------
+0           VFlowAng        - 垂直入流角(deg)
+0           HFlowAng        - 水平入流角(deg)
+false       CycleWind       - 导入风文件时是否镜像循环
+""          TurWindFile     - 导入风文件路径
+0           InterpMethod    - 插值方法: {TRILINEAR=0; CUBIC=1}
+
+---------------------- 风场与风机参数 --------------------------------------
+1804201     RandSeed        - 随机种子
+12          NumPointY       - 水平网格点数
+12          NumPointZ       - 垂直网格点数
+90          LenWidthY       - 水平网格宽度(m)
+90          LenHeightZ      - 垂直网格高度(m)
+240         WindDuration    - 风场时长(s)
+0.05        TimeStep        - 时间步长(s)
+90          HubHt           - 轮毂高度(m)
+50          VRef            - IEC 参考风速(m/s)
+90          RotorDiameter   - 转子直径(m)
+
+---------------------- 风场气象边界条件 ------------------------------------
+6           TurbModel       - 湍流风谱模型 {USER_SPECTRA=6}
+"./Qahse_WindL_User_Spectra_Scaled_DEMO.dat" UserTurbFile - 用户自定义谱输入文件(.dat)
+false       UseIECSimmga    - 是否采用 IEC 规则规范化自定义谱湍流度
+0           ScaleIEC        - IEC 缩放方式
+1           IECStandard     - 标准版次 {ED3=1}
+0           IECClass        - 风机等级 {Class_I=0}
+1           TurbulenceClass - 湍流等级 {Class_B=1}
+0           WindModel       - 湍流风模型 {NTM=0}
+0           ShearType       - 剪切类型 {PL=0}
+""          UserShearFile   - 用户自定义剪切文件
+90          RefHt           - 参考高度(m)
+12          MeanWindSpeed   - 参考高度平均风速(m/s)
+0.14        PLExp           - 幂律指数(-)
+0.03        Z0              - 地表粗糙度(m)
+0           WindProfileType - 平均风廓线类型 {DEFAULT_PROFILE=0}
+0           TurbIntensity   - 用户指定湍流度
+2           ETMc            - ETM c 参数
+0           UsableTime      - 可用风场时长(s)
+0           AnalysisTime    - 分析时长(s)
+0           Rich_No         - Richardson 数
+0           UStar           - 摩擦速度(m/s)
+0           ZL              - z/L 稳定度参数
+0           ZI              - 混合层高度(m)
+0           PC_UW           - 目标 Reynolds stress <u'w'>
+0           PC_UV           - 目标 Reynolds stress <u'v'>
+0           PC_VW           - 目标 Reynolds stress <v'w'>
+
+---------------------- 符合 Bladed 风谱模型的参数 ---------------------------
+0           MannScalelength - Mann 尺度长度
+0           MannGamma       - Mann Gamma
+0           MannMaxL        - Mann 最大波长
+0           MannAlphaEps    - Mann alpha*epsilon^(2/3)
+0           MannNx          - Mann x 向网格数
+0           MannNy          - Mann y 向网格数
+0           MannNz          - Mann z 向网格数
+0           VxLu            - u 分量纵向长度尺度
+0           VxLv            - v 分量纵向长度尺度
+0           VxLw            - w 分量纵向长度尺度
+0           VyLu            - u 分量横向长度尺度
+0           VyLv            - v 分量横向长度尺度
+0           VyLw            - w 分量横向长度尺度
+0           VzLu            - u 分量垂向长度尺度
+0           VzLv            - v 分量垂向长度尺度
+0           VzLw            - w 分量垂向长度尺度
+0.03        Roughness       - 地表粗糙度(m)
+0           Latitude        - 纬度(deg)
+0           TI_u            - u 分量湍流度
+0           TI_v            - v 分量湍流度
+0           TI_w            - w 分量湍流度
+
+---------------------- 相干系数模型参数 -------------------------------------
+2           CohMod1         - u 分量相干模型 {IEC=0; GENERAL=1; default=2; NONE=3; API=4}
+2           CohMod2         - v 分量相干模型 {IEC=0; GENERAL=1; default=2; NONE=3; API=4}
+2           CohMod3         - w 分量相干模型 {IEC=0; GENERAL=1; default=2; NONE=3; API=4}
+0           CohDecayU       - u 分量相干衰减系数
+0           CohDecayV       - v 分量相干衰减系数
+0           CohDecayW       - w 分量相干衰减系数
+0           CohScaleB       - GENERAL 相干模型 B 系数
+0           CohExp          - GENERAL 相干模型频率指数
+false       AllowCohApprox  - 是否允许大网格近似相干求解
+
+---------------------- IEC 事件与 EWM 参数 ----------------------------------
+0           EWMType         - EWM 类型 {Turbulent=0; Steady=1}
+0           EWMReturn       - EWM 重现期(年)
+0           GustPeriod      - 事件阵风周期(s)
+0           EventStart      - 事件开始时刻(s)
+0           EventSign       - 事件符号 {POSITIVE=0; NEGATIVE=1}
+0           EcdVcog         - ECD 事件附加速度项(m/s)
+
+---------------------- 输出控制 --------------------------------------------
+./result/phase2  WrWndPath  - 风文件输出路径
+Qahse_WindL_User_Spectra_Scaled_DEMO  WrWndName  - 输出风文件名称
+true        SumPrint        - 是否写出 .sum 文件
+0           WndFormat       - 风文件格式 {BLADED_WND=0; TURBSIM_BTS=1; TURBSIM_WND=2}
+0           GenMethod       - 生成方法 {AUTO=0}
+true        UseFFT          - 是否优先使用 FFT 路径
+
+---------------------- 批处理控制 ------------------------------------------
+""          BatchExcel      - 批处理 Excel 路径
+Cases       BatchSheet      - 批处理 Sheet 名
+""          BatchOutputDir  - 批处理输出目录
+0           BatchThreads    - 批处理线程数
+inproc      BatchLauncher   - 批处理启动方式

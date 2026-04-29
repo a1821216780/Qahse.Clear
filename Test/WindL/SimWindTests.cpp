@@ -175,6 +175,11 @@ double SampleCovariance(const std::vector<std::array<double, 3>> &series, int a,
 	return sum / static_cast<double>(series.size());
 }
 
+double SampleStdDev(const std::vector<std::array<double, 3>> &series, int comp)
+{
+	return std::sqrt(std::max(SampleCovariance(series, comp, comp), 0.0));
+}
+
 bool ContainsWarning(const SimWindResult &result, const std::string &needle)
 {
 	return std::any_of(result.warnings.begin(), result.warnings.end(), [&](const std::string &warning) {
@@ -548,6 +553,59 @@ TEST(WindL_SimWind, GeneratesAllBuiltInSpectralModels)
 	}
 }
 
+TEST(WindL_SimWind, ImprovedVonKarmanUsesDistinctProfileFromBladedVonKarman)
+{
+	auto vk = SmallInput("bladed_vk_reference");
+	vk.turbModel = TurbModel::B_VKAL;
+	vk.gridPtsY = 1;
+	vk.gridPtsZ = 3;
+	vk.fieldDimY = 2.0;
+	vk.fieldDimZ = 20.0;
+	vk.simTime = 20.0;
+	vk.timeStep = 0.1;
+	vk.scaleIEC = 1;
+	vk.wrBlwnd = false;
+	vk.wrTrwnd = false;
+
+	auto ivk = vk;
+	ivk.saveName = "bladed_ivk_reference";
+	ivk.turbModel = TurbModel::B_IVKAL;
+	ivk.latitude = 35.0;
+	ivk.roughness = 0.015;
+
+	const auto vkResult = SimWind::Generate(vk);
+	const auto ivkResult = SimWind::Generate(ivk);
+
+	EXPECT_GT(std::abs(ivkResult.stats[2].sigma - vkResult.stats[2].sigma), 0.05);
+	EXPECT_FALSE(ContainsWarning(ivkResult, "fall back to the Bladed von Karman sigma/length defaults"));
+}
+
+TEST(WindL_SimWind, ImprovedVonKarmanHonorsExplicitComponentTiInputs)
+{
+	auto input = SmallInput("bladed_ivk_custom_ti");
+	input.turbModel = TurbModel::B_IVKAL;
+	input.latitude = 35.0;
+	input.roughness = 0.015;
+	input.meanWindSpeed = 14.0;
+	input.tiU = 18.0;
+	input.tiV = 12.0;
+	input.tiW = 9.0;
+	input.gridPtsY = 1;
+	input.gridPtsZ = 1;
+	input.fieldDimY = 2.0;
+	input.fieldDimZ = 2.0;
+	input.simTime = 20.0;
+	input.timeStep = 0.1;
+	input.scaleIEC = 1;
+	input.wrBlwnd = false;
+	input.wrTrwnd = false;
+
+	const auto result = SimWind::Generate(input);
+	EXPECT_NEAR(result.stats[0].sigma, 0.18 * input.meanWindSpeed, 0.12);
+	EXPECT_NEAR(result.stats[1].sigma, 0.12 * input.meanWindSpeed, 0.12);
+	EXPECT_NEAR(result.stats[2].sigma, 0.09 * input.meanWindSpeed, 0.12);
+}
+
 TEST(WindL_SimWind, UserSpectraEndpointHoldKeepsLastPsdValue)
 {
 	UserSpectraData data;
@@ -710,6 +768,9 @@ TEST(WindL_SimWind, ExplicitReynoldsStressTargetsAffectHubCovariance)
 	const auto series = ReadBtsPointSeries(result.btsPath, 0);
 	ASSERT_FALSE(series.empty());
 
+	EXPECT_NEAR(SampleStdDev(series, 0), result.stats[0].sigma, 0.08);
+	EXPECT_NEAR(SampleStdDev(series, 1), result.stats[1].sigma, 0.08);
+	EXPECT_NEAR(SampleStdDev(series, 2), result.stats[2].sigma, 0.08);
 	EXPECT_NEAR(SampleCovariance(series, 0, 2), input.reynoldsUW, 0.12);
 	EXPECT_NEAR(SampleCovariance(series, 0, 1), input.reynoldsUV, 0.12);
 	EXPECT_NEAR(SampleCovariance(series, 1, 2), input.reynoldsVW, 0.12);

@@ -82,6 +82,8 @@ struct SimWindConfig
 	int scaleIEC = 0;
 	std::array<double, 3> sigma{0.0, 0.0, 0.0};
 	std::array<double, 3> integralScale{0.0, 0.0, 0.0};
+	std::array<double, 3> lateralScale{0.0, 0.0, 0.0};
+	std::array<double, 3> verticalScale{0.0, 0.0, 0.0};
 	std::array<double, 3> cohDecay{0.0, 0.0, 0.0};
 	std::array<double, 3> cohB{0.0, 0.0, 0.0};
 	std::array<CohModel, 3> cohModel{CohModel::DEFAULT_COH, CohModel::DEFAULT_COH, CohModel::DEFAULT_COH};
@@ -98,6 +100,8 @@ struct SimWindConfig
 	std::vector<double> directionByZ;
 	std::array<std::vector<double>, 3> sigmaByZ;
 	std::array<std::vector<double>, 3> lengthScaleByZ;
+	std::array<std::vector<double>, 3> lateralScaleByZ;
+	std::array<std::vector<double>, 3> verticalScaleByZ;
 	std::filesystem::path outputBase;
 	UserSpectraData userSpectra;
 	UserShearData userShear;
@@ -106,6 +110,9 @@ struct SimWindConfig
 	bool hasUserDirectionProfile = false;
 	bool hasUserSigmaProfile = false;
 	bool hasUserLengthScaleProfile = false;
+	bool hasSigmaProfileByZ = false;
+	bool hasLengthScaleProfileByZ = false;
+	bool hasImprovedVkProfile = false;
 	double estimatedPeakMemoryGiB = 0.0;
 	double estimatedCholeskyFlops = 0.0;
 	int strictCoherenceComponents = 0;
@@ -479,6 +486,54 @@ bool IsMann(TurbModel value)
 	return value == TurbModel::B_MANN;
 }
 
+bool IsImprovedVonKarman(TurbModel value)
+{
+	return value == TurbModel::B_IVKAL;
+}
+
+using Matrix3 = std::array<std::array<double, 3>, 3>;
+
+struct ImprovedVkProfilePoint
+{
+	bool valid = false;
+	double sigma[3]{0.0, 0.0, 0.0};
+	double xScale[3]{0.0, 0.0, 0.0};
+	double yScale[3]{0.0, 0.0, 0.0};
+	double zScale[3]{0.0, 0.0, 0.0};
+	double a = 1.0;
+	double boundaryLayerHeight = 0.0;
+	double frictionVelocity = 0.0;
+};
+
+Matrix3 ZeroMatrix3()
+{
+	return {{{0.0, 0.0, 0.0},
+	         {0.0, 0.0, 0.0},
+	         {0.0, 0.0, 0.0}}};
+}
+
+double TargetReynoldsStress(const ReynoldsStressSetup &setup, int compA, int compB)
+{
+	if ((compA == 0 && compB == 2) || (compA == 2 && compB == 0))
+		return setup.target[0];
+	if ((compA == 0 && compB == 1) || (compA == 1 && compB == 0))
+		return setup.target[1];
+	if ((compA == 1 && compB == 2) || (compA == 2 && compB == 1))
+		return setup.target[2];
+	return 0.0;
+}
+
+bool HasTargetReynoldsStress(const ReynoldsStressSetup &setup, int compA, int compB)
+{
+	if ((compA == 0 && compB == 2) || (compA == 2 && compB == 0))
+		return !setup.skip[0];
+	if ((compA == 0 && compB == 1) || (compA == 1 && compB == 0))
+		return !setup.skip[1];
+	if ((compA == 1 && compB == 2) || (compA == 2 && compB == 1))
+		return !setup.skip[2];
+	return false;
+}
+
 bool IsEwmWindModel(WindModel model)
 {
 	return model == WindModel::EWM1 || model == WindModel::EWM50;
@@ -568,6 +623,94 @@ double DefaultMixingLayerDepth(double uStar,
 	if (uStar < uStarDiab || std::abs(coriolis) <= 1.0e-8)
 		return (0.04 * uRef) / (1.0e-4 * std::max(std::log10(refHeight / z0), 1.0e-3));
 	return uStar / (6.0 * std::abs(coriolis));
+}
+
+bool HasImprovedVkAtmosphericInputs(const WindLInput &input)
+{
+	return input.roughness > 0.0 && std::abs(input.latitude) > 1.0e-3;
+}
+
+double ImprovedVkFrictionVelocity(double meanU, double z, double roughness, double coriolis)
+{
+	const double zEval = std::max(z, roughness * 1.01);
+	const double denom = std::log(std::max(zEval / std::max(roughness, 1.0e-5), 1.000001));
+	if (meanU <= 0.0 || denom <= kTiny)
+		return 0.0;
+	const double value = (0.4 * meanU - 34.5 * std::abs(coriolis) * zEval) / denom;
+	return std::max(value, 0.0);
+}
+
+ImprovedVkProfilePoint ComputeImprovedVkPoint(const SimWindConfig &cfg, double z, double meanU)
+{
+	ImprovedVkProfilePoint point;
+	if (!HasImprovedVkAtmosphericInputs(cfg.input))
+		return point;
+
+	const double z0 = std::max(cfg.input.roughness, 1.0e-5);
+	const double zEval = std::max(z, z0 * 1.01);
+	const double coriolis = 2.0 * kOmega * std::sin(std::abs(cfg.input.latitude) * kRad);
+	const double coriolisAbs = std::abs(coriolis);
+	if (coriolisAbs <= 1.0e-8 || meanU <= 0.1)
+		return point;
+
+	const double uStar = ImprovedVkFrictionVelocity(meanU, zEval, z0, coriolisAbs);
+	if (uStar <= kTiny)
+		return point;
+
+	const double boundaryLayerHeight = uStar / (6.0 * coriolisAbs);
+	if (boundaryLayerHeight <= zEval + kTiny)
+		return point;
+
+	const double eta = std::clamp(1.0 - 6.0 * coriolisAbs * zEval / uStar, 0.05, 1.0);
+	const double p = std::pow(eta, 16.0);
+	const double logZ = std::log(std::max(zEval / z0, 1.000001));
+	const double R = std::max(uStar / (coriolisAbs * z0), 1.000001);
+	const double sigmaU = uStar * 7.5 * eta * std::pow(std::max(0.538 + 0.09 * logZ, 1.0e-6), p) /
+	                      std::max(1.0 + 0.156 * std::log(R), 1.0e-6);
+	if (sigmaU <= kTiny)
+		return point;
+
+	const double zh = std::clamp(zEval / boundaryLayerHeight, 1.0e-6, 0.999);
+	const double cosTerm = std::pow(std::cos(0.5 * kPi * zh), 4.0);
+	const double iu = sigmaU / meanU;
+	const double iv = iu * (1.0 - 0.22 * cosTerm);
+	const double iw = iu * (1.0 - 0.45 * cosTerm);
+
+	const double k0 = 0.39 / std::pow(R, 0.11);
+	const double b = 24.0 * std::pow(R, 0.155);
+	const double n = 1.24 * std::pow(R, 0.008);
+	const double kz = 0.19 - (0.19 - k0) * std::exp(-b * std::pow(zh, n));
+	const double a = 0.535 + 2.76 * std::pow(std::max(0.138 - 0.115 * std::pow(1.0 + 0.315 * std::pow(1.0 - zh, 6.0), 2.0 / 3.0), 0.0), 0.68);
+	const double factorA = 0.115 * std::pow(1.0 + 0.315 * std::pow(1.0 - zh, 6.0), 2.0 / 3.0);
+	const double luX = factorA > 0.0 && kz > 0.0
+	                       ? std::pow(factorA, 1.5) * (sigmaU / uStar) * zEval /
+	                             std::max(2.5 * std::pow(kz, 1.5) * std::pow(1.0 - zh, 2.0) * (1.0 + 5.75 * zh), 1.0e-6)
+	                       : 0.0;
+	if (luX <= kTiny || !std::isfinite(luX))
+		return point;
+
+	const double luY = 0.5 * luX * (1.0 - 0.68 * std::exp(-35.0 * zh));
+	const double luZ = 0.5 * luX * (1.0 - 0.46 * std::exp(-35.0 * std::pow(zh, 1.7)));
+	const double ratioV = std::pow(std::max(iv / std::max(iu, 1.0e-9), 1.0e-6), 3.0);
+	const double ratioW = std::pow(std::max(iw / std::max(iu, 1.0e-9), 1.0e-6), 3.0);
+
+	point.valid = true;
+	point.boundaryLayerHeight = boundaryLayerHeight;
+	point.frictionVelocity = uStar;
+	point.a = std::max(a, 1.0e-3);
+	point.sigma[0] = cfg.input.tiU > 0.0 ? cfg.input.tiU * 0.01 * meanU : sigmaU;
+	point.sigma[1] = cfg.input.tiV > 0.0 ? cfg.input.tiV * 0.01 * meanU : iv * meanU;
+	point.sigma[2] = cfg.input.tiW > 0.0 ? cfg.input.tiW * 0.01 * meanU : iw * meanU;
+	point.xScale[0] = cfg.input.vkLu > 0.0 ? cfg.input.vkLu : luX;
+	point.yScale[0] = cfg.input.vyLu > 0.0 ? cfg.input.vyLu : std::max(luY, kTiny);
+	point.zScale[0] = cfg.input.vzLu > 0.0 ? cfg.input.vzLu : std::max(luZ, kTiny);
+	point.xScale[1] = cfg.input.vkLv > 0.0 ? cfg.input.vkLv : std::max(0.5 * luX * ratioV, kTiny);
+	point.yScale[1] = cfg.input.vyLv > 0.0 ? cfg.input.vyLv : std::max(2.0 * luY * ratioV, kTiny);
+	point.zScale[1] = cfg.input.vzLv > 0.0 ? cfg.input.vzLv : std::max(luZ * ratioV, kTiny);
+	point.xScale[2] = cfg.input.vkLw > 0.0 ? cfg.input.vkLw : std::max(0.5 * luX * ratioW, kTiny);
+	point.yScale[2] = cfg.input.vyLw > 0.0 ? cfg.input.vyLw : std::max(luY * ratioW, kTiny);
+	point.zScale[2] = cfg.input.vzLw > 0.0 ? cfg.input.vzLw : std::max(2.0 * luZ * ratioW, kTiny);
+	return point;
 }
 
 double DefaultIecProfileExponent(const SimWindConfig &cfg)
@@ -820,7 +963,13 @@ void ApplyIecDefaults(SimWindConfig &cfg)
 		cfg.sigma[2] = in.tiW > 0.0 ? FractionalTI(in.tiW) * cfg.uHub : cfg.sigma[0];
 		cfg.integralScale = {3.5 * cfg.lambda, 3.5 * cfg.lambda, 3.5 * cfg.lambda};
 	}
-	else if (in.turbModel == TurbModel::B_VKAL || in.turbModel == TurbModel::B_IVKAL)
+	else if (in.turbModel == TurbModel::B_VKAL)
+	{
+		cfg.sigma[1] = in.tiV > 0.0 ? FractionalTI(in.tiV) * cfg.uHub : 0.8 * cfg.sigma[0];
+		cfg.sigma[2] = in.tiW > 0.0 ? FractionalTI(in.tiW) * cfg.uHub : 0.5 * cfg.sigma[0];
+		cfg.integralScale = {3.5 * cfg.lambda, 3.5 * cfg.lambda, 3.5 * cfg.lambda};
+	}
+	else if (in.turbModel == TurbModel::B_IVKAL)
 	{
 		cfg.sigma[1] = in.tiV > 0.0 ? FractionalTI(in.tiV) * cfg.uHub : 0.8 * cfg.sigma[0];
 		cfg.sigma[2] = in.tiW > 0.0 ? FractionalTI(in.tiW) * cfg.uHub : 0.5 * cfg.sigma[0];
@@ -836,6 +985,14 @@ void ApplyIecDefaults(SimWindConfig &cfg)
 	if (in.vkLu > 0.0) cfg.integralScale[0] = in.vkLu;
 	if (in.vkLv > 0.0) cfg.integralScale[1] = in.vkLv;
 	if (in.vkLw > 0.0) cfg.integralScale[2] = in.vkLw;
+	cfg.lateralScale = {0.3 * cfg.integralScale[0], 0.3 * cfg.integralScale[1], 0.3 * cfg.integralScale[2]};
+	cfg.verticalScale = cfg.lateralScale;
+	if (in.vyLu > 0.0) cfg.lateralScale[0] = in.vyLu;
+	if (in.vyLv > 0.0) cfg.lateralScale[1] = in.vyLv;
+	if (in.vyLw > 0.0) cfg.lateralScale[2] = in.vyLw;
+	if (in.vzLu > 0.0) cfg.verticalScale[0] = in.vzLu;
+	if (in.vzLv > 0.0) cfg.verticalScale[1] = in.vzLv;
+	if (in.vzLw > 0.0) cfg.verticalScale[2] = in.vzLw;
 	if (in.cohDecayU > 0.0) cfg.cohDecay[0] = in.cohDecayU;
 	if (in.cohDecayV > 0.0) cfg.cohDecay[1] = in.cohDecayV;
 	if (in.cohDecayW > 0.0) cfg.cohDecay[2] = in.cohDecayW;
@@ -916,7 +1073,7 @@ double ProfileValueAtHub(const SimWindConfig &cfg, const std::vector<double> &va
 
 double LocalSigmaAtZ(const SimWindConfig &cfg, int comp, int iz)
 {
-	if (cfg.hasUserSigmaProfile &&
+	if (cfg.hasSigmaProfileByZ &&
 	    iz >= 0 &&
 	    static_cast<std::size_t>(iz) < cfg.sigmaByZ[static_cast<std::size_t>(comp)].size())
 		return std::max(cfg.sigmaByZ[static_cast<std::size_t>(comp)][static_cast<std::size_t>(iz)], 0.0);
@@ -925,7 +1082,7 @@ double LocalSigmaAtZ(const SimWindConfig &cfg, int comp, int iz)
 
 double LocalLengthScaleAtZ(const SimWindConfig &cfg, int comp, int iz)
 {
-	if (cfg.hasUserLengthScaleProfile &&
+	if (cfg.hasLengthScaleProfileByZ &&
 	    iz >= 0 &&
 	    static_cast<std::size_t>(iz) < cfg.lengthScaleByZ[static_cast<std::size_t>(comp)].size())
 		return std::max(cfg.lengthScaleByZ[static_cast<std::size_t>(comp)][static_cast<std::size_t>(iz)], kTiny);
@@ -934,13 +1091,13 @@ double LocalLengthScaleAtZ(const SimWindConfig &cfg, int comp, int iz)
 
 void ApplyUserProfileTurbulenceOverrides(SimWindConfig &cfg)
 {
-	if (cfg.hasUserSigmaProfile)
+	if (cfg.hasSigmaProfileByZ)
 	{
 		for (int comp = 0; comp < 3; ++comp)
 			cfg.sigma[static_cast<std::size_t>(comp)] = ProfileValueAtHub(cfg, cfg.sigmaByZ[static_cast<std::size_t>(comp)]);
 	}
 
-	if (cfg.hasUserLengthScaleProfile)
+	if (cfg.hasLengthScaleProfileByZ)
 	{
 		for (int comp = 0; comp < 3; ++comp)
 			cfg.integralScale[static_cast<std::size_t>(comp)] = ProfileValueAtHub(cfg, cfg.lengthScaleByZ[static_cast<std::size_t>(comp)]);
@@ -1100,6 +1257,10 @@ void BuildGridAndProfiles(SimWindConfig &cfg)
 		values.assign(static_cast<std::size_t>(cfg.nz), 0.0);
 	for (auto &values : cfg.lengthScaleByZ)
 		values.assign(static_cast<std::size_t>(cfg.nz), 0.0);
+	for (auto &values : cfg.lateralScaleByZ)
+		values.assign(static_cast<std::size_t>(cfg.nz), 0.0);
+	for (auto &values : cfg.verticalScaleByZ)
+		values.assign(static_cast<std::size_t>(cfg.nz), 0.0);
 	cfg.y.resize(static_cast<std::size_t>(cfg.nPoints));
 	cfg.z.resize(static_cast<std::size_t>(cfg.nPoints));
 	cfg.meanU.resize(static_cast<std::size_t>(cfg.nPoints));
@@ -1123,6 +1284,9 @@ void BuildGridAndProfiles(SimWindConfig &cfg)
 	cfg.hasUserDirectionProfile = cfg.hasUserShear && HasProfileColumn(cfg.userShear.heights, cfg.userShear.windDirections);
 	cfg.hasUserSigmaProfile = cfg.hasUserShear && HasProfileColumn(cfg.userShear.heights, cfg.userShear.standardDeviations);
 	cfg.hasUserLengthScaleProfile = cfg.hasUserShear && HasProfileColumn(cfg.userShear.heights, cfg.userShear.lengthScales);
+	cfg.hasSigmaProfileByZ = cfg.hasUserSigmaProfile;
+	cfg.hasLengthScaleProfileByZ = cfg.hasUserLengthScaleProfile;
+	cfg.hasImprovedVkProfile = false;
 
 	if (cfg.hasUserShear)
 	{
@@ -1192,10 +1356,44 @@ void BuildGridAndProfiles(SimWindConfig &cfg)
 				cfg.lengthScaleByZ[static_cast<std::size_t>(comp)][static_cast<std::size_t>(iz)] =
 				    std::max(lengthBase * lengthRatios[static_cast<std::size_t>(comp)], kTiny);
 		}
+		if (IsImprovedVonKarman(in.turbModel))
+		{
+			const ImprovedVkProfilePoint ivk = ComputeImprovedVkPoint(cfg, z, uClamped > 0.1 ? uClamped : std::max(cfg.uHub, 0.1));
+			if (ivk.valid)
+			{
+				cfg.hasImprovedVkProfile = true;
+				cfg.hasSigmaProfileByZ = true;
+				cfg.hasLengthScaleProfileByZ = true;
+				for (int comp = 0; comp < 3; ++comp)
+				{
+					cfg.sigmaByZ[static_cast<std::size_t>(comp)][static_cast<std::size_t>(iz)] = ivk.sigma[comp];
+					cfg.lengthScaleByZ[static_cast<std::size_t>(comp)][static_cast<std::size_t>(iz)] = ivk.xScale[comp];
+					cfg.lateralScaleByZ[static_cast<std::size_t>(comp)][static_cast<std::size_t>(iz)] = ivk.yScale[comp];
+					cfg.verticalScaleByZ[static_cast<std::size_t>(comp)][static_cast<std::size_t>(iz)] = ivk.zScale[comp];
+				}
+			}
+		}
 		for (int iy = 0; iy < cfg.ny; ++iy)
 		{
 			const int p = GridIndex(cfg, iz, iy);
 			cfg.meanU[static_cast<std::size_t>(p)] = uClamped;
+		}
+	}
+
+	if (IsImprovedVonKarman(in.turbModel) && !cfg.hasImprovedVkProfile)
+	{
+		AppendWarning(cfg.warnings,
+		              "B_IVKAL requires valid Latitude and Roughness to derive the Bladed 4.11 improved von Karman profile; missing atmospheric inputs fall back to the Bladed von Karman sigma/length defaults.");
+	}
+
+	if (cfg.hasImprovedVkProfile)
+	{
+		for (int comp = 0; comp < 3; ++comp)
+		{
+			cfg.lateralScale[static_cast<std::size_t>(comp)] =
+			    ProfileValueAtHub(cfg, cfg.lateralScaleByZ[static_cast<std::size_t>(comp)]);
+			cfg.verticalScale[static_cast<std::size_t>(comp)] =
+			    ProfileValueAtHub(cfg, cfg.verticalScaleByZ[static_cast<std::size_t>(comp)]);
 		}
 	}
 }
@@ -1388,7 +1586,8 @@ double SpectrumWithParameters(const SimWindConfig &cfg,
                               double freq,
                               double uMean,
                               double sigma,
-                              double integralScale)
+                              double integralScale,
+                              double height)
 {
 	if (freq <= 0.0 || !ComponentEnabled(cfg.input, comp))
 		return 0.0;
@@ -1406,7 +1605,46 @@ double SpectrumWithParameters(const SimWindConfig &cfg,
 		return UserSpectraScale(data, comp) * InterpolateUserPsdWithEndpointHold(data.frequencies, *psd, freq);
 	}
 
-	if (IsVonKarman(cfg.input.turbModel) || IsMann(cfg.input.turbModel))
+	if (IsImprovedVonKarman(cfg.input.turbModel))
+	{
+		const ImprovedVkProfilePoint ivk = ComputeImprovedVkPoint(cfg, height, meanU);
+		if (!ivk.valid)
+		{
+			const double lOverU = std::max(integralScale, kTiny) / meanU;
+			const double flu2 = std::pow(freq * lOverU, 2.0);
+			const double tmp = 1.0 + 71.0 * flu2;
+			const double sigmaL = 2.0 * sigma * sigma * lOverU;
+			if (comp == 0)
+				return 2.0 * sigmaL / std::pow(tmp, 5.0 / 6.0);
+			return sigmaL * (1.0 + 189.0 * flu2) / std::pow(tmp, 11.0 / 6.0);
+		}
+
+		const double xScale = std::max(ivk.xScale[comp], kTiny);
+		const double nTilde = std::max(freq * xScale / meanU, 1.0e-9);
+		const double a = std::max(ivk.a, 1.0e-6);
+		const double nOverA = nTilde / a;
+		const double beta1 = std::clamp(2.357 * a - 0.761, 0.0, 1.0);
+		const double beta2 = std::clamp(1.0 - beta1, 0.0, 1.0);
+
+		if (comp == 0)
+		{
+			const double f1 = std::pow(1.0 + 0.455 * std::exp(-0.76 * nOverA), -0.8);
+			const double term1 = beta1 * 2.987 * nOverA /
+			                     std::pow(1.0 + std::pow(2.0 * kPi * nOverA, 2.0), 5.0 / 6.0);
+			const double term2 = beta2 * 1.294 * nOverA /
+			                     std::max(f1 * std::pow(1.0 + std::pow(kPi * nOverA, 2.0), 5.0 / 6.0), 1.0e-12);
+			return sigma * sigma * (term1 + term2) / freq;
+		}
+
+		const double f2 = std::pow(1.0 + 2.88 * std::exp(-0.218 * nOverA), -0.9);
+		const double term1 = beta1 * 2.987 * (1.0 + (8.0 / 3.0) * std::pow(4.0 * kPi * nOverA, 2.0)) * nOverA /
+		                     std::pow(1.0 + std::pow(4.0 * kPi * nOverA, 2.0), 11.0 / 6.0);
+		const double term2 = beta2 * 1.294 * nOverA /
+		                     std::max(f2 * std::pow(1.0 + std::pow(2.0 * kPi * nOverA, 2.0), 5.0 / 6.0), 1.0e-12);
+		return sigma * sigma * (term1 + term2) / freq;
+	}
+
+	if ((IsVonKarman(cfg.input.turbModel) && !IsImprovedVonKarman(cfg.input.turbModel)) || IsMann(cfg.input.turbModel))
 	{
 		const double lOverU = std::max(integralScale, kTiny) / meanU;
 		const double flu2 = std::pow(freq * lOverU, 2.0);
@@ -1429,7 +1667,8 @@ double SpectrumAtMeanU(const SimWindConfig &cfg, int comp, double freq, double u
 	                              freq,
 	                              uMean,
 	                              cfg.sigma[static_cast<std::size_t>(comp)],
-	                              cfg.integralScale[static_cast<std::size_t>(comp)]);
+	                              cfg.integralScale[static_cast<std::size_t>(comp)],
+	                              cfg.hubHeight);
 }
 
 double SpectrumAt(const SimWindConfig &cfg, int comp, double freq)
@@ -1911,7 +2150,8 @@ void FillPsdByHeight(const SimWindConfig &cfg,
 		                                                   freq,
 		                                                   cfg.meanUByZ[static_cast<std::size_t>(iz)],
 		                                                   LocalSigmaAtZ(cfg, comp, iz),
-		                                                   LocalLengthScaleAtZ(cfg, comp, iz)),
+		                                                   LocalLengthScaleAtZ(cfg, comp, iz),
+		                                                   cfg.zCoords[static_cast<std::size_t>(iz)]),
 		                            0.0);
 		psdByZ[static_cast<std::size_t>(iz)] = psd;
 		sqrtPsdByZ[static_cast<std::size_t>(iz)] = std::sqrt(psd);
@@ -2367,58 +2607,267 @@ HubCovariances ComputeHubCovariances(const SimWindConfig &cfg, const WindField &
 	return cov;
 }
 
+bool CholeskyLower(const Matrix3 &matrix, int n, Matrix3 &lower)
+{
+	lower = ZeroMatrix3();
+	const double trace = matrix[0][0] + matrix[1][1] + matrix[2][2];
+	const double baseJitter = std::max(std::abs(trace) * 1.0e-12, 1.0e-12);
+
+	for (int attempt = 0; attempt < 8; ++attempt)
+	{
+		const double jitter = baseJitter * std::pow(10.0, attempt);
+		bool ok = true;
+		for (int i = 0; i < n && ok; ++i)
+		{
+			for (int j = 0; j <= i; ++j)
+			{
+				double sum = matrix[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)];
+				if (i == j)
+					sum += jitter;
+				for (int k = 0; k < j; ++k)
+					sum -= lower[static_cast<std::size_t>(i)][static_cast<std::size_t>(k)] *
+					       lower[static_cast<std::size_t>(j)][static_cast<std::size_t>(k)];
+				if (i == j)
+				{
+					if (sum <= 0.0)
+					{
+						ok = false;
+						break;
+					}
+					lower[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)] = std::sqrt(sum);
+				}
+				else
+				{
+					const double pivot = lower[static_cast<std::size_t>(j)][static_cast<std::size_t>(j)];
+					if (std::abs(pivot) <= kTiny)
+					{
+						ok = false;
+						break;
+					}
+					lower[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)] = sum / pivot;
+				}
+			}
+		}
+		if (ok)
+			return true;
+	}
+
+	return false;
+}
+
+Matrix3 MultiplyMatrix(const Matrix3 &a, const Matrix3 &b, int n)
+{
+	Matrix3 out = ZeroMatrix3();
+	for (int i = 0; i < n; ++i)
+	{
+		for (int j = 0; j < n; ++j)
+		{
+			double sum = 0.0;
+			for (int k = 0; k < n; ++k)
+				sum += a[static_cast<std::size_t>(i)][static_cast<std::size_t>(k)] *
+				       b[static_cast<std::size_t>(k)][static_cast<std::size_t>(j)];
+			out[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)] = sum;
+		}
+	}
+	return out;
+}
+
+Matrix3 InvertLowerTriangular(const Matrix3 &lower, int n)
+{
+	Matrix3 inv = ZeroMatrix3();
+	for (int i = 0; i < n; ++i)
+	{
+		inv[static_cast<std::size_t>(i)][static_cast<std::size_t>(i)] =
+		    1.0 / std::max(lower[static_cast<std::size_t>(i)][static_cast<std::size_t>(i)], kTiny);
+		for (int j = 0; j < i; ++j)
+		{
+			double sum = 0.0;
+			for (int k = j; k < i; ++k)
+				sum += lower[static_cast<std::size_t>(i)][static_cast<std::size_t>(k)] *
+				       inv[static_cast<std::size_t>(k)][static_cast<std::size_t>(j)];
+			inv[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)] =
+			    -sum / std::max(lower[static_cast<std::size_t>(i)][static_cast<std::size_t>(i)], kTiny);
+		}
+	}
+	return inv;
+}
+
+bool SoftenedTargetCovariance(Matrix3 &target, int n)
+{
+	const Matrix3 original = target;
+	double lo = 0.0;
+	double hi = 1.0;
+	Matrix3 best = target;
+	bool found = false;
+	for (int iter = 0; iter < 32; ++iter)
+	{
+		const double scale = 0.5 * (lo + hi);
+		Matrix3 trial = original;
+		for (int i = 0; i < n; ++i)
+		{
+			for (int j = 0; j < i; ++j)
+			{
+				trial[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)] *= scale;
+				trial[static_cast<std::size_t>(j)][static_cast<std::size_t>(i)] =
+				    trial[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)];
+			}
+		}
+		Matrix3 lower{};
+		if (CholeskyLower(trial, n, lower))
+		{
+			best = trial;
+			lo = scale;
+			found = true;
+		}
+		else
+		{
+			hi = scale;
+		}
+	}
+	if (found)
+		target = best;
+	return found;
+}
+
 void ApplyReynoldsStressScaling(const SimWindConfig &cfg, WindField &field)
 {
 	if (!cfg.met.reynoldsStress.active)
 		return;
 
-	const HubCovariances cov = ComputeHubCovariances(cfg, field);
-	if (cov.uu <= kTiny)
-	{
-		AppendWarning(MutableWarnings(cfg), "Reynolds-stress scaling skipped because the hub u-variance is too small.");
-		return;
-	}
-
-	double alphaUW = (cfg.met.reynoldsStress.target[0] - cov.uw) / cov.uu;
-	double denom = cov.uu * (cov.ww + alphaUW * cov.uw) - cov.uw * cfg.met.reynoldsStress.target[0];
-	double alphaWV = 0.0;
-	if (std::abs(denom) > kTiny)
-	{
-		alphaWV = (cov.uu * (cfg.met.reynoldsStress.target[2] - cov.vw - alphaUW * cov.uv) -
-		           cfg.met.reynoldsStress.target[0] * (cfg.met.reynoldsStress.target[1] - cov.uv)) /
-		          denom;
-	}
-	double alphaUV = (cfg.met.reynoldsStress.target[1] - cov.uv - alphaWV * cov.uw) / cov.uu;
-
-	if (cfg.met.reynoldsStress.skip[0]) alphaUW = 0.0;
-	if (cfg.met.reynoldsStress.skip[1]) alphaUV = 0.0;
-	if (cfg.met.reynoldsStress.skip[2]) alphaWV = 0.0;
-
-	const bool clipped = std::abs(alphaUW) > 1.0 || std::abs(alphaUV) > 1.0 || std::abs(alphaWV) > 1.0;
-	if (clipped)
-	{
-		alphaUW = std::clamp(alphaUW, -1.0, 1.0);
-		alphaUV = std::clamp(alphaUV, -1.0, 1.0);
-		alphaWV = std::clamp(alphaWV, -1.0, 1.0);
-		AppendWarning(MutableWarnings(cfg),
-		              "Reynolds-stress scaling terms exceeded +/-1 and were clipped; cross-component targets may be softened.");
-	}
-	if (std::abs(denom) <= kTiny && (!cfg.met.reynoldsStress.skip[1] || !cfg.met.reynoldsStress.skip[2]))
-	{
-		AppendWarning(MutableWarnings(cfg),
-		              "Reynolds-stress scaling encountered a near-singular hub covariance system; v/w cross-correlation scaling was limited.");
-	}
+	bool anySoftened = false;
+	bool anySkipped = false;
 
 	for (int point = 0; point < cfg.nPoints; ++point)
 	{
+		std::array<double, 3> mean{0.0, 0.0, 0.0};
+		for (int comp = 0; comp < 3; ++comp)
+		{
+			if (!ComponentEnabled(cfg.input, comp))
+				continue;
+			for (int t = 0; t < cfg.nSteps; ++t)
+				mean[static_cast<std::size_t>(comp)] += field.At(comp, t, point);
+			mean[static_cast<std::size_t>(comp)] /= static_cast<double>(cfg.nSteps);
+		}
+
+		std::vector<int> active;
+		active.reserve(3);
+		for (int comp = 0; comp < 3; ++comp)
+		{
+			if (ComponentEnabled(cfg.input, comp))
+				active.push_back(comp);
+		}
+		if (active.empty())
+			continue;
+
+		const int dim = static_cast<int>(active.size());
+		Matrix3 current = ZeroMatrix3();
 		for (int t = 0; t < cfg.nSteps; ++t)
 		{
-			const double u = field.At(0, t, point);
-			const double v = field.At(1, t, point);
-			const double w = field.At(2, t, point);
-			field.At(1, t, point) = alphaUV * u + v + alphaWV * w;
-			field.At(2, t, point) = alphaUW * u + w;
+			std::array<double, 3> sample{0.0, 0.0, 0.0};
+			for (int i = 0; i < dim; ++i)
+			{
+				const int comp = active[static_cast<std::size_t>(i)];
+				sample[static_cast<std::size_t>(i)] = field.At(comp, t, point) - mean[static_cast<std::size_t>(comp)];
+			}
+			for (int i = 0; i < dim; ++i)
+			{
+				for (int j = 0; j <= i; ++j)
+				{
+					current[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)] +=
+					    sample[static_cast<std::size_t>(i)] * sample[static_cast<std::size_t>(j)];
+				}
+			}
 		}
+		for (int i = 0; i < dim; ++i)
+		{
+			for (int j = 0; j <= i; ++j)
+			{
+				current[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)] /= static_cast<double>(cfg.nSteps);
+				current[static_cast<std::size_t>(j)][static_cast<std::size_t>(i)] =
+				    current[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)];
+			}
+		}
+
+		Matrix3 currentLower{};
+		if (!CholeskyLower(current, dim, currentLower))
+		{
+			anySkipped = true;
+			continue;
+		}
+
+		const int iz = point / cfg.ny;
+		Matrix3 target = ZeroMatrix3();
+		for (int i = 0; i < dim; ++i)
+		{
+			const int compI = active[static_cast<std::size_t>(i)];
+			const double sigmaTarget = cfg.scaleIEC >= 1
+			                               ? LocalSigmaAtZ(cfg, compI, iz)
+			                               : std::sqrt(std::max(current[static_cast<std::size_t>(i)][static_cast<std::size_t>(i)], 0.0));
+			target[static_cast<std::size_t>(i)][static_cast<std::size_t>(i)] = sigmaTarget * sigmaTarget;
+			for (int j = 0; j < i; ++j)
+			{
+				const int compJ = active[static_cast<std::size_t>(j)];
+				double offdiag = current[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)];
+				if (HasTargetReynoldsStress(cfg.met.reynoldsStress, compI, compJ))
+					offdiag = TargetReynoldsStress(cfg.met.reynoldsStress, compI, compJ);
+				const double sigmaI = std::sqrt(std::max(target[static_cast<std::size_t>(i)][static_cast<std::size_t>(i)], 0.0));
+				const double sigmaJ = std::sqrt(std::max(target[static_cast<std::size_t>(j)][static_cast<std::size_t>(j)], 0.0));
+				const double maxCov = 0.995 * sigmaI * sigmaJ;
+				offdiag = std::clamp(offdiag, -maxCov, maxCov);
+				target[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)] = offdiag;
+				target[static_cast<std::size_t>(j)][static_cast<std::size_t>(i)] = offdiag;
+			}
+		}
+
+		Matrix3 targetLower{};
+		if (!CholeskyLower(target, dim, targetLower))
+		{
+			if (!SoftenedTargetCovariance(target, dim) || !CholeskyLower(target, dim, targetLower))
+			{
+				anySkipped = true;
+				continue;
+			}
+			anySoftened = true;
+		}
+
+		const Matrix3 invCurrentLower = InvertLowerTriangular(currentLower, dim);
+		const Matrix3 transform = MultiplyMatrix(targetLower, invCurrentLower, dim);
+
+		for (int t = 0; t < cfg.nSteps; ++t)
+		{
+			std::array<double, 3> centered{0.0, 0.0, 0.0};
+			std::array<double, 3> mapped{0.0, 0.0, 0.0};
+			for (int i = 0; i < dim; ++i)
+			{
+				const int comp = active[static_cast<std::size_t>(i)];
+				centered[static_cast<std::size_t>(i)] = field.At(comp, t, point) - mean[static_cast<std::size_t>(comp)];
+			}
+			for (int i = 0; i < dim; ++i)
+			{
+				for (int j = 0; j < dim; ++j)
+				{
+					mapped[static_cast<std::size_t>(i)] +=
+					    transform[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)] *
+					    centered[static_cast<std::size_t>(j)];
+				}
+			}
+			for (int i = 0; i < dim; ++i)
+			{
+				const int comp = active[static_cast<std::size_t>(i)];
+				field.At(comp, t, point) = mapped[static_cast<std::size_t>(i)];
+			}
+		}
+	}
+
+	if (anySoftened)
+	{
+		AppendWarning(MutableWarnings(cfg),
+		              "Reynolds-stress target covariance was softened at some points to remain positive-definite while preserving the final component sigmas.");
+	}
+	if (anySkipped)
+	{
+		AppendWarning(MutableWarnings(cfg),
+		              "Reynolds-stress scaling skipped at some points because the local covariance matrix was singular or numerically degenerate.");
 	}
 }
 
@@ -2728,14 +3177,14 @@ void WriteBladedWnd(const SimWindConfig &cfg,
 	const int modelId = BladedModelId(cfg.input.turbModel);
 	const int componentCount = 3;
 
-	const float zLu = static_cast<float>(LengthScaleOrDefault(cfg.input.vzLu, cfg.integralScale[0]));
-	const float yLu = static_cast<float>(LengthScaleOrDefault(cfg.input.vyLu, cfg.integralScale[0]));
+	const float zLu = static_cast<float>(LengthScaleOrDefault(cfg.input.vzLu, cfg.verticalScale[0]));
+	const float yLu = static_cast<float>(LengthScaleOrDefault(cfg.input.vyLu, cfg.lateralScale[0]));
 	const float xLu = static_cast<float>(LengthScaleOrDefault(cfg.input.vkLu, cfg.integralScale[0]));
-	const float zLv = static_cast<float>(LengthScaleOrDefault(cfg.input.vzLv, cfg.integralScale[1]));
-	const float yLv = static_cast<float>(LengthScaleOrDefault(cfg.input.vyLv, cfg.integralScale[1]));
+	const float zLv = static_cast<float>(LengthScaleOrDefault(cfg.input.vzLv, cfg.verticalScale[1]));
+	const float yLv = static_cast<float>(LengthScaleOrDefault(cfg.input.vyLv, cfg.lateralScale[1]));
 	const float xLv = static_cast<float>(LengthScaleOrDefault(cfg.input.vkLv, cfg.integralScale[1]));
-	const float zLw = static_cast<float>(LengthScaleOrDefault(cfg.input.vzLw, cfg.integralScale[2]));
-	const float yLw = static_cast<float>(LengthScaleOrDefault(cfg.input.vyLw, cfg.integralScale[2]));
+	const float zLw = static_cast<float>(LengthScaleOrDefault(cfg.input.vzLw, cfg.verticalScale[2]));
+	const float yLw = static_cast<float>(LengthScaleOrDefault(cfg.input.vyLw, cfg.lateralScale[2]));
 	const float xLw = static_cast<float>(LengthScaleOrDefault(cfg.input.vkLw, cfg.integralScale[2]));
 	const float maxFreq = static_cast<float>(0.5 / cfg.dt);
 	const double cohScale = cfg.cohB[0] > 0.0 ? 1.0 / cfg.cohB[0] : cfg.lc;
@@ -2941,6 +3390,7 @@ void WriteSummary(const SimWindConfig &cfg,
 	out << "  UserDirectionProfile: " << (cfg.hasUserDirectionProfile ? "true" : "false") << "\n";
 	out << "  UserSigmaProfile: " << (cfg.hasUserSigmaProfile ? "true" : "false") << "\n";
 	out << "  UserLengthScaleProfile: " << (cfg.hasUserLengthScaleProfile ? "true" : "false") << "\n";
+	out << "  ImprovedVKProfile: " << (cfg.hasImprovedVkProfile ? "true" : "false") << "\n";
 	out << "  ZL: " << cfg.met.zL << "\n";
 	out << "  L: " << cfg.met.moninLength << " m\n";
 	out << "  UStar: " << cfg.met.uStar << " m/s\n";
@@ -2950,6 +3400,8 @@ void WriteSummary(const SimWindConfig &cfg,
 
 	out << "Bladed Export Parameters\n";
 	out << "  Record2ModelID: " << BladedModelId(cfg.input.turbModel) << "\n";
+	out << "  ExportLateralScaleU/V/W: " << cfg.lateralScale[0] << ", " << cfg.lateralScale[1] << ", " << cfg.lateralScale[2] << " m\n";
+	out << "  ExportVerticalScaleU/V/W: " << cfg.verticalScale[0] << ", " << cfg.verticalScale[1] << ", " << cfg.verticalScale[2] << " m\n";
 	if (IsMann(cfg.input.turbModel))
 	{
 		out << "  MannGamma: " << cfg.mannGamma << "\n";

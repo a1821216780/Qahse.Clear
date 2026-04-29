@@ -1,0 +1,212 @@
+{
+  "base": "F:\\Qahse.Clear\\demo\\WindL\\result\\Test_Demo_wind",
+  "checks": [
+    {
+      "name": "bladed_u_normalized_unit_std",
+      "measured": 1.0000001499822373,
+      "target": 1.0,
+      "relative_error": 1.499822372963422e-07,
+      "passed": true
+    },
+    {
+      "name": "bladed_v_normalized_unit_std",
+      "measured": 0.9999999155789048,
+      "target": 1.0,
+      "relative_error": 8.442109522555086e-08,
+      "passed": true
+    },
+    {
+      "name": "bladed_w_normalized_unit_std",
+      "measured": 0.9999998948512852,
+      "target": 1.0,
+      "relative_error": 1.0514871484623711e-07,
+      "passed": true
+    }
+  ],
+  "plots": [
+    "F:\\Qahse.Clear\\demo\\WindL\\result\\Test_Demo_wind_validation\\Test_Demo_wind_hub_timeseries.png",
+    "F:\\Qahse.Clear\\demo\\WindL\\result\\Test_Demo_wind_validation\\Test_Demo_wind_hub_psd.png",
+    "F:\\Qahse.Clear\\demo\\WindL\\result\\Test_Demo_wind_validation\\Test_Demo_wind_u_first_plane.png",
+    "F:\\Qahse.Clear\\demo\\WindL\\result\\Test_Demo_wind_validation\\Test_Demo_wind_hub_covariance.png",
+    "F:\\Qahse.Clear\\demo\\WindL\\result\\Test_Demo_wind_validation\\Test_Demo_wind_histograms.png"
+  ],
+  "sum": {
+    "stats": {
+      "u": {
+        "mean": 11.04813754,
+        "sigma": 3.397959131,
+        "ti_percent": 29.80665905
+      },
+      "v": {
+        "mean": 3.310000783e-14,
+        "sigma": 2.510014321,
+        "ti_percent": 22.01766948
+      },
+      "w": {
+        "mean": -2.288637056e-15,
+        "sigma": 1.46494143,
+        "ti_percent": 12.85036342
+      }
+    },
+    "target_sigma": [
+      3.048472,
+      2.4387776,
+      1.524236
+    ],
+    "warnings": [
+      "Component u uses the legacy WindL Kronecker coherence acceleration for the first 1069 positive frequencies, then switches to diagonal high-frequency synthesis. Set AllowCohApprox=false to force the exact strict-coherence path.",
+      "Component v uses the legacy WindL Kronecker coherence acceleration for the first 1425 positive frequencies, then switches to diagonal high-frequency synthesis. Set AllowCohApprox=false to force the exact strict-coherence path.",
+      "Component w uses the legacy WindL Kronecker coherence acceleration for the first 1425 positive frequencies, then switches to diagonal high-frequency synthesis. Set AllowCohApprox=false to force the exact strict-coherence path."
+    ],
+    "derived": {
+      "ZL": 0.0,
+      "UStar": 0.5046488012,
+      "UStarDiab": 0.5046488012,
+      "ZI": 1161.996807,
+      "AllowCohApprox": true,
+      "UserDirectionProfile": false,
+      "UserSigmaProfile": false,
+      "UserLengthScaleProfile": false,
+      "ReynoldsStressActive": true
+    }
+  },
+  "bts_header": {
+    "file_id": 8,
+    "nz": 36,
+    "ny": 36,
+    "ntwr": 0,
+    "nt": 13200,
+    "dz": 4.285714149475098,
+    "dy": 4.285714149475098,
+    "dt": 0.05000000074505806,
+    "uhub": 11.399999618530273,
+    "hub_height": 84.0,
+    "zbottom": 9.0,
+    "description": "Qahse WindL SimWind"
+  },
+  "bts_stats": [
+    {
+      "mean": 11.048137580963187,
+      "sigma": 3.397959120117293,
+      "ti_percent": 29.806659945795417
+    },
+    {
+      "mean": -1.1436855058115027e-08,
+      "sigma": 2.510014295071504,
+      "ti_percent": 22.01766999177412
+    },
+    {
+      "mean": -3.4221078952867783e-09,
+      "sigma": 1.4649414102446974,
+      "ti_percent": 12.850363677762672
+    }
+  ],
+  "hub_point_index": {
+    "iy": 18,
+    "iz": 18
+  },
+  "hub_stats": [
+    {
+      "mean": 11.457579957079398,
+      "sigma": 3.0484701486521235,
+      "ti_percent": 26.740967111059806
+    },
+    {
+      "mean": 7.718081023581775e-07,
+      "sigma": 2.4646690344768576,
+      "ti_percent": 21.6199045346513
+    },
+    {
+      "mean": 5.952063034011657e-07,
+      "sigma": 1.5217555049441558,
+      "ti_percent": 13.348732946188866
+    }
+  ],
+  "hub_covariance": [
+    [
+      9.293170247223097,
+      0.9495213141170159,
+      -0.4326553176687474
+    ],
+    [
+      0.9495213141170159,
+      6.074593449509085,
+      -0.27609436987336056
+    ],
+    [
+      -0.4326553176687474,
+      -0.27609436987336056,
+      2.315739816827842
+    ]
+  ],
+  "bladed_wnd_header": {
+    "record1": -99,
+    "record2": 7,
+    "header_bytes": 84,
+    "ncomp": 3,
+    "nz": 36,
+    "ny": 36,
+    "nt": 13200,
+    "dz": 4.285714149475098,
+    "dy": 4.285714149475098,
+    "dx": 0.5699999928474426,
+    "mean_wind": 11.399999618530273,
+    "length_scales": [
+      340.20001220703125,
+      340.20001220703125,
+      340.20001220703125,
+      113.4000015258789,
+      113.4000015258789,
+      113.4000015258789,
+      27.719999313354492,
+      27.719999313354492,
+      27.719999313354492
+    ],
+    "max_freq_or_unused": 10.0,
+    "seed": 2318573
+  },
+  "bladed_wnd_normalized_stats": [
+    {
+      "mean": 1.4432519641773017e-07,
+      "sigma": 1.0000001499822373,
+      "ti_percent": 100.00001499822373
+    },
+    {
+      "mean": 1.812102504151574e-09,
+      "sigma": 0.9999999155789048,
+      "ti_percent": 99.99999155789048
+    },
+    {
+      "mean": 1.1223344558964387e-08,
+      "sigma": 0.9999998948512852,
+      "ti_percent": 99.99998948512851
+    }
+  ],
+  "turbsim_compatible_wnd_header": {
+    "record1": -99,
+    "record2": 4,
+    "header_bytes": null,
+    "ncomp": 3,
+    "nz": 36,
+    "ny": 36,
+    "nt": 13200,
+    "dz": 4.285714149475098,
+    "dy": 4.285714149475098,
+    "dx": 0.5699999928474426,
+    "mean_wind": 11.399999618530273,
+    "length_scales": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "max_freq_or_unused": 0.0,
+    "seed": 2318573
+  },
+  "passed": true
+}

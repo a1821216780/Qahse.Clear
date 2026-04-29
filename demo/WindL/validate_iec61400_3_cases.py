@@ -489,7 +489,8 @@ def ews_reference_plane(case: Case, cfg: CampaignConfig, time_value: float, y: n
     yy, zz = np.meshgrid(y, z)
     vert_shear = sign * 2.0 * sigma1 / denom * (zz - cfg.hub_height) / max(cfg.rotor_diameter, 1.0e-12) * envelope
     lat_shear = sign * 2.0 * sigma1 / denom * yy / max(cfg.rotor_diameter, 1.0e-12) * envelope
-    mean_u = cfg.mean_wind_speed * np.power(np.maximum(zz, 0.05) / max(cfg.ref_height, 1.0e-12), 0.2)
+    profile_exp = 0.14 if cfg.iec_edition in (1, 2) else 0.2
+    mean_u = cfg.mean_wind_speed * np.power(np.maximum(zz, 0.05) / max(cfg.ref_height, 1.0e-12), profile_exp)
     return mean_u + vert_shear + lat_shear
 
 

@@ -23,26 +23,26 @@ This report validates the IEC wind-condition cases exposed by WindL and audits t
 - Overall pass: `True`
 - Total cases: `16`
 - Certification-scope cases: `11`
-- Wall time: `258.64 s`
+- Wall time: `284.18 s`
 
 | Case | Group | Status | Runtime [s] | Max TI Err [%] | Max PSD Log-RMSE |
 | --- | --- | --- | --- | --- | --- |
-| IEC3_NTM_IECKAI_30x30_660s | iec_wind_condition | PASS | 9.20 | 0.00 | 0.262 |
-| IEC3_ETM_IECKAI_30x30_660s | iec_wind_condition | PASS | 8.66 | 0.00 | 0.262 |
-| IEC3_EWM1_Turb_30x30_660s | iec_wind_condition | PASS | 8.48 | 0.00 | 0.262 |
-| IEC3_EWM50_Turb_30x30_660s | iec_wind_condition | PASS | 8.89 | 0.00 | 0.262 |
-| IEC3_EWM1_Steady_30x30_660s | iec_wind_condition | PASS | 7.30 | 0.00 | 0.000 |
-| IEC3_EWM50_Steady_30x30_660s | iec_wind_condition | PASS | 7.10 | 0.00 | 0.000 |
-| IEC3_EOG_30x30_660s | iec_wind_condition | PASS | 7.43 | 0.00 | 0.000 |
-| IEC3_EDC_30x30_660s | iec_wind_condition | PASS | 7.06 | 0.00 | 0.000 |
-| IEC3_ECD_30x30_660s | iec_wind_condition | PASS | 9.16 | 0.00 | 0.000 |
-| IEC3_EWS_30x30_660s | iec_wind_condition | PASS | 9.99 | 0.00 | 0.000 |
-| IEC3_UNIFORM_30x30_660s | iec_wind_condition | PASS | 8.77 | 0.00 | 0.000 |
-| Spectrum_IECVKM_30x30_660s | spectral_model_audit | PASS | 25.59 | 0.00 | 0.259 |
-| Spectrum_BladedKaimal_30x30_660s | spectral_model_audit | PASS | 15.55 | 0.00 | 0.262 |
-| Spectrum_BladedVK_30x30_660s | spectral_model_audit | PASS | 23.62 | 0.00 | 0.259 |
-| Spectrum_BladedIVK_30x30_660s | spectral_model_audit | PASS | 22.73 | 0.00 | 0.259 |
-| Spectrum_Mann_30x30_660s | spectral_model_audit | PASS | 18.08 | 0.00 | 0.000 |
+| IEC3_NTM_IECKAI_30x30_660s | iec_wind_condition | PASS | 10.40 | 0.08 | 0.263 |
+| IEC3_ETM_IECKAI_30x30_660s | iec_wind_condition | PASS | 10.44 | 0.80 | 0.263 |
+| IEC3_EWM1_Turb_30x30_660s | iec_wind_condition | PASS | 10.38 | 0.96 | 0.263 |
+| IEC3_EWM50_Turb_30x30_660s | iec_wind_condition | PASS | 9.81 | 0.96 | 0.263 |
+| IEC3_EWM1_Steady_30x30_660s | iec_wind_condition | PASS | 7.92 | 0.00 | 0.000 |
+| IEC3_EWM50_Steady_30x30_660s | iec_wind_condition | PASS | 7.97 | 0.00 | 0.000 |
+| IEC3_EOG_30x30_660s | iec_wind_condition | PASS | 8.07 | 0.00 | 0.000 |
+| IEC3_EDC_30x30_660s | iec_wind_condition | PASS | 8.26 | 0.00 | 0.000 |
+| IEC3_ECD_30x30_660s | iec_wind_condition | PASS | 8.48 | 0.00 | 0.000 |
+| IEC3_EWS_30x30_660s | iec_wind_condition | PASS | 8.23 | 0.00 | 0.000 |
+| IEC3_UNIFORM_30x30_660s | iec_wind_condition | PASS | 7.90 | 0.00 | 0.000 |
+| Spectrum_IECVKM_30x30_660s | spectral_model_audit | PASS | 19.76 | 2.51 | 0.260 |
+| Spectrum_BladedKaimal_30x30_660s | spectral_model_audit | PASS | 13.40 | 0.77 | 0.263 |
+| Spectrum_BladedVK_30x30_660s | spectral_model_audit | PASS | 15.86 | 0.72 | 0.260 |
+| Spectrum_BladedIVK_30x30_660s | spectral_model_audit | PASS | 17.27 | 0.72 | 0.260 |
+| Spectrum_Mann_30x30_660s | spectral_model_audit | FAIL | 16.05 | 73.58 | 0.000 |
 
 ## Notes
 

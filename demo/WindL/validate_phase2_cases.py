@@ -376,7 +376,7 @@ def validate_user_spectra(case_report: dict[str, Any], meta: dict[str, Any], plo
     qwd_path = Path(case_report["case"]["qwd"])
     spectra = read_user_spectra(resolve_relative_to_qwd(qwd_path, str(meta["UserTurbFile"])))
     bts = read_bts(Path(case_report["base"]).with_suffix(".bts"))
-    hub = hub_series(bts["data"])
+    hub = hub_series(bts["data"], bts["header"])
     dt = float(bts["header"]["dt"])
 
     checks = [legacy_warning_check(case_report)]

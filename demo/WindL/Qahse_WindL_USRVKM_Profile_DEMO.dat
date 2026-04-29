@@ -1,13 +1,19 @@
--- Phase-2 demo: user shear/profile table for USRVKM
-6 NumUSRz - Number of heights
-1.00 StdScale1 - u standard deviation scale
-0.78 StdScale2 - v standard deviation scale
-0.55 StdScale3 - w standard deviation scale
+﻿-- =============================================================================
+-- Qahse.WindL v1.0.0 .dat USRVKM user profile input
+-- =============================================================================
+6      NumUSRz    - Number of heights
+1.000  StdScale1  - u-component standard deviation scale
+0.780  StdScale2  - v-component standard deviation scale
+0.550  StdScale3  - w-component standard deviation scale
+
+----------------------------------------------------------------------------------
 Height WindSpeed WindDirection StandardDeviation LengthScale
-!Begin
-40.0 8.5 350.0 1.40 28.0
-60.0 10.2 355.0 1.60 35.0
-80.0 11.7 359.0 1.80 42.0
-100.0 13.0 2.0 2.00 50.0
-120.0 14.1 7.0 2.15 58.0
-140.0 15.0 12.0 2.30 66.0
+(m)    (m/s)     (deg)         (m/s)             (m)
+----------------------------------------------------------------------------------
+!Begin      - 鏁版嵁璇诲彇寮€濮嬫爣璁帮紝璇峰嬁鍒犻櫎
+40 8.5 350 1.3999999999999999 28
+60 10.199999999999999 355 1.6000000000000001 35
+80 11.699999999999999 359 1.8 42
+100 13 2 2 50
+120 14.1 7 2.1499999999999999 58
+140 15 12 2.2999999999999998 66

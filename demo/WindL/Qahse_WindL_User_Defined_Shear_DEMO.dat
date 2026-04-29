@@ -1,18 +1,18 @@
+﻿-- =============================================================================
+-- Qahse.WindL v1.0.0 .dat user shear / profile input
 -- =============================================================================
--- Qahse.WindL v1.0.0 .dat 自定义风速的时间序列输入
--- =============================================================================
-5 NumUSRz - Number of Heights
-1.092 StdScale1 - u-component scaling factor for the input standard deviation 
-1.0 StdScale2 - v-component scaling factor for the input standard deviation 
-0.534 StdScale3 - w-component scaling factor for the input standard deviation
+5      NumUSRz    - Number of heights
+1.092  StdScale1  - u-component standard deviation scale
+1.000  StdScale2  - v-component standard deviation scale
+0.534  StdScale3  - w-component standard deviation scale
 
 ----------------------------------------------------------------------------------
-Height Wind Speed Wind Direction Standard Deviation Length Scale
- (m) (m/s) (deg, cntr-clockwise ) (m/s) (m)
+Height WindSpeed WindDirection StandardDeviation LengthScale
+(m)    (m/s)     (deg)         (m/s)             (m)
 ----------------------------------------------------------------------------------
-!Begin 数据读取开始标志，不允许删除
-15.0 3 00 .100 3 
-25.0 4 00 .200 4 
-35.0 5 00 .300 6 
-45.0 6 00 .100 9 
-55.0 7 00 .500 13
+!Begin      - 鏁版嵁璇诲彇寮€濮嬫爣璁帮紝璇峰嬁鍒犻櫎
+15 3 0 0.10000000000000001 3
+25 4 0 0.20000000000000001 4
+35 5 0 0.29999999999999999 6
+45 6 0 0.10000000000000001 9
+55 7 0 0.5 13

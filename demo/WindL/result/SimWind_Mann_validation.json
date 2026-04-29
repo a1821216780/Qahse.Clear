@@ -1,0 +1,200 @@
+{
+  "base": "F:\\Qahse.Clear\\demo\\WindL\\result\\SimWind_Mann",
+  "checks": [
+    {
+      "name": "bladed_u_normalized_unit_std",
+      "measured": 0.99999942338863,
+      "target": 1.0,
+      "relative_error": 5.766113699845477e-07,
+      "passed": true
+    },
+    {
+      "name": "bladed_v_normalized_unit_std",
+      "measured": 1.0000004237398343,
+      "target": 1.0,
+      "relative_error": 4.2373983433208195e-07,
+      "passed": true
+    },
+    {
+      "name": "bladed_w_normalized_unit_std",
+      "measured": 0.9999998885608921,
+      "target": 1.0,
+      "relative_error": 1.1143910794153555e-07,
+      "passed": true
+    }
+  ],
+  "plots": [
+    "F:\\Qahse.Clear\\demo\\WindL\\result\\SimWind_Mann_validation\\SimWind_Mann_hub_timeseries.png",
+    "F:\\Qahse.Clear\\demo\\WindL\\result\\SimWind_Mann_validation\\SimWind_Mann_hub_psd.png",
+    "F:\\Qahse.Clear\\demo\\WindL\\result\\SimWind_Mann_validation\\SimWind_Mann_u_first_plane.png",
+    "F:\\Qahse.Clear\\demo\\WindL\\result\\SimWind_Mann_validation\\SimWind_Mann_hub_covariance.png",
+    "F:\\Qahse.Clear\\demo\\WindL\\result\\SimWind_Mann_validation\\SimWind_Mann_histograms.png"
+  ],
+  "sum": {
+    "stats": {
+      "u": {
+        "mean": 11.96823204,
+        "sigma": 1.352398434,
+        "ti_percent": 11.26998695
+      },
+      "v": {
+        "mean": -0.0001023561506,
+        "sigma": 0.4712638494,
+        "ti_percent": 3.927198745
+      },
+      "w": {
+        "mean": 3.42764449e-05,
+        "sigma": 0.3155892401,
+        "ti_percent": 2.629910334
+      }
+    },
+    "target_sigma": [
+      2.044,
+      1.6352,
+      1.022
+    ],
+    "warnings": [
+      "Component u uses the legacy WindL Kronecker coherence acceleration for the first 3730 positive frequencies, then switches to diagonal high-frequency synthesis."
+    ],
+    "derived": {}
+  },
+  "bts_header": {
+    "file_id": 7,
+    "nz": 50,
+    "ny": 50,
+    "ntwr": 0,
+    "nt": 13212,
+    "dz": 1.2244898080825806,
+    "dy": 1.2244898080825806,
+    "dt": 0.05000000074505806,
+    "uhub": 12.0,
+    "hub_height": 90.0,
+    "zbottom": 60.0,
+    "description": "Qahse WindL SimWind"
+  },
+  "bts_stats": [
+    {
+      "mean": 11.96823206045498,
+      "sigma": 1.3523983225445049,
+      "ti_percent": 11.269986021204206
+    },
+    {
+      "mean": -0.00010237285411399629,
+      "sigma": 0.4712638668874425,
+      "ti_percent": 3.9271988907286874
+    },
+    {
+      "mean": 3.426711106210511e-05,
+      "sigma": 0.3155892112474924,
+      "ti_percent": 2.6299100937291033
+    }
+  ],
+  "hub_point_index": {
+    "iy": 25,
+    "iz": 25
+  },
+  "hub_stats": [
+    {
+      "mean": 11.94222944144481,
+      "sigma": 1.1355619954182263,
+      "ti_percent": 9.463016628485219
+    },
+    {
+      "mean": -0.0066839538524489294,
+      "sigma": 0.459253899030299,
+      "ti_percent": 3.8271158252524917
+    },
+    {
+      "mean": -0.013046737853540689,
+      "sigma": 0.2849289172165196,
+      "ti_percent": 2.3744076434709966
+    }
+  ],
+  "hub_covariance": [
+    [
+      1.2895010454382227,
+      0.036163624807770176,
+      0.30041730579539294
+    ],
+    [
+      0.036163624807770176,
+      0.21091414377453171,
+      0.010423527807061503
+    ],
+    [
+      0.30041730579539294,
+      0.010423527807061503,
+      0.08118448786617828
+    ]
+  ],
+  "bladed_wnd_header": {
+    "record1": -99,
+    "record2": 8,
+    "header_bytes": 132,
+    "ncomp": 3,
+    "nz": 50,
+    "ny": 50,
+    "nt": 13212,
+    "dz": 1.2244898080825806,
+    "dy": 1.2244898080825806,
+    "dx": 0.6000000238418579,
+    "mean_wind": 12.0,
+    "length_scales": [
+      33.599998474121094,
+      33.599998474121094,
+      33.599998474121094,
+      33.599998474121094,
+      33.599998474121094,
+      33.599998474121094,
+      33.599998474121094,
+      33.599998474121094,
+      33.599998474121094
+    ],
+    "max_freq_or_unused": 10.0,
+    "seed": 120051
+  },
+  "bladed_wnd_normalized_stats": [
+    {
+      "mean": 6.000605510130848e-08,
+      "sigma": 0.99999942338863,
+      "ti_percent": 99.99994233886301
+    },
+    {
+      "mean": 2.8132001211150826e-07,
+      "sigma": 1.0000004237398343,
+      "ti_percent": 100.00004237398343
+    },
+    {
+      "mean": 4.2779291552886025e-08,
+      "sigma": 0.9999998885608921,
+      "ti_percent": 99.9999888560892
+    }
+  ],
+  "turbsim_compatible_wnd_header": {
+    "record1": -99,
+    "record2": 4,
+    "header_bytes": null,
+    "ncomp": 3,
+    "nz": 50,
+    "ny": 50,
+    "nt": 13212,
+    "dz": 1.2244898080825806,
+    "dy": 1.2244898080825806,
+    "dx": 0.6000000238418579,
+    "mean_wind": 12.0,
+    "length_scales": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "max_freq_or_unused": 0.0,
+    "seed": 120051
+  },
+  "passed": true
+}

@@ -1,0 +1,137 @@
+{
+  "base": "demo\\WindL\\result\\large_grid_compare\\LG100_Mann",
+  "checks": [],
+  "plots": [
+    "demo\\WindL\\result\\large_grid_compare\\LG100_Mann_validation\\LG100_Mann_hub_timeseries.png",
+    "demo\\WindL\\result\\large_grid_compare\\LG100_Mann_validation\\LG100_Mann_hub_psd.png",
+    "demo\\WindL\\result\\large_grid_compare\\LG100_Mann_validation\\LG100_Mann_u_first_plane.png",
+    "demo\\WindL\\result\\large_grid_compare\\LG100_Mann_validation\\LG100_Mann_hub_covariance.png",
+    "demo\\WindL\\result\\large_grid_compare\\LG100_Mann_validation\\LG100_Mann_histograms.png"
+  ],
+  "sum": {
+    "stats": {
+      "u": {
+        "mean": 10.4268966,
+        "sigma": 3.22188701,
+        "ti_percent": 26.84905841
+      },
+      "v": {
+        "mean": -3.000399484e-15,
+        "sigma": 1.6352,
+        "ti_percent": 13.62666667
+      },
+      "w": {
+        "mean": -5.724701694e-15,
+        "sigma": 1.022,
+        "ti_percent": 8.516666666
+      }
+    },
+    "target_sigma": [
+      2.044,
+      1.6352,
+      1.022
+    ],
+    "warnings": [
+      "Grid bottom is at or below ground; low grid heights are clamped in profile calculations."
+    ],
+    "derived": {
+      "Lambda": 42.0,
+      "LC": 340.2,
+      "ZL": 0.0,
+      "UStar": 0.5271840329,
+      "UStarDiab": 0.5271840329,
+      "ZI": 1213.886095,
+      "ScaleIEC": 1.0,
+      "MannGamma": 3.9,
+      "MannLength": 33.6,
+      "MannMaxL": 268.8,
+      "IntegralScaleUVW": [
+        33.6,
+        33.6,
+        33.6
+      ],
+      "AllowCohApprox": true,
+      "UserDirectionProfile": false,
+      "UserSigmaProfile": false,
+      "UserLengthScaleProfile": false,
+      "ReynoldsStressActive": true
+    },
+    "input": {
+      "TurbModel": 2,
+      "WindModel": 0,
+      "RandSeed": 260429,
+      "MeanWindSpeed": 12.0,
+      "HubHt": 90.0
+    }
+  },
+  "bts_header": {
+    "file_id": 7,
+    "nz": 100,
+    "ny": 100,
+    "ntwr": 0,
+    "nt": 13200,
+    "dz": 1.5151515007019043,
+    "dy": 1.5151515007019043,
+    "dt": 0.05000000074505806,
+    "uhub": 12.0,
+    "hub_height": 90.0,
+    "zbottom": -15.0,
+    "description": "Qahse WindL SimWind"
+  },
+  "bts_stats": [
+    {
+      "mean": 10.426896602789663,
+      "sigma": 3.2218870044302377,
+      "ti_percent": 26.84905837025198
+    },
+    {
+      "mean": 1.779916806315834e-08,
+      "sigma": 1.635199999722431,
+      "ti_percent": 13.626666664353591
+    },
+    {
+      "mean": 3.7259481949590597e-10,
+      "sigma": 1.0219999985044577,
+      "ti_percent": 8.516666654203814
+    }
+  ],
+  "hub_point_index": {
+    "iy": 49,
+    "iz": 69
+  },
+  "hub_stats": [
+    {
+      "mean": 11.99149525272922,
+      "sigma": 2.043999202738042,
+      "ti_percent": 17.033326689483683
+    },
+    {
+      "mean": 5.557547272225995e-07,
+      "sigma": 1.635199018052291,
+      "ti_percent": 13.626658483769091
+    },
+    {
+      "mean": -2.8700187188536746e-07,
+      "sigma": 1.0220002293154071,
+      "ti_percent": 8.516668577628392
+    }
+  ],
+  "hub_covariance": [
+    [
+      4.177932740793749,
+      0.21863174827380213,
+      -0.2779221158681016
+    ],
+    [
+      0.21863174827380213,
+      2.673875828639176,
+      0.11575455001283814
+    ],
+    [
+      -0.2779221158681016,
+      0.11575455001283814,
+      1.0444844687207453
+    ]
+  ],
+  "passed": true
+}

@@ -1,0 +1,137 @@
+{
+  "base": "demo\\WindL\\result\\large_grid_compare\\LG100_BladedVK",
+  "checks": [],
+  "plots": [
+    "demo\\WindL\\result\\large_grid_compare\\LG100_BladedVK_validation\\LG100_BladedVK_hub_timeseries.png",
+    "demo\\WindL\\result\\large_grid_compare\\LG100_BladedVK_validation\\LG100_BladedVK_hub_psd.png",
+    "demo\\WindL\\result\\large_grid_compare\\LG100_BladedVK_validation\\LG100_BladedVK_u_first_plane.png",
+    "demo\\WindL\\result\\large_grid_compare\\LG100_BladedVK_validation\\LG100_BladedVK_hub_covariance.png",
+    "demo\\WindL\\result\\large_grid_compare\\LG100_BladedVK_validation\\LG100_BladedVK_histograms.png"
+  ],
+  "sum": {
+    "stats": {
+      "u": {
+        "mean": 10.4268966,
+        "sigma": 3.22188701,
+        "ti_percent": 26.84905841
+      },
+      "v": {
+        "mean": 3.057522515e-15,
+        "sigma": 1.6352,
+        "ti_percent": 13.62666667
+      },
+      "w": {
+        "mean": 1.516080419e-14,
+        "sigma": 1.022,
+        "ti_percent": 8.516666667
+      }
+    },
+    "target_sigma": [
+      2.044,
+      1.6352,
+      1.022
+    ],
+    "warnings": [
+      "Grid bottom is at or below ground; low grid heights are clamped in profile calculations.",
+      "Component u uses the legacy WindL Kronecker coherence acceleration for the first 2847 positive frequencies, then switches to diagonal high-frequency synthesis. Set AllowCohApprox=false to force the exact strict-coherence path.",
+      "Component v uses the legacy WindL Kronecker coherence acceleration for the first 3797 positive frequencies, then switches to diagonal high-frequency synthesis. Set AllowCohApprox=false to force the exact strict-coherence path.",
+      "Component w uses the legacy WindL Kronecker coherence acceleration for the first 3797 positive frequencies, then switches to diagonal high-frequency synthesis. Set AllowCohApprox=false to force the exact strict-coherence path."
+    ],
+    "derived": {
+      "Lambda": 42.0,
+      "LC": 340.2,
+      "ZL": 0.0,
+      "UStar": 0.5271840329,
+      "UStarDiab": 0.5271840329,
+      "ZI": 1213.886095,
+      "ScaleIEC": 1.0,
+      "IntegralScaleUVW": [
+        147.0,
+        147.0,
+        147.0
+      ],
+      "AllowCohApprox": true,
+      "UserDirectionProfile": false,
+      "UserSigmaProfile": false,
+      "UserLengthScaleProfile": false,
+      "ReynoldsStressActive": true
+    },
+    "input": {
+      "TurbModel": 4,
+      "WindModel": 0,
+      "RandSeed": 260429,
+      "MeanWindSpeed": 12.0,
+      "HubHt": 90.0
+    }
+  },
+  "bts_header": {
+    "file_id": 7,
+    "nz": 100,
+    "ny": 100,
+    "ntwr": 0,
+    "nt": 13200,
+    "dz": 1.5151515007019043,
+    "dy": 1.5151515007019043,
+    "dt": 0.05000000074505806,
+    "uhub": 12.0,
+    "hub_height": 90.0,
+    "zbottom": -15.0,
+    "description": "Qahse WindL SimWind"
+  },
+  "bts_stats": [
+    {
+      "mean": 10.42689661765013,
+      "sigma": 3.221886993840682,
+      "ti_percent": 26.849058282005682
+    },
+    {
+      "mean": 1.5736821312175104e-08,
+      "sigma": 1.6351999885633317,
+      "ti_percent": 13.626666571361097
+    },
+    {
+      "mean": -3.3683199858800933e-09,
+      "sigma": 1.0220000049114761,
+      "ti_percent": 8.516666707595634
+    }
+  ],
+  "hub_point_index": {
+    "iy": 49,
+    "iz": 69
+  },
+  "hub_stats": [
+    {
+      "mean": 11.991498995300093,
+      "sigma": 2.0439999845774834,
+      "ti_percent": 17.03333320481236
+    },
+    {
+      "mean": -3.1905145487881423e-07,
+      "sigma": 1.6352007351432847,
+      "ti_percent": 13.626672792860704
+    },
+    {
+      "mean": 6.154649831773206e-07,
+      "sigma": 1.0220000244237881,
+      "ti_percent": 8.516666870198234
+    }
+  ],
+  "hub_covariance": [
+    [
+      4.177935936952753,
+      0.300726566226731,
+      -0.277922649534387
+    ],
+    [
+      0.300726566226731,
+      2.673881444213138,
+      0.10853658378314476
+    ],
+    [
+      -0.277922649534387,
+      0.10853658378314476,
+      1.0444840499222234
+    ]
+  ],
+  "passed": true
+}

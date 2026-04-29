@@ -1,70 +1,51 @@
 {
-  "base": "demo\\WindL\\result\\SimWind_Bladed_Kaimal",
+  "base": "F:\\Qahse.Clear\\demo\\WindL\\result\\SimWind_Bladed_Kaimal",
   "checks": [
     {
-      "name": "u_sigma_matches_sum_target",
-      "measured": 2.096437761187421,
-      "target": 2.044,
-      "relative_error": 0.025654481989931966,
-      "passed": true
-    },
-    {
-      "name": "v_sigma_matches_sum_target",
-      "measured": 1.635199544417124,
-      "target": 1.6352,
-      "relative_error": 2.786098801926633e-07,
-      "passed": true
-    },
-    {
-      "name": "w_sigma_matches_sum_target",
-      "measured": 1.022000288918694,
-      "target": 1.022,
-      "relative_error": 2.8269930927613416e-07,
-      "passed": true
-    },
-    {
       "name": "bladed_u_normalized_unit_std",
-      "measured": 1.0000040971742237,
+      "measured": 1.0000014676527804,
       "target": 1.0,
-      "relative_error": 4.097174223671729e-06,
+      "relative_error": 1.4676527804180495e-06,
       "passed": true
     },
     {
       "name": "bladed_v_normalized_unit_std",
-      "measured": 0.9999969610633023,
+      "measured": 0.9999931049744715,
       "target": 1.0,
-      "relative_error": 3.0389366977301435e-06,
+      "relative_error": 6.895025528530496e-06,
       "passed": true
     },
     {
       "name": "bladed_w_normalized_unit_std",
-      "measured": 1.0000027457770408,
+      "measured": 0.9999963996427375,
       "target": 1.0,
-      "relative_error": 2.745777040846775e-06,
+      "relative_error": 3.600357262545373e-06,
       "passed": true
     }
   ],
   "plots": [
-    "demo\\WindL\\result\\SimWind_Bladed_Kaimal_validation\\SimWind_Bladed_Kaimal_hub_timeseries.png",
-    "demo\\WindL\\result\\SimWind_Bladed_Kaimal_validation\\SimWind_Bladed_Kaimal_u_first_plane.png",
-    "demo\\WindL\\result\\SimWind_Bladed_Kaimal_validation\\SimWind_Bladed_Kaimal_histograms.png"
+    "F:\\Qahse.Clear\\demo\\WindL\\result\\SimWind_Bladed_Kaimal_validation\\SimWind_Bladed_Kaimal_hub_timeseries.png",
+    "F:\\Qahse.Clear\\demo\\WindL\\result\\SimWind_Bladed_Kaimal_validation\\SimWind_Bladed_Kaimal_hub_psd.png",
+    "F:\\Qahse.Clear\\demo\\WindL\\result\\SimWind_Bladed_Kaimal_validation\\SimWind_Bladed_Kaimal_u_first_plane.png",
+    "F:\\Qahse.Clear\\demo\\WindL\\result\\SimWind_Bladed_Kaimal_validation\\SimWind_Bladed_Kaimal_hub_covariance.png",
+    "F:\\Qahse.Clear\\demo\\WindL\\result\\SimWind_Bladed_Kaimal_validation\\SimWind_Bladed_Kaimal_histograms.png"
   ],
   "sum": {
     "stats": {
       "u": {
         "mean": 11.95322587,
-        "sigma": 2.096437718,
-        "ti_percent": 17.47031432
+        "sigma": 1.426309416,
+        "ti_percent": 11.8859118
       },
       "v": {
-        "mean": 4.527628272e-17,
-        "sigma": 1.6352,
-        "ti_percent": 13.62666667
+        "mean": 1.73281528e-16,
+        "sigma": 1.14410093,
+        "ti_percent": 9.534174418
       },
       "w": {
-        "mean": -3.953868483e-17,
-        "sigma": 1.022,
-        "ti_percent": 8.516666667
+        "mean": 4.246603069e-16,
+        "sigma": 0.8937724838,
+        "ti_percent": 7.448104032
       }
     },
     "target_sigma": [
@@ -72,7 +53,18 @@
       1.6352,
       1.022
     ],
-    "warnings": []
+    "warnings": [],
+    "derived": {
+      "ZL": 0.0,
+      "UStar": 0.5271840329,
+      "UStarDiab": 0.5271840329,
+      "ZI": 1213.886095,
+      "AllowCohApprox": true,
+      "UserDirectionProfile": false,
+      "UserSigmaProfile": false,
+      "UserLengthScaleProfile": false,
+      "ReynoldsStressActive": true
+    }
   },
   "bts_header": {
     "file_id": 7,
@@ -90,25 +82,63 @@
   },
   "bts_stats": [
     {
-      "mean": 11.95322631751707,
-      "sigma": 2.096437761187421,
-      "ti_percent": 17.47031467656184
+      "mean": 11.953225856960303,
+      "sigma": 1.4263085077413273,
+      "ti_percent": 11.885904231177728
     },
     {
-      "mean": -5.69444373113015e-07,
-      "sigma": 1.635199544417124,
-      "ti_percent": 13.6266628701427
+      "mean": 5.018341843765484e-07,
+      "sigma": 1.1441002326053038,
+      "ti_percent": 9.534168605044199
     },
     {
-      "mean": -6.242000511802459e-07,
-      "sigma": 1.022000288918694,
-      "ti_percent": 8.51666907432245
+      "mean": -1.0175849630655874e-06,
+      "sigma": 0.8937718117603763,
+      "ti_percent": 7.4480984313364695
     }
+  ],
+  "hub_point_index": {
+    "iy": 2,
+    "iz": 2
+  },
+  "hub_stats": [
+    {
+      "mean": 11.999997807557508,
+      "sigma": 1.610403590498214,
+      "ti_percent": 13.42002992081845
+    },
+    {
+      "mean": 3.2588451771564664e-06,
+      "sigma": 0.9047650170084555,
+      "ti_percent": 7.539708475070462
+    },
+    {
+      "mean": 1.1645321073006087e-06,
+      "sigma": 0.8332554338103031,
+      "ti_percent": 6.943795281752526
+    }
+  ],
+  "hub_covariance": [
+    [
+      2.593399724289541,
+      -0.49236342742555833,
+      -0.27792655085569845
+    ],
+    [
+      -0.49236342742555833,
+      0.8185997360023113,
+      0.09438499006550782
+    ],
+    [
+      -0.27792655085569845,
+      0.09438499006550782,
+      0.6943146179743963
+    ]
   ],
   "bladed_wnd_header": {
     "record1": -99,
     "record2": 7,
-    "header_bytes": 92,
+    "header_bytes": 84,
     "ncomp": 3,
     "nz": 5,
     "ny": 5,
@@ -133,19 +163,19 @@
   },
   "bladed_wnd_normalized_stats": [
     {
-      "mean": -3.1250000000149215e-06,
-      "sigma": 1.0000040971742237,
-      "ti_percent": 100.00040971742237
+      "mean": 2.1875000000193266e-06,
+      "sigma": 1.0000014676527804,
+      "ti_percent": 100.00014676527805
     },
     {
-      "mean": 7.187500000001012e-06,
-      "sigma": 0.9999969610633023,
-      "ti_percent": 99.99969610633023
+      "mean": -1.8749999999823074e-06,
+      "sigma": 0.9999931049744715,
+      "ti_percent": 99.99931049744714
     },
     {
-      "mean": -9.374999999955946e-07,
-      "sigma": 1.0000027457770408,
-      "ti_percent": 100.00027457770409
+      "mean": -8.750000000006252e-06,
+      "sigma": 0.9999963996427375,
+      "ti_percent": 99.99963996427374
     }
   ],
   "turbsim_compatible_wnd_header": {

@@ -1,48 +1,118 @@
--- WindL SimWind demo: Bladed improved von Karman spectrum
+﻿-- =============================================================================
+-- Qahse.WindL DEMO: Bladed Improved von Karman wind field
+-- =============================================================================
 
-0           Mode
-5           TurbModel
-0           WindModel
-true        CalWu
-true        CalWv
-true        CalWw
-true        WrBlwnd
-true        WrTrbts
-true        WrTrwnd
+---------------------- WIndL 工作模式定义  --------------------------------
+0           Mode            - 模式: 0 生成风文件 或 1 读取风文件 或 2 批量模式
 
-120041      RandSeed
-5           NumPointY
-5           NumPointZ
-60          LenWidthY
-60          LenHeightZ
-25.6        WindDuration
-0.2         TimeStep
-90          HubHt
-90          RefHt
-12.0        MeanWindSpeed
-1           ShearType
-0.03        Z0
-1           IECStandard
-1           IECClass
-1           TurbulenceClass
+---------------------- 生成风文件的设置{used only Mode=0}  -----------------
+true        CalWu           - 是否计算纵向风场
+true        CalWv           - 是否计算横向风场
+true        CalWw           - 是否计算垂向风场
+true        WrBlwnd         - 写出 Bladed .wnd 二进制风文件
+true        WrTrbts         - 写出 TurbSim .bts 二进制风文件
+true        WrTrwnd         - 写出 TurbSim .wnd 二进制风文件
 
-45.0        Latitude
-0.16        TI_u
-0.13        TI_v
-0.08        TI_w
-340.0       VxLu
-260.0       VxLv
-120.0       VxLw
-170.0       VyLu
-130.0       VyLv
-60.0        VyLw
-90.0        VzLu
-65.0        VzLv
-30.0        VzLw
-default     CohMod1
-default     CohMod2
-default     CohMod3
+---------------------- 读取风文件的设置{used only Mode=1}  -----------------
+0           VFlowAng        - 垂直入流角(deg)
+0           HFlowAng        - 水平入流角(deg)
+false       CycleWind       - 导入风文件时是否镜像循环
+""          TurWindFile     - 导入风文件路径
+0           InterpMethod    - 插值方法: {TRILINEAR=0; CUBIC=1}
 
-"./result"  WrWndPath
-"SimWind_Bladed_ImprovedVonKarman" WrWndName
-true        SumPrint
+---------------------- 风场与风机参数 --------------------------------------
+120041      RandSeed        - 随机种子
+5           NumPointY       - 水平网格点数
+5           NumPointZ       - 垂直网格点数
+60          LenWidthY       - 水平网格宽度(m)
+60          LenHeightZ      - 垂直网格高度(m)
+25.6        WindDuration    - 风场时长(s)
+0.2         TimeStep        - 时间步长(s)
+90          HubHt           - 轮毂高度(m)
+0           VRef            - IEC 参考风速(m/s)
+0           RotorDiameter   - 转子直径(m)
+
+---------------------- 风场气象边界条件 ------------------------------------
+5           TurbModel       - 湍流风谱模型 {B_IVKAL=5}
+""          UserTurbFile    - 用户自定义谱/时序输入文件
+false       UseIECSimmga    - 自定义谱是否采用 IEC 缩放
+-1          ScaleIEC        - IEC 缩放方式{-1 跟随旧别名/默认语义}
+1           IECStandard     - 标准版次 {ED3=1}
+1           IECClass        - 风机等级 {Class_II=1}
+1           TurbulenceClass - 湍流等级 {Class_B=1}
+0           WindModel       - 湍流风模型 {NTM=0}
+1           ShearType       - 剪切类型 {LOG=1}
+""          UserShearFile   - 用户自定义剪切文件
+90          RefHt           - 参考高度(m)
+12          MeanWindSpeed   - 参考高度平均风速(m/s)
+0.2         PLExp           - 幂律指数(-)
+0.03        Z0              - 地表粗糙度(m)
+0           WindProfileType - 平均风廓线类型 {DEFAULT_PROFILE=0}
+0           TurbIntensity   - 用户指定湍流度
+2           ETMc            - ETM c 参数
+0           UsableTime      - 可用风场时长(s)
+0           AnalysisTime    - 分析时长(s)
+0           Rich_No         - Richardson 数
+0           UStar           - 摩擦速度(m/s)
+0           ZL              - z/L 稳定度参数
+0           ZI              - 混合层高度(m)
+0           PC_UW           - 目标 Reynolds stress <u'w'>
+0           PC_UV           - 目标 Reynolds stress <u'v'>
+0           PC_VW           - 目标 Reynolds stress <v'w'>
+
+---------------------- 符合 Bladed 风谱模型的参数 ---------------------------
+0           MannScalelength - Mann 尺度长度
+0           MannGamma       - Mann Gamma
+0           MannMaxL        - Mann 最大波长
+0           MannAlphaEps    - Mann alpha*epsilon^(2/3)
+0           MannNx          - Mann x 向网格数
+0           MannNy          - Mann y 向网格数
+0           MannNz          - Mann z 向网格数
+340         VxLu            - u 分量纵向长度尺度
+260         VxLv            - v 分量纵向长度尺度
+120         VxLw            - w 分量纵向长度尺度
+170         VyLu            - u 分量横向长度尺度
+130         VyLv            - v 分量横向长度尺度
+60          VyLw            - w 分量横向长度尺度
+90          VzLu            - u 分量垂向长度尺度
+65          VzLv            - v 分量垂向长度尺度
+30          VzLw            - w 分量垂向长度尺度
+0.03        Roughness       - 地表粗糙度(m)
+45          Latitude        - 纬度(deg)
+0.16        TI_u            - u 分量湍流度
+0.13        TI_v            - v 分量湍流度
+0.08        TI_w            - w 分量湍流度
+
+---------------------- 相干系数模型参数 -------------------------------------
+2           CohMod1         - u 分量相干模型 {IEC=0; GENERAL=1; default=2; NONE=3; API=4}
+2           CohMod2         - v 分量相干模型 {IEC=0; GENERAL=1; default=2; NONE=3; API=4}
+2           CohMod3         - w 分量相干模型 {IEC=0; GENERAL=1; default=2; NONE=3; API=4}
+0           CohDecayU       - u 分量相干衰减系数
+0           CohDecayV       - v 分量相干衰减系数
+0           CohDecayW       - w 分量相干衰减系数
+0           CohScaleB       - GENERAL 相干模型 B 系数
+0           CohExp          - GENERAL 相干模型频率指数
+true        AllowCohApprox  - 是否允许大网格近似相干求解
+
+---------------------- IEC 事件与 EWM 参数 ----------------------------------
+0           EWMType         - EWM 类型 {Turbulent=0; Steady=1}
+0           EWMReturn       - EWM 重现期(年)
+0           GustPeriod      - 事件阵风周期(s)
+0           EventStart      - 事件开始时刻(s)
+0           EventSign       - 事件符号 {POSITIVE=0; NEGATIVE=1}
+0           EcdVcog         - ECD 事件附加速度项(m/s)
+
+---------------------- 输出控制 --------------------------------------------
+./result    WrWndPath       - 风文件输出路径
+SimWind_Bladed_ImprovedVonKarman  WrWndName  - 输出风文件名称
+true        SumPrint        - 是否写出 .sum 文件
+0           WndFormat       - 风文件格式 {BLADED_WND=0; TURBSIM_BTS=1; TURBSIM_WND=2}
+0           GenMethod       - 生成方法 {AUTO=0}
+false       UseFFT          - 是否优先使用 FFT 路径
+
+---------------------- 批处理控制 ------------------------------------------
+""          BatchExcel      - 批处理 Excel 路径
+Cases       BatchSheet      - 批处理 Sheet 名
+""          BatchOutputDir  - 批处理输出目录
+0           BatchThreads    - 批处理线程数
+inproc      BatchLauncher   - 批处理启动方式
