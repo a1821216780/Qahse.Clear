@@ -1,6 +1,6 @@
--- Large-grid comparison case: Bladed von Karman
+-- Large-grid comparison case: Bladed improved von Karman normalized target TI
 0 Mode
-4 TurbModel
+5 TurbModel
 0 WindModel
 true CalWu
 true CalWv
@@ -21,7 +21,11 @@ false WrTrwnd
 0.2 PLExp
 0.01 Z0
 0.01 Roughness
+35.0 Latitude
 0.0 TurbIntensity
+17.0333333333 TI_u
+13.6266666667 TI_v
+8.5166666667 TI_w
 260429 RandSeed
 100 NumPointY
 100 NumPointZ
@@ -55,6 +59,6 @@ true AllowCohApprox
 300.0 EventStart
 0 EventSign
 15.0 EcdVcog
-"./result/large_grid_compare" WrWndPath
-"LG100_BladedVK" WrWndName
+"./result/large_grid_compare/normalized" WrWndPath
+"LG100_BladedIVK" WrWndName
 true SumPrint

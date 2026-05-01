@@ -1,0 +1,138 @@
+{
+  "base": "demo\\WindL\\result\\large_grid_compare\\raw\\LG100_Mann",
+  "checks": [],
+  "plots": [
+    "demo\\WindL\\result\\large_grid_compare\\raw\\LG100_Mann_validation\\LG100_Mann_hub_timeseries.png",
+    "demo\\WindL\\result\\large_grid_compare\\raw\\LG100_Mann_validation\\LG100_Mann_hub_psd.png",
+    "demo\\WindL\\result\\large_grid_compare\\raw\\LG100_Mann_validation\\LG100_Mann_u_first_plane.png",
+    "demo\\WindL\\result\\large_grid_compare\\raw\\LG100_Mann_validation\\LG100_Mann_hub_covariance.png",
+    "demo\\WindL\\result\\large_grid_compare\\raw\\LG100_Mann_validation\\LG100_Mann_histograms.png"
+  ],
+  "sum": {
+    "stats": {
+      "u": {
+        "mean": 10.4268966,
+        "sigma": 10.1694055,
+        "ti_percent": 84.74504584
+      },
+      "v": {
+        "mean": -3.538821424e-17,
+        "sigma": 2.501933228,
+        "ti_percent": 20.84944357
+      },
+      "w": {
+        "mean": -4.902561241e-15,
+        "sigma": 2.448895913,
+        "ti_percent": 20.40746594
+      }
+    },
+    "target_sigma": [
+      2.044,
+      1.6352,
+      1.022
+    ],
+    "warnings": [
+      "Grid bottom is at or below ground; low grid heights are clamped in profile calculations.",
+      "B_MANN uses MannAlphaEps for absolute energy because ScaleIEC=0; set ScaleIEC=1 or 2 to match IEC target sigma exactly."
+    ],
+    "derived": {
+      "Lambda": 42.0,
+      "LC": 340.2,
+      "ZL": 0.0,
+      "UStar": 0.5271840329,
+      "UStarDiab": 0.5271840329,
+      "ZI": 1213.886095,
+      "ScaleIEC": 0.0,
+      "MannGamma": 3.9,
+      "MannLength": 33.6,
+      "MannMaxL": 268.8,
+      "IntegralScaleUVW": [
+        33.6,
+        33.6,
+        33.6
+      ],
+      "AllowCohApprox": true,
+      "UserDirectionProfile": false,
+      "UserSigmaProfile": false,
+      "UserLengthScaleProfile": false,
+      "ReynoldsStressActive": true
+    },
+    "input": {
+      "TurbModel": 2,
+      "WindModel": 0,
+      "RandSeed": 260429,
+      "MeanWindSpeed": 12.0,
+      "HubHt": 90.0
+    }
+  },
+  "bts_header": {
+    "file_id": 7,
+    "nz": 100,
+    "ny": 100,
+    "ntwr": 0,
+    "nt": 13200,
+    "dz": 1.5151515007019043,
+    "dy": 1.5151515007019043,
+    "dt": 0.05000000074505806,
+    "uhub": 12.0,
+    "hub_height": 90.0,
+    "zbottom": -15.0,
+    "description": "Qahse WindL SimWind"
+  },
+  "bts_stats": [
+    {
+      "mean": 10.42689659356384,
+      "sigma": 10.169405506072682,
+      "ti_percent": 84.74504588393901
+    },
+    {
+      "mean": -3.795901955472249e-09,
+      "sigma": 2.5019332141432344,
+      "ti_percent": 20.84944345119362
+    },
+    {
+      "mean": 4.039646676656875e-09,
+      "sigma": 2.448895934371318,
+      "ti_percent": 20.407466119760983
+    }
+  ],
+  "hub_point_index": {
+    "iy": 49,
+    "iz": 69
+  },
+  "hub_stats": [
+    {
+      "mean": 11.991496443166879,
+      "sigma": 9.557303306173132,
+      "ti_percent": 79.64419421810943
+    },
+    {
+      "mean": 7.546598926362067e-07,
+      "sigma": 2.436528780847268,
+      "ti_percent": 20.304406507060566
+    },
+    {
+      "mean": 2.4230981805120873e-07,
+      "sigma": 2.3865580326337783,
+      "ti_percent": 19.887983605281487
+    }
+  ],
+  "hub_covariance": [
+    [
+      91.34204648618791,
+      1.537143469776436,
+      -0.2779447915195721
+    ],
+    [
+      1.537143469776436,
+      5.9366724998970755,
+      0.4069077248060301
+    ],
+    [
+      -0.2779447915195721,
+      0.4069077248060301,
+      5.695659243128815
+    ]
+  ],
+  "passed": true
+}

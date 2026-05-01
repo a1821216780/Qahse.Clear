@@ -1,6 +1,6 @@
--- Large-grid comparison case: Bladed von Karman
+-- Large-grid comparison case: Bladed improved von Karman raw energy
 0 Mode
-4 TurbModel
+5 TurbModel
 0 WindModel
 true CalWu
 true CalWv
@@ -21,6 +21,7 @@ false WrTrwnd
 0.2 PLExp
 0.01 Z0
 0.01 Roughness
+35.0 Latitude
 0.0 TurbIntensity
 260429 RandSeed
 100 NumPointY
@@ -32,7 +33,7 @@ false WrTrwnd
 false CycleWind
 true UseFFT
 false UseIECSimmga
-1 ScaleIEC
+0 ScaleIEC
 2.0 ETMc
 1.0 MannAlphaEps
 33.6 MannScalelength
@@ -55,6 +56,6 @@ true AllowCohApprox
 300.0 EventStart
 0 EventSign
 15.0 EcdVcog
-"./result/large_grid_compare" WrWndPath
-"LG100_BladedVK" WrWndName
+"./result/large_grid_compare/raw" WrWndPath
+"LG100_BladedIVK" WrWndName
 true SumPrint

@@ -281,7 +281,6 @@ struct WindLInput
 
 	// ---- IEC 事件 / EWM 参数 ----
 	EWMType ewmType = EWMType::Turbulent;
-	int ewmReturn = 0; // 重现期 (年)
 	double gustPeriod = 0.0;
 	double eventStart = 0.0;
 	EventSign eventSign = EventSign::POSITIVE;

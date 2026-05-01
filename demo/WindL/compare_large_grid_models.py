@@ -27,11 +27,23 @@ from validate_simwind_output import hub_series, parse_sum, read_bts, theoretical
 
 
 COMPONENTS = ("u", "v", "w")
-CASE_SPECS = (
-    ("BladedVK", SCRIPT_DIR / "result" / "large_grid_compare" / "LG100_BladedVK"),
-    ("BladedIVK", SCRIPT_DIR / "result" / "large_grid_compare" / "LG100_BladedIVK"),
-    ("Mann", SCRIPT_DIR / "result" / "large_grid_compare" / "LG100_Mann"),
-)
+CASE_SETS = {
+    "default": (
+        ("BladedVK", SCRIPT_DIR / "result" / "large_grid_compare" / "LG100_BladedVK"),
+        ("BladedIVK", SCRIPT_DIR / "result" / "large_grid_compare" / "LG100_BladedIVK"),
+        ("Mann", SCRIPT_DIR / "result" / "large_grid_compare" / "LG100_Mann"),
+    ),
+    "raw": (
+        ("BladedVK", SCRIPT_DIR / "result" / "large_grid_compare" / "raw" / "LG100_BladedVK"),
+        ("BladedIVK", SCRIPT_DIR / "result" / "large_grid_compare" / "raw" / "LG100_BladedIVK"),
+        ("Mann", SCRIPT_DIR / "result" / "large_grid_compare" / "raw" / "LG100_Mann"),
+    ),
+    "normalized": (
+        ("BladedVK", SCRIPT_DIR / "result" / "large_grid_compare" / "normalized" / "LG100_BladedVK"),
+        ("BladedIVK", SCRIPT_DIR / "result" / "large_grid_compare" / "normalized" / "LG100_BladedIVK"),
+        ("Mann", SCRIPT_DIR / "result" / "large_grid_compare" / "normalized" / "LG100_Mann"),
+    ),
+}
 CASE_COLORS = {
     "BladedVK": "#1f77b4",
     "BladedIVK": "#d62728",
@@ -102,7 +114,7 @@ def load_case(name: str, base: Path) -> dict[str, Any]:
     }
 
 
-def make_time_plot(cases: list[dict[str, Any]], output_dir: Path, window_seconds: float) -> str | None:
+def make_time_plot(cases: list[dict[str, Any]], output_dir: Path, window_seconds: float, file_prefix: str) -> str | None:
     if plt is None:
         return None
     dt = float(cases[0]["header"]["dt"])
@@ -124,14 +136,14 @@ def make_time_plot(cases: list[dict[str, Any]], output_dir: Path, window_seconds
         ax.legend(loc="upper right")
     axes[-1].set_xlabel("time [s]")
     fig.suptitle(f"Hub-point wind speed comparison ({window_seconds:.0f} s window)")
-    path = output_dir / "LG100_hub_timeseries_overlay.png"
+    path = output_dir / f"{file_prefix}_hub_timeseries_overlay.png"
     fig.tight_layout()
     fig.savefig(path, dpi=170)
     plt.close(fig)
     return str(path)
 
 
-def make_psd_plot(cases: list[dict[str, Any]], output_dir: Path) -> str | None:
+def make_psd_plot(cases: list[dict[str, Any]], output_dir: Path, file_prefix: str) -> str | None:
     if plt is None:
         return None
 
@@ -162,14 +174,14 @@ def make_psd_plot(cases: list[dict[str, Any]], output_dir: Path) -> str | None:
         ax.legend(loc="upper right")
     axes[-1].set_xlabel("frequency [Hz]")
     fig.suptitle("Hub-point PSD comparison vs theoretical spectra")
-    path = output_dir / "LG100_hub_psd_overlay.png"
+    path = output_dir / f"{file_prefix}_hub_psd_overlay.png"
     fig.tight_layout()
     fig.savefig(path, dpi=170)
     plt.close(fig)
     return str(path)
 
 
-def make_sigma_plot(cases: list[dict[str, Any]], output_dir: Path) -> str | None:
+def make_sigma_plot(cases: list[dict[str, Any]], output_dir: Path, file_prefix: str) -> str | None:
     if plt is None:
         return None
 
@@ -195,21 +207,28 @@ def make_sigma_plot(cases: list[dict[str, Any]], output_dir: Path) -> str | None
     axes[1].legend(loc="upper right")
 
     fig.suptitle("Hub-point sigma and TI comparison")
-    path = output_dir / "LG100_hub_sigma_ti_comparison.png"
+    path = output_dir / f"{file_prefix}_hub_sigma_ti_comparison.png"
     fig.tight_layout()
     fig.savefig(path, dpi=170)
     plt.close(fig)
     return str(path)
 
 
-def write_report(cases: list[dict[str, Any]], plots: list[str], output_dir: Path) -> tuple[str, str]:
+def write_report(
+    cases: list[dict[str, Any]],
+    plots: list[str],
+    output_dir: Path,
+    case_set: str,
+    file_prefix: str,
+) -> tuple[str, str]:
     summary = {
+        "case_set": case_set,
         "cases": [],
         "plots": plots,
     }
 
     lines = [
-        "# Large-grid 100x100 model comparison",
+        f"# Large-grid 100x100 model comparison ({case_set})",
         "",
         "Cases:",
         "- Bladed von Karman",
@@ -220,17 +239,24 @@ def write_report(cases: list[dict[str, Any]], plots: list[str], output_dir: Path
         "- 100 x 100 grid",
         f"- dt = {cases[0]['header']['dt']:.5f} s",
         f"- Tmax = {cases[0]['header']['nt'] * cases[0]['header']['dt']:.2f} s",
+        f"- case set = {case_set}",
         "",
-        "| Case | u sigma | v sigma | w sigma | u TI [%] | v TI [%] | w TI [%] | u PSD peak [Hz] | v PSD peak [Hz] | w PSD peak [Hz] |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Case | ScaleIEC | target sigma u/v/w [m/s] | hub sigma u/v/w [m/s] | hub TI u/v/w [%] | u PSD peak [Hz] | v PSD peak [Hz] | w PSD peak [Hz] |",
+        "| --- | ---: | --- | --- | --- | ---: | ---: | ---: |",
     ]
 
     for case in cases:
         stats = case["hub_stats"]
         peaks = case["psd"]
+        target_sigma = case["sum"].get("target_sigma") or [0.0, 0.0, 0.0]
+        scale_iec = case["sum"].get("derived", {}).get("ScaleIEC")
         lines.append(
-            "| {name} | {su:.4f} | {sv:.4f} | {sw:.4f} | {tu:.3f} | {tv:.3f} | {tw:.3f} | {pu:.4f} | {pv:.4f} | {pw:.4f} |".format(
+            "| {name} | {scale_iec} | {tsu:.4f}/{tsv:.4f}/{tsw:.4f} | {su:.4f}/{sv:.4f}/{sw:.4f} | {tu:.3f}/{tv:.3f}/{tw:.3f} | {pu:.4f} | {pv:.4f} | {pw:.4f} |".format(
                 name=case["name"],
+                scale_iec=scale_iec,
+                tsu=target_sigma[0],
+                tsv=target_sigma[1],
+                tsw=target_sigma[2],
                 su=stats[0]["sigma"],
                 sv=stats[1]["sigma"],
                 sw=stats[2]["sigma"],
@@ -248,7 +274,8 @@ def write_report(cases: list[dict[str, Any]], plots: list[str], output_dir: Path
                 "base": case["base"],
                 "header": case["header"],
                 "hub_stats": case["hub_stats"],
-                "target_sigma": case["sum"].get("target_sigma"),
+                "target_sigma": target_sigma,
+                "scale_iec": scale_iec,
                 "sigma_relative_error": case["sigma_relative_error"],
                 "psd_peaks": [
                     {
@@ -270,8 +297,8 @@ def write_report(cases: list[dict[str, Any]], plots: list[str], output_dir: Path
     for plot in plots:
         lines.append(f"- `{plot}`")
 
-    json_path = output_dir / "LG100_model_compare_summary.json"
-    md_path = output_dir / "LG100_model_compare_report.md"
+    json_path = output_dir / f"{file_prefix}_model_compare_summary.json"
+    md_path = output_dir / f"{file_prefix}_model_compare_report.md"
     json_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return str(json_path), str(md_path)
@@ -280,6 +307,12 @@ def write_report(cases: list[dict[str, Any]], plots: list[str], output_dir: Path
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--window-seconds", type=float, default=120.0, help="Time window for overlay time-series plot")
+    parser.add_argument(
+        "--case-set",
+        choices=tuple(CASE_SETS.keys()),
+        default="default",
+        help="Case set to compare",
+    )
     parser.add_argument(
         "--output-dir",
         default=str(SCRIPT_DIR / "result" / "large_grid_compare"),
@@ -290,17 +323,18 @@ def main() -> int:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    cases = [load_case(name, base) for name, base in CASE_SPECS]
+    file_prefix = "LG100" if args.case_set == "default" else f"LG100_{args.case_set}"
+    cases = [load_case(name, base) for name, base in CASE_SETS[args.case_set]]
     plots = []
     for plot_path in (
-        make_time_plot(cases, output_dir, args.window_seconds),
-        make_psd_plot(cases, output_dir),
-        make_sigma_plot(cases, output_dir),
+        make_time_plot(cases, output_dir, args.window_seconds, file_prefix),
+        make_psd_plot(cases, output_dir, file_prefix),
+        make_sigma_plot(cases, output_dir, file_prefix),
     ):
         if plot_path:
             plots.append(plot_path)
 
-    json_path, md_path = write_report(cases, plots, output_dir)
+    json_path, md_path = write_report(cases, plots, output_dir, args.case_set, file_prefix)
     print(
         json.dumps(
             {

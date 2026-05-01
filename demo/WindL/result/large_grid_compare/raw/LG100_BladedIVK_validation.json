@@ -1,0 +1,137 @@
+{
+  "base": "demo\\WindL\\result\\large_grid_compare\\raw\\LG100_BladedIVK",
+  "checks": [],
+  "plots": [
+    "demo\\WindL\\result\\large_grid_compare\\raw\\LG100_BladedIVK_validation\\LG100_BladedIVK_hub_timeseries.png",
+    "demo\\WindL\\result\\large_grid_compare\\raw\\LG100_BladedIVK_validation\\LG100_BladedIVK_hub_psd.png",
+    "demo\\WindL\\result\\large_grid_compare\\raw\\LG100_BladedIVK_validation\\LG100_BladedIVK_u_first_plane.png",
+    "demo\\WindL\\result\\large_grid_compare\\raw\\LG100_BladedIVK_validation\\LG100_BladedIVK_hub_covariance.png",
+    "demo\\WindL\\result\\large_grid_compare\\raw\\LG100_BladedIVK_validation\\LG100_BladedIVK_histograms.png"
+  ],
+  "sum": {
+    "stats": {
+      "u": {
+        "mean": 10.4268966,
+        "sigma": 2.773516763,
+        "ti_percent": 23.1126397
+      },
+      "v": {
+        "mean": 3.583376913e-15,
+        "sigma": 0.9687308208,
+        "ti_percent": 8.07275684
+      },
+      "w": {
+        "mean": 1.111052491e-14,
+        "sigma": 0.6693282916,
+        "ti_percent": 5.577735763
+      }
+    },
+    "target_sigma": [
+      1.182762112,
+      0.9329157852,
+      0.671712807
+    ],
+    "warnings": [
+      "Grid bottom is at or below ground; low grid heights are clamped in profile calculations.",
+      "Component u uses the legacy WindL Kronecker coherence acceleration for the first 2847 positive frequencies, then switches to diagonal high-frequency synthesis. Set AllowCohApprox=false to force the exact strict-coherence path.",
+      "Component v uses the legacy WindL Kronecker coherence acceleration for the first 3797 positive frequencies, then switches to diagonal high-frequency synthesis. Set AllowCohApprox=false to force the exact strict-coherence path.",
+      "Component w uses the legacy WindL Kronecker coherence acceleration for the first 3797 positive frequencies, then switches to diagonal high-frequency synthesis. Set AllowCohApprox=false to force the exact strict-coherence path."
+    ],
+    "derived": {
+      "Lambda": 42.0,
+      "LC": 340.2,
+      "ZL": 0.0,
+      "UStar": 0.5271840329,
+      "UStarDiab": 0.5271840329,
+      "ZI": 1050.355075,
+      "ScaleIEC": 0.0,
+      "IntegralScaleUVW": [
+        37.69306344,
+        9.248428137,
+        3.452186272
+      ],
+      "AllowCohApprox": true,
+      "UserDirectionProfile": false,
+      "UserSigmaProfile": false,
+      "UserLengthScaleProfile": false,
+      "ReynoldsStressActive": true
+    },
+    "input": {
+      "TurbModel": 5,
+      "WindModel": 0,
+      "RandSeed": 260429,
+      "MeanWindSpeed": 12.0,
+      "HubHt": 90.0
+    }
+  },
+  "bts_header": {
+    "file_id": 7,
+    "nz": 100,
+    "ny": 100,
+    "ntwr": 0,
+    "nt": 13200,
+    "dz": 1.5151515007019043,
+    "dy": 1.5151515007019043,
+    "dt": 0.05000000074505806,
+    "uhub": 12.0,
+    "hub_height": 90.0,
+    "zbottom": -15.0,
+    "description": "Qahse WindL SimWind"
+  },
+  "bts_stats": [
+    {
+      "mean": 10.426896609616024,
+      "sigma": 2.7735167743288573,
+      "ti_percent": 23.11263978607381
+    },
+    {
+      "mean": 7.18274243020763e-09,
+      "sigma": 0.9687308196921428,
+      "ti_percent": 8.072756830767856
+    },
+    {
+      "mean": -4.5621232200188165e-09,
+      "sigma": 0.6693282951206599,
+      "ti_percent": 5.577735792672166
+    }
+  ],
+  "hub_point_index": {
+    "iy": 49,
+    "iz": 69
+  },
+  "hub_stats": [
+    {
+      "mean": 11.991496736768037,
+      "sigma": 1.2048866571638648,
+      "ti_percent": 10.040722143032207
+    },
+    {
+      "mean": 4.0542663114706557e-07,
+      "sigma": 0.971414036816801,
+      "ti_percent": 8.095116973473342
+    },
+    {
+      "mean": 2.694846965484334e-07,
+      "sigma": 0.664717190566068,
+      "ti_percent": 5.5393099213839
+    }
+  ],
+  "hub_covariance": [
+    [
+      1.4517518566115124,
+      -0.00990980072625288,
+      -0.2779227187481113
+    ],
+    [
+      -0.00990980072625288,
+      0.9436452309247129,
+      0.007972932414513337
+    ],
+    [
+      -0.2779227187481113,
+      0.007972932414513337,
+      0.4418489434340464
+    ]
+  ],
+  "passed": true
+}

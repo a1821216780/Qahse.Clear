@@ -379,6 +379,33 @@ TEST(WindL_SimWind, UniformWindProducesConstantField)
 	}
 }
 
+TEST(WindL_SimWind, TurbulentEwm50HasHigherSigmaThanEwm1)
+{
+	auto ewm1 = SmallInput("turbulent_ewm1_sigma");
+	ewm1.windModel = WindModel::EWM1;
+	ewm1.ewmType = EWMType::Turbulent;
+	ewm1.gridPtsY = 1;
+	ewm1.gridPtsZ = 1;
+	ewm1.fieldDimY = 2.0;
+	ewm1.fieldDimZ = 2.0;
+	ewm1.simTime = 102.4;
+	ewm1.timeStep = 0.2;
+	ewm1.wrBlwnd = false;
+	ewm1.wrTrwnd = false;
+
+	auto ewm50 = ewm1;
+	ewm50.saveName = "turbulent_ewm50_sigma";
+	ewm50.windModel = WindModel::EWM50;
+
+	const auto ewm1Result = SimWind::Generate(ewm1);
+	const auto ewm50Result = SimWind::Generate(ewm50);
+
+	EXPECT_GT(ewm50Result.stats[0].sigma, ewm1Result.stats[0].sigma * 1.15);
+	EXPECT_NEAR(ewm50Result.stats[0].sigma / std::max(ewm1Result.stats[0].sigma, 1.0e-12), 1.25, 0.12);
+	EXPECT_GT(ewm50Result.stats[1].sigma, ewm1Result.stats[1].sigma * 1.15);
+	EXPECT_GT(ewm50Result.stats[2].sigma, ewm1Result.stats[2].sigma * 1.15);
+}
+
 TEST(WindL_SimWind, UserShearProfileAffectsUniformMeanField)
 {
 	UserShearData shear;

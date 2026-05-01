@@ -51,7 +51,6 @@ default CohMod3
 0.0 CohExp
 true AllowCohApprox
 0 EWMType
-0 EWMReturn
 10.5 GustPeriod
 300.0 EventStart
 0 EventSign
@@ -59,4 +58,3 @@ true AllowCohApprox
 "./result/large_grid_compare" WrWndPath
 "LG100_Mann" WrWndName
 true SumPrint
-

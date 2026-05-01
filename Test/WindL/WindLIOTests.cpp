@@ -175,7 +175,6 @@ void ExpectWindLInputEqual(const WindLInput &expected, const WindLInput &actual)
 	EXPECT_FIELD_DOUBLE_EQ(cohExp);
 	EXPECT_FIELD_EQ(allowCohApprox);
 	EXPECT_FIELD_EQ(ewmType);
-	EXPECT_FIELD_EQ(ewmReturn);
 	EXPECT_FIELD_DOUBLE_EQ(gustPeriod);
 	EXPECT_FIELD_DOUBLE_EQ(eventStart);
 	EXPECT_FIELD_EQ(eventSign);

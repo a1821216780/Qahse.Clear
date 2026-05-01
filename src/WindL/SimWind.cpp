@@ -444,6 +444,11 @@ double ExtremeWindSpeed1(const SimWindConfig &cfg)
 	return 0.8 * ExtremeWindSpeed50(cfg);
 }
 
+double ExtremeWindSpeedForWindModel(const SimWindConfig &cfg, WindModel model)
+{
+	return model == WindModel::EWM1 ? ExtremeWindSpeed1(cfg) : ExtremeWindSpeed50(cfg);
+}
+
 double ReferenceSigma1Ntm(const SimWindConfig &cfg)
 {
 	const double iref = TurbulenceClassIref(cfg.input.turbClass);
@@ -746,7 +751,7 @@ bool IsUniformWindModel(WindModel model)
 
 double SteadyEwmHubSpeed(const SimWindConfig &cfg)
 {
-	return cfg.input.windModel == WindModel::EWM1 ? ExtremeWindSpeed1(cfg) : ExtremeWindSpeed50(cfg);
+	return ExtremeWindSpeedForWindModel(cfg, cfg.input.windModel);
 }
 
 bool UsesSpectralTurbulenceGeneration(const WindLInput &input)
@@ -949,7 +954,7 @@ void ApplyIecDefaults(SimWindConfig &cfg)
 		}
 		else if (IsEwmWindModel(in.windModel))
 		{
-			cfg.sigma[0] = in.ewmType == EWMType::Turbulent ? 0.11 * ExtremeWindSpeed50(cfg) : 0.0;
+			cfg.sigma[0] = in.ewmType == EWMType::Turbulent ? 0.11 * ExtremeWindSpeedForWindModel(cfg, in.windModel) : 0.0;
 		}
 		else
 		{
@@ -3417,6 +3422,14 @@ void WriteSummary(const SimWindConfig &cfg,
 	if (!result.wndPath.empty()) out << "  WND alias: " << result.wndPath << "\n";
 	out << "  SUM: " << path.string() << "\n\n";
 
+	out << "Input Keyword Status\n";
+	out << "  CalWu/CalWv/CalWw: turbulence-only component switches\n";
+	out << "  WrBlwnd/WrTrbts/WrTrwnd: export the same generated wind field in multiple formats\n";
+	out << "  EWMReturn: removed legacy keyword; ignored if present in old input files\n";
+	out << "  GenMethod: legacy keyword; does not control the current generator path\n";
+	out << "  UseFFT: legacy keyword; does not override the current generator path\n";
+	out << "  SumPrint: " << (cfg.input.sumPrint ? "true" : "false") << " (summary requested)\n\n";
+
 	out << "Statistics\n";
 	static const char *names[3] = {"u", "v", "w"};
 	for (int comp = 0; comp < 3; ++comp)
@@ -3496,6 +3509,7 @@ SimWindResult SimWind::Generate(const WindLInput &input, SimWindProgressCallback
 			result.wndPath = result.turbsimWndPath;
 	}
 
+	if (input.sumPrint)
 	{
 		auto path = cfg.outputBase;
 		result.sumPath = path.replace_extension(".sum").string();

@@ -285,7 +285,6 @@ def qwd_text(case: Case, cfg: CampaignConfig, output_dir: Path) -> str:
         "CohMod2": "default",
         "CohMod3": "default",
         "EWMType": EWM_TYPE[case.ewm_type],
-        "EWMReturn": 0,
         "GustPeriod": cfg.gust_period,
         "EventStart": event_start,
         "EventSign": cfg.event_sign,

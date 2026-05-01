@@ -86,16 +86,6 @@ namespace windl_io_detail
 
 	inline void ApplyDerivedFields(WindLInput &input)
 	{
-		if (input.windModel == WindModel::EWM1)
-		{
-			if (input.ewmReturn <= 0)
-				input.ewmReturn = 1;
-		}
-		else if (input.windModel == WindModel::EWM50)
-		{
-			if (input.ewmReturn <= 0)
-				input.ewmReturn = 50;
-		}
 	}
 
 	inline void ResolveIfSet(const std::string &baseFilePath, std::string &path)
@@ -239,7 +229,6 @@ namespace windl_io_detail
 				Field("CohExp", data.cohExp),
 				Field("AllowCohApprox", data.allowCohApprox),
 				Field("EWMType", data.ewmType),
-				Field("EWMReturn", data.ewmReturn),
 				Field("GustPeriod", data.gustPeriod),
 				Field("EventStart", data.eventStart),
 				Field("EventSign", data.eventSign),

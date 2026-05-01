@@ -96,7 +96,6 @@ false       AllowCohApprox  - 是否允许大网格近似相干求解
 
 ---------------------- IEC 事件与 EWM 参数 ----------------------------------
 0           EWMType         - EWM 类型 {Turbulent=0; Steady=1}
-0           EWMReturn       - EWM 重现期(年)
 0           GustPeriod      - 事件阵风周期(s)
 0           EventStart      - 事件开始时刻(s)
 0           EventSign       - 事件符号 {POSITIVE=0; NEGATIVE=1}

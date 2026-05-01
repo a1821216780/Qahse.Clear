@@ -52,7 +52,6 @@ default CohMod3
 0.0 CohExp
 true AllowCohApprox
 0 EWMType
-0 EWMReturn
 10.5 GustPeriod
 300.0 EventStart
 0 EventSign
