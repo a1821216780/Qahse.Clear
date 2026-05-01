@@ -133,6 +133,7 @@
     <ClCompile Include="..\src\Math\Vec3.cpp" />
     <ClCompile Include="..\src\Math\Vec3f.cpp" />
     <ClCompile Include="..\src\WindL\SimWind.cpp" />
+    <ClCompile Include="..\src\WindL\Batch\WindLBatch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\HawtC3\src\IO\IO\BinaryFileHandler.h" />
@@ -156,6 +157,7 @@
     <ClInclude Include="..\src\IO\Yaml.hpp" />
     <ClInclude Include="..\src\WindL\WindL_Type.hpp" />
     <ClInclude Include="..\src\WindL\SimWind.hpp" />
+    <ClInclude Include="..\src\WindL\Batch\WindLBatch.hpp" />
     <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp" />
     <ClInclude Include="..\src\Params.h" />
     <ClInclude Include="..\src\Math\IntegrationHelper.h" />

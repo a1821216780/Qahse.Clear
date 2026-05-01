@@ -189,6 +189,7 @@ void ExpectWindLInputEqual(const WindLInput &expected, const WindLInput &actual)
 	EXPECT_FIELD_EQ(batchOutputDir);
 	EXPECT_FIELD_EQ(batchThreads);
 	EXPECT_FIELD_EQ(batchLauncher);
+	EXPECT_FIELD_EQ(batchValidateOnly);
 #undef EXPECT_FIELD_EQ
 #undef EXPECT_FIELD_DOUBLE_EQ
 }

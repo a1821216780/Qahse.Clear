@@ -221,9 +221,9 @@ namespace windl_io_detail
 			CohField("CohMod2", data.cohMod2);
 			CohField("CohMod3", data.cohMod3);
 
-			Fields(
-				Field("CohDecayU", data.cohDecayU),
-				Field("CohDecayV", data.cohDecayV),
+		Fields(
+			Field("CohDecayU", data.cohDecayU),
+			Field("CohDecayV", data.cohDecayV),
 				Field("CohDecayW", data.cohDecayW),
 				Field("CohScaleB", data.cohScaleB),
 				Field("CohExp", data.cohExp),
@@ -242,7 +242,8 @@ namespace windl_io_detail
 				Field("BatchSheet", data.batchSheetName),
 				Field("BatchOutputDir", data.batchOutputDir),
 				Field("BatchThreads", data.batchThreads),
-				Field("BatchLauncher", data.batchLauncher));
+				Field("BatchLauncher", data.batchLauncher),
+				Field("BatchValidateOnly", data.batchValidateOnly));
 		}
 
 	private:

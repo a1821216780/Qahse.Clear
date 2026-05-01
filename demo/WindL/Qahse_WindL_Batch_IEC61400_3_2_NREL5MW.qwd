@@ -1,0 +1,101 @@
+-- =============================================================================
+-- Qahse.WindL Batch Template
+-- Mode=BATCH, template.qwd + Excel override table
+-- =============================================================================
+
+---------------------- WindL Working Mode -------------------------------------
+BATCH       Mode            - Mode: GENERATE / IMPORT / BATCH
+
+---------------------- Generate Settings --------------------------------------
+true        CalWu           - Enable u turbulence component
+true        CalWv           - Enable v turbulence component
+true        CalWw           - Enable w turbulence component
+true        WrBlwnd         - Export Bladed .wnd
+true        WrTrbts         - Export TurbSim .bts
+false       WrTrwnd         - Export TurbSim-compatible .wnd
+
+---------------------- Import Settings {Mode=IMPORT only} --------------------
+0           VFlowAng        - Vertical inflow angle (deg)
+0           HFlowAng        - Horizontal inflow angle (deg)
+true        CycleWind       - Cycle imported time history
+""          TurWindFile     - Imported .wnd/.bts path
+TRILINEAR   InterpMethod    - Import interpolation method
+
+---------------------- Grid And Turbine ---------------------------------------
+12345       RandSeed        - Random seed
+31          NumPointY       - Horizontal grid points
+31          NumPointZ       - Vertical grid points
+160         LenWidthY       - Grid width (m)
+160         LenHeightZ      - Grid height (m)
+660         WindDuration    - Duration (s)
+0.05        TimeStep        - Time step (s)
+90          HubHt           - Hub height (m)
+
+---------------------- Atmospheric Boundary Conditions ------------------------
+IEC_KAIMAL  TurbModel       - Turbulence spectrum model
+""          UserTurbFile    - User spectrum/time-series file
+true        UseIECSimmga    - Apply IEC scaling to user spectra
+ED3         IECStandard     - IEC edition
+Class_I     IECClass        - Turbine class
+Class_B     TurbulenceClass - Turbulence class
+NTM         WindModel       - IEC wind condition
+PL          ShearType       - Shear type
+DEFAULT_PROFILE WindProfileType - Wind profile type
+""          UserShearFile   - User shear/profile file
+-1          RefHt           - Reference height
+11.4        MeanWindSpeed   - Mean wind speed (m/s), NREL 5MW rated condition
+0.14        PLExp           - Power-law exponent
+0.03        Z0              - Roughness length (m)
+
+---------------------- Optional Model Parameters ------------------------------
+0           VRef
+126         RotorDiameter
+0           TurbIntensity
+-1          ScaleIEC
+2           ETMc
+0           AnalysisTime
+0           Rich_No
+0           UStar
+0           ZL
+0           ZI
+0           PC_UW
+0           PC_UV
+0           PC_VW
+0           Latitude
+0           TI_u
+0           TI_v
+0           TI_w
+0           MannAlphaEps
+0           MannScalelength
+0           MannGamma
+0           MannMaxL
+0           MannNx
+0           MannNy
+0           MannNz
+default     CohMod1
+default     CohMod2
+default     CohMod3
+0           CohDecayU
+0           CohDecayV
+0           CohDecayW
+0           CohScaleB
+0           CohExp
+true        AllowCohApprox
+Turbulent   EWMType
+0           GustPeriod
+0           EventStart
+POSITIVE    EventSign
+0           EcdVcog
+
+---------------------- Output Control -----------------------------------------
+./batch_output_template WrWndPath       - Default single-case output dir; batch mode overrides this per case
+NREL5MW_IEC3_2_Batch   WrWndName       - Default single-case output name; batch mode overrides this with CaseName
+true        SumPrint        - Export .sum
+
+---------------------- Batch Control ------------------------------------------
+./batch_templates/IEC61400-3-2_WindCases.xlsx BatchExcel      - Batch Excel workbook path
+Cases       BatchSheet      - Batch worksheet name
+./batch_output/IEC61400-3-2_NREL5MW BatchOutputDir - Batch root output directory
+0           BatchThreads    - Batch worker count; 0 means auto
+subprocess  BatchLauncher   - Batch launcher: subprocess / inproc
+false       BatchValidateOnly - true means validate only, do not generate wind files

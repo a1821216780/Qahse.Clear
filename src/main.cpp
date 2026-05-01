@@ -31,11 +31,14 @@
 #include <csignal>
 #include <algorithm>
 #include <cctype>
+#include <filesystem>
 
 #include "io/ZConsole.hpp"
 #include "io/LogHelper.h"
 #include "io/ZString.hpp"
 #include "WindL/SimWind.hpp"
+#include "WindL/Batch/WindLBatch.hpp"
+#include "WindL/IO/WindL_IO_Subs.hpp"
 
 #ifdef _WIN32
 
@@ -75,11 +78,6 @@ int main(int argc, char *argv[])
         LogHelper::WriteLogO("                         (Mode=0: generate, Mode=1: import, Mode=2: batch from Excel)");
         LogHelper::WriteLogO("  --mbdl <file.qmd>     Run standalone MBDL structural dynamics from .qmd file");
         LogHelper::WriteLogO("  --windl-models        Print WindL OOP model catalogs and route IDs");
-        LogHelper::WriteLogO("  --windl-batch <excel> <template.qwd> [output_dir] [sheet_name] [threads] [launcher]");
-        LogHelper::WriteLogO("                         Batch wind generation from Excel parameter table");
-        LogHelper::WriteLogO("                         launcher: inproc(default) / cmd / powershell");
-        LogHelper::WriteLogO("  --windl-batch-validate <excel> <template.qwd> [output_dir] [sheet_name]");
-        LogHelper::WriteLogO("                         Batch parameter validation only (no wind generation)");
         LogHelper::WriteLogO("  --qod <file.qoe>      Run standalone ocean mode from .qod file");
         LogHelper::WriteLogO("  --pcsl <input_file>   Run PCSL cross-section analysis from input file");
         LogHelper::WriteLogO("  --run <file.trb|file.sim> [options]  Run simulation from definition file, no GUI");
@@ -112,20 +110,46 @@ int main(int argc, char *argv[])
 
             try
             {
-                std::cout << " Running WindL SimWind with input file \"" << argv[i + 1] << "\".\n" << std::flush;
-                const auto result = SimWind::GenerateFromFile(argv[i + 1], [](const std::string &message) {
+                const std::string qwdPath = std::filesystem::absolute(argv[i + 1]).string();
+                const auto input = ReadWindLInput(qwdPath);
+                const auto progress = [](const std::string &message) {
                     std::cout << message << std::endl;
-                });
-                std::cout << "SimWind generated wind files:\n";
-                if (!result.btsPath.empty())
-                    std::cout << "  BTS: " << result.btsPath << "\n";
-                if (!result.bladedWndPath.empty())
-                    std::cout << "  Bladed WND: " << result.bladedWndPath << "\n";
-                if (!result.turbsimWndPath.empty())
-                    std::cout << "  TurbSim-compatible WND: " << result.turbsimWndPath << "\n";
-                if (!result.sumPath.empty())
-                    std::cout << "  SUM: " << result.sumPath << "\n";
-                return 0;
+                };
+
+                if (input.mode == Mode::GENERATE)
+                {
+                    std::cout << " Running WindL SimWind with input file \"" << qwdPath << "\".\n" << std::flush;
+                    const auto result = SimWind::Generate(input, progress);
+                    std::cout << "SimWind generated wind files:\n";
+                    if (!result.btsPath.empty())
+                        std::cout << "  BTS: " << result.btsPath << "\n";
+                    if (!result.bladedWndPath.empty())
+                        std::cout << "  Bladed WND: " << result.bladedWndPath << "\n";
+                    if (!result.turbsimWndPath.empty())
+                        std::cout << "  TurbSim-compatible WND: " << result.turbsimWndPath << "\n";
+                    if (!result.sumPath.empty())
+                        std::cout << "  SUM: " << result.sumPath << "\n";
+                    return 0;
+                }
+
+                if (input.mode == Mode::BATCH)
+                {
+                    std::cout << " Running WindL batch mode with template \"" << qwdPath << "\".\n" << std::flush;
+                    const auto batch = WindLBatch::RunFromFile(qwdPath, std::filesystem::absolute(argv[0]).string(), progress);
+                    std::cout << "WindL batch complete:\n";
+                    std::cout << "  Manifest: " << batch.manifestPath << "\n";
+                    std::cout << "  CSV: " << batch.csvPath << "\n";
+                    std::cout << "  Summary: " << batch.summaryPath << "\n";
+                    std::cout << "  Succeeded: " << batch.succeeded << "\n";
+                    std::cout << "  Failed: " << batch.failed << "\n";
+                    std::cout << "  Invalid: " << batch.invalid << "\n";
+                    std::cout << "  Skipped: " << batch.skipped << "\n";
+                    std::cout << "  Validated: " << batch.validated << "\n";
+                    return (batch.failed == 0 && batch.invalid == 0) ? 0 : 1;
+                }
+
+                std::cerr << "WindL import mode is not implemented yet for --qwd.\n";
+                return 2;
             }
             catch (const std::exception &ex)
             {

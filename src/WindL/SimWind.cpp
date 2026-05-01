@@ -3448,6 +3448,11 @@ void WriteSummary(const SimWindConfig &cfg,
 }
 } // namespace
 
+void SimWind::ValidateInputOnly(const WindLInput &input)
+{
+	ValidateInput(input);
+}
+
 SimWindResult SimWind::Generate(const WindLInput &input, SimWindProgressCallback progress)
 {
 	const auto startTime = std::chrono::steady_clock::now();

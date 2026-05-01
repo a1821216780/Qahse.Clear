@@ -38,6 +38,7 @@ using SimWindProgressCallback = std::function<void(const std::string &)>;
 class SimWind
 {
 public:
+	static void ValidateInputOnly(const WindLInput &input);
 	static SimWindResult Generate(const WindLInput &input, SimWindProgressCallback progress = {});
 	static SimWindResult GenerateFromFile(const std::string &qwdPath, SimWindProgressCallback progress = {});
 };

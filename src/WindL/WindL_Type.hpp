@@ -300,7 +300,8 @@ struct WindLInput
 	std::string batchSheetName = "Cases";
 	std::string batchOutputDir;
 	int batchThreads = 0; // 0 = 自动
-	std::string batchLauncher = "inproc";
+	std::string batchLauncher = "subprocess";
+	bool batchValidateOnly = false;
 };
 
 // ============================================================================
