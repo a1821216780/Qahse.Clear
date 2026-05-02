@@ -275,6 +275,30 @@ TEST(WindL_SimWind, BladedMannHeaderUsesMannModelId)
 	EXPECT_EQ(ReadScalar<std::int32_t>(wnd), 3);
 }
 
+TEST(WindL_SimWind, MannNxTooSmallProducesExplicitRepeatWarning)
+{
+	auto input = SmallInput("mann_repeat_warning");
+	input.turbModel = TurbModel::B_MANN;
+	input.wrBlwnd = false;
+	input.wrTrwnd = false;
+	input.simTime = 25.6;
+	input.timeStep = 0.2;
+	input.mannNx = 32;
+	input.mannNy = 8;
+	input.mannNz = 8;
+
+	std::vector<std::string> progress;
+	const auto result = SimWind::Generate(input, [&](const std::string &message) {
+		progress.push_back(message);
+	});
+
+	EXPECT_TRUE(ContainsWarning(result, "will repeat every"));
+	EXPECT_TRUE(ContainsWarning(result, "Increase MannNx to at least 128"));
+	EXPECT_TRUE(std::any_of(progress.begin(), progress.end(), [](const std::string &message) {
+		return message.find("Warning: MannNx=32 is smaller than the resolved output step count 128") != std::string::npos;
+	}));
+}
+
 TEST(WindL_SimWind, GenerateFromFileHonorsExistingQwdInputs)
 {
 	const auto source = RepoRoot() / "Test" / "WindL" / "Qahse_WindL_Main_DEMO.qwd";

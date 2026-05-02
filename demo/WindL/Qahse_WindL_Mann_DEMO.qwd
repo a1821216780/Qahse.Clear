@@ -1,4 +1,4 @@
-﻿-- =============================================================================
+-- =============================================================================
 -- Qahse.WindL DEMO: Bladed Mann wind field
 -- =============================================================================
 
@@ -22,11 +22,11 @@ false       CycleWind       - 导入风文件时是否镜像循环
 
 ---------------------- 风场与风机参数 --------------------------------------
 120051      RandSeed        - 随机种子
-50          NumPointY       - 水平网格点数
-50          NumPointZ       - 垂直网格点数
+30          NumPointY       - 水平网格点数
+30          NumPointZ       - 垂直网格点数
 60          LenWidthY       - 水平网格宽度(m)
 60          LenHeightZ      - 垂直网格高度(m)
-660.6       WindDuration    - 风场时长(s)
+660.0       WindDuration    - 风场时长(s)
 0.05        TimeStep        - 时间步长(s)
 90          HubHt           - 轮毂高度(m)
 0           VRef            - IEC 参考风速(m/s)
@@ -103,7 +103,7 @@ true        AllowCohApprox  - 是否允许大网格近似相干求解
 
 ---------------------- 输出控制 --------------------------------------------
 ./result    WrWndPath       - 风文件输出路径
-SimWind_Mann  WrWndName     - 输出风文件名称
+SimWind_Mann_30x30  WrWndName     - 输出风文件名称
 true        SumPrint        - 是否写出 .sum 文件
 0           WndFormat       - 风文件格式 {BLADED_WND=0; TURBSIM_BTS=1; TURBSIM_WND=2}
 0           GenMethod       - 生成方法 {AUTO=0}

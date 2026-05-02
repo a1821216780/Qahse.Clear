@@ -496,6 +496,20 @@ bool IsImprovedVonKarman(TurbModel value)
 	return value == TurbModel::B_IVKAL;
 }
 
+std::string BuildMannRepeatWarning(const SimWindConfig &cfg)
+{
+	std::ostringstream warning;
+	warning << "MannNx=" << cfg.mannFftPoints
+	        << " is smaller than the resolved output step count " << cfg.nSteps
+	        << " for duration " << windl_io_detail::FormatDouble(cfg.duration)
+	        << " s at dt=" << windl_io_detail::FormatDouble(cfg.dt)
+	        << " s; the synthesized Mann box will repeat every "
+	        << windl_io_detail::FormatDouble(cfg.mannFftPoints * cfg.dt)
+	        << " s because the time sampling wraps with t % MannNx. Increase MannNx to at least "
+	        << cfg.nSteps << " (preferably a power of two above that value) to avoid periodic repetition.";
+	return warning.str();
+}
+
 using Matrix3 = std::array<std::array<double, 3>, 3>;
 
 struct ImprovedVkProfilePoint
@@ -1524,7 +1538,7 @@ SimWindConfig BuildConfig(const WindLInput &input)
 	}
 	EstimateGenerationCost(cfg);
 	if (IsMann(input.turbModel) && cfg.mannFftPoints < cfg.nSteps)
-		cfg.warnings.push_back("MannNx is smaller than the output time-step count; the synthesized Mann box is sampled periodically in time.");
+		cfg.warnings.push_back(BuildMannRepeatWarning(cfg));
 	if (IsMann(input.turbModel) && cfg.scaleIEC < 1)
 		cfg.warnings.push_back("B_MANN uses MannAlphaEps for absolute energy because ScaleIEC=0; set ScaleIEC=1 or 2 to match IEC target sigma exactly.");
 	for (int comp = 0; comp < 3; ++comp)
@@ -3466,6 +3480,8 @@ SimWindResult SimWind::Generate(const WindLInput &input, SimWindProgressCallback
 	           ", strict-coherence components=" + std::to_string(cfg.strictCoherenceComponents) +
 	           ", estimated peak memory=" + FormatGiB(cfg.estimatedPeakMemoryGiB) +
 	           ", estimated Cholesky FLOPs=" + FormatScientific(cfg.estimatedCholeskyFlops) + ".");
+	for (const auto &warning : cfg.warnings)
+		Report(cfg, " Warning: " + warning);
 	if (cfg.estimatedCholeskyFlops > 5.0e13 || cfg.estimatedPeakMemoryGiB > 12.0)
 	{
 		Report(cfg, " Large strict-coherence run requested; continuing and reporting elapsed time/ETA from measured progress.");
