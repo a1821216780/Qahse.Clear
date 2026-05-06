@@ -15,3 +15,5 @@ lib
 *.pdf
 *.bts
 .vs
+*.log
+*.cmd

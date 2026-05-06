@@ -49,39 +49,61 @@
 class OutFile : public IOutFile
 {
 private:
-	std::unique_ptr<std::ofstream> _writer;
-	std::string filename_;
+	std::unique_ptr<std::ofstream> _writer; ///< 输出文件写入流（unique_ptr 管理生命周期）
 
-	std::string filemat_;
+	std::string filename_;                   ///< 输出文件完整路径（含扩展名）
 
-	int decimalPlaces_;
-	int scientificDigits_;
-	bool useScientific_;
+	std::string filemat_;                    ///< fmt 格式化字符串（如 "{:.6f}" 或 "{:.4E}"）
 
+	int decimalPlaces_;                      ///< 小数位数（固定小数记法）
+	int scientificDigits_;                   ///< 科学计数法有效数字位数
+	bool useScientific_;                     ///< 是否使用科学计数法模式
+
+	/**
+	 * @brief 初始化 fmt 格式化字符串
+	 */
 	inline void initializeFormat(int decimalPlaces, int Scientific);
+	/**
+	 * @brief 使用 fmt 库格式化 double 值
+	 */
 	inline std::string formatDouble(double value) const;
+	/**
+	 * @brief 使用 fmt 库格式化 float 值
+	 */
 	inline std::string formatFloat(float value) const;
+	/**
+	 * @brief 获取文件路径中的扩展名
+	 */
 	inline std::string GetFileExtension(const std::string &path) const;
+	/**
+	 * @brief 检查当前文件名是否与全局文件列表冲突
+	 */
 	inline void checkFileNameConflict() const;
 
 public:
 	/**
-	 * @brief 获取或设置与当前操作关联的流名称
+	 * @brief 与当前操作关联的流名称
 	 */
-	std::string StreamName;
+	std::string StreamName;            ///< 输出流名称（仅含文件名，不含目录）
 
 	/**
-	 * @brief 获取或设置流的文件路径
+	 * @brief 流的文件路径
 	 */
-	std::string StreanFilePath;
+	std::string StreanFilePath;        ///< 输出流文件完整路径
 
 	/**
 	 * @brief 获取与当前实例关联的文件名
 	 */
 	std::string GetFilename() override;
 
+	/**
+	 * @brief 获取流文件路径
+	 */
 	std::string GetStreamFilePath() override;
 
+	/**
+	 * @brief 设置流文件路径
+	 */
 	void SetStreamFilePath(const std::string &path) override;
 	/**
 	 * @brief 构造函数
@@ -94,16 +116,53 @@ public:
 
 	OutFile(const OutFile &) = delete;
 
+	/**
+	 * @brief 析构函数，自动关闭文件流
+	 */
 	virtual ~OutFile();
 
 	// IOutFile接口实现
+	/**
+	 * @brief 将字符串写入输出文件
+	 * @param message 要写入的字符串
+	 * @param fg 写入后的尾随分隔符，默认 "\t"
+	 */
 	void Write(const std::string &message, const std::string &fg = "\t") override;
+	/**
+	 * @brief 将 double 值格式化写入输出文件
+	 * @param message 要写入的数值
+	 * @param fg 尾随分隔符，默认 "\t"
+	 */
 	void Write(double message, const std::string &fg = "\t") override;
+	/**
+	 * @brief 将 float 值格式化写入输出文件
+	 * @param message 要写入的数值
+	 * @param fg 尾随分隔符，默认 "\t"
+	 */
 	void Write(float message, const std::string &fg = "\t");
+	/**
+	 * @brief 写入一个换行符
+	 */
 	void WriteLine() override;
+	/**
+	 * @brief 将 double 值格式化写入并换行
+	 * @param message 要写入的数值
+	 */
 	void WriteLine(double message) override;
+	/**
+	 * @brief 将 float 值格式化写入并换行
+	 * @param message 要写入的数值
+	 */
 	void WriteLine(float message);
+	/**
+	 * @brief 将字符串写入并换行
+	 * @param message 要写入的字符串
+	 */
 	void WriteLine(const std::string &message) override;
+	/**
+	 * @brief 关闭文件流并可选从全局列表移除
+	 * @param remove 是否从全局文件列表中移除，默认 true
+	 */
 	void Outfinish(bool remove = true) override;
 
 	/**
@@ -112,6 +171,11 @@ public:
 	 * @param fg 元素之间使用的分隔符字符串。默认为制表符
 	 */
 	void Write(const Eigen::VectorXd &message, const std::string &fg = "\t");
+	/**
+	 * @brief 将 Eigen::VectorXf 向量写入输出（自动转为 double）
+	 * @param message 要写入的单精度向量
+	 * @param fg 元素间分隔符，默认为 "\t"
+	 */
 	void Write(const Eigen::VectorXf &message, const std::string &fg = "\t");
 
 	/**
@@ -120,6 +184,11 @@ public:
 	 * @param fg 用于分隔每行内元素的分隔符。默认为制表符
 	 */
 	void Write(const Eigen::MatrixXd &message, const std::string &fg = "\t");
+	/**
+	 * @brief 将 Eigen::MatrixXf 矩阵写入输出（自动转为 double）
+	 * @param message 要写入的单精度矩阵
+	 * @param fg 行内元素间分隔符，默认为 "\t"
+	 */
 	void Write(const Eigen::MatrixXf &message, const std::string &fg = "\t");
 
 	/**
@@ -148,6 +217,11 @@ public:
 	 * @param decimalPlaces 格式化输出的小数位数。默认为10
 	 */
 	void WriteLine(const Eigen::VectorXd &message, int decimalPlaces = 10);
+	/**
+	 * @brief 将 Eigen::VectorXf 向量写入输出并换行（自动转为 double）
+	 * @param message 要写入的单精度向量
+	 * @param decimalPlaces 格式化输出的小数位数，默认为 10
+	 */
 	void WriteLine(const Eigen::VectorXf &message, int decimalPlaces = 10);
 
 	/**
@@ -155,6 +229,10 @@ public:
 	 * @param message 要写入的矩阵
 	 */
 	void WriteLine(const Eigen::MatrixXd &message);
+	/**
+	 * @brief 将 Eigen::MatrixXf 矩阵写入输出并换行（自动转为 double）
+	 * @param message 要写入的单精度矩阵
+	 */
 	void WriteLine(const Eigen::MatrixXf &message);
 
 	/**

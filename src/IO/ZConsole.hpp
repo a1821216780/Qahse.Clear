@@ -173,6 +173,9 @@ public:
     /**
      * @brief 设置控制台标题。
      * @param title 标题文本。
+     * @return 无返回值。
+     * @note Windows 使用 Win32 SetConsoleTitleA，Linux/macOS 使用 XTerm OSC-0 序列。
+     * @code ZConsole::SetTitle("My App"); @endcode
      */
     static void SetTitle(const std::string &title)
     {
@@ -189,11 +192,17 @@ public:
     /**
      * @brief C# 风格别名：设置标题。
      * @param title 标题文本。
+     * @return 无返回值。
+     * @note 功能等同于 SetTitle。
+     * @code ZConsole::Title("My App"); @endcode
      */
     static void Title(const std::string &title) { SetTitle(title); }
 
     /**
      * @brief C# 风格别名：获取最近一次设置的标题文本。
+     * @return 当前标题字符串引用。
+     * @note 若从未设置标题，返回空字符串。
+     * @code auto t = ZConsole::Title(); @endcode
      */
     static const std::string &Title() { return s_title; }
 
@@ -201,6 +210,10 @@ public:
 
     /**
      * @brief 设置前景色（持续生效，直到再次修改或 ResetColor）。
+     * @param c 前景色枚举值。
+     * @return 无返回值。
+     * @note 自动触发 ensureInit() 初始化终端；Windows 老版本回退 Win32 API。
+     * @code ZConsole::SetForegroundColor(ConsoleColor::Green); @endcode
      */
     static void SetForegroundColor(ConsoleColor c)
     {
@@ -211,21 +224,35 @@ public:
 
     /**
      * @brief 获取当前记录的前景色状态。
+     * @return 当前前景色枚举值。
+     * @note 返回的是内部记录值，不保证已被应用到终端。
+     * @code auto fg = ZConsole::GetForegroundColor(); @endcode
      */
     static ConsoleColor GetForegroundColor() { return s_fg; }
 
     /**
      * @brief C# 风格别名：设置前景色。
+     * @param c 前景色枚举值。
+     * @return 无返回值。
+     * @note 功能等同于 SetForegroundColor。
+     * @code ZConsole::ForegroundColor(ConsoleColor::Red); @endcode
      */
     static void ForegroundColor(ConsoleColor c) { SetForegroundColor(c); }
 
     /**
      * @brief C# 风格别名：获取前景色。
+     * @return 当前前景色枚举值。
+     * @note 功能等同于 GetForegroundColor。
+     * @code auto fg = ZConsole::ForegroundColor(); @endcode
      */
     static ConsoleColor ForegroundColor() { return GetForegroundColor(); }
 
     /**
      * @brief 设置背景色（持续生效，直到再次修改或 ResetColor）。
+     * @param c 背景色枚举值。
+     * @return 无返回值。
+     * @note 自动触发 ensureInit() 初始化终端；与前景色独立设置。
+     * @code ZConsole::SetBackgroundColor(ConsoleColor::DarkBlue); @endcode
      */
     static void SetBackgroundColor(ConsoleColor c)
     {
@@ -236,21 +263,34 @@ public:
 
     /**
      * @brief 获取当前记录的背景色状态。
+     * @return 当前背景色枚举值。
+     * @note 返回的是内部记录值，不保证已被应用到终端。
+     * @code auto bg = ZConsole::GetBackgroundColor(); @endcode
      */
     static ConsoleColor GetBackgroundColor() { return s_bg; }
 
     /**
      * @brief C# 风格别名：设置背景色。
+     * @param c 背景色枚举值。
+     * @return 无返回值。
+     * @note 功能等同于 SetBackgroundColor。
+     * @code ZConsole::BackgroundColor(ConsoleColor::DarkGreen); @endcode
      */
     static void BackgroundColor(ConsoleColor c) { SetBackgroundColor(c); }
 
     /**
      * @brief C# 风格别名：获取背景色。
+     * @return 当前背景色枚举值。
+     * @note 功能等同于 GetBackgroundColor。
+     * @code auto bg = ZConsole::BackgroundColor(); @endcode
      */
     static ConsoleColor BackgroundColor() { return GetBackgroundColor(); }
 
     /**
      * @brief 恢复前景/背景到终端默认颜色。
+     * @return 无返回值。
+     * @note Windows 下恢复至首次捕获的默认属性；Linux/macOS 使用 ANSI \033[0m。
+     * @code ZConsole::ResetColor(); @endcode
      */
     static void ResetColor()
     {
@@ -271,7 +311,11 @@ public:
     // ── Write（不自动换行） ─────────────────────────────────────────────────
 
     /**
-     * @brief 输出 bool，格式与 C# 一致（True/False）。
+     * @brief 输出 bool 值，格式与 C# 一致（True/False），不换行。
+     * @param v 布尔值。
+     * @return 无返回值。
+     * @note 输出 "True" 或 "False"，而非 "1" 或 "0"。
+     * @code ZConsole::Write(true); @endcode
      */
     template <typename T, std::enable_if_t<std::is_same_v<T, bool>, int> = 0>
     static void Write(T v)
@@ -283,6 +327,10 @@ public:
 
     /**
      * @brief 输出单个字符，不自动换行。
+     * @param v 字符。
+     * @return 无返回值。
+     * @note 输出后自动刷新 stdout。
+     * @code ZConsole::Write('A'); @endcode
      */
     static void Write(char v)
     {
@@ -293,7 +341,10 @@ public:
 
     /**
      * @brief 输出 C 字符串，不自动换行。
-     * @note 当传入 nullptr 时不输出任何内容。
+     * @param v C 字符串指针。
+     * @return 无返回值。
+     * @note 当传入 nullptr 时不输出任何内容，也不会崩溃。
+     * @code ZConsole::Write("Hello"); @endcode
      */
     static void Write(const char *v)
     {
@@ -305,6 +356,10 @@ public:
 
     /**
      * @brief 输出字符串，不自动换行。
+     * @param v 字符串引用。
+     * @return 无返回值。
+     * @note 空字符串不输出任何内容，但会刷新 stdout。
+     * @code ZConsole::Write(std::string("Hello")); @endcode
      */
     static void Write(const std::string &v)
     {
@@ -315,6 +370,11 @@ public:
 
     /**
      * @brief 本次输出使用指定前景色，输出后自动恢复先前颜色状态。
+     * @param v 要输出的内容（任意可流输出类型）。
+     * @param fg 临时前景色。
+     * @return 无返回值。
+     * @note 颜色恢复通过 saveColorState/restoreColorState 确保先前状态不丢失。
+     * @code ZConsole::Write("Warning", ConsoleColor::Yellow); @endcode
      */
     template <typename T>
     static void Write(const T &v, ConsoleColor fg)
@@ -327,6 +387,12 @@ public:
 
     /**
      * @brief 本次输出使用指定前景色和背景色，输出后自动恢复先前颜色状态。
+     * @param v 要输出的内容。
+     * @param fg 临时前景色。
+     * @param bg 临时背景色。
+     * @return 无返回值。
+     * @note 同时设置前景和背景色，输出完毕后恢复。
+     * @code ZConsole::Write("Error", ConsoleColor::White, ConsoleColor::DarkRed); @endcode
      */
     template <typename T>
     static void Write(const T &v, ConsoleColor fg, ConsoleColor bg)
@@ -341,9 +407,13 @@ public:
 #if HC3_CONSOLE_EIGEN
     /**
      * @brief 输出 Eigen 表达式（向量/矩阵），不自动换行。
+     * @param expr Eigen 稠密矩阵或向量表达式。
+     * @return 无返回值。
      * @details
      * - 向量输出： [x, y, z]
      * - 矩阵输出： [[a, b],\n [c, d]]
+     * @note 仅在 HC3_CONSOLE_EIGEN 宏为 1 时可用；零维矩阵输出 "[]"。
+     * @code ZConsole::Write(eigenVector); @endcode
      */
     template <typename Derived>
     static void Write(const Eigen::DenseBase<Derived> &expr)
@@ -355,8 +425,11 @@ public:
 #endif
 
     /**
-     * @brief 通用输出重载（支持任意可被 ostream << 的类型）。
+     * @brief 通用输出重载，支持任意可被 ostream << 的类型（如 int、float、double 等）。
+     * @param v 要输出的值。
+     * @return 无返回值。
      * @note 通过 SFINAE 避免与 bool/char/string/C 字符串等专用重载冲突。
+     * @code ZConsole::Write(42); ZConsole::Write(3.14); @endcode
      */
     template <typename T,
               std::enable_if_t<
@@ -376,7 +449,10 @@ public:
     // ── WriteLine（追加换行） ────────────────────────────────────────────────
 
     /**
-     * @brief 输出换行。
+     * @brief 输出换行，无额外内容。
+     * @return 无返回值。
+     * @note 相当于输出 '\n' 并刷新。
+     * @code ZConsole::WriteLine(); @endcode
      */
     static void WriteLine()
     {
@@ -387,6 +463,10 @@ public:
 
     /**
      * @brief 输出一行空行，并临时使用指定前景色。
+     * @param fg 临时前景色。
+     * @return 无返回值。
+     * @note 仅输出换行，不输出任何文本内容。
+     * @code ZConsole::WriteLine(ConsoleColor::Cyan); @endcode
      */
     static void WriteLine(ConsoleColor fg)
     {
@@ -398,6 +478,11 @@ public:
 
     /**
      * @brief 输出一行空行，并临时使用指定前景色和背景色。
+     * @param fg 临时前景色。
+     * @param bg 临时背景色。
+     * @return 无返回值。
+     * @note 仅输出换行，不输出任何文本内容。
+     * @code ZConsole::WriteLine(ConsoleColor::White, ConsoleColor::DarkRed); @endcode
      */
     static void WriteLine(ConsoleColor fg, ConsoleColor bg)
     {
@@ -410,6 +495,10 @@ public:
 
     /**
      * @brief 输出任意内容并追加换行。
+     * @param v 要输出的内容。
+     * @return 无返回值。
+     * @note 内部调用 Write(v) 后追加 '\n'。
+     * @code ZConsole::WriteLine("Hello World"); @endcode
      */
     template <typename T>
     static void WriteLine(const T &v)
@@ -421,6 +510,11 @@ public:
 
     /**
      * @brief 输出任意内容并换行，且仅本次调用使用指定前景色。
+     * @param v 要输出的内容。
+     * @param fg 临时前景色。
+     * @return 无返回值。
+     * @note 输出后自动恢复先前颜色状态。
+     * @code ZConsole::WriteLine("Info", ConsoleColor::Cyan); @endcode
      */
     template <typename T>
     static void WriteLine(const T &v, ConsoleColor fg)
@@ -433,6 +527,12 @@ public:
 
     /**
      * @brief 输出任意内容并换行，且仅本次调用使用指定前景色和背景色。
+     * @param v 要输出的内容。
+     * @param fg 临时前景色。
+     * @param bg 临时背景色。
+     * @return 无返回值。
+     * @note 输出后自动恢复先前颜色状态。
+     * @code ZConsole::WriteLine("Error", ConsoleColor::White, ConsoleColor::DarkRed); @endcode
      */
     template <typename T>
     static void WriteLine(const T &v, ConsoleColor fg, ConsoleColor bg)
@@ -448,6 +548,10 @@ public:
 
     /**
      * @brief 输出到标准错误流（stderr），不换行。
+     * @param v 要输出的内容。
+     * @return 无返回值。
+     * @note 输出到 stderr 而非 stdout，适合错误信息。
+     * @code ZConsole::WriteError("Fatal error occurred"); @endcode
      */
     template <typename T>
     static void WriteError(const T &v)
@@ -458,6 +562,9 @@ public:
 
     /**
      * @brief 向标准错误流输出换行。
+     * @return 无返回值。
+     * @note 相当于向 stderr 输出 '\n' 并刷新。
+     * @code ZConsole::WriteErrorLine(); @endcode
      */
     static void WriteErrorLine()
     {
@@ -467,6 +574,10 @@ public:
 
     /**
      * @brief 输出到标准错误流并换行。
+     * @param v 要输出的内容。
+     * @return 无返回值。
+     * @note 输出到 stderr 后自动追加换行。
+     * @code ZConsole::WriteErrorLine("An error occurred"); @endcode
      */
     template <typename T>
     static void WriteErrorLine(const T &v)
@@ -479,6 +590,9 @@ public:
 
     /**
      * @brief 清空控制台并将光标移动到左上角。
+     * @return 无返回值。
+     * @note Windows 使用 FillConsoleOutput 填充空白；Linux/macOS 使用 ANSI \033[2J\033[H。
+     * @code ZConsole::Clear(); @endcode
      */
     static void Clear()
     {
@@ -504,8 +618,10 @@ public:
     // ── 输入 ─────────────────────────────────────────────────────────────────
 
     /**
-     * @brief 读取一整行输入。
+     * @brief 读取一整行输入（含中文支持）。
      * @return 读取到的字符串（不含换行符）。
+     * @note 使用 std::getline 从 std::cin 读取。
+     * @code auto line = ZConsole::ReadLine(); @endcode
      */
     static std::string ReadLine()
     {
@@ -534,10 +650,13 @@ public:
     }
 
     /**
-     * @brief 读取一个按键。
+     * @brief 读取一个按键（不回显）。
+     * @return 按键的整数值（ASCII 或虚拟键码）。
      * @details
      * - Windows 使用 _getch()（通常不回显）。
      * - Linux/macOS 使用 getchar() 简化实现。
+     * @note Windows 下可捕获方向键等功能键（返回两字节序列）。
+     * @code int key = ZConsole::ReadKey(); @endcode
      */
     static int ReadKey()
     {
@@ -551,7 +670,10 @@ public:
     // ── 显式刷新 ─────────────────────────────────────────────────────────────
 
     /**
-     * @brief 强制刷新 stdout。
+     * @brief 强制刷新 stdout 缓冲区。
+     * @return 无返回值。
+     * @note 正常情况下 ZConsole 每次输出后自动刷新，此方法用于手动确保输出。
+     * @code ZConsole::Flush(); @endcode
      */
     static void Flush()
     {
@@ -565,11 +687,24 @@ private:
         ConsoleColor bg;
     };
 
+    /**
+     * @brief 保存当前前景色和背景色状态。
+     * @return ColorState 结构体，包含当前 fg 和 bg。
+     * @note 用于配合 restoreColorState 实现临时着色后恢复。
+     * @code auto prev = saveColorState(); @endcode
+     */
     static ColorState saveColorState()
     {
         return ColorState{s_fg, s_bg};
     }
 
+    /**
+     * @brief 恢复颜色到指定状态并应用到终端。
+     * @param state 之前保存的 ColorState。
+     * @return 无返回值。
+     * @note 恢复后刷新终端颜色，不关心是否与当前状态相同。
+     * @code restoreColorState(prev); @endcode
+     */
     static void restoreColorState(const ColorState &state)
     {
         s_fg = state.fg;
@@ -589,6 +724,14 @@ private:
 #endif
 
     // ── 一次性初始化（C++11 局部静态变量线程安全） ────────────────────────────
+    /**
+     * @brief 一次性初始化终端环境（线程安全）。
+     * @return 无返回值。
+     * @details 首次调用时检测 ANSI 虚拟终端支持（Windows 10+），
+     *          不可用时自动回退 Win32 SetConsoleTextAttribute。
+     * @note 使用 C++11 局部静态变量保证只执行一次且线程安全。
+     * @code ensureInit(); @endcode
+     */
     static void ensureInit()
     {
         static const bool kOnce = []
@@ -616,6 +759,14 @@ private:
     // ConsoleColor 索引 -> ANSI SGR 参数：
     //   0-7   标准色（前景 30-37 / 背景 40-47）
     //   8-15  高亮色（前景 90-97 / 背景 100-107）
+    /**
+     * @brief 将 ConsoleColor 转换为 ANSI SGR 转义序列。
+     * @param c 颜色枚举值。
+     * @param bg true 表示生成背景色转义码，false 为前景色。
+     * @return ANSI 转义序列字符串（如 "\033[32m"）；Default 返回 "\033[39m" 或 "\033[49m"。
+     * @note 0-7 为标准色（30-37/40-47），8-15 为高亮色（90-97/100-107）。
+     * @code auto esc = ansiEsc(ConsoleColor::Red, false); @endcode
+     */
     static std::string ansiEsc(ConsoleColor c, bool bg)
     {
         if (c == ConsoleColor::Default)
@@ -633,6 +784,14 @@ private:
     }
 
     // ── 将当前 s_fg / s_bg 应用到终端 ─────────────────────────────────────────
+    /**
+     * @brief 将当前保存的前景色/背景色应用到终端输出。
+     * @return 无返回值。
+     * @details Windows 老版本通过 SetConsoleTextAttribute 设置；
+     *          ANSI 模式下拼接前景/背景转义序列后输出。
+     * @note 直接在 stdout 输出转义序列，不检查终端是否支持。
+     * @code applyColor(); @endcode
+     */
     static void applyColor()
     {
 #ifdef _WIN32
@@ -668,6 +827,17 @@ private:
     //   向量（rows==1 或 cols==1） -> [x, y, z]
     //   矩阵（rows>1 且 cols>1）  -> [[a, b, c],
     //                                 [d, e, f]]
+    /**
+     * @brief Eigen 表达式格式化输出内部实现。
+     * @param os 输出流引用。
+     * @param m 已求值的稠密矩阵/向量。
+     * @return 无返回值。
+     * @details
+     * - 向量（rows==1 或 cols==1） -> [x, y, z]
+     * - 矩阵（rows>1 且 cols>1）  -> [[a, b, c],\n [d, e, f]]
+     * @note 零维矩阵输出 "[]"；直接写入 os 流。
+     * @code eigenFmt(std::cout, matrix.eval()); @endcode
+     */
     template <typename EvalType>
     static void eigenFmt(std::ostream &os, const EvalType &m)
     {
@@ -719,22 +889,22 @@ private:
 //  ConsoleColorScope  — RAII 守卫，离开作用域自动恢复颜色
 // ══════════════════════════════════════════════════════════════════════════════
 /**
- * @brief 作用域颜色守卫。
- * @details 构造时设置颜色，析构时恢复默认颜色，适合局部着色输出。
+ * @class ConsoleColorScope
+ * @brief RAII 作用域颜色守卫，离开作用域自动恢复默认颜色。
+ * @details 构造时设置颜色，析构时自动调用 ZConsole::ResetColor() 恢复默认颜色。
+ *          不可拷贝，不可赋值，仅支持构造时指定颜色。
  *
- * 使用示例：
- *   {
- *       ConsoleColorScope scope(ConsoleColor::Yellow);
- *       Console::WriteLine("警告：时间步长过小");
- *   } // 离开作用域后自动恢复颜色
+ * @code { ConsoleColorScope scope(ConsoleColor::Yellow); ZConsole::WriteLine("Warning"); } // 离开作用域后自动恢复颜色 @endcode
  */
 class ConsoleColorScope
 {
 public:
     /**
-     * @brief 构造时设置颜色。
-     * @param fg 前景色。
-     * @param bg 背景色（默认不修改）。
+     * @brief 构造时设置前景色和可选的背景色。
+     * @param fg 前景色（必选，若为 Default 则不设置前景）。
+     * @param bg 背景色（可选，默认 ConsoleColor::Default 表示不修改）。
+     * @note 构造后立即通过 ZConsole::SetForegroundColor/SetBackgroundColor 应用颜色。
+     * @code ConsoleColorScope scope(ConsoleColor::Red, ConsoleColor::DarkBlue); @endcode
      */
     explicit ConsoleColorScope(ConsoleColor fg,
                                ConsoleColor bg = ConsoleColor::Default)
@@ -747,6 +917,8 @@ public:
 
     /**
      * @brief 析构时自动恢复默认颜色。
+     * @note 调用 ZConsole::ResetColor() 恢复终端默认前景/背景色。
+     * @code // 作用域结束时自动调用 @endcode
      */
     ~ConsoleColorScope()
     {

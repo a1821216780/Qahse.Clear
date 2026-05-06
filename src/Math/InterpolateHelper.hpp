@@ -33,6 +33,7 @@
 #include <vector>
 
 #include "../IO/LogHelper.h"
+#include "../IO/LocaleString_Math.hpp"
 
 /**
  * @brief 插値辅助类，提供一维和二维插値功能
@@ -102,11 +103,11 @@ public:
 	{
 		if (x.size() != y.size())
 		{
-			LogHelper::ErrorLog("x and y must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 		if (x.empty())
 		{
-			LogHelper::ErrorLog("Input data cannot be empty");
+			LogHelper::ErrorLog(L_INTERP_InputEmpty);
 		}
 		auto interp = std::make_unique<::_1D::LinearInterpolator<T>>();
 
@@ -139,11 +140,11 @@ public:
 	{
 		if (x.rows() != y.rows())
 		{
-			LogHelper::ErrorLog("x and y must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 		if (x.cols() != 1)
 		{
-			LogHelper::ErrorLog("Input data cannot be empty");
+			LogHelper::ErrorLog(L_INTERP_InputEmpty);
 		}
 		auto interp = std::make_unique<::_1D::LinearInterpolator<T>>();
 
@@ -179,11 +180,11 @@ public:
 	{
 		if (x.size() != y.size())
 		{
-			LogHelper::ErrorLog("x and y must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 		if (x.empty())
 		{
-			LogHelper::ErrorLog("Input data cannot be empty");
+			LogHelper::ErrorLog(L_INTERP_InputEmpty);
 		}
 		auto interp = std::make_unique<::_1D::CubicSplineInterpolator<T>>();
 
@@ -214,11 +215,11 @@ public:
 	{
 		if (x.rows() != y.rows())
 		{
-			LogHelper::ErrorLog("x and y must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 		if (x.cols() != 1)
 		{
-			LogHelper::ErrorLog("Input data cannot be empty");
+			LogHelper::ErrorLog(L_INTERP_InputEmpty);
 		}
 		auto interp = std::make_unique<::_1D::CubicSplineInterpolator<T>>();
 
@@ -257,7 +258,7 @@ public:
 	{
 		if (x.size() != y.size() || x.empty())
 		{
-			LogHelper::ErrorLog("输入数据无效，x和y必须具有相同的非零长度。");
+			LogHelper::ErrorLog(L_INTERP_ValidXY);
 		}
 
 		switch (type)
@@ -275,7 +276,7 @@ public:
 			return interp(value);
 		}
 		default:
-			LogHelper::ErrorLog("Unknown interpolation type");
+			LogHelper::ErrorLog(L_INTERP_UnknownType);
 			return T();
 		}
 	}
@@ -305,7 +306,7 @@ public:
 	{
 		if (x.rows() != y.rows())
 		{
-			LogHelper::ErrorLog("输入数据无效，x和y必须具有相同的非零长度。");
+			LogHelper::ErrorLog(L_INTERP_ValidXY);
 		}
 
 		switch (type)
@@ -323,7 +324,7 @@ public:
 			return interp(value);
 		}
 		default:
-			LogHelper::ErrorLog("Unknown interpolation type");
+			LogHelper::ErrorLog(L_INTERP_UnknownType);
 			return T();
 		}
 	}
@@ -356,7 +357,7 @@ public:
 	{
 		if (x.size() != y.size() || x.empty())
 		{
-			LogHelper::ErrorLog("输入数据无效，x和y必须具有相同的非零长度。");
+			LogHelper::ErrorLog(L_INTERP_ValidXY);
 		}
 		std::vector<T> res(x.size());
 		switch (type)
@@ -382,7 +383,7 @@ public:
 			return res;
 		}
 		default:
-			LogHelper::ErrorLog("Unknown interpolation type");
+			LogHelper::ErrorLog(L_INTERP_UnknownType);
 			return std::vector<T>();
 		}
 	}
@@ -413,7 +414,7 @@ public:
 	{
 		if (x.rows() != y.rows())
 		{
-			LogHelper::ErrorLog("输入数据无效，x和y必须具有相同的非零长度。");
+			LogHelper::ErrorLog(L_INTERP_ValidXY);
 		}
 		Eigen::Matrix<T, Eigen::Dynamic, 1> res(x.rows());
 		switch (type)
@@ -439,7 +440,7 @@ public:
 			return res;
 		}
 		default:
-			LogHelper::ErrorLog("Unknown interpolation type");
+			LogHelper::ErrorLog(L_INTERP_UnknownType);
 			return std::vector<T>();
 		}
 	}
@@ -502,11 +503,11 @@ public:
 			x.size() != z.size() ||
 			y.size() != z.size())
 		{
-			LogHelper::ErrorLog("x and y and z must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 		if (x.empty())
 		{
-			LogHelper::ErrorLog("Input data cannot be empty");
+			LogHelper::ErrorLog(L_INTERP_InputEmpty);
 		}
 		auto interp = std::make_unique<::_2D::BilinearInterpolator<T>>();
 
@@ -540,11 +541,11 @@ public:
 			x.rows() != z.rows() ||
 			y.rows() != z.rows())
 		{
-			LogHelper::ErrorLog("x and y and z must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 		if (x.cols() != 1)
 		{
-			LogHelper::ErrorLog("Input data cannot be empty");
+			LogHelper::ErrorLog(L_INTERP_InputEmpty);
 		}
 		auto interp = std::make_unique<::_2D::BilinearInterpolator<T>>();
 
@@ -579,11 +580,11 @@ public:
 			x.size() != z.size() ||
 			y.size() != z.size())
 		{
-			LogHelper::ErrorLog("x and y and z must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 		if (x.empty())
 		{
-			LogHelper::ErrorLog("Input data cannot be empty");
+			LogHelper::ErrorLog(L_INTERP_InputEmpty);
 		}
 		auto interp = std::make_unique<::_2D::BicubicInterpolator<T>>();
 
@@ -615,11 +616,11 @@ public:
 			x.rows() != z.rows() ||
 			y.rows() != z.rows())
 		{
-			LogHelper::ErrorLog("x and y and z must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 		if (x.cols() != 1)
 		{
-			LogHelper::ErrorLog("Input data cannot be empty");
+			LogHelper::ErrorLog(L_INTERP_InputEmpty);
 		}
 		auto interp = std::make_unique<::_2D::BicubicInterpolator<T>>();
 
@@ -654,11 +655,11 @@ public:
 			x.size() != z.size() ||
 			y.size() != z.size())
 		{
-			LogHelper::ErrorLog("x and y and z must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 		if (x.empty())
 		{
-			LogHelper::ErrorLog("Input data cannot be empty");
+			LogHelper::ErrorLog(L_INTERP_InputEmpty);
 		}
 		auto interp = std::make_unique<::_2D::NearestNeighborInterpolator<T>>();
 
@@ -690,11 +691,11 @@ public:
 			x.rows() != z.rows() ||
 			y.rows() != z.rows())
 		{
-			LogHelper::ErrorLog("x and y and z must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 		if (x.cols() != 1)
 		{
-			LogHelper::ErrorLog("Input data cannot be empty");
+			LogHelper::ErrorLog(L_INTERP_InputEmpty);
 		}
 		auto interp = std::make_unique<::_2D::NearestNeighborInterpolator<T>>();
 
@@ -737,7 +738,7 @@ public:
 			x.size() != z.size() ||
 			y.size() != z.size())
 		{
-			LogHelper::ErrorLog("x and y and z must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 
 		switch (type)
@@ -761,7 +762,7 @@ public:
 			return interp(x1, y1);
 		}
 		default:
-			LogHelper::ErrorLog("Unknown interpolation type");
+			LogHelper::ErrorLog(L_INTERP_UnknownType);
 			return T();
 		}
 	}
@@ -796,7 +797,7 @@ public:
 			x.rows() != z.rows() ||
 			y.rows() != z.rows())
 		{
-			LogHelper::ErrorLog("x and y and z must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 
 		switch (type)
@@ -820,7 +821,7 @@ public:
 			return interp(x1, y1);
 		}
 		default:
-			LogHelper::ErrorLog("Unknown interpolation type");
+			LogHelper::ErrorLog(L_INTERP_UnknownType);
 			return T();
 		}
 	}
@@ -871,11 +872,11 @@ public:
 			x.size() != z.size() ||
 			y.size() != z.size())
 		{
-			LogHelper::ErrorLog("x and y and z must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 		if (x.empty())
 		{
-			LogHelper::ErrorLog("Input data cannot be empty");
+			LogHelper::ErrorLog(L_INTERP_InputEmpty);
 		}
 		auto interp = std::make_unique<::_2D::LinearDelaunayTriangleInterpolator<T>>();
 
@@ -907,11 +908,11 @@ public:
 			x.rows() != z.rows() ||
 			y.rows() != z.rows())
 		{
-			LogHelper::ErrorLog("x and y and z must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 		if (x.cols() != 1)
 		{
-			LogHelper::ErrorLog("Input data cannot be empty");
+			LogHelper::ErrorLog(L_INTERP_InputEmpty);
 		}
 		auto interp = std::make_unique<::_2D::LinearDelaunayTriangleInterpolator<T>>();
 
@@ -947,11 +948,11 @@ public:
 			x.size() != z.size() ||
 			y.size() != z.size())
 		{
-			LogHelper::ErrorLog("x and y and z must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 		if (x.empty())
 		{
-			LogHelper::ErrorLog("Input data cannot be empty");
+			LogHelper::ErrorLog(L_INTERP_InputEmpty);
 		}
 		auto interp = std::make_unique<::_2D::ThinPlateSplineInterpolator<T>>();
 
@@ -983,11 +984,11 @@ public:
 			x.rows() != z.rows() ||
 			y.rows() != z.rows())
 		{
-			LogHelper::ErrorLog("x and y and z must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 		if (x.cols() != 1)
 		{
-			LogHelper::ErrorLog("Input data cannot be empty");
+			LogHelper::ErrorLog(L_INTERP_InputEmpty);
 		}
 		auto interp = std::make_unique<::_2D::ThinPlateSplineInterpolator<T>>();
 
@@ -1031,7 +1032,7 @@ public:
 			x.size() != z.size() ||
 			y.size() != z.size())
 		{
-			LogHelper::ErrorLog("x and y and z must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 
 		switch (type)
@@ -1049,7 +1050,7 @@ public:
 			return interp(x1, y1);
 		}
 		default:
-			LogHelper::ErrorLog("Unknown interpolation type");
+			LogHelper::ErrorLog(L_INTERP_UnknownType);
 			return T();
 		}
 	}
@@ -1086,7 +1087,7 @@ public:
 			x.rows() != z.rows() ||
 			y.rows() != z.rows())
 		{
-			LogHelper::ErrorLog("x and y and z must have the same size");
+			LogHelper::ErrorLog(L_INTERP_XYSameSize);
 		}
 
 		switch (type)
@@ -1105,7 +1106,7 @@ public:
 		}
 		default:
 
-			LogHelper::ErrorLog("Unknown interpolation type");
+			LogHelper::ErrorLog(L_INTERP_UnknownType);
 			return T();
 		}
 	}

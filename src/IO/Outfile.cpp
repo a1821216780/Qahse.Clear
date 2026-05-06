@@ -32,6 +32,7 @@
 
 #include "Outfile.h"
 #include "ZPath.hpp"
+#include "IO/LocaleString.hpp"
 
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -78,18 +79,18 @@ OutFile::OutFile(const std::string &path, int decimalPlaces, int Scientific)
 		_writer = std::make_unique<std::ofstream>(finalPath);
 		if (!_writer->is_open() || !_writer->good())
 		{
-			LogHelper::ErrorLog("无法打开文件: " + finalPath);
+			LogHelper::ErrorLog(std::string(L_OUTFILE_CannotOpen) + ": " + finalPath);
 		}
 	}
 	catch (const std::exception &)
 	{
-		LogHelper::ErrorLog("当前路径 " + finalPath + " 被其他程序占用，或没有该文件夹无法继续！", "", "", 20, "OutFile::OutFile");
+		LogHelper::ErrorLog(std::string(L_OUTFILE_PathOccupied) + ": " + finalPath, "", "", 20, "OutFile::OutFile");
 		throw;
 	}
 
 	if (!_writer)
 	{
-		LogHelper::ErrorLog("读写器没有初始化");
+		LogHelper::ErrorLog(L_OUTFILE_NotInitialized);
 	}
 
 	// 添加到全局文件列表
@@ -170,8 +171,8 @@ void OutFile::initializeFormat(int decimalPlaces, int Scientific)
 	}
 	else
 	{
-		LogHelper::ErrorLog("OutFile 不允许不指定小数位数！", "", "", 20, "initializeFormat");
-		throw std::invalid_argument("必须指定 decimalPlaces 或 Scientific 参数之一");
+		LogHelper::ErrorLog(L_OUTFILE_NoDecimalPlaces, "", "", 20, "initializeFormat");
+		throw std::invalid_argument(L_OUTFILE_MustSpecifyFormat);
 	}
 }
 
@@ -228,8 +229,7 @@ void OutFile::checkFileNameConflict() const
 	{
 		if (this->filename_ == existingFile->GetFilename())
 		{
-			LogHelper::ErrorLog("当前文件名称 " + std::filesystem::path(filename_).filename().string() +
-								" 与 LogData.OutFilelist 当中的文件路径和名称重合，这是不允许的！，这个错误只会发生在调试模式");
+LogHelper::ErrorLog(std::string(L_OUTFILE_FilenameConflict) + ": " + std::filesystem::path(filename_).filename().string());
 		}
 	}
 }

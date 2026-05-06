@@ -39,6 +39,7 @@
 #include "WindL/SimWind.hpp"
 #include "WindL/Batch/WindLBatch.hpp"
 #include "WindL/IO/WindL_IO_Subs.hpp"
+#include "IO/LocaleString.hpp"
 
 #ifdef _WIN32
 
@@ -47,6 +48,8 @@
 int main(int argc, char *argv[])
 
 {
+    // 初始化国际化语言设置
+    LocaleText::SetLanguage(LocaleText::DetectSystemLanguage());
 
     // 设置控制台输入为 UTF-8
     SetConsoleOutputCP(CP_UTF8); // 设置控制台输出为 UTF-8
@@ -55,7 +58,7 @@ int main(int argc, char *argv[])
     LogHelper::DisplayInformation();
     try
     {
-        ZConsole::SetTitle("OpenWECD.Qahse CLI");
+        ZConsole::SetTitle(L_CLI_Title);
     }
     catch(const std::exception& e)
     {
@@ -69,18 +72,18 @@ int main(int argc, char *argv[])
     if (argc == 1)
     {
 
-        LogHelper::WriteLogO("Qahse Command Line Interface (CLI) - Version 1.0");
-        LogHelper::WriteLogO("Usage: Qahse [options]");
-        LogHelper::WriteLogO("Options:");
-        LogHelper::WriteLogO("  --test                 Run QFEM tests and exit");
-        LogHelper::WriteLogO("  --linearize <file.lin> Run linearization from .lin file, no GUI");
-        LogHelper::WriteLogO("  --qwd <file.qwd>      Run standalone wind mode from .qwd file");
-        LogHelper::WriteLogO("                         (Mode=0: generate, Mode=1: import, Mode=2: batch from Excel)");
-        LogHelper::WriteLogO("  --mbdl <file.qmd>     Run standalone MBDL structural dynamics from .qmd file");
-        LogHelper::WriteLogO("  --windl-models        Print WindL OOP model catalogs and route IDs");
-        LogHelper::WriteLogO("  --qod <file.qoe>      Run standalone ocean mode from .qod file");
-        LogHelper::WriteLogO("  --pcsl <input_file>   Run PCSL cross-section analysis from input file");
-        LogHelper::WriteLogO("  --run <file.trb|file.sim> [options]  Run simulation from definition file, no GUI");
+        LogHelper::WriteLogO(L_CLI_Banner);
+        LogHelper::WriteLogO(L_CLI_Usage);
+        LogHelper::WriteLogO(L_CLI_Options);
+        LogHelper::WriteLogO(L_CLI_OptionTest);
+        LogHelper::WriteLogO(TL("  --linearize <文件.lin>    从 .lin 文件运行线性化，无 GUI", "  --linearize <file.lin> Run linearization from .lin file, no GUI"));
+        LogHelper::WriteLogO(L_CLI_OptionQWD);
+        LogHelper::WriteLogO(TL("                         (Mode=0: 生成, Mode=1: 导入, Mode=2: 批量 Excel)", "                         (Mode=0: generate, Mode=1: import, Mode=2: batch from Excel)"));
+        LogHelper::WriteLogO(TL("  --mbdl <文件.qmd>      从 .qmd 文件运行独立 MBDL 结构动力学", "  --mbdl <file.qmd>     Run standalone MBDL structural dynamics from .qmd file"));
+        LogHelper::WriteLogO(TL("  --windl-models        显示 WindL OOP 模型目录和路由 ID", "  --windl-models        Print WindL OOP model catalogs and route IDs"));
+        LogHelper::WriteLogO(TL("  --qod <文件.qoe>       从 .qod 文件运行独立海洋模式", "  --qod <file.qoe>      Run standalone ocean mode from .qod file"));
+        LogHelper::WriteLogO(TL("  --pcsl <输入文件>     从输入文件运行 PCSL 截面分析", "  --pcsl <input_file>   Run PCSL cross-section analysis from input file"));
+        LogHelper::WriteLogO(TL("  --run <文件.trb|文件.sim> [选项]  从定义文件运行仿真，无 GUI", "  --run <file.trb|file.sim> [options]  Run simulation from definition file, no GUI"));
 
         // 对argc, char *argv进行赋值
         ZConsole::Write(" >");
@@ -104,7 +107,7 @@ int main(int argc, char *argv[])
         {
             if (i + 1 >= argc)
             {
-                std::cerr << "--qwd requires a .qwd file path\n";
+                std::cerr << std::string(L_CLI_ErrorQwdPath) + "\n";
                 return 2;
             }
 
@@ -118,42 +121,42 @@ int main(int argc, char *argv[])
 
                 if (input.mode == Mode::GENERATE)
                 {
-                    std::cout << " Running WindL SimWind with input file \"" << qwdPath << "\".\n" << std::flush;
+                    std::cout << std::string(L_CLI_RunningSimWind) << qwdPath << "\".\n" << std::flush;
                     const auto result = SimWind::Generate(input, progress);
-                    std::cout << "SimWind generated wind files:\n";
+                    std::cout << L_CLI_GeneratedFiles << "\n";
                     if (!result.btsPath.empty())
-                        std::cout << "  BTS: " << result.btsPath << "\n";
+                        std::cout << L_CLI_OutputBTS << result.btsPath << "\n";
                     if (!result.bladedWndPath.empty())
-                        std::cout << "  Bladed WND: " << result.bladedWndPath << "\n";
+                        std::cout << L_CLI_OutputBladedWND << result.bladedWndPath << "\n";
                     if (!result.turbsimWndPath.empty())
-                        std::cout << "  TurbSim-compatible WND: " << result.turbsimWndPath << "\n";
+                        std::cout << L_CLI_OutputTurbSimWND << result.turbsimWndPath << "\n";
                     if (!result.sumPath.empty())
-                        std::cout << "  SUM: " << result.sumPath << "\n";
+                        std::cout << L_CLI_OutputSUM << result.sumPath << "\n";
                     return 0;
                 }
 
                 if (input.mode == Mode::BATCH)
                 {
-                    std::cout << " Running WindL batch mode with template \"" << qwdPath << "\".\n" << std::flush;
+                    std::cout << std::string(L_CLI_RunningBatch) + " with template \"" << qwdPath << "\".\n" << std::flush;
                     const auto batch = WindLBatch::RunFromFile(qwdPath, std::filesystem::absolute(argv[0]).string(), progress);
-                    std::cout << "WindL batch complete:\n";
-                    std::cout << "  Manifest: " << batch.manifestPath << "\n";
-                    std::cout << "  CSV: " << batch.csvPath << "\n";
-                    std::cout << "  Summary: " << batch.summaryPath << "\n";
-                    std::cout << "  Succeeded: " << batch.succeeded << "\n";
-                    std::cout << "  Failed: " << batch.failed << "\n";
-                    std::cout << "  Invalid: " << batch.invalid << "\n";
-                    std::cout << "  Skipped: " << batch.skipped << "\n";
-                    std::cout << "  Validated: " << batch.validated << "\n";
+                    std::cout << L_CLI_BatchSummary << "\n";
+                    std::cout << L_CLI_BatchManifest << batch.manifestPath << "\n";
+                    std::cout << TL("  CSV：", "  CSV: ") << batch.csvPath << "\n";
+                    std::cout << L_CLI_BatchStatus << batch.summaryPath << "\n";
+                    std::cout << TL("  成功：", "  Succeeded: ") << batch.succeeded << "\n";
+                    std::cout << TL("  失败：", "  Failed: ") << batch.failed << "\n";
+                    std::cout << TL("  无效：", "  Invalid: ") << batch.invalid << "\n";
+                    std::cout << TL("  跳过：", "  Skipped: ") << batch.skipped << "\n";
+                    std::cout << TL("  已验证：", "  Validated: ") << batch.validated << "\n";
                     return (batch.failed == 0 && batch.invalid == 0) ? 0 : 1;
                 }
 
-                std::cerr << "WindL import mode is not implemented yet for --qwd.\n";
+                std::cerr << std::string(L_CLI_ImportNotImpl) + " for --qwd.\n";
                 return 2;
             }
             catch (const std::exception &ex)
             {
-                std::cerr << "SimWind failed: " << ex.what() << "\n";
+                std::cerr << L_CLI_SimWindFailed << ex.what() << "\n";
                 return 1;
             }
         }

@@ -49,8 +49,17 @@
 
 #include "magic_enum.hpp"
 
+#include "LocaleString.hpp"
+
+/** @namespace yml_detail
+ * @brief YAML 解析内部工具命名空间，提供字符串处理、数值解析和格式化等基础函数。
+ */
 namespace yml_detail
 {
+	/** @brief 去除字符串左侧空白字符。
+	 *  @param value 原始字符串。
+	 *  @return 去除左侧空白后的新字符串。
+	 */
 	inline std::string trimStart(const std::string &value)
 	{
 		auto it = std::find_if_not(value.begin(), value.end(), [](unsigned char ch)
@@ -58,6 +67,10 @@ namespace yml_detail
 		return std::string(it, value.end());
 	}
 
+	/** @brief 去除字符串右侧空白字符。
+	 *  @param value 原始字符串。
+	 *  @return 去除右侧空白后的新字符串。
+	 */
 	inline std::string trimEnd(const std::string &value)
 	{
 		auto it = std::find_if_not(value.rbegin(), value.rend(), [](unsigned char ch)
@@ -65,11 +78,19 @@ namespace yml_detail
 		return std::string(value.begin(), it.base());
 	}
 
+	/** @brief 去除字符串首尾空白字符。
+	 *  @param value 原始字符串。
+	 *  @return 去除首尾空白后的新字符串。
+	 */
 	inline std::string trim(const std::string &value)
 	{
 		return trimEnd(trimStart(value));
 	}
 
+	/** @brief 将字符串转换为小写。
+	 *  @param value 原始字符串（按值传递）。
+	 *  @return 全小写的新字符串。
+	 */
 	inline std::string toLower(std::string value)
 	{
 		std::transform(value.begin(), value.end(), value.begin(), [](unsigned char ch)
@@ -77,11 +98,20 @@ namespace yml_detail
 		return value;
 	}
 
+	/** @brief 判断字符串是否以指定前缀开头。
+	 *  @param value 待检查的字符串。
+	 *  @param prefix 前缀。
+	 *  @return 若以 prefix 开头则返回 true。
+	 */
 	inline bool startsWith(const std::string &value, const std::string &prefix)
 	{
 		return value.size() >= prefix.size() && std::equal(prefix.begin(), prefix.end(), value.begin());
 	}
 
+	/** @brief 统计字符串前导空格数。
+	 *  @param value 待检测的字符串。
+	 *  @return 前导空格数量。
+	 */
 	inline int leadingSpaces(const std::string &value)
 	{
 		int count = 0;
@@ -94,6 +124,12 @@ namespace yml_detail
 		return count;
 	}
 
+	/** @brief 按分隔符分割字符串。
+	 *  @param value 原始字符串。
+	 *  @param delimiter 分隔符。
+	 *  @param removeEmpty 是否移除空片段，默认为 true。
+	 *  @return 分割后的字符串向量。
+	 */
 	inline std::vector<std::string> split(const std::string &value, char delimiter, bool removeEmpty = true)
 	{
 		std::vector<std::string> result;
@@ -109,6 +145,10 @@ namespace yml_detail
 		return result;
 	}
 
+	/** @brief 按 '.' 分割键路径字符串。
+	 *  @param key 键路径（如 "parent.child.grandchild"）。
+	 *  @return 各级键名的向量，已去除空白和空片段。
+	 */
 	inline std::vector<std::string> splitKey(const std::string &key)
 	{
 		std::vector<std::string> result;
@@ -121,6 +161,11 @@ namespace yml_detail
 		return result;
 	}
 
+	/** @brief 将键名向量按 '.' 拼接为键路径字符串。
+	 *  @param keys 键名向量。
+	 *  @param endExclusive 拼接的结束位置（不含）。
+	 *  @return 拼接后的键路径，如 "parent.child"。
+	 */
 	inline std::string joinKey(const std::vector<std::string> &keys, size_t endExclusive)
 	{
 		std::ostringstream stream;
@@ -133,6 +178,10 @@ namespace yml_detail
 		return stream.str();
 	}
 
+	/** @brief 将多行文本拆分为行向量。
+	 *  @param text 多行文本。
+	 *  @return 各行字符串的向量，自动处理 \\r\\n 换行符。
+	 */
 	inline std::vector<std::string> splitLines(const std::string &text)
 	{
 		std::vector<std::string> lines;
@@ -149,6 +198,11 @@ namespace yml_detail
 		return lines;
 	}
 
+	/** @brief 拆分 YAML 标量列表（如 "[a, b, c]" 或 "a, b, c"）。
+	 *  @param value 包含列表的字符串。
+	 *  @return 各标量值的字符串向量。
+	 *  @note 自动去除方括号，支持空格和制表符分隔。
+	 */
 	inline std::vector<std::string> splitScalarList(const std::string &value)
 	{
 		std::string normalized;
@@ -185,6 +239,11 @@ namespace yml_detail
 		return result;
 	}
 
+	/** @brief 拆分 YAML 矩阵行数据。
+	 *  @param value 包含矩阵数据的字符串。
+	 *  @return 各行数据的字符串向量。
+	 *  @note 优先按行解析，若为空则按分号 ';' 拆分。
+	 */
 	inline std::vector<std::string> splitMatrixRows(const std::string &value)
 	{
 		std::vector<std::string> rows;
@@ -214,6 +273,13 @@ namespace yml_detail
 		return rows;
 	}
 
+	/** @brief 将字符串解析为数值类型。
+	 *  @tparam T 目标数值类型。
+	 *  @param value 待解析的字符串。
+	 *  @param typeName 类型名称（用于错误消息）。
+	 *  @return 解析后的数值。
+	 *  @throws std::invalid_argument 解析失败时抛出。
+	 */
 	template <typename T>
 	inline T parseNumber(const std::string &value, const std::string &typeName)
 	{
@@ -230,6 +296,11 @@ namespace yml_detail
 		return result;
 	}
 
+	/** @brief 将字符串解析为布尔值。
+	 *  @param value 待解析的字符串。
+	 *  @param defaultValue 无法识别时的默认值。
+	 *  @return 解析后的布尔值，支持 "true"/"false"/"1"/"0"（不区分大小写）。
+	 */
 	inline bool parseBool(const std::string &value, bool defaultValue = false)
 	{
 		const std::string text = toLower(trim(value));
@@ -244,6 +315,12 @@ namespace yml_detail
 		return defaultValue;
 	}
 
+	/** @brief 将标量值转换为字符串表示。
+	 *  @tparam T 标量类型，支持 bool、enum、整数、浮点数等。
+	 *  @param value 待转换的标量值。
+	 *  @return 格式化后的字符串。
+	 *  @note 枚举类型使用 magic_enum 获取名称，浮点数使用最大精度输出。
+	 */
 	template <typename T>
 	inline std::string scalarToString(T value)
 	{
@@ -276,6 +353,11 @@ namespace yml_detail
 		}
 	}
 
+	/** @brief 将 vector 转换为 YAML 数组字符串 "[ e1 , e2 , ... ]"。
+	 *  @tparam T 元素类型。
+	 *  @param values 元素向量。
+	 *  @return 格式化后的数组字符串。
+	 */
 	template <typename T>
 	inline std::string arrayToString(const std::vector<T> &values)
 	{
@@ -291,6 +373,12 @@ namespace yml_detail
 		return stream.str();
 	}
 
+	/** @brief 将 std::array 转换为 YAML 数组字符串。
+	 *  @tparam T 元素类型。
+	 *  @tparam N 数组大小。
+	 *  @param values 元素数组。
+	 *  @return 格式化后的数组字符串。
+	 */
 	template <typename T, size_t N>
 	inline std::string arrayToString(const std::array<T, N> &values)
 	{
@@ -306,6 +394,9 @@ namespace yml_detail
 		return stream.str();
 	}
 
+	/** @brief 获取当前时间的格式化字符串。
+	 *  @return "YYYY-MM-DD HH:MM:SS" 格式的当前时间字符串。
+	 */
 	inline std::string nowString()
 	{
 		const auto now = std::chrono::system_clock::now();
@@ -322,12 +413,26 @@ namespace yml_detail
 	}
 }
 
+/** @class YMLConvertToObjectiveExtensions
+ * @brief YAML 值类型转换扩展类，提供将 YAML 字符串转换为各种 C++/Eigen 类型的静态方法。
+ *
+ * 该类同时维护 @c ConvertValueType 和 @c readlist 两个静态向量，用于记录类型转换和读取历史。
+ */
 class YMLConvertToObjectiveExtensions
 {
 public:
+	/** @brief 已转换类型名称列表，每次转换追加一条记录。 */
 	inline static std::vector<std::string> ConvertValueType{};
+	/** @brief 已读取的键名列表，记录读取历史。 */
 	inline static std::vector<std::string> readlist{};
 
+	/** @brief 将 YAML 字符串转换为 bool。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数，未使用）。
+	 *  @param moren 默认值，无法识别时返回此值。
+	 *  @return 转换后的布尔值。
+	 *  @code bool b = YMLConvertToObjectiveExtensions::YmlToBool("true"); @endcode
+	 */
 	static bool YmlToBool(const std::string &yml, const std::string &name = "", bool moren = false)
 	{
 		(void)name;
@@ -336,6 +441,12 @@ public:
 		return result;
 	}
 
+	/** @brief 将 YAML 字符串转换为 bool 数组。
+	 *  @param yml YAML 值字符串（如 "[true, false, true]"）。
+	 *  @param name 键名（保留参数，未使用）。
+	 *  @return 转换后的 std::vector\<bool\>。
+	 *  @code auto arr = YMLConvertToObjectiveExtensions::YmlToBoolArray("[true, false]"); @endcode
+	 */
 	static std::vector<bool> YmlToBoolArray(const std::string &yml, const std::string &name = "")
 	{
 		(void)name;
@@ -346,6 +457,13 @@ public:
 		return result;
 	}
 
+	/** @brief 将 YAML 字符串转换为 int。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数，未使用）。
+	 *  @return 转换后的整数值。
+	 *  @throws std::invalid_argument 解析失败时抛出。
+	 *  @code int i = YMLConvertToObjectiveExtensions::YmlToInt("42"); @endcode
+	 */
 	static int YmlToInt(const std::string &yml, const std::string &name = "")
 	{
 		(void)name;
@@ -354,6 +472,12 @@ public:
 		return result;
 	}
 
+	/** @brief 将 YAML 字符串转换为 int 数组。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数，未使用）。
+	 *  @return 转换后的 std::vector\<int\>。
+	 *  @code auto arr = YMLConvertToObjectiveExtensions::YmlToIntArray("[1, 2, 3]"); @endcode
+	 */
 	static std::vector<int> YmlToIntArray(const std::string &yml, const std::string &name = "")
 	{
 		(void)name;
@@ -364,6 +488,13 @@ public:
 		return result;
 	}
 
+	/** @brief 将 YAML 字符串转换为 double。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数，未使用）。
+	 *  @return 转换后的双精度浮点数。
+	 *  @throws std::invalid_argument 解析失败时抛出。
+	 *  @code double d = YMLConvertToObjectiveExtensions::YmlToDouble("3.14"); @endcode
+	 */
 	static double YmlToDouble(const std::string &yml, const std::string &name = "")
 	{
 		(void)name;
@@ -372,6 +503,12 @@ public:
 		return result;
 	}
 
+	/** @brief 将 YAML 字符串转换为 double 数组。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数，未使用）。
+	 *  @return 转换后的 std::vector\<double\>。
+	 *  @code auto arr = YMLConvertToObjectiveExtensions::YmlToDoubleArray("[1.0, 2.0]"); @endcode
+	 */
 	static std::vector<double> YmlToDoubleArray(const std::string &yml, const std::string &name = "")
 	{
 		(void)name;
@@ -382,6 +519,13 @@ public:
 		return result;
 	}
 
+	/** @brief 将 YAML 字符串转换为 float。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数，未使用）。
+	 *  @return 转换后的单精度浮点数（内部以 double 计算）。
+	 *  @throws std::invalid_argument 解析失败时抛出。
+	 *  @code float f = YMLConvertToObjectiveExtensions::YmlToFloat("1.5"); @endcode
+	 */
 	static double YmlToFloat(const std::string &yml, const std::string &name = "")
 	{
 		(void)name;
@@ -390,6 +534,12 @@ public:
 		return result;
 	}
 
+	/** @brief 将 YAML 字符串转换为 float 数组。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数，未使用）。
+	 *  @return 转换后的 std::vector\<float\>。
+	 *  @code auto arr = YMLConvertToObjectiveExtensions::YmlToFloatArray("[1.0f, 2.0f]"); @endcode
+	 */
 	static std::vector<float> YmlToFloatArray(const std::string &yml, const std::string &name = "")
 	{
 		(void)name;
@@ -400,6 +550,12 @@ public:
 		return result;
 	}
 
+	/** @brief 将 YAML 字符串转换为 Eigen::VectorXd。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数，未使用）。
+	 *  @return 转换后的 Eigen 列向量。
+	 *  @code Eigen::VectorXd v = YMLConvertToObjectiveExtensions::YmlToVector("[1.0, 2.0, 3.0]"); @endcode
+	 */
 	static Eigen::VectorXd YmlToVector(const std::string &yml, const std::string &name = "")
 	{
 		(void)name;
@@ -411,6 +567,12 @@ public:
 		return result;
 	}
 
+	/** @brief 将 YAML 字符串原样返回（无转换）。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数，未使用）。
+	 *  @return 原始字符串，空字符串记录为 "Null"。
+	 *  @code std::string s = YMLConvertToObjectiveExtensions::YmlToString("hello"); @endcode
+	 */
 	static std::string YmlToString(const std::string &yml, const std::string &name = "")
 	{
 		(void)name;
@@ -418,6 +580,12 @@ public:
 		return yml;
 	}
 
+	/** @brief 将 YAML 字符串转换为字符串数组。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数，未使用）。
+	 *  @return 各标量字符串的向量。
+	 *  @code auto arr = YMLConvertToObjectiveExtensions::YmlToStringArray("[a, b, c]"); @endcode
+	 */
 	static std::vector<std::string> YmlToStringArray(const std::string &yml, const std::string &name = "")
 	{
 		(void)name;
@@ -428,6 +596,9 @@ public:
 		return result;
 	}
 
+	/** @struct DoubleArray2D
+	 *  @brief 二维 double 数组的中间结果，包含数据和行列数。
+	 */
 	struct DoubleArray2D
 	{
 		std::vector<std::vector<double>> data;
@@ -435,6 +606,13 @@ public:
 		int ColumnCount = 0;
 	};
 
+	/** @brief 将 YAML 字符串转换为二维 double 数组。
+	 *  @param yml YAML 值字符串（支持多行矩阵格式）。
+	 *  @param name 键名（保留参数，未使用）。
+	 *  @return 包含二维数组及行列信息的 DoubleArray2D 结构体。
+	 *  @throws std::invalid_argument 各行列数不一致时抛出。
+	 *  @code auto mat2d = YMLConvertToObjectiveExtensions::YmlTo2DDoubleArray("- [1, 2]\n- [3, 4]"); @endcode
+	 */
 	static DoubleArray2D YmlTo2DDoubleArray(const std::string &yml, const std::string &name = "")
 	{
 		(void)name;
@@ -465,6 +643,9 @@ public:
 		return result;
 	}
 
+	/** @struct MatrixResult
+	 *  @brief Eigen 矩阵的中间结果，包含 MatrixXd 数据和行列数。
+	 */
 	struct MatrixResult
 	{
 		Eigen::MatrixXd data;
@@ -472,6 +653,13 @@ public:
 		int ColumnCount = 0;
 	};
 
+	/** @brief 将 YAML 字符串转换为 Eigen::MatrixXd。
+	 *  @param yml YAML 值字符串（支持多行矩阵格式）。
+	 *  @param name 键名（保留参数，未使用）。
+	 *  @param add 是否向 ConvertValueType 追加记录，默认为 true。
+	 *  @return 包含 Eigen 矩阵及行列信息的 MatrixResult 结构体。
+	 *  @code auto mat = YMLConvertToObjectiveExtensions::YmlToMatrix("- [1, 2]\n- [3, 4]"); @endcode
+	 */
 	static MatrixResult YmlToMatrix(const std::string &yml, const std::string &name = "", bool add = true)
 	{
 		(void)name;
@@ -490,6 +678,14 @@ public:
 		return result;
 	}
 
+	/** @brief 将 YAML 字符串转换为枚举值。
+	 *  @tparam E 目标枚举类型。
+	 *  @param yml YAML 值字符串。
+	 *  @param ignoreCase 是否忽略大小写，默认为 true。
+	 *  @return 转换后的枚举值。
+	 *  @throws std::invalid_argument 无法匹配时抛出。
+	 *  @code MyEnum e = YMLConvertToObjectiveExtensions::YmlToEnum<MyEnum>("Value1"); @endcode
+	 */
 	template <typename E>
 	static E YmlToEnum(const std::string &yml, bool ignoreCase = true)
 	{
@@ -504,19 +700,38 @@ public:
 	}
 };
 
+/** @class YML
+ * @brief YAML 解析与生成类，支持层级节点管理、类型转换及文件读写。
+ *
+ * 提供从文件或字符串解析 YAML、增删改查节点、类型转换（标量/数组/矩阵/枚举）、
+ * 以及格式化保存等功能。
+ */
 class YML
 {
 public:
+	/** @brief YML 版本号常量。 */
 	inline static constexpr const char *ymlversion = "2.0.016";
 
+	/** @struct Node
+	 *  @brief YAML 树节点，包含名称、可选值、父节点指针及缩进层级信息。
+	 */
 	struct Node
 	{
+		/** @brief 节点名称（键名）。 */
 		std::string name;
+		/** @brief 节点值（可选，叶子节点可能有值，中间节点通常为空）。 */
 		std::optional<std::string> value;
+		/** @brief 父节点智能指针，根节点为空。 */
 		std::shared_ptr<Node> parent;
+		/** @brief 缩进空格数。 */
 		int space = 0;
+		/** @brief 层级深度（从根节点计数为 0）。 */
 		int tier = 0;
 
+		/** @brief 深拷贝当前节点及其父节点链。
+		 *  @return 克隆后的 Node 对象。
+		 *  @note 仅递归克隆 parent 链，不涉及子节点。
+		 */
 		Node Clone() const
 		{
 			Node node;
@@ -534,13 +749,21 @@ public:
 
 	std::vector<NodePtr> nodeList;
 
+	/** @brief 默认构造函数，创建空的 YML 对象。 */
 	YML() = default;
 
+	/** @brief 从文件路径构造 YML 对象并加载解析。
+	 *  @param filePath YAML 文件路径。
+	 *  @param addMetadata 是否自动添加元数据节点，默认为 true。
+	 */
 	explicit YML(const std::string &filePath, bool addMetadata = true)
 	{
 		Load(filePath, addMetadata);
 	}
 
+	/** @brief 深拷贝当前 YML 对象。
+	 *  @return 克隆后的 YML 对象，包含完整节点树的独立副本。
+	 */
 	YML Clone() const
 	{
 		YML copy;
@@ -569,11 +792,19 @@ public:
 		return copy;
 	}
 
+	/** @brief 获取当前 YAML 文件的路径。
+	 *  @return 文件路径的常量引用。
+	 */
 	const std::string &Path() const
 	{
 		return path;
 	}
 
+	/** @brief 从文件加载并解析 YAML。
+	 *  @param filePath YAML 文件路径。
+	 *  @param addMetadata 是否添加元数据节点，默认为 true。
+	 *  @throws std::runtime_error 文件无法打开时抛出。
+	 */
 	void Load(const std::string &filePath, bool addMetadata = true)
 	{
 		path = filePath;
@@ -583,7 +814,7 @@ public:
 		{
 			std::ifstream file(filePath);
 			if (!file.is_open())
-				throw std::runtime_error("Cannot open yaml file: " + filePath);
+				throw std::runtime_error(std::string(L_YAML_CannotOpen) + filePath);
 
 			std::string line;
 			while (std::getline(file, line))
@@ -604,6 +835,11 @@ public:
 		formatting();
 	}
 
+	/** @brief 从字符串解析 YAML。
+	 *  @param text YAML 文本内容。
+	 *  @param addMetadata 是否添加元数据节点，默认为 false。
+	 *  @return 解析后的 YML 对象。
+	 */
 	static YML Parse(const std::string &text, bool addMetadata = false)
 	{
 		YML yml;
@@ -615,16 +851,27 @@ public:
 		return yml;
 	}
 
+	/** @brief 修改指定键的值。
+	 *  @param key 键路径（如 "parent.child"）。
+	 *  @param value 新值字符串。
+	 */
 	void modify(const std::string &key, const std::string &value)
 	{
 		modifyOptional(key, std::optional<std::string>(value));
 	}
 
+	/** @brief 将指定键的值设为空（std::nullopt）。
+	 *  @param key 键路径。
+	 */
 	void modify(const std::string &key, std::nullopt_t)
 	{
 		modifyOptional(key, std::nullopt);
 	}
 
+	/** @brief 修改指定键的可选值（底层实现）。
+	 *  @param key 键路径。
+	 *  @param value 新值（std::optional\<std::string\>），为 std::nullopt 表示清空。
+	 */
 	void modifyOptional(const std::string &key, std::optional<std::string> value)
 	{
 		Node *node = findNodeByKey(key);
@@ -632,6 +879,10 @@ public:
 			node->value = std::move(value);
 	}
 
+	/** @brief 读取指定键的值（找不到或值为空时返回空字符串）。
+	 *  @param key 键路径。
+	 *  @return 节点的值字符串，若节点不存在或无值则返回空字符串。
+	 */
 	std::string read(const std::string &key) const
 	{
 		YMLConvertToObjectiveExtensions::readlist.push_back(key);
@@ -641,6 +892,10 @@ public:
 		return *node->value;
 	}
 
+	/** @brief 读取指定键的可选值。
+	 *  @param key 键路径。
+	 *  @return 节点的 std::optional\<std::string\> 值，节点不存在返回 std::nullopt。
+	 */
 	std::optional<std::string> readOptional(const std::string &key) const
 	{
 		YMLConvertToObjectiveExtensions::readlist.push_back(key);
@@ -650,26 +905,46 @@ public:
 		return node->value;
 	}
 
+	/** @brief 按键路径查找节点（可变版本）。
+	 *  @param key 键路径。
+	 *  @return 节点指针，找不到返回 nullptr。
+	 */
 	Node *findNodeByKey(const std::string &key)
 	{
 		return findNodePtrByKey(key).get();
 	}
 
+	/** @brief 按键路径查找节点（const 版本）。
+	 *  @param key 键路径。
+	 *  @return 常量节点指针，找不到返回 nullptr。
+	 */
 	const Node *findNodeByKey(const std::string &key) const
 	{
 		return findNodePtrByKey(key).get();
 	}
 
+	/** @brief 检查指定键的节点是否存在。
+	 *  @param key 键路径。
+	 *  @return 节点存在时返回 true。
+	 */
 	bool ChickfindNodeByKey(const std::string &key) const
 	{
 		return findNodeByKey(key) != nullptr;
 	}
 
+	/** @brief 检查指定键的节点是否存在（CheckFindNodeByKey 拼写别名）。
+	 *  @param key 键路径。
+	 *  @return 节点存在时返回 true。
+	 */
 	bool CheckFindNodeByKey(const std::string &key) const
 	{
 		return ChickfindNodeByKey(key);
 	}
 
+	/** @brief 获取节点的完整键路径（递归到根节点）。
+	 *  @param node 节点裸指针，为 nullptr 返回空字符串。
+	 *  @return 如 "parent.child.grandchild" 格式的键路径。
+	 */
 	std::string GetNodeKey(const Node *node) const
 	{
 		if (node == nullptr)
@@ -679,11 +954,19 @@ public:
 		return GetNodeKey(node->parent.get()) + "." + node->name;
 	}
 
+	/** @brief 获取节点的完整键路径（智能指针重载）。
+	 *  @param node 节点智能指针。
+	 *  @return 如 "parent.child" 格式的键路径。
+	 */
 	std::string GetNodeKey(const NodePtr &node) const
 	{
 		return GetNodeKey(node.get());
 	}
 
+	/** @brief 合并另一个 YML 对象的节点到当前对象。
+	 *  @param yaml 源 YML 对象。
+	 *  @note 已存在的键将被覆盖，不存在的键将新建。
+	 */
 	void AddYAML(const YML &yaml)
 	{
 		for (const auto &node : yaml.nodeList)
@@ -709,27 +992,47 @@ public:
 		formatting();
 	}
 
+	/** @brief 通过键路径添加或覆盖节点。
+	 *  @param key 键路径，中间节点不存在时自动创建。
+	 *  @param value 节点值。
+	 */
 	void AddNode(const std::string &key, const std::string &value)
 	{
 		addNodeOptional(key, std::optional<std::string>(value));
 	}
 
+	/** @brief 通过键路径添加空值节点。
+	 *  @param key 键路径。
+	 */
 	void AddNode(const std::string &key, std::nullopt_t)
 	{
 		addNodeOptional(key, std::nullopt);
 	}
 
+	/** @brief 在指定父节点下添加子节点。
+	 *  @param parentKey 父节点键路径。
+	 *  @param nodeName 子节点名称。
+	 *  @param value 子节点值。
+	 */
 	void AddNode(const std::string &parentKey, const std::string &nodeName, const std::string &value)
 	{
 		addNodeUnderParent(parentKey, nodeName, std::optional<std::string>(value));
 	}
 
+	/** @brief 在指定父节点下添加空值子节点。
+	 *  @param parentKey 父节点键路径。
+	 *  @param nodeName 子节点名称。
+	 */
 	void AddNode(const std::string &parentKey, const std::string &nodeName, std::nullopt_t)
 	{
 		addNodeUnderParent(parentKey, nodeName, std::nullopt);
 	}
 
 private:
+	/** @brief 通过键路径添加节点（内部实现）。
+	 *  @param key 键路径，中间节点缺失时自动创建。
+	 *  @param value 节点值（可选）。
+	 */
 	void addNodeOptional(const std::string &key, std::optional<std::string> value)
 	{
 		auto keys = yml_detail::splitKey(key);
@@ -754,6 +1057,12 @@ private:
 		}
 	}
 
+	/** @brief 在指定父节点下添加子节点（内部实现）。
+	 *  @param parentKey 父节点键路径（空表示根节点）。
+	 *  @param nodeName 子节点名称。
+	 *  @param value 子节点值（可选）。
+	 *  @throws std::invalid_argument 父节点不存在时抛出。
+	 */
 	void addNodeUnderParent(const std::string &parentKey, const std::string &nodeName, std::optional<std::string> value)
 	{
 		if (yml_detail::trim(nodeName).empty())
@@ -784,6 +1093,9 @@ private:
 	}
 
 public:
+	/** @brief 删除指定节点及其所有子孙节点。
+	 *  @param key 要删除的节点键路径，不存在则无操作。
+	 */
 	void DeleteNode(const std::string &key)
 	{
 		auto node = findNodePtrByKey(key);
@@ -800,6 +1112,10 @@ public:
 		formatting();
 	}
 
+	/** @brief 查找指定节点的所有直接子节点（可变版本）。
+	 *  @param key 父节点键路径。
+	 *  @return 子节点指针向量。
+	 */
 	std::vector<Node *> FindChildren(const std::string &key)
 	{
 		std::vector<Node *> result;
@@ -815,6 +1131,10 @@ public:
 		return result;
 	}
 
+	/** @brief 查找指定节点的所有直接子节点（const 版本）。
+	 *  @param key 父节点键路径。
+	 *  @return 常量子节点指针向量。
+	 */
 	std::vector<const Node *> FindChildren(const std::string &key) const
 	{
 		std::vector<const Node *> result;
@@ -830,11 +1150,16 @@ public:
 		return result;
 	}
 
+	/** @brief 保存 YAML 到文件。
+	 *  @param savepath 目标路径，为空则使用加载时的路径。
+	 *  @param format 是否在保存前执行格式化，默认为 true。
+	 *  @throws std::runtime_error 路径为空或文件无法写入时抛出。
+	 */
 	void save(const std::string &savepath = std::string{}, bool format = true)
 	{
 		std::string target = savepath.empty() ? path : savepath;
 		if (target.empty())
-			throw std::runtime_error("Cannot save yaml because both savepath and path are empty.");
+			throw std::runtime_error(L_YAML_CannotSaveEmpty);
 
 		if (format)
 			formatting();
@@ -846,7 +1171,7 @@ public:
 
 		std::ofstream file(filePath, std::ios::out | std::ios::binary | std::ios::trunc);
 		if (!file.is_open())
-			throw std::runtime_error("Cannot write yaml file: " + target);
+			throw std::runtime_error(std::string(L_YAML_CannotWrite) + target);
 
 		for (const auto &node : nodeList)
 		{
@@ -857,95 +1182,204 @@ public:
 		}
 	}
 
+	/** @brief 将 YAML 字符串转换为 bool（静态便捷方法）。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数）。
+	 *  @param moren 默认值。
+	 *  @return 转换后的布尔值。
+	 *  @code bool b = YML::YmlToBool("true"); @endcode
+	 */
 	static bool YmlToBool(const std::string &yml, const std::string &name = "", bool moren = false)
 	{
 		return YMLConvertToObjectiveExtensions::YmlToBool(yml, name, moren);
 	}
 
+	/** @brief 将 YAML 字符串转换为 bool 数组（静态便捷方法）。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数）。
+	 *  @return 转换后的 std::vector\<bool\>。
+	 *  @code auto arr = YML::YmlToBoolArray("[true, false]"); @endcode
+	 */
 	static std::vector<bool> YmlToBoolArray(const std::string &yml, const std::string &name = "")
 	{
 		return YMLConvertToObjectiveExtensions::YmlToBoolArray(yml, name);
 	}
 
+	/** @brief 将 YAML 字符串转换为 int（静态便捷方法）。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数）。
+	 *  @return 转换后的整数值。
+	 *  @code int i = YML::YmlToInt("42"); @endcode
+	 */
 	static int YmlToInt(const std::string &yml, const std::string &name = "")
 	{
 		return YMLConvertToObjectiveExtensions::YmlToInt(yml, name);
 	}
 
+	/** @brief 将 YAML 字符串转换为 int 数组（静态便捷方法）。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数）。
+	 *  @return 转换后的 std::vector\<int\>。
+	 *  @code auto arr = YML::YmlToIntArray("[1, 2, 3]"); @endcode
+	 */
 	static std::vector<int> YmlToIntArray(const std::string &yml, const std::string &name = "")
 	{
 		return YMLConvertToObjectiveExtensions::YmlToIntArray(yml, name);
 	}
 
+	/** @brief 将 YAML 字符串转换为 double（静态便捷方法）。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数）。
+	 *  @return 转换后的双精度浮点数。
+	 *  @code double d = YML::YmlToDouble("3.14"); @endcode
+	 */
 	static double YmlToDouble(const std::string &yml, const std::string &name = "")
 	{
 		return YMLConvertToObjectiveExtensions::YmlToDouble(yml, name);
 	}
 
+	/** @brief 将 YAML 字符串转换为 double 数组（静态便捷方法）。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数）。
+	 *  @return 转换后的 std::vector\<double\>。
+	 *  @code auto arr = YML::YmlToDoubleArray("[1.0, 2.0]"); @endcode
+	 */
 	static std::vector<double> YmlToDoubleArray(const std::string &yml, const std::string &name = "")
 	{
 		return YMLConvertToObjectiveExtensions::YmlToDoubleArray(yml, name);
 	}
 
+	/** @brief 将 YAML 字符串转换为 float（静态便捷方法）。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数）。
+	 *  @return 转换后的单精度浮点数。
+	 *  @code float f = YML::YmlToFloat("1.5"); @endcode
+	 */
 	static double YmlToFloat(const std::string &yml, const std::string &name = "")
 	{
 		return YMLConvertToObjectiveExtensions::YmlToFloat(yml, name);
 	}
 
+	/** @brief 将 YAML 字符串转换为 float 数组（静态便捷方法）。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数）。
+	 *  @return 转换后的 std::vector\<float\>。
+	 *  @code auto arr = YML::YmlToFloatArray("[1.0, 2.0]"); @endcode
+	 */
 	static std::vector<float> YmlToFloatArray(const std::string &yml, const std::string &name = "")
 	{
 		return YMLConvertToObjectiveExtensions::YmlToFloatArray(yml, name);
 	}
 
+	/** @brief 将 YAML 字符串转换为 Eigen::VectorXd（静态便捷方法）。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数）。
+	 *  @return 转换后的 Eigen 列向量。
+	 *  @code Eigen::VectorXd v = YML::YmlToVector("[1.0, 2.0]"); @endcode
+	 */
 	static Eigen::VectorXd YmlToVector(const std::string &yml, const std::string &name = "")
 	{
 		return YMLConvertToObjectiveExtensions::YmlToVector(yml, name);
 	}
 
+	/** @brief 将 YAML 字符串原样返回（静态便捷方法）。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数）。
+	 *  @return 原始字符串。
+	 *  @code std::string s = YML::YmlToString("hello"); @endcode
+	 */
 	static std::string YmlToString(const std::string &yml, const std::string &name = "")
 	{
 		return YMLConvertToObjectiveExtensions::YmlToString(yml, name);
 	}
 
+	/** @brief 将 YAML 字符串转换为字符串数组（静态便捷方法）。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数）。
+	 *  @return 转换后的 std::vector\<std::string\>。
+	 *  @code auto arr = YML::YmlToStringArray("[a, b]"); @endcode
+	 */
 	static std::vector<std::string> YmlToStringArray(const std::string &yml, const std::string &name = "")
 	{
 		return YMLConvertToObjectiveExtensions::YmlToStringArray(yml, name);
 	}
 
+	/** @brief 将 YAML 字符串转换为二维 double 数组（静态便捷方法）。
+	 *  @param yml YAML 值字符串（支持多行矩阵格式）。
+	 *  @param name 键名（保留参数）。
+	 *  @return 包含二维数组及行列信息的 DoubleArray2D 结构体。
+	 *  @code auto mat2d = YML::YmlTo2DDoubleArray("- [1, 2]\n- [3, 4]"); @endcode
+	 */
 	static YMLConvertToObjectiveExtensions::DoubleArray2D YmlTo2DDoubleArray(const std::string &yml, const std::string &name = "")
 	{
 		return YMLConvertToObjectiveExtensions::YmlTo2DDoubleArray(yml, name);
 	}
 
+	/** @brief 将 YAML 字符串转换为 Eigen::MatrixXd（静态便捷方法）。
+	 *  @param yml YAML 值字符串。
+	 *  @param name 键名（保留参数）。
+	 *  @param add 是否向 ConvertValueType 追加记录，默认为 true。
+	 *  @return 包含 Eigen 矩阵及行列信息的 MatrixResult 结构体。
+	 *  @code auto mat = YML::YmlToMatrix("- [1, 2]\n- [3, 4]"); @endcode
+	 */
 	static YMLConvertToObjectiveExtensions::MatrixResult YmlToMatrix(const std::string &yml, const std::string &name = "", bool add = true)
 	{
 		return YMLConvertToObjectiveExtensions::YmlToMatrix(yml, name, add);
 	}
 
+	/** @brief 将 YAML 字符串转换为枚举值（模板静态便捷方法）。
+	 *  @tparam E 目标枚举类型。
+	 *  @param yml YAML 值字符串。
+	 *  @param ignoreCase 是否忽略大小写，默认为 true。
+	 *  @return 转换后的枚举值。
+	 *  @throws std::invalid_argument 无法匹配时抛出。
+	 *  @code MyEnum e = YML::YmlToEnum<MyEnum>("Value1"); @endcode
+	 */
 	template <typename E>
 	static E YmlToEnum(const std::string &yml, bool ignoreCase = true)
 	{
 		return YMLConvertToObjectiveExtensions::YmlToEnum<E>(yml, ignoreCase);
 	}
 
+	/** @brief 将 std::string 转换为 YAML 值字符串。
+	 *  @param value 字符串值。
+	 *  @param level 缩进层级（保留参数，未使用）。
+	 *  @return 去除首尾空白后的字符串。
+	 */
 	static std::string ToYmlValueString(const std::string &value, int level = 0)
 	{
 		(void)level;
 		return yml_detail::trim(value);
 	}
 
+	/** @brief 将 C 字符串转换为 YAML 值字符串。
+	 *  @param value C 字符串指针，可为 nullptr。
+	 *  @param level 缩进层级（保留参数）。
+	 *  @return 去除空白后的字符串，nullptr 返回空字符串。
+	 */
 	static std::string ToYmlValueString(const char *value, int level = 0)
 	{
 		(void)level;
 		return value == nullptr ? std::string{} : yml_detail::trim(value);
 	}
 
+	/** @brief 将 bool 转换为 YAML 值字符串（"True"/"False"）。
+	 *  @param value 布尔值。
+	 *  @param level 缩进层级（保留参数）。
+	 *  @return "True" 或 "False"。
+	 */
 	static std::string ToYmlValueString(bool value, int level = 0)
 	{
 		(void)level;
 		return yml_detail::scalarToString(value);
 	}
 
+	/** @brief 将算术类型（非 bool）转换为 YAML 值字符串。
+	 *  @tparam T 算术类型（int, float, double 等，排除 bool）。
+	 *  @param value 数值。
+	 *  @param level 缩进层级（保留参数）。
+	 *  @return 格式化后的数值字符串。
+	 */
 	template <typename T, typename = std::enable_if_t<std::is_arithmetic_v<T> && !std::is_same_v<T, bool>>>
 	static std::string ToYmlValueString(T value, int level = 0)
 	{
@@ -953,6 +1387,12 @@ public:
 		return yml_detail::scalarToString(value);
 	}
 
+	/** @brief 将枚举类型转换为 YAML 值字符串（使用 magic_enum）。
+	 *  @tparam E 枚举类型。
+	 *  @param value 枚举值。
+	 *  @param level 缩进层级（保留参数）。
+	 *  @return 枚举名称字符串或数值字符串。
+	 */
 	template <typename E, typename = std::enable_if_t<std::is_enum_v<E>>, typename = void>
 	static std::string ToYmlValueString(E value, int level = 0)
 	{
@@ -960,6 +1400,12 @@ public:
 		return yml_detail::scalarToString(value);
 	}
 
+	/** @brief 将 std::vector 转换为 YAML 数组字符串。
+	 *  @tparam T 元素类型。
+	 *  @param values 元素向量。
+	 *  @param level 缩进层级（保留参数）。
+	 *  @return "[ e1 , e2 , ... ]" 格式的字符串。
+	 */
 	template <typename T>
 	static std::string ToYmlValueString(const std::vector<T> &values, int level = 0)
 	{
@@ -967,6 +1413,13 @@ public:
 		return yml_detail::arrayToString(values);
 	}
 
+	/** @brief 将 std::array 转换为 YAML 数组字符串。
+	 *  @tparam T 元素类型。
+	 *  @tparam N 数组大小。
+	 *  @param values 元素数组。
+	 *  @param level 缩进层级（保留参数）。
+	 *  @return "[ e1 , e2 , ... ]" 格式的字符串。
+	 */
 	template <typename T, size_t N>
 	static std::string ToYmlValueString(const std::array<T, N> &values, int level = 0)
 	{
@@ -974,6 +1427,12 @@ public:
 		return yml_detail::arrayToString(values);
 	}
 
+	/** @brief 将 std::initializer_list 转换为 YAML 数组字符串。
+	 *  @tparam T 元素类型。
+	 *  @param values 初始化列表。
+	 *  @param level 缩进层级（保留参数）。
+	 *  @return "[ e1 , e2 , ... ]" 格式的字符串。
+	 */
 	template <typename T>
 	static std::string ToYmlValueString(std::initializer_list<T> values, int level = 0)
 	{
@@ -981,6 +1440,12 @@ public:
 		return yml_detail::arrayToString(std::vector<T>(values));
 	}
 
+	/** @brief 将二维 vector 转换为多行 YAML 矩阵字符串。
+	 *  @tparam T 元素类型。
+	 *  @param data 二维向量。
+	 *  @param level 缩进层级，控制前导空格数。
+	 *  @return 带换行和缩进的多行矩阵字符串，每行以 "-  [ ... ]" 开头。
+	 */
 	template <typename T>
 	static std::string ToYmlValueString(const std::vector<std::vector<T>> &data, int level = 0)
 	{
@@ -1003,6 +1468,12 @@ public:
 		return stream.str();
 	}
 
+	/** @brief 将 Eigen 矩阵/向量转换为 YAML 字符串。
+	 *  @tparam Derived Eigen 派生类型。
+	 *  @param data Eigen 矩阵或向量。
+	 *  @param level 缩进层级，控制多行矩阵的前导空格。
+	 *  @return 一维向量返回 "[...]" 格式，二维矩阵返回多行 "-  [ ... ]" 格式。
+	 */
 	template <typename Derived>
 	static std::string ToYmlValueString(const Eigen::MatrixBase<Derived> &data, int level = 0)
 	{
@@ -1039,6 +1510,9 @@ private:
 	int tier = 0;
 	std::string path;
 
+	/** @brief 解析 YAML 行数据，构建节点树。
+	 *  @param sourceLines 原始 YAML 行向量。
+	 */
 	void parseLines(const std::vector<std::string> &sourceLines)
 	{
 		nodeList.clear();
@@ -1090,16 +1564,29 @@ private:
 		}
 	}
 
+	/** @brief 按键路径查找节点智能指针（可变版本，内部）。
+	 *  @param key 键路径。
+	 *  @return 节点智能指针，找不到返回 nullptr。
+	 */
 	NodePtr findNodePtrByKey(const std::string &key)
 	{
 		return constFindNodePtrByKey(key);
 	}
 
+	/** @brief 按键路径查找节点智能指针（const 版本，内部）。
+	 *  @param key 键路径。
+	 *  @return 节点智能指针，找不到返回 nullptr。
+	 */
 	NodePtr findNodePtrByKey(const std::string &key) const
 	{
 		return constFindNodePtrByKey(key);
 	}
 
+	/** @brief 按键路径查找节点智能指针（内部核心实现）。
+	 *  @param key 键路径（以 '.' 分隔）。
+	 *  @return 匹配的节点智能指针，找不到返回 nullptr。
+	 *  @note 从叶子节点名开始匹配，逐级向上验证父节点名。
+	 */
 	NodePtr constFindNodePtrByKey(const std::string &key) const
 	{
 		const auto keys = yml_detail::splitKey(key);
@@ -1130,6 +1617,10 @@ private:
 		return nullptr;
 	}
 
+	/** @brief 查找当前节点的父节点（基于缩进层级）。
+	 *  @param space 当前节点的缩进空格数。
+	 *  @return 父节点智能指针，根节点返回 nullptr。
+	 */
 	NodePtr findParent(int space) const
 	{
 		for (auto it = nodeList.rbegin(); it != nodeList.rend(); ++it)
@@ -1140,6 +1631,10 @@ private:
 		return nullptr;
 	}
 
+	/** @brief 递归收集父节点的所有子孙节点到删除集合。
+	 *  @param parent 父节点。
+	 *  @param nodesToRemove 输出参数，收集到的待删除节点集合。
+	 */
 	void collectChildren(const NodePtr &parent, std::unordered_set<Node *> &nodesToRemove) const
 	{
 		for (const auto &node : nodeList)
@@ -1152,6 +1647,9 @@ private:
 		}
 	}
 
+	/** @brief 重新格式化节点列表，按层级排序并重新计算缩进和层级。
+	 *  @note 将根节点置为 tier=0, space=0，子节点递归递增。
+	 */
 	void formatting()
 	{
 		std::vector<NodePtr> roots;
@@ -1173,6 +1671,10 @@ private:
 		nodeList = std::move(formatted);
 	}
 
+	/** @brief 递归将父节点的子节点追加到格式化列表。
+	 *  @param parent 父节点。
+	 *  @param formatted 输出参数，格式化后的节点列表。
+	 */
 	void appendChildren(const NodePtr &parent, std::vector<NodePtr> &formatted)
 	{
 		for (const auto &node : nodeList)
@@ -1187,6 +1689,9 @@ private:
 		}
 	}
 
+	/** @brief 确保元数据节点存在（版本号、作者、最后修改时间）。
+	 *  @note 若 "OpenWECD.Information.YMLVersion" 不存在则创建，每次调用更新作者和时间。
+	 */
 	void ensureMetadata()
 	{
 		if (!ChickfindNodeByKey("OpenWECD.Information.YMLVersion"))

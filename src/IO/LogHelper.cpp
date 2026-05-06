@@ -28,6 +28,7 @@
 #include <algorithm>
 
 #include "LogHelper.h"
+#include "LocaleString_Log.hpp"
 #include "ZConsole.hpp"
 #include "ZPath.hpp"
 #include "ZString.hpp"
@@ -63,7 +64,7 @@ void LogData::Add(const std::string &message)
 {
 	if (log_inf.empty())
 	{
-		LogHelper::ErrorLog("Please call DisplayInformation function first!");
+		LogHelper::ErrorLog(L_LOG_InitFirst);
 	}
 	else
 	{
@@ -143,7 +144,7 @@ void LogHelper::UnhandledExceptionHandler(int signal)
 		break;
 	}
 
-	ErrorLog("未知错误：Signal " + signalName, "", "", 20, "UnhandledExceptionHandler");
+	ErrorLog(std::string(L_LOG_UnknownError) + "Signal " + signalName, "", "", 20, "UnhandledExceptionHandler");
 	EndProgram(true, "", true);
 }
 
@@ -179,7 +180,7 @@ void LogHelper::DisinfV1(bool lics)
 
 	int lp = 100; ///< 每行文本的目标居中宽度（字符数）
 
-	WriteLog("Debug 调试模式 develop by 赵子祯 Debug 调试模式 develop by 赵子祯 Debug 调试模式 develop by 赵子祯", "", false, "", ConsoleColor::Green);
+	WriteLog(L_LOG_BannerDebugLine, "", false, "", ConsoleColor::Green);
 	WriteLog(OtherHelper::CenterText("------------------------------------------------------------------------------------------", lp),
 			 "", false, "", ConsoleColor::Cyan);
 	WriteLog(OtherHelper::CenterText("!       000                                00     00    00  0000000   00000  000000      !", lp),
@@ -198,25 +199,25 @@ void LogHelper::DisinfV1(bool lics)
 			 "", false, "", ConsoleColor::Cyan);
 	WriteLog(OtherHelper::CenterText("!                                                                                        !", lp),
 			 "", false, "", ConsoleColor::Cyan);
-	WriteLog(OtherHelper::CenterText("!                    Copyright (c) HawtC2.Team.ZZZ,赵子祯 licensed under GPL v3 .                   !", lp),
+	WriteLog(OtherHelper::CenterText("!                    " + std::string(L_LOG_BannerCopyright) + " .                   !", lp),
 			 "", false, "", ConsoleColor::Red);
 	WriteLog(OtherHelper::CenterText("!                                                                                        !", lp),
 			 "", false, "", ConsoleColor::Cyan);
-	WriteLog(OtherHelper::CenterText("!   Copyright (c)  Key Laboratory of Jiangsu province High-Tech design of wind turbine   !", lp),
+	WriteLog(OtherHelper::CenterText("!   " + std::string(L_LOG_BannerInstitution) + "   !", lp),
 			 "", false, "", ConsoleColor::Green);
 	WriteLog(OtherHelper::CenterText("!                                                                                        !", lp),
 			 "", false, "", ConsoleColor::Green);
 
-	WriteLog(OtherHelper::CenterText("******                 Running " + OtherHelper::GetCurrentProjectName() +
+	WriteLog(OtherHelper::CenterText(std::string(L_LOG_BannerRunning) + OtherHelper::GetCurrentProjectName() +
 										 " (v" + OtherHelper::GetCurrentVersion(exepath.string()) + "  " + std::to_string(TimesHelper::GetCurrentYear()) + "-" +
-										 std::to_string(TimesHelper::GetCurrentMonth()) + ")                  ******",
+										 std::to_string(TimesHelper::GetCurrentMonth()) + ")" + std::string(L_LOG_BannerEnd),
 									 lp),
 			 "", false, "[Message]", ConsoleColor::Green);
 	WriteLog(OtherHelper::CenterText("------------------------------------------------------------------------------------------", lp),
 			 "", false, "", ConsoleColor::Cyan);
-	WriteLog("Debug 调试模式 develop by 赵子祯 Debug 调试模式 develop by 赵子祯 Debug 调试模式 develop by 赵子祯", "",
+	WriteLog(L_LOG_BannerDebugLine, "",
 			 false, "", ConsoleColor::Green);
-	WriteLog("Debug 调试模式 develop by 赵子祯 Debug 调试模式 develop by 赵子祯 Debug 调试模式 develop by 赵子祯", "",
+	WriteLog(L_LOG_BannerDebugLine, "",
 			 false, "", ConsoleColor::Green);
 	WriteLog(OtherHelper::GetMathAcc());
 
@@ -246,9 +247,7 @@ void LogHelper::DisinfV1(bool lics)
  */
 void LogHelper::DisinfV2(bool lics)
 {
-	std::string url = "http://www.hawtc.cn"; ///< 官网地址，显示在控制台欢迎信息行
-
-	WriteLog("OpenWECD." + OtherHelper::GetCurrentProjectName() + " - Tel:13935201274  E:1821216780@qq.com " + url,
+	WriteLog("OpenWECD." + OtherHelper::GetCurrentProjectName() + std::string(L_LOG_BannerContact),
 			 "", false);
 	std::cout << "************************************************************************************" << '\n';
 
@@ -258,7 +257,7 @@ void LogHelper::DisinfV2(bool lics)
 				 OtherHelper::GetCurrentBuildMode() + OtherHelper::GetBuildMode() + ",BuildAt: " +
 				 OtherHelper::GetBuildTime() + " Math:" + OtherHelper::GetMathAcc(),
 			 "", false, "", ConsoleColor::Green);
-	WriteLog(" > Wind turbine simulation design optimization platform toolchain @赵子祯",
+	WriteLog(L_LOG_BannerTagline,
 			 "", false);
 
 	firstshowinformation = false;
@@ -345,8 +344,8 @@ void LogHelper::EndInformation(double tfinal, double dt, const std::chrono::stea
 	std::string timeString = (elapsedTime > 60.0) ? std::to_string(elapsedTime / 60.0) + " min" : std::to_string(elapsedTime) + " sec"; ///< 格式化耗时字符串，超过60秒则显示分钟
 
 	std::cout << '\n';
-	WriteLog("Simulation Run Finished! The tf= " + std::to_string(tfinal) + "s Step=" +
-				 std::to_string(dt) + "s Cost real time=" + timeString,
+	WriteLog(std::string(L_LOG_SimFinish) + "The tf= " + std::to_string(tfinal) + "s Step=" +
+				 std::to_string(dt) + "s " + std::string(L_LOG_CostRealTime) + "=" + timeString,
 			 "", true, "[Message]",
 			 ConsoleColor::White, true, 0);
 }
@@ -384,7 +383,7 @@ void LogHelper::EndProgram(bool forceTerminate, const std::string &outstring, bo
 	std::string message; ///< 结束消息（正常完成提示 or 错误提示）
 	if (outstring.empty())
 	{
-		message = forceTerminate ? "************* ! " + OtherHelper::FillString(OtherHelper::GetCurrentProjectName() + ".RUN.", " ", 1) + " E R R O R ! **************" : OtherHelper::GetCurrentProjectName() + " Run completed Normaly!";
+		message = forceTerminate ? "************* ! " + OtherHelper::FillString(OtherHelper::GetCurrentProjectName() + ".RUN.", " ", 1) + " E R R O R ! **************" : OtherHelper::GetCurrentProjectName() + std::string(L_LOG_RunCompleted);
 	}
 	else
 	{
@@ -410,14 +409,14 @@ void LogHelper::EndProgram(bool forceTerminate, const std::string &outstring, bo
 	// Write output files
 	for (auto &outFile : LogData::OutFilelist)
 	{
-		WriteLogO(std::string("Write ") + "output file" + " Out File!");
+		WriteLogO(std::string(L_LOG_WritingOutput) + " " + std::string(L_LOG_OutFile) + "!");
 		outFile->Outfinish(false);
 	}
 
 	if (!forceTerminate)
 	{
 		std::cout << '\n';
-		WriteLog(OtherHelper::GetCurrentProjectName() + " terminated normally!",
+		WriteLog(OtherHelper::GetCurrentProjectName() + " " + std::string(L_LOG_NormalEnd) + "!",
 				 "", false, "", ConsoleColor::Green);
 		std::this_thread::sleep_for(std::chrono::milliseconds(sleeptime));
 
@@ -429,7 +428,7 @@ void LogHelper::EndProgram(bool forceTerminate, const std::string &outstring, bo
 		{
 			if (!extcall)
 			{
-				throw new std::runtime_error("Aborting " + OtherHelper::GetCurrentProjectName());
+				throw new std::runtime_error(std::string(L_LOG_Aborting) + OtherHelper::GetCurrentProjectName());
 				std::exit(0);
 			}
 		}
@@ -437,7 +436,7 @@ void LogHelper::EndProgram(bool forceTerminate, const std::string &outstring, bo
 	else
 	{
 		std::cout << '\n';
-		WriteLog(" Aborting " + OtherHelper::GetCurrentProjectName(),
+		WriteLog(" " + std::string(L_LOG_Aborting) + OtherHelper::GetCurrentProjectName(),
 				 "", false, "", ConsoleColor::Red);
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(sleeptime));
@@ -454,7 +453,7 @@ void LogHelper::EndProgram(bool forceTerminate, const std::string &outstring, bo
 				{
 					return;
 				}
-				throw new std::runtime_error("Aborting " + OtherHelper::GetCurrentProjectName());
+				throw new std::runtime_error(std::string(L_LOG_Aborting) + OtherHelper::GetCurrentProjectName());
 				std::exit(0);
 			}
 		}
@@ -548,7 +547,7 @@ void LogHelper::ErrorLog(const std::string &message, const std::string &relmessa
 	std::string Nrelmessage = relmessage; ///< 最终使用的发布模式消息
 	std::string Nmessage = message;		  ///< 最终使用的调试模式消息（含函数名前缀）
 
-	Nmessage = functionName + " ERROR! " + message;
+	Nmessage = functionName + " " + std::string(L_LOG_ErrorTitle) + "! " + message;
 
 	if (title == "")
 	{
@@ -581,7 +580,7 @@ void LogHelper::ErrorLog(const std::string &message, const std::string &relmessa
 	/// LogHelper::ErrorLog(formattedMessage);
 	EndProgram(true);
 #endif
-	throw new std::runtime_error("Aborting " + OtherHelper::GetCurrentProjectName() + " due to error: " + Nmessage);
+	throw new std::runtime_error(std::string(L_LOG_Aborting) + OtherHelper::GetCurrentProjectName() + std::string(L_LOG_DueToError) + Nmessage);
 }
 
 /**

@@ -20,6 +20,7 @@
 #include <fftw/fftw3.h>
 
 #include "WindL/IO/WindL_IO_Subs.hpp"
+#include "IO/LocaleString_WindL.hpp"
 
 namespace
 {
@@ -29,131 +30,197 @@ constexpr double kTiny = 1.0e-12;
 constexpr double kHugeDecay = 1.0e9;
 constexpr double kOmega = 7.2921159e-5;
 
+/** @brief 雷诺应力目标设置，存储目标雷诺应力值及分量对应的省略标志 */
 struct ReynoldsStressSetup
 {
-	std::array<double, 3> target{0.0, 0.0, 0.0};
-	std::array<bool, 3> skip{true, true, true};
-	bool active = false;
+	std::array<double, 3> target{0.0, 0.0, 0.0};  ///< 目标雷诺应力值 (uu, uv=uw, vw) [N/m²]
+	std::array<bool, 3> skip{true, true, true};   ///< 各分量对的跳过标志 (uu, uv, vw)，true 表示不参与合成
+	bool active = false;                          ///< 是否启用雷诺应力约束合成
 };
 
+/** @brief 气象闭合参数包，汇总所有由风廓线与大气稳定度导出的气象学参数 */
 struct MeteorologyClosure
 {
-	double richardson = 0.0;
-	double zL = 0.0;
-	double moninLength = std::numeric_limits<double>::infinity();
-	double uStar = 0.0;
-	double uStarDiab = 0.0;
-	double mixingLayerDepth = 0.0;
-	double coriolis = 0.0;
-	std::array<double, 3> defaultGeneralCohDecay{0.0, 0.0, 0.0};
-	std::array<double, 3> defaultGeneralCohB{0.0, 0.0, 0.0};
-	ReynoldsStressSetup reynoldsStress;
+	double richardson = 0.0;                                                   ///< 梯度理查德森数 (Ri)
+	double zL = 0.0;                                                           ///< 无量纲稳定度参数 z/L
+	double moninLength = std::numeric_limits<double>::infinity();               ///< Monin-Obukhov 长度 [m]，无穷大表示中性层结
+	double uStar = 0.0;                                                        ///< 摩擦速度（中性层结） [m/s]
+	double uStarDiab = 0.0;                                                    ///< 非绝热摩擦速度（考虑稳定度修正后） [m/s]
+	double mixingLayerDepth = 0.0;                                             ///< 混合层高度（边界层厚度） [m]
+	double coriolis = 0.0;                                                     ///< Coriolis 参数 [1/s]
+	std::array<double, 3> defaultGeneralCohDecay{0.0, 0.0, 0.0};              ///< 默认广义相干衰减系数 (uu, uv, uw)
+	std::array<double, 3> defaultGeneralCohB{0.0, 0.0, 0.0};                  ///< 默认广义相干指数参数 B (uu, uv, uw)
+	ReynoldsStressSetup reynoldsStress;                                        ///< 雷诺应力目标设置
 };
 
+/** @brief 湍流风场仿真总配置，贯穿整个风场生成流水线，整合输入参数、网格划分、湍流模型、气象闭合及诊断信息 */
 struct SimWindConfig
 {
-	WindLInput input;
-	int ny = 0;
-	int nz = 0;
-	int nPoints = 0;
-	int nSteps = 0;
-	int nFreq = 0;
-	double dt = 0.0;
-	double duration = 0.0;
-	double df = 0.0;
-	double dy = 0.0;
-	double dz = 0.0;
-	double dx = 0.0;
-	double gridWidth = 0.0;
-	double gridHeight = 0.0;
-	double zBottom = 0.0;
-	double hubHeight = 0.0;
-	double uHub = 0.0;
-	double refHeight = 0.0;
-	double lambda = 0.0;
-	double lc = 0.0;
-	double effectiveRotorDiameter = 0.0;
-	double mannLength = 0.0;
-	double mannGamma = 0.0;
-	double mannMaxL = 0.0;
-	int mannFftPoints = 0;
-	int mannGridY = 0;
-	int mannGridZ = 0;
-	int scaleIEC = 0;
-	std::array<double, 3> sigma{0.0, 0.0, 0.0};
-	std::array<double, 3> integralScale{0.0, 0.0, 0.0};
-	std::array<double, 3> lateralScale{0.0, 0.0, 0.0};
-	std::array<double, 3> verticalScale{0.0, 0.0, 0.0};
-	std::array<double, 3> cohDecay{0.0, 0.0, 0.0};
-	std::array<double, 3> cohB{0.0, 0.0, 0.0};
-	std::array<CohModel, 3> cohModel{CohModel::DEFAULT_COH, CohModel::DEFAULT_COH, CohModel::DEFAULT_COH};
-	std::array<bool, 3> useKronecker{false, false, false};
-	std::array<int, 3> kroneckerFreqLimit{0, 0, 0};
-	std::array<bool, 3> hasExplicitCohDecay{false, false, false};
-	bool hasExplicitCohB = false;
-	std::vector<double> yCoords;
-	std::vector<double> zCoords;
-	std::vector<double> meanUByZ;
-	std::vector<double> y;
-	std::vector<double> z;
-	std::vector<double> meanU;
-	std::vector<double> directionByZ;
-	std::array<std::vector<double>, 3> sigmaByZ;
-	std::array<std::vector<double>, 3> lengthScaleByZ;
-	std::array<std::vector<double>, 3> lateralScaleByZ;
-	std::array<std::vector<double>, 3> verticalScaleByZ;
-	std::filesystem::path outputBase;
-	UserSpectraData userSpectra;
-	UserShearData userShear;
-	bool hasUserSpectra = false;
-	bool hasUserShear = false;
-	bool hasUserDirectionProfile = false;
-	bool hasUserSigmaProfile = false;
-	bool hasUserLengthScaleProfile = false;
-	bool hasSigmaProfileByZ = false;
-	bool hasLengthScaleProfileByZ = false;
-	bool hasImprovedVkProfile = false;
-	double estimatedPeakMemoryGiB = 0.0;
-	double estimatedCholeskyFlops = 0.0;
-	int strictCoherenceComponents = 0;
-	MeteorologyClosure met;
-	SimWindProgressCallback progress;
-	std::vector<std::string> warnings;
+	// ---- 原始输入 ----
+	WindLInput input;                                          ///< 原始输入参数结构体（用户/文件来源）
+	// ---- 网格与时间维度 ----
+	int ny = 0;                                                ///< Y 方向（水平横向）网格点数
+	int nz = 0;                                                ///< Z 方向（垂直）网格点数
+	int nPoints = 0;                                           ///< 空间点总数（ny × nz）
+	int nSteps = 0;                                            ///< 时间步数
+	int nFreq = 0;                                             ///< 频率点数（nSteps/2，Nyquist 折返）
+	// ---- 时间参数 ----
+	double dt = 0.0;                                           ///< 时间步长 [s]
+	double duration = 0.0;                                     ///< 模拟总时长 [s]
+	double df = 0.0;                                           ///< 频率分辨率 [Hz]（1/duration）
+	// ---- 空间步长 ----
+	double dy = 0.0;                                           ///< Y 方向网格间距 [m]
+	double dz = 0.0;                                           ///< Z 方向网格间距 [m]
+	double dx = 0.0;                                           ///< X 方向（顺风向）有效间距 [m]（Taylor 冻结假设）
+	// ---- 网格几何 ----
+	double gridWidth = 0.0;                                    ///< Y 方向网格总宽度 [m]
+	double gridHeight = 0.0;                                   ///< Z 方向网格总高度 [m]
+	double zBottom = 0.0;                                      ///< 网格底部高程 [m]
+	// ---- 轮毂与参考高度参数 ----
+	double hubHeight = 0.0;                                    ///< 轮毂高度 [m]
+	double uHub = 0.0;                                         ///< 轮毂高度处的平均风速 [m/s]
+	double refHeight = 0.0;                                    ///< 参考高度（用于风廓线推算） [m]
+	// ---- 空间相关参数 ----
+	double lambda = 0.0;                                       ///< 湍流积分尺度 Lam [m]（纵向分量）
+	double lc = 0.0;                                           ///< 相干长度 Lc [m]
+	double effectiveRotorDiameter = 0.0;                       ///< 等效风轮直径 [m]（用于 IEC 缩放）
+	// ---- Mann 模型参数 ----
+	double mannLength = 0.0;                                   ///< Mann 模型长度尺度 [m]
+	double mannGamma = 0.0;                                    ///< Mann 模型各向异性参数 Gamma
+	double mannMaxL = 0.0;                                     ///< Mann 模型最大涡尺度 Lmax [m]
+	int mannFftPoints = 0;                                     ///< Mann 3D FFT 每方向点数
+	int mannGridY = 0;                                         ///< Mann 3D FFT Y 方向网格数
+	int mannGridZ = 0;                                         ///< Mann 3D FFT Z 方向网格数
+	// ---- IEC 缩放 ----
+	int scaleIEC = 0;                                          ///< IEC 湍流强度缩放模式 (0=不缩放, 1=按 IEC 标准缩放)
+	// ---- 湍流统计量（标量） ----
+	std::array<double, 3> sigma{0.0, 0.0, 0.0};               ///< 三个速度分量的标准差 (u, v, w) [m/s]
+	std::array<double, 3> integralScale{0.0, 0.0, 0.0};       ///< 三向积分长度尺度 (Lu, Lv, Lw) [m]
+	std::array<double, 3> lateralScale{0.0, 0.0, 0.0};        ///< 三向横向长度尺度 (yu_Lu, yv_Lv, yw_Lw) [m]
+	std::array<double, 3> verticalScale{0.0, 0.0, 0.0};       ///< 三向垂向长度尺度 (zu_Lu, zv_Lv, zw_Lw) [m]
+	// ---- 相干模型参数 ----
+	std::array<double, 3> cohDecay{0.0, 0.0, 0.0};            ///< 相干衰减系数 (uu, uv, uw) [1/m]
+	std::array<double, 3> cohB{0.0, 0.0, 0.0};                ///< 相干指数参数 B (uu, uv, uw)
+	std::array<CohModel, 3> cohModel{CohModel::DEFAULT_COH, CohModel::DEFAULT_COH, CohModel::DEFAULT_COH};  ///< 各分量的相干模型类型
+	std::array<bool, 3> useKronecker{false, false, false};    ///< 各分量是否使用 Kronecker 近似加速相关生成
+	std::array<int, 3> kroneckerFreqLimit{0, 0, 0};           ///< Kronecker 模式下的频率截断点（0=自动）
+	std::array<bool, 3> hasExplicitCohDecay{false, false, false};  ///< 各分量是否由用户显式指定相干衰减系数
+	bool hasExplicitCohB = false;                              ///< 是否由用户显式指定相干指数 B
+	// ---- 坐标与风廓线向量 ----
+	std::vector<double> yCoords;                               ///< Y 坐标向量（水平横向） [m]
+	std::vector<double> zCoords;                               ///< Z 坐标向量（垂直） [m]
+	std::vector<double> meanUByZ;                              ///< 各 Z 高度的平均风速 [m/s]
+	std::vector<double> y;                                     ///< 展开后的 Y 坐标（逐点） [m]
+	std::vector<double> z;                                     ///< 展开后的 Z 坐标（逐点） [m]
+	std::vector<double> meanU;                                 ///< 展开后的平均风速（逐点） [m/s]
+	std::vector<double> directionByZ;                          ///< 各 Z 高度的风向 [deg]
+	// ---- 分层湍流参数向量 ----
+	std::array<std::vector<double>, 3> sigmaByZ;               ///< 各高度层的三个速度分量标准差 [m/s]
+	std::array<std::vector<double>, 3> lengthScaleByZ;         ///< 各高度层的三向积分长度尺度 [m]
+	std::array<std::vector<double>, 3> lateralScaleByZ;        ///< 各高度层的三向横向长度尺度 [m]
+	std::array<std::vector<double>, 3> verticalScaleByZ;       ///< 各高度层的三向垂向长度尺度 [m]
+	// ---- 输出路径 ----
+	std::filesystem::path outputBase;                          ///< 输出文件的基路径（目录 + 前缀）
+	// ---- 用户自定义数据 ----
+	UserSpectraData userSpectra;                               ///< 用户自定义频谱数据（频率 × 分量矩阵）
+	UserShearData userShear;                                   ///< 用户自定义风切变数据（高度 × 风速对）
+	// ---- 用户数据可用标志 ----
+	bool hasUserSpectra = false;                               ///< 是否提供了用户自定义频谱
+	bool hasUserShear = false;                                 ///< 是否提供了用户自定义风切变
+	bool hasUserDirectionProfile = false;                      ///< 是否提供了用户自定义风向廓线
+	bool hasUserSigmaProfile = false;                          ///< 是否提供了用户自定义标准差廓线
+	bool hasUserLengthScaleProfile = false;                    ///< 是否提供了用户自定义长度尺度廓线
+	// ---- 分层参数标志 ----
+	bool hasSigmaProfileByZ = false;                           ///< 是否存在按高度分层的标准差廓线
+	bool hasLengthScaleProfileByZ = false;                     ///< 是否存在按高度分层的长度尺度廓线
+	bool hasImprovedVkProfile = false;                         ///< 是否启用 Improved von Kármán 廓线模型
+	// ---- 资源估算与诊断 ----
+	double estimatedPeakMemoryGiB = 0.0;                       ///< 预估峰值内存占用 [GiB]
+	double estimatedCholeskyFlops = 0.0;                       ///< 预估 Cholesky 分解浮点运算量 [FLOPs]
+	int strictCoherenceComponents = 0;                         ///< 需要严格相干矩阵的湍流分量数（0-3）
+	// ---- 子系统 ----
+	MeteorologyClosure met;                                    ///< 气象闭合参数包
+	SimWindProgressCallback progress;                          ///< 进度回调函数
+	std::vector<std::string> warnings;                         ///< 配置构建过程中的警告信息列表
 };
 
+/** @brief 三维湍流风场容器，以交错存储方式管理 (u, v, w) 三个分量在全部时间步和空间点上的速度值 */
 struct WindField
 {
-	int nSteps = 0;
-	int nPoints = 0;
-	std::array<std::vector<double>, 3> component;
+	int nSteps = 0;                                    ///< 时间步数
+	int nPoints = 0;                                   ///< 空间点数
+	std::array<std::vector<double>, 3> component;      ///< 三个速度分量向量，每个分量按 [step * nPoints + point] 交错存储
 
+	/** @brief 获取指定分量在指定时间步和空间点处的风速值（可写引用）
+	 *  @param comp  速度分量索引：0=u（纵向），1=v（横向），2=w（竖向）
+	 *  @param step  时间步索引，范围 [0, nSteps-1]
+	 *  @param point 空间点索引，范围 [0, nPoints-1]
+	 *  @return      对应位置的可写引用，允许直接赋值修改风场
+	 *  @note        内存布局为交错存储：component[comp][step * nPoints + point]，
+	 *               其中第一维为时间步（步长 nPoints），第二维为空间点连续排列，
+	 *               即同一时间步的所有空间点连续存放。
+	 */
 	double &At(int comp, int step, int point)
 	{
+		// 交错存储：每时间步内所有空间点连续排列，索引 = step × nPoints + point
 		return component[static_cast<std::size_t>(comp)][static_cast<std::size_t>(step) * nPoints + point];
 	}
 
+	/** @brief 获取指定分量在指定时间步和空间点处的风速值（只读）
+	 *  @param comp  速度分量索引：0=u（纵向），1=v（横向），2=w（竖向）
+	 *  @param step  时间步索引，范围 [0, nSteps-1]
+	 *  @param point 空间点索引，范围 [0, nPoints-1]
+	 *  @return      对应位置的风速值（const 副本）
+	 *  @note        与可写版本共享相同的内存布局：component[comp][step * nPoints + point]，
+	 *               即按时间步优先、空间点连续的交错存储方式。
+	 */
 	double At(int comp, int step, int point) const
 	{
+		// 交错存储：每时间步内所有空间点连续排列，索引 = step × nPoints + point
 		return component[static_cast<std::size_t>(comp)][static_cast<std::size_t>(step) * nPoints + point];
 	}
 };
 
+/** @brief 批量一维 FFTW 逆变换计划 RAII 封装，管理复数数据缓冲区和 FFTW plan 的生命周期，提供频谱写入与时域实部读取接口 */
 struct FftwBatchPlan1D
 {
-	int n = 0;
-	int nTransforms = 0;
-	fftw_complex *data = nullptr;
-	fftw_plan plan = nullptr;
+	int n = 0;                           ///< 每个变换的频点数
+	int nTransforms = 0;                 ///< 批量变换个数
+	fftw_complex *data = nullptr;        ///< FFTW 复数数据缓冲区，大小为 n × nTransforms（行列交错的 batch 布局）
+	fftw_plan plan = nullptr;            ///< FFTW 逆 DFT 计划句柄（FFTW_BACKWARD，ESTIMATE 模式）
 
+	/** @brief 构造批量一维 IFFT 计划，分配复数缓冲区并创建 FFTW 逆 DFT 计划
+	 *  @param n           每个变换的频点数（通常为时间步数 nSteps）
+	 *  @param nTransforms 批量变换个数（通常为空间点数 nPoints）
+	 *  @throw             当 FFTW 内存分配或计划创建失败时抛出 std::runtime_error
+	 *  @note  RAII 语义：构造时分配资源，析构时自动释放。
+	 *         使用 fftw_plan_many_dft 创建批量计划：
+	 *         - rank=1：一维 DFT（沿频点方向）
+	 *         - howmany=nTransforms：同时执行 nTransforms 个独立的一维变换
+	 *         - FFTW_BACKWARD：逆变换，将频域复数谱转换回时域实信号
+	 *         - FFTW_ESTIMATE：快速计划生成，不追求极致性能优化
+	 *         内存布局为行交错：data[step * nTransforms + transform]，
+	 *         即每个频点 step 下连续排列 nTransforms 个空间点的复数值，
+	 *         这种布局使得 stride=1 为空间点维度，适合批量 IFFT 的 howmany 参数。
+	 *  @warning 该计划为 ESTIMATE 模式，未使用 FFTW_MEASURE，大型网格初次运行耗时可能偏长。
+	 */
 	FftwBatchPlan1D(int n, int nTransforms)
 	    : n(n), nTransforms(nTransforms)
 	{
 		const std::size_t total = static_cast<std::size_t>(n) * static_cast<std::size_t>(nTransforms);
 		data = static_cast<fftw_complex *>(fftw_malloc(sizeof(fftw_complex) * total));
 		if (data == nullptr)
-			throw std::runtime_error("FFTW failed to allocate SimWind batch IFFT buffers.");
+			throw std::runtime_error(L_WIND_FFTWMallocFail);
 
 		std::memset(data, 0, sizeof(fftw_complex) * total);
+		// fftw_plan_many_dft 参数说明：
+		//   rank=1           : 一维 DFT，每个变换沿频点方向
+		//   dims={n}         : 每个一维变换的长度为 n
+		//   howmany=nTransforms : 批量执行 nTransforms 个独立变换
+		//   data (inembed)   : 输入数组，stride=1（空间点维连续），dist=nTransforms（频点间步长）
+		//   data (onembed)   : 输出覆盖输入（原地变换），布局相同
+		//   FFTW_BACKWARD    : 逆 DFT，频谱→时域
+		//   FFTW_ESTIMATE    : 快速估算计划参数
 		int dims[1] = {n};
 		plan = fftw_plan_many_dft(1,
 		                          dims,
@@ -169,9 +236,13 @@ struct FftwBatchPlan1D
 		                          FFTW_BACKWARD,
 		                          FFTW_ESTIMATE);
 		if (plan == nullptr)
-			throw std::runtime_error("FFTW failed to create SimWind batch IFFT plan.");
+			throw std::runtime_error(L_WIND_FFTWPlanFail);
 	}
 
+	/** @brief 析构 FFTW 批量计划，销毁计划句柄并释放复数缓冲区
+	 *  @note  RAII 资源清理：先销毁 FFTW plan（若存在），再释放 fftw_malloc 分配的内存。
+	 *         对空指针安全——指针为空时跳过对应释放操作。
+	 */
 	~FftwBatchPlan1D()
 	{
 		if (plan != nullptr)
@@ -180,26 +251,59 @@ struct FftwBatchPlan1D
 			fftw_free(data);
 	}
 
+	/** @brief 禁止拷贝构造与拷贝赋值（RAII 资源独占所有权）
+	 *  @note  FFTW plan 和 data 指针不可共享，拷贝会导致双重释放。
+	 *         仅支持移动语义的场景请使用 std::unique_ptr 包装。
+	 */
 	FftwBatchPlan1D(const FftwBatchPlan1D &) = delete;
 	FftwBatchPlan1D &operator=(const FftwBatchPlan1D &) = delete;
 
+	/** @brief 将整个复数缓冲区清零（memset 为 0）
+	 *  @note  数据清零后所有频点频谱幅值为零，适用于新分量合成前的初始化。
+	 *          缓冲区大小为 sizeof(fftw_complex) × n × nTransforms 字节。
+	 */
 	void ZeroAll()
 	{
 		std::memset(data, 0, sizeof(fftw_complex) * static_cast<std::size_t>(n) * static_cast<std::size_t>(nTransforms));
 	}
 
+	/** @brief 执行批量逆 FFT（FFTW_BACKWARD），将频域复数谱转换回时域实信号
+	 *  @note  调用 fftw_execute 触发原地逆变换，所有 nTransforms 个变换同时完成。
+	 *          执行后 data 缓冲区内容由频域变为时域（未归一化），需手动除以 n 缩放。
+	 *          该函数无返回值——结果直接写入 data 缓冲区。
+	 */
 	void Execute()
 	{
 		fftw_execute(plan);
 	}
 
+	/** @brief 向频谱缓冲区写入复数值（用于设置正频率点的湍流振幅）
+	 *  @param step      频点索引（0 到 n-1），通常对应傅里叶频率 k
+	 *  @param transform 空间点/变换索引（0 到 nTransforms-1）
+	 *  @param value     要写入的复数值（包含幅值和相位信息）
+	 *  @note  内存布局：index = step × nTransforms + transform。
+	 *         频谱半共轭对称性要求：正频率 k 与负频率 N-k 处互为共轭，
+	 *         即 SetSpectrum(k, p, value) 的同时应调用
+	 *         SetSpectrum(N-k, p, std::conj(value)) 以确保 IFFT 输出为实数。
+	 *         实部和虚部分别写入 data[index][0] 和 data[index][1]。
+	 */
 	void SetSpectrum(int step, int transform, const std::complex<double> &value)
 	{
+		// 半谱共轭对称：k 频点处的复幅值与 N-k 频点处的复幅值互为共轭
+		// 调用方需确保对应负频率位置也被正确填充
 		const std::size_t index = static_cast<std::size_t>(step) * static_cast<std::size_t>(nTransforms) + static_cast<std::size_t>(transform);
 		data[index][0] = value.real();
 		data[index][1] = value.imag();
 	}
 
+	/** @brief 读取 IFFT 后的时域实部值（用于从 data 中提取风速时间序列）
+	 *  @param step      时间步索引（0 到 n-1），IFFT 后对应时域采样点
+	 *  @param transform 空间点/变换索引（0 到 nTransforms-1）
+	 *  @return          IFFT 输出在 (step, transform) 处的实部值（未归一化）
+	 *  @note  读取的是 data[index][0]（复数的实部）；IFFT 后虚部理论上为零（舍入误差）。
+	 *         调用方需手动乘以 1.0/n 进行归一化缩放。
+	 *         内存布局与 SetSpectrum 相同：index = step × nTransforms + transform。
+	 */
 	double OutputReal(int step, int transform) const
 	{
 		const std::size_t index = static_cast<std::size_t>(step) * static_cast<std::size_t>(nTransforms) + static_cast<std::size_t>(transform);
@@ -207,37 +311,70 @@ struct FftwBatchPlan1D
 	}
 };
 
+/** @brief 三维 FFTW 复数体 RAII 封装，管理 Mann 三维湍流场 FFT 所需的复数数据缓冲区，提供按坐标读写及 3D 逆变换执行接口 */
 struct FftwComplexVolume
 {
-	int nx = 0;
-	int ny = 0;
-	int nz = 0;
-	fftw_complex *data = nullptr;
+	int nx = 0;                      ///< X 方向（顺风向）维度点数
+	int ny = 0;                      ///< Y 方向（水平横向）维度点数
+	int nz = 0;                      ///< Z 方向（垂直）维度点数
+	fftw_complex *data = nullptr;    ///< FFTW 复数数据缓冲区，行优先 (ix, iy, iz) 布局，大小为 nx × ny × nz
 
+	/** @brief 构造三维 FFTW 复数体，分配并清零 nx×ny×nz 个复数的缓冲区
+	 *  @param nx X 方向（顺风向/时间维）维度点数
+	 *  @param ny Y 方向（水平横向）维度点数
+	 *  @param nz Z 方向（垂直）维度点数
+	 *  @throw 当 FFTW 内存分配失败时抛出 std::runtime_error
+	 *  @note   RAII 语义：构造时通过 fftw_malloc 分配 sizeof(fftw_complex)×nx×ny×nz 字节，
+	 *          并 memset 清零。用于 Mann 3D 湍流谱的频域复振幅存储。
+	 *          内存布局为行优先：(ix × ny + iy) × nz + iz。
+	 */
 	FftwComplexVolume(int nx, int ny, int nz)
 	    : nx(nx), ny(ny), nz(nz)
 	{
 		const std::size_t total = static_cast<std::size_t>(nx) * ny * nz;
 		data = static_cast<fftw_complex *>(fftw_malloc(sizeof(fftw_complex) * total));
 		if (data == nullptr)
-			throw std::runtime_error("FFTW failed to allocate SimWind 3D Mann buffers.");
+			throw std::runtime_error(L_WIND_FFTWMalloc3D);
 		std::memset(data, 0, sizeof(fftw_complex) * total);
 	}
 
+	/** @brief 析构复数体，释放 FFTW 分配的复数缓冲区
+	 *  @note  RAII 资源清理：对空指针安全（data==nullptr 时跳过 free）。
+	 */
 	~FftwComplexVolume()
 	{
 		if (data != nullptr)
 			fftw_free(data);
 	}
 
+	/** @brief 禁止拷贝构造与拷贝赋值（RAII 资源独占所有权）
+	 *  @note  data 指针不可共享，拷贝会导致双重释放 fftw_free。
+	 */
 	FftwComplexVolume(const FftwComplexVolume &) = delete;
 	FftwComplexVolume &operator=(const FftwComplexVolume &) = delete;
 
+	/** @brief 将三维坐标 (ix, iy, iz) 映射为一维线性索引
+	 *  @param ix X 方向索引，范围 [0, nx-1]
+	 *  @param iy Y 方向索引，范围 [0, ny-1]
+	 *  @param iz Z 方向索引，范围 [0, nz-1]
+	 *  @return  一维线性索引，范围 [0, nx×ny×nz-1]
+	 *  @note    行优先布局：(ix × ny + iy) × nz + iz，其中 iz 连续变化（最内层维度）。
+	 *           即先按 ix、再按 iy、最后按 iz 排列，与 C 多维数组默认存储顺序一致。
+	 */
 	std::size_t Index(int ix, int iy, int iz) const
 	{
+		// 行优先存储：(ix × ny + iy) × nz + iz，iz 为最内层连续维度
 		return (static_cast<std::size_t>(ix) * ny + static_cast<std::size_t>(iy)) * nz + static_cast<std::size_t>(iz);
 	}
 
+	/** @brief 设置三维指定位置的复数值
+	 *  @param ix    X 方向索引
+	 *  @param iy    Y 方向索引
+	 *  @param iz    Z 方向索引
+	 *  @param value 要写入的复数值
+	 *  @note  写入实部到 data[index][0]、虚部到 data[index][1]。
+	 *         内部通过 Index() 计算线性索引，遵循行优先存储。
+	 */
 	void Set(int ix, int iy, int iz, const std::complex<double> &value)
 	{
 		const std::size_t index = Index(ix, iy, iz);
@@ -245,50 +382,119 @@ struct FftwComplexVolume
 		data[index][1] = value.imag();
 	}
 
+	/** @brief 读取指定位置的实部值（用于从 IFFT 输出提取物理风速分量）
+	 *  @param ix X 方向索引
+	 *  @param iy Y 方向索引
+	 *  @param iz Z 方向索引
+	 *  @return  该位置的实部值（IFFT 后虚部理论上为零）
+	 *  @note    读取 data[Index(ix,iy,iz)][0]；调用前需确保已执行 ExecuteBackward()。
+	 *           返回值为未归一化的 IFFT 输出，需手动除以 nx×ny×nz 缩放。
+	 */
 	double Real(int ix, int iy, int iz) const
 	{
 		return data[Index(ix, iy, iz)][0];
 	}
 
+	/** @brief 创建并执行三维逆 FFT（FFTW_BACKWARD），然后立即销毁计划
+	 *  @throw 当 FFTW 计划创建失败时抛出 std::runtime_error
+	 *  @note  调用 fftw_plan_dft_3d 创建原地 3D 逆变换计划（ESTIMATE 模式），
+	 *          执行 fftw_execute 后立即 fftw_destroy_plan 销毁计划。
+	 *          执行后 data 缓冲区由频域转换为时域空间场。
+	 *  @warning 每次调用均重新创建并销毁 FFTW 计划，是一种次优实现策略。
+	 *           对于需要多次执行逆变换的场景（如迭代优化），应缓存 plan 句柄复用。
+	 *           当前设计下反复调用会导致不必要的计划创建开销。
+	 */
 	void ExecuteBackward()
 	{
+		// 注意：每次调用都重新创建和销毁 3D FFTW plan（ESTIMATE 模式）
+		// 这意味着重复调用会产生计划创建开销，不适合频繁使用场景
 		fftw_plan plan = fftw_plan_dft_3d(nx, ny, nz, data, data, FFTW_BACKWARD, FFTW_ESTIMATE);
 		if (plan == nullptr)
-			throw std::runtime_error("FFTW failed to create SimWind 3D Mann IFFT plan.");
+			throw std::runtime_error(L_WIND_FFTWPlan3D);
 		fftw_execute(plan);
 		fftw_destroy_plan(plan);
 	}
 };
 
+/** @brief 将标量值以二进制形式写入输出流
+ *  @param out 二进制输出流引用，流须处于正常状态
+ *  @param value 要写入的标量值（POD 类型，如 int/double/float）
+ *  @note 写入失败时抛出 std::runtime_error
+ *  @code
+ *  WriteScalar(stream, 3.14);
+ *  @endcode
+ */
 template <typename T>
 void WriteScalar(std::ofstream &out, T value)
 {
 	out.write(reinterpret_cast<const char *>(&value), sizeof(T));
 	if (!out)
-		throw std::runtime_error("Failed while writing SimWind binary output.");
+		throw std::runtime_error(L_WIND_BinaryWriteFail);
 }
 
+/** @brief 将二维网格坐标 (iz, iy) 转换为一维索引
+ *  @param cfg 风场配置（取其 ny 维度）
+ *  @param iz Z 方向（垂直）网格索引，范围 [0, nz-1]
+ *  @param iy Y 方向（水平）网格索引，范围 [0, ny-1]
+ *  @return 一维索引值 iz * ny + iy
+ *  @note 按行主序（iy 连续）排列
+ *  @code
+ *  int idx = GridIndex(cfg, 2, 3);
+ *  @endcode
+ */
 int GridIndex(const SimWindConfig &cfg, int iz, int iy)
 {
 	return iz * cfg.ny + iy;
 }
 
+/** @brief 返回正值，否则返回回退值
+ *  @param value 待检查的数值
+ *  @param fallback 当 value <= 0 时的回退值
+ *  @return value > 0 ? value : fallback
+ *  @code
+ *  double v = ClampPositive(x, 1.0);
+ *  @endcode
+ */
 double ClampPositive(double value, double fallback)
 {
 	return value > 0.0 ? value : fallback;
 }
 
+/** @brief 通过回调转发进度消息
+ *  @param cfg 风场配置（持有 progress 回调函数指针）
+ *  @param message 要转发的进度消息文本
+ *  @note 若 cfg.progress 为空则静默丢弃消息
+ *  @code
+ *  Report(cfg, "正在计算湍流谱...");
+ *  @endcode
+ */
 void Report(const SimWindConfig &cfg, const std::string &message)
 {
 	if (cfg.progress)
 		cfg.progress(message);
 }
 
+/** @brief 检查高度剖面与数值剖面的尺寸是否匹配
+ *  @param heights 高度序列
+ *  @param values 对应高度上的数值序列
+ *  @return 两地容器非空且长度相等时返回 true
+ *  @code
+ *  bool ok = HasProfileColumn(h, v);
+ *  @endcode
+ */
 bool HasProfileColumn(const std::vector<double> &heights, const std::vector<double> &values)
 {
 	return !heights.empty() && heights.size() == values.size();
 }
 
+/** @brief 获取用户自定义标准差缩放因子
+ *  @param data 用户剪切数据（包含三个分量的 stdScale）
+ *  @param comp 分量索引：0=U, 1=V, 2=W
+ *  @return 若对应分量缩放因子 > 0 则返回该值，否则返回 1.0
+ *  @code
+ *  double s = UserStdScale(shear, 0);
+ *  @endcode
+ */
 double UserStdScale(const UserShearData &data, int comp)
 {
 	switch (comp)
@@ -299,7 +505,20 @@ double UserStdScale(const UserShearData &data, int comp)
 	}
 }
 
+/** @brief 在高度-数值剖面上执行线性插值（前向声明，实现见后）
+ *  @param heights 高度序列，须单调递增
+ *  @param values 对应高度上的数值序列
+ *  @param z 待插值的目标高度
+ *  @return 插值结果
+ */
 double InterpolateProfile(const std::vector<double> &heights, const std::vector<double> &values, double z);
+/** @brief 将角度归一化到 [0°, 360°) 区间
+ *  @param value 输入角度（度），可为任意实数
+ *  @return 归一化到 [0, 360) 的角度
+ *  @code
+ *  double a = NormalizeDirectionDegrees(-45.0); // 返回 315.0
+ *  @endcode
+ */
 double NormalizeDirectionDegrees(double value)
 {
 	double wrapped = std::fmod(value, 360.0);
@@ -308,6 +527,16 @@ double NormalizeDirectionDegrees(double value)
 	return wrapped;
 }
 
+/** @brief 风向插值，处理圆周环绕（0°/360° 连续）
+ *  @param heights 高度序列，须单调递增
+ *  @param directions 对应各高度的风向角度（度）
+ *  @param z 待插值的目标高度
+ *  @return 插值后的风向角度，已归一化到 [0, 360)
+ *  @note 插值时使用最短弧差，避免 359°→1° 绕大圈
+ *  @code
+ *  double wd = InterpolateWrappedDirection(h, dir, 30.0);
+ *  @endcode
+ */
 double InterpolateWrappedDirection(const std::vector<double> &heights,
                                    const std::vector<double> &directions,
                                    double z)
@@ -335,17 +564,40 @@ double InterpolateWrappedDirection(const std::vector<double> &heights,
 	return NormalizeDirectionDegrees(d0 + a * delta);
 }
 
+/** @brief 向警告列表去重追加一条警告
+ *  @param warnings 警告字符串列表（将被修改）
+ *  @param text 要追加的警告文本
+ *  @note 若 text 已在 warnings 中存在则忽略，保证同一条警告只出现一次
+ *  @code
+ *  AppendWarning(warnings, "剪切不满足...");
+ *  @endcode
+ */
 void AppendWarning(std::vector<std::string> &warnings, const std::string &text)
 {
 	if (std::find(warnings.begin(), warnings.end(), text) == warnings.end())
 		warnings.push_back(text);
 }
 
+/** @brief 获取可变的警告列表引用（const_cast 包装）
+ *  @param cfg const 风场配置
+ *  @return 内部 warnings 向量的非 const 引用
+ *  @note 此函数为设计缺陷：通过 const_cast 突破 const 约束。仅用于向后兼容遗留代码
+ *  @code
+ *  auto &w = MutableWarnings(cfg);
+ *  @endcode
+ */
 std::vector<std::string> &MutableWarnings(const SimWindConfig &cfg)
 {
 	return const_cast<std::vector<std::string> &>(cfg.warnings);
 }
 
+/** @brief 将双精度浮点数格式化为带两位小数的 GiB 字符串
+ *  @param value 数值（以 GiB 为单位）
+ *  @return 如 "1.50 GiB" 的格式化字符串
+ *  @code
+ *  std::string s = FormatGiB(1.5);
+ *  @endcode
+ */
 std::string FormatGiB(double value)
 {
 	std::ostringstream out;
@@ -353,6 +605,13 @@ std::string FormatGiB(double value)
 	return out.str();
 }
 
+/** @brief 将双精度浮点数格式化为科学计数字符串（3 位有效数字）
+ *  @param value 要格式化的数值
+ *  @return 如 "1.235e+06" 的科学计数字符串
+ *  @code
+ *  std::string s = FormatScientific(1234567.89);
+ *  @endcode
+ */
 std::string FormatScientific(double value)
 {
 	std::ostringstream out;
@@ -360,6 +619,13 @@ std::string FormatScientific(double value)
 	return out.str();
 }
 
+/** @brief 将秒数格式化为两位小数的定点数字符串
+ *  @param value 秒数（双精度）
+ *  @return 如 "15.23" 的定点数字符
+ *  @code
+ *  std::string s = FormatSeconds(15.23);
+ *  @endcode
+ */
 std::string FormatSeconds(double value)
 {
 	std::ostringstream out;
@@ -367,6 +633,14 @@ std::string FormatSeconds(double value)
 	return out.str();
 }
 
+/** @brief 将秒数格式化为人类可读的时长字符串 "Xd Yh Zm Ss"
+ *  @param seconds 秒数，须 >= 0 且有限
+ *  @return 如 "1d 2h 30m 15s" 的时长字符串，非法输入返回 "unknown"
+ *  @note 高位为零的字段自动省略（如 120s → "2m 0s" 而非 "0d 0h 2m 0s"）
+ *  @code
+ *  std::string s = FormatDuration(90061.0);
+ *  @endcode
+ */
 std::string FormatDuration(double seconds)
 {
 	if (!std::isfinite(seconds) || seconds < 0.0)
@@ -389,6 +663,14 @@ std::string FormatDuration(double seconds)
 	return out.str();
 }
 
+/** @brief 根据 Cholesky 分解 FLOPs 估算初始运行时间范围
+ *  @param flops Cholesky 分解的浮点运算量（FLOPs）
+ *  @return "Xs to Ys" 形式的时间范围字符串，flops <= 0 返回 "0s"
+ *  @note 快速端按 1e12 FLOP/s 估算，慢速端按 1e11 FLOP/s 估算
+ *  @code
+ *  std::string s = InitialRuntimeEstimate(1.0e15);
+ *  @endcode
+ */
 std::string InitialRuntimeEstimate(double flops)
 {
 	if (flops <= 0.0)
@@ -399,11 +681,28 @@ std::string InitialRuntimeEstimate(double flops)
 	return FormatDuration(fast) + " to " + FormatDuration(slow) + " for Cholesky work only";
 }
 
+/** @brief 计算偶数时间步数
+ *  @param duration 模拟总时长（秒），须 >= 0
+ *  @param dt 时间步长（秒），须 > 0
+ *  @return 向上取整后的步数，最小返回 2
+ *  @note 偶数步数有利于 FFT 计算
+ *  @code
+ *  int n = EvenStepCount(600.0, 0.05);
+ *  @endcode
+ */
 int EvenStepCount(double duration, double dt)
 {
 	return std::max(2, static_cast<int>(std::ceil(duration / dt)));
 }
 
+/** @brief 将湍流强度值归一化为小数形式
+ *  @param value 湍流强度，百分比（>1）或小数（<=1）
+ *  @return 小数形式的湍流强度；若 value <= 0 返回 0
+ *  @note >1 视为百分比（除以 100），<= 1 视为已归一化值
+ *  @code
+ *  double ti = FractionalTI(12.0); // 返回 0.12
+ *  @endcode
+ */
 double FractionalTI(double value)
 {
 	if (value <= 0.0)
@@ -411,6 +710,13 @@ double FractionalTI(double value)
 	return value > 1.0 ? value / 100.0 : value;
 }
 
+/** @brief 返回 IEC 湍流等级的参考湍流强度 Iref
+ *  @param value 湍流等级枚举
+ *  @return Class_A→0.16, Class_B→0.14, Class_C→0.12，其他默认 0.14
+ *  @code
+ *  double iref = TurbulenceClassIref(TurbulenceClass::Class_A);
+ *  @endcode
+ */
 double TurbulenceClassIref(TurbulenceClass value)
 {
 	switch (value)
@@ -422,6 +728,13 @@ double TurbulenceClassIref(TurbulenceClass value)
 	}
 }
 
+/** @brief 返回风机等级的默认参考风速 Vref
+ *  @param value 风机等级枚举
+ *  @return Class_I→50.0, Class_II→42.5, Class_III→37.5, Class_S→50.0 m/s，默认 50.0
+ *  @code
+ *  double vref = DefaultVRef(TurbineClass::Class_I);
+ *  @endcode
+ */
 double DefaultVRef(TurbineClass value)
 {
 	switch (value)
@@ -434,21 +747,52 @@ double DefaultVRef(TurbineClass value)
 	}
 }
 
+/** @brief IEC 50 年一遇极端风速 Ve50
+ *  @param cfg 风场配置（取 cfg.input.vRef 及风机等级）
+ *  @return Ve50 = 1.4 × max(vRef, DefaultVRef)，单位 m/s
+ *  @note 当用户 vRef <= 0 时自动取默认等级参考值
+ *  @code
+ *  double ve50 = ExtremeWindSpeed50(cfg);
+ *  @endcode
+ */
 double ExtremeWindSpeed50(const SimWindConfig &cfg)
 {
 	return 1.4 * ClampPositive(cfg.input.vRef, DefaultVRef(cfg.input.turbineClass));
 }
 
+/** @brief IEC 1 年一遇极端风速 Ve1
+ *  @param cfg 风场配置
+ *  @return Ve1 = 0.8 × Ve50，单位 m/s
+ *  @code
+ *  double ve1 = ExtremeWindSpeed1(cfg);
+ *  @endcode
+ */
 double ExtremeWindSpeed1(const SimWindConfig &cfg)
 {
 	return 0.8 * ExtremeWindSpeed50(cfg);
 }
 
+/** @brief 根据风模型分派极风风速
+ *  @param cfg 风场配置
+ *  @param model 风模型枚举
+ *  @return EWM1→Ve1, 其他（包括 EWM50）→Ve50
+ *  @code
+ *  double v = ExtremeWindSpeedForWindModel(cfg, WindModel::EWM50);
+ *  @endcode
+ */
 double ExtremeWindSpeedForWindModel(const SimWindConfig &cfg, WindModel model)
 {
 	return model == WindModel::EWM1 ? ExtremeWindSpeed1(cfg) : ExtremeWindSpeed50(cfg);
 }
 
+/** @brief NTM 参考湍流标准差 Sigma1
+ *  @param cfg 风场配置（取湍流等级、IEC 版本、轮毂处平均风速）
+ *  @return 轮毂高度处的参考湍流标准差，单位 m/s
+ *  @note ED2 版本使用轮毂风速线性模型；其他版本使用 Iref×K 公式
+ *  @code
+ *  double s1 = ReferenceSigma1Ntm(cfg);
+ *  @endcode
+ */
 double ReferenceSigma1Ntm(const SimWindConfig &cfg)
 {
 	const double iref = TurbulenceClassIref(cfg.input.turbClass);
@@ -461,6 +805,13 @@ double ReferenceSigma1Ntm(const SimWindConfig &cfg)
 	return iref * (0.75 * cfg.uHub + 5.6);
 }
 
+/** @brief IEC 极端运行阵风 (EOG) 幅值
+ *  @param cfg 风场配置（取 Sigma1、Ve1、轮毂风速等）
+ *  @return EOG 阵风幅值 Veag = min(1.35×(Ve1-Uhub), 3.3×Sigma1/denom)，单位 m/s
+ *  @code
+ *  double amp = ExtremeOperatingGustAmplitude(cfg);
+ *  @endcode
+ */
 double ExtremeOperatingGustAmplitude(const SimWindConfig &cfg)
 {
 	const double sigma1 = ReferenceSigma1Ntm(cfg);
@@ -470,6 +821,13 @@ double ExtremeOperatingGustAmplitude(const SimWindConfig &cfg)
 	return std::min(a, b);
 }
 
+/** @brief IEC 极端风向变化 (EDC) 角度
+ *  @param cfg 风场配置
+ *  @return EDC 风向变化角 θe = min(4×atan(Sigma1/denom), 180°)，已转回度
+ *  @code
+ *  double deg = ExtremeDirectionChangeDegrees(cfg);
+ *  @endcode
+ */
 double ExtremeDirectionChangeDegrees(const SimWindConfig &cfg)
 {
 	const double sigma1 = ReferenceSigma1Ntm(cfg);
@@ -478,6 +836,13 @@ double ExtremeDirectionChangeDegrees(const SimWindConfig &cfg)
 	return std::min(theta, 180.0);
 }
 
+/** @brief 判断是否为 Von Karman 型湍流模型
+ *  @param value 湍流模型枚举
+ *  @return 当为 IEC_VKAIMAL / B_VKAL / B_IVKAL / USRVKM 时返回 true
+ *  @code
+ *  bool vk = IsVonKarman(TurbModel::IEC_VKAIMAL);
+ *  @endcode
+ */
 bool IsVonKarman(TurbModel value)
 {
 	return value == TurbModel::IEC_VKAIMAL ||
@@ -486,25 +851,47 @@ bool IsVonKarman(TurbModel value)
 	       value == TurbModel::USRVKM;
 }
 
+/** @brief 判断是否为 Mann 湍流模型
+ *  @param value 湍流模型枚举
+ *  @return B_MANN 返回 true
+ *  @code
+ *  bool mann = IsMann(TurbModel::B_MANN);
+ *  @endcode
+ */
 bool IsMann(TurbModel value)
 {
 	return value == TurbModel::B_MANN;
 }
 
+/** @brief 判断是否为改进型 Von Karman 模型
+ *  @param value 湍流模型枚举
+ *  @return B_IVKAL 返回 true
+ *  @code
+ *  bool ivk = IsImprovedVonKarman(TurbModel::B_IVKAL);
+ *  @endcode
+ */
 bool IsImprovedVonKarman(TurbModel value)
 {
 	return value == TurbModel::B_IVKAL;
 }
 
+/** @brief 构建 Mann 盒重复警告信息
+ *  @param cfg 风场配置（取 MannNx、nSteps、duration 等）
+ *  @return 描述 Mann 盒时间维度不足的警告文本
+ *  @note 当 MannNx < nSteps 时，合成风场会周期性循环
+ *  @code
+ *  std::string w = BuildMannRepeatWarning(cfg);
+ *  @endcode
+ */
 std::string BuildMannRepeatWarning(const SimWindConfig &cfg)
 {
 	std::ostringstream warning;
 	warning << "MannNx=" << cfg.mannFftPoints
 	        << " is smaller than the resolved output step count " << cfg.nSteps
-	        << " for duration " << windl_io_detail::FormatDouble(cfg.duration)
-	        << " s at dt=" << windl_io_detail::FormatDouble(cfg.dt)
+	        << " for duration " << ZString::FormatDouble(cfg.duration)
+	        << " s at dt=" << ZString::FormatDouble(cfg.dt)
 	        << " s; the synthesized Mann box will repeat every "
-	        << windl_io_detail::FormatDouble(cfg.mannFftPoints * cfg.dt)
+	        << ZString::FormatDouble(cfg.mannFftPoints * cfg.dt)
 	        << " s because the time sampling wraps with t % MannNx. Increase MannNx to at least "
 	        << cfg.nSteps << " (preferably a power of two above that value) to avoid periodic repetition.";
 	return warning.str();
@@ -512,18 +899,25 @@ std::string BuildMannRepeatWarning(const SimWindConfig &cfg)
 
 using Matrix3 = std::array<std::array<double, 3>, 3>;
 
+/** @brief Improved von Kármán 湍流廓线单点参数，存储特定高度处的三向湍流标准差、三向长度尺度及边界层特征参数 */
 struct ImprovedVkProfilePoint
 {
-	bool valid = false;
-	double sigma[3]{0.0, 0.0, 0.0};
-	double xScale[3]{0.0, 0.0, 0.0};
-	double yScale[3]{0.0, 0.0, 0.0};
-	double zScale[3]{0.0, 0.0, 0.0};
-	double a = 1.0;
-	double boundaryLayerHeight = 0.0;
-	double frictionVelocity = 0.0;
+	bool valid = false;                      ///< 该点廓线计算是否有效（风能领域公式适用范围内）
+	double sigma[3]{0.0, 0.0, 0.0};         ///< 三个速度分量的标准差 (u, v, w) [m/s]
+	double xScale[3]{0.0, 0.0, 0.0};        ///< 三个分量的纵向（x 方向）湍流长度尺度 [m]
+	double yScale[3]{0.0, 0.0, 0.0};        ///< 三个分量的横向（y 方向）湍流长度尺度 [m]
+	double zScale[3]{0.0, 0.0, 0.0};        ///< 三个分量的垂向（z 方向）湍流长度尺度 [m]
+	double a = 1.0;                          ///< 轴向感应因子 a（用于风轮平面风速修正）
+	double boundaryLayerHeight = 0.0;        ///< 大气边界层高度 [m]
+	double frictionVelocity = 0.0;           ///< 摩擦速度 u* [m/s]
 };
 
+/** @brief 返回全零的 3×3 矩阵
+ *  @return 所有元素均为 0.0 的 3×3 矩阵
+ *  @code
+ *  auto m = ZeroMatrix3();
+ *  @endcode
+ */
 Matrix3 ZeroMatrix3()
 {
 	return {{{0.0, 0.0, 0.0},
@@ -531,6 +925,15 @@ Matrix3 ZeroMatrix3()
 	         {0.0, 0.0, 0.0}}};
 }
 
+/** @brief 获取雷诺应力张量分量修正目标值（仅 uw/uv/vw 有意义）
+ *  @param setup 雷诺应力配置（持有各分量 target 值）
+ *  @param compA 第一个分量索引（0=u, 1=v, 2=w）
+ *  @param compB 第二个分量索引
+ *  @return 对应分量的 target 值（跨分量映射到固定的 0/1/2 三个位置），对角分量返回 0
+ *  @code
+ *  double t = TargetReynoldsStress(rs, 0, 2); // renoldsUW target
+ *  @endcode
+ */
 double TargetReynoldsStress(const ReynoldsStressSetup &setup, int compA, int compB)
 {
 	if ((compA == 0 && compB == 2) || (compA == 2 && compB == 0))
@@ -542,6 +945,15 @@ double TargetReynoldsStress(const ReynoldsStressSetup &setup, int compA, int com
 	return 0.0;
 }
 
+/** @brief 检查某分量对是否已设置了显式雷诺应力目标
+ *  @param setup 雷诺应力配置（持有 skip 标志）
+ *  @param compA 第一个分量索引
+ *  @param compB 第二个分量索引
+ *  @return 若对应分量未跳过则返回 true（即存在目标值）
+ *  @code
+ *  bool has = HasTargetReynoldsStress(rs, 0, 2);
+ *  @endcode
+ */
 bool HasTargetReynoldsStress(const ReynoldsStressSetup &setup, int compA, int compB)
 {
 	if ((compA == 0 && compB == 2) || (compA == 2 && compB == 0))
@@ -553,23 +965,56 @@ bool HasTargetReynoldsStress(const ReynoldsStressSetup &setup, int compA, int co
 	return false;
 }
 
+/** @brief 判断是否为 EWM 极端风速模型
+ *  @param model 风模型枚举
+ *  @return EWM1 或 EWM50 时返回 true
+ *  @code
+ *  bool ewm = IsEwmWindModel(WindModel::EWM50);
+ *  @endcode
+ */
 bool IsEwmWindModel(WindModel model)
 {
 	return model == WindModel::EWM1 || model == WindModel::EWM50;
 }
 
+/** @brief 判断是否为稳态 EWM 风模型
+ *  @param input 风场输入参数
+ *  @return EWM 模型且 ewmType == Steady 时返回 true
+ *  @code
+ *  bool s = IsSteadyEwmWindModel(input);
+ *  @endcode
+ */
 bool IsSteadyEwmWindModel(const WindLInput &input)
 {
 	return IsEwmWindModel(input.windModel) && input.ewmType == EWMType::Steady;
 }
 
+/** @brief 判断是否为 IEC 标准谱模型（Kaimal / Von Karman）
+ *  @param value 湍流模型枚举
+ *  @return IEC_KAIMAL 或 IEC_VKAIMAL 时返回 true
+ *  @code
+ *  bool iec = IsIecSpectralModel(TurbModel::IEC_KAIMAL);
+ *  @endcode
+ */
 bool IsIecSpectralModel(TurbModel value)
 {
 	return value == TurbModel::IEC_KAIMAL || value == TurbModel::IEC_VKAIMAL;
 }
 
+/** @brief 判断是否需要频谱湍流合成（前向声明，实现见后）
+ *  @param input 风场输入参数
+ *  @return 非确定性事件风模型且非均匀风模型时返回 true
+ */
 bool IsSyntheticStochasticModel(const WindLInput &input);
 
+/** @brief 大气稳定度函数 Ψm（动量）
+ *  @param zOverL 无量纲稳定度参数 z/L
+ *  @return Ψm 函数值；稳定层结 (z/L≥0) 返回 5×min(z/L,1)；不稳定层结返回对数积分近似
+ *  @note 适用 Businger-Dyer 型关系
+ *  @code
+ *  double psi = StabilityPsiM(-0.5);
+ *  @endcode
+ */
 double StabilityPsiM(double zOverL)
 {
 	if (zOverL >= 0.0)
@@ -581,6 +1026,14 @@ double StabilityPsiM(double zOverL)
 	return -psiM;
 }
 
+/** @brief 由高度和 z/L 反算 Monin-Obukhov 长度
+ *  @param hubHeight 参考高度（通常为轮毂高度），单位 m
+ *  @param zL 无量纲参数 z/L
+ *  @return L = hubHeight / zL；当 |zL| 趋近于零时返回无穷大（中性层结）
+ *  @code
+ *  double L = MoninLengthFromZL(90.0, -0.1);
+ *  @endcode
+ */
 double MoninLengthFromZL(double hubHeight, double zL)
 {
 	if (std::abs(zL) <= kTiny)
@@ -588,6 +1041,14 @@ double MoninLengthFromZL(double hubHeight, double zL)
 	return hubHeight / zL;
 }
 
+/** @brief 计算指定高度处的 z/L 参数
+ *  @param height 目标高度，单位 m
+ *  @param moninLength Monin-Obukhov 长度 L（非有限值或趋于零按中性处理）
+ *  @return height / L；中性层结返回 0
+ *  @code
+ *  double zl = ZOverLAtHeight(50.0, 200.0);
+ *  @endcode
+ */
 double ZOverLAtHeight(double height, double moninLength)
 {
 	if (!std::isfinite(moninLength) || std::abs(moninLength) <= kTiny)
@@ -595,6 +1056,13 @@ double ZOverLAtHeight(double height, double moninLength)
 	return height / moninLength;
 }
 
+/** @brief 由 Richardson 数推导 z/L
+ *  @param richardson 梯度 Richardson 数 Ri
+ *  @return z/L 近似值：Ri≤0→Ri；0<Ri<0.167→Ri/(1-5Ri)；Ri≥0.167→1.0
+ *  @code
+ *  double zl = DeriveZLFromRichardson(0.1);
+ *  @endcode
+ */
 double DeriveZLFromRichardson(double richardson)
 {
 	if (richardson <= 0.0)
@@ -604,6 +1072,17 @@ double DeriveZLFromRichardson(double richardson)
 	return 1.0;
 }
 
+/** @brief 非绝热对数风廓线：由参考高度风速推算目标高度风速
+ *  @param height 目标高度，单位 m
+ *  @param refHeight 参考高度，单位 m
+ *  @param refSpeed 参考高度处风速，单位 m/s
+ *  @param roughness 空气动力学粗糙长度 z0，单位 m
+ *  @param moninLength Monin-Obukhov 长度 L，单位 m
+ *  @return 目标高度处风速，单位 m/s；参数非法时返回 0
+ *  @code
+ *  double u = DiabaticLogWindSpeed(120.0, 90.0, 10.0, 0.03, 200.0);
+ *  @endcode
+ */
 double DiabaticLogWindSpeed(double height,
                             double refHeight,
                             double refSpeed,
@@ -621,6 +1100,16 @@ double DiabaticLogWindSpeed(double height,
 	return refSpeed * (std::log(height / z0) - psiHt) / denom;
 }
 
+/** @brief 非绝热摩擦速度 u*（动量通量尺度）
+ *  @param uRef 参考高度风速，单位 m/s
+ *  @param refHeight 参考高度，单位 m
+ *  @param roughness 粗糙长度 z0，单位 m
+ *  @param zLAtRef 参考高度处的 z/L
+ *  @return u* = 0.4·uRef / (ln(refHeight/z0) - Ψm)，单位 m/s；参数非法返回 0
+ *  @code
+ *  double us = UstarDiabatic(10.0, 90.0, 0.03, -0.1);
+ *  @endcode
+ */
 double UstarDiabatic(double uRef, double refHeight, double roughness, double zLAtRef)
 {
 	const double z0 = std::clamp(roughness, 1.0e-5, refHeight * 0.95);
@@ -631,6 +1120,19 @@ double UstarDiabatic(double uRef, double refHeight, double roughness, double zLA
 	return 0.4 * uRef / denom;
 }
 
+/** @brief 估算大气边界层默认混合层高度
+ *  @param uStar 摩擦速度，单位 m/s
+ *  @param uStarDiab 非绝热摩擦速度，单位 m/s
+ *  @param uRef 参考风速，单位 m/s
+ *  @param refHeight 参考高度，单位 m
+ *  @param roughness 粗糙长度，单位 m
+ *  @param coriolis 科氏参数 f，单位 1/s
+ *  @return 混合层高度，单位 m
+ *  @note 稳定层结 (uStar<uStarDiab) 或无科氏力时使用经验公式；不稳定层结且有科氏力时使用 Ekman 层理论 h = uStar / (6f)
+ *  @code
+ *  double h = DefaultMixingLayerDepth(0.5, 0.6, 10.0, 90.0, 0.03, 1.0e-4);
+ *  @endcode
+ */
 double DefaultMixingLayerDepth(double uStar,
                                double uStarDiab,
                                double uRef,
@@ -644,11 +1146,29 @@ double DefaultMixingLayerDepth(double uStar,
 	return uStar / (6.0 * std::abs(coriolis));
 }
 
+/** @brief 检查是否具备改进 Von Karman 大气边界层输入
+ *  @param input 风场输入参数
+ *  @return roughness > 0 且 |latitude| > 0.001 时返回 true
+ *  @code
+ *  bool ok = HasImprovedVkAtmosphericInputs(input);
+ *  @endcode
+ */
 bool HasImprovedVkAtmosphericInputs(const WindLInput &input)
 {
 	return input.roughness > 0.0 && std::abs(input.latitude) > 1.0e-3;
 }
 
+/** @brief 改进型 Von Karman 模型摩擦速度
+ *  @param meanU 平均风速，单位 m/s
+ *  @param z 计算高度，单位 m
+ *  @param roughness 粗糙长度，单位 m
+ *  @param coriolis 科氏参数绝对值，单位 1/s
+ *  @return u* = (0.4·U - 34.5·f·z) / ln(z/z0)，单位 m/s；负值时截断返回 0
+ *  @note 包含 Ekman 层修正项 -34.5·f·z
+ *  @code
+ *  double us = ImprovedVkFrictionVelocity(10.0, 90.0, 0.03, 1.0e-4);
+ *  @endcode
+ */
 double ImprovedVkFrictionVelocity(double meanU, double z, double roughness, double coriolis)
 {
 	const double zEval = std::max(z, roughness * 1.01);
@@ -659,6 +1179,16 @@ double ImprovedVkFrictionVelocity(double meanU, double z, double roughness, doub
 	return std::max(value, 0.0);
 }
 
+/** @brief 计算改进型 Von Karman 模型在单高度上的湍流参数
+ *  @param cfg 风场配置（取输入参数、轮毂信息）
+ *  @param z 计算高度，单位 m
+ *  @param meanU 该高度的平均风速，单位 m/s
+ *  @return ImprovedVkProfilePoint 结构体，包含三个分量的 Sigma、三向长度尺度、边界层参数等
+ *  @note 实现 ESDU 85020 / IEC 61400-1 Annex B 改进 Von Karman 剖面模型
+ *  @code
+ *  auto pt = ComputeImprovedVkPoint(cfg, 90.0, 10.0);
+ *  @endcode
+ */
 ImprovedVkProfilePoint ComputeImprovedVkPoint(const SimWindConfig &cfg, double z, double meanU)
 {
 	ImprovedVkProfilePoint point;
@@ -732,6 +1262,13 @@ ImprovedVkProfilePoint ComputeImprovedVkPoint(const SimWindConfig &cfg, double z
 	return point;
 }
 
+/** @brief 返回默认的IEC风廓线指数。
+    @param cfg SimWind配置对象，用于判断风模型和IEC版本。
+    @return 风廓线指数 (EWM: 0.11, ED3/ED4: 0.14, 其他: 0.2)。
+    @note 指数用于幂律风廓线计算：u(z) = uHub * (z/zRef)^exponent。
+    @code
+    double exp = DefaultIecProfileExponent(cfg); // 0.11, 0.14, or 0.2
+    @endcode */
 double DefaultIecProfileExponent(const SimWindConfig &cfg)
 {
 	if (IsSteadyEwmWindModel(cfg.input))
@@ -741,6 +1278,13 @@ double DefaultIecProfileExponent(const SimWindConfig &cfg)
 	return 0.2;
 }
 
+/** @brief 检查指定湍流分量是否启用。
+    @param input WindLInput输入参数。
+    @param comp 分量索引 (0=u, 1=v, 2=w)。
+    @return 如果对应分量已启用返回true，否则返回false。
+    @code
+    if (ComponentEnabled(input, 0)) { u分量已启用  }
+    @endcode */
 bool ComponentEnabled(const WindLInput &input, int comp)
 {
 	if (comp == 0)
@@ -750,6 +1294,13 @@ bool ComponentEnabled(const WindLInput &input, int comp)
 	return input.calWw;
 }
 
+/** @brief 检查是否为确定性事件风模型 (EOG/EDC/ECD/EWS)。
+    @param model 风模型枚举值。
+    @return 如果模型是EOG、EDC、ECD或EWS之一返回true。
+    @note 确定性事件模型不需要湍流生成。
+    @code
+    if (IsDeterministicEventWindModel(model)) {  确定性事件  }
+    @endcode */
 bool IsDeterministicEventWindModel(WindModel model)
 {
 	return model == WindModel::EOG ||
@@ -758,16 +1309,36 @@ bool IsDeterministicEventWindModel(WindModel model)
 	       model == WindModel::EWS;
 }
 
+/** @brief 检查是否为均匀风模型。
+    @param model 风模型枚举值。
+    @return 如果模型为UNIFORM返回true。
+    @code
+    if (IsUniformWindModel(model)) { 均匀风  }
+    @endcode */
 bool IsUniformWindModel(WindModel model)
 {
 	return model == WindModel::UNIFORM;
 }
 
+/** @brief 获取稳态极限风模型(EWM)的轮毂高度风速。
+    @param cfg SimWind配置对象。
+    @return 极限风速对应的轮毂高度风速值。
+    @note 调用 ExtremeWindSpeedForWindModel 计算。
+    @code
+    double vHub = SteadyEwmHubSpeed(cfg);
+    @endcode */
 double SteadyEwmHubSpeed(const SimWindConfig &cfg)
 {
 	return ExtremeWindSpeedForWindModel(cfg, cfg.input.windModel);
 }
 
+/** @brief 检查是否使用谱方法生成湍流。
+    @param input WindLInput输入参数。
+    @return 如果不是确定性事件模型、非均匀风和用户风速，则返回true。
+    @note 谱方法需要频率域合成。
+    @code
+    if (UsesSpectralTurbulenceGeneration(input)) {  谱方法  }
+    @endcode */
 bool UsesSpectralTurbulenceGeneration(const WindLInput &input)
 {
 	return !IsDeterministicEventWindModel(input.windModel) &&
@@ -775,16 +1346,37 @@ bool UsesSpectralTurbulenceGeneration(const WindLInput &input)
 	       input.turbModel != TurbModel::USER_WIND_SPEED;
 }
 
+/** @brief 检查是否为合成随机模型（等同 UsesSpectralTurbulenceGeneration）。
+    @param input WindLInput输入参数。
+    @return 如果使用谱湍流生成返回true。
+    @code
+    if (IsSyntheticStochasticModel(input)) { // 随机合成
+    @endcode */
 bool IsSyntheticStochasticModel(const WindLInput &input)
 {
 	return UsesSpectralTurbulenceGeneration(input);
 }
 
+/** @brief 检查是否显式设置了雷诺应力目标值。
+    @param value 雷诺应力值。
+    @return 如果绝对值大于kTiny返回true。
+    @note 零值或极小值视为未显式设置。
+    @code
+    if (HasExplicitReynoldsTarget(input.reynoldsUW)) { // 显式设置
+    @endcode */
 bool HasExplicitReynoldsTarget(double value)
 {
 	return std::abs(value) > kTiny;
 }
 
+/** @brief 检查是否有任何气象输入提示（理查森数、摩擦速度、z/L等）。
+    @param input WindLInput输入参数。
+    @return 如果至少有一个气象参数被设置返回true。
+    @note 用于判断是否需要气象修正。
+    @code
+    if (HasAnyMeteorologyHints(input)) { // 存在气象输入
+    }
+    @endcode */
 bool HasAnyMeteorologyHints(const WindLInput &input)
 {
 	return std::abs(input.richardson) > kTiny ||
@@ -796,6 +1388,14 @@ bool HasAnyMeteorologyHints(const WindLInput &input)
 	       HasExplicitReynoldsTarget(input.reynoldsVW);
 }
 
+/** @brief 检查某分量是否使用严格相干模型。
+    @param cfg SimWind配置对象。
+    @param comp 分量索引 (0=u, 1=v, 2=w)。
+    @return 如果分量使用谱生成、已启用且设置了非NONE的相干模型返回true。
+    @note API相干模型仅对u分量有效；相干衰减系数极大时视为不使用。
+    @code
+    bool strict = UsesStrictCoherence(cfg, 0);
+    @endcode */
 bool UsesStrictCoherence(const SimWindConfig &cfg, int comp)
 {
 	if (!UsesSpectralTurbulenceGeneration(cfg.input))
@@ -812,6 +1412,14 @@ bool UsesStrictCoherence(const SimWindConfig &cfg, int comp)
 	return cfg.cohDecay[static_cast<std::size_t>(comp)] < kHugeDecay * 0.5;
 }
 
+/** @brief 检查某分量是否支持Kronecker近似。
+    @param cfg SimWind配置对象。
+    @param comp 分量索引。
+    @return 如果满足严格相干、多维网格、允许近似且非API/GENERAL含指数模型返回true。
+    @note Kronecker近似可显著降低计算成本，但会损失部分相干精度。
+    @code
+    if (SupportsKroneckerApproximation(cfg, 0)) { // 可近似
+    @endcode */
 bool SupportsKroneckerApproximation(const SimWindConfig &cfg, int comp)
 {
 	if (!UsesStrictCoherence(cfg, comp))
@@ -827,6 +1435,14 @@ bool SupportsKroneckerApproximation(const SimWindConfig &cfg, int comp)
 	return true;
 }
 
+/** @brief 判断是否应该使用Kronecker近似。
+    @param cfg SimWind配置对象。
+    @param comp 分量索引。
+    @return 如果网格点数>=256 或 Cholesky FLOPs >= 2e8 且支持近似返回true。
+    @note 自动根据计算规模决定是否启用近似，平衡精度与性能。
+    @code
+    bool use = ShouldUseKroneckerApproximation(cfg, 0);
+    @endcode */
 bool ShouldUseKroneckerApproximation(const SimWindConfig &cfg, int comp)
 {
 	if (!SupportsKroneckerApproximation(cfg, comp))
@@ -838,6 +1454,14 @@ bool ShouldUseKroneckerApproximation(const SimWindConfig &cfg, int comp)
 	return cfg.nPoints >= 256 || denseFlops >= 2.0e8;
 }
 
+/** @brief 估算Kronecker近似的频率上限。
+    @param cfg SimWind配置对象。
+    @param comp 分量索引。
+    @return Kronecker处理的最大频率索引（0表示不使用Kronecker）。
+    @note 基于网格最小间距、相干衰减系数和代表性风速估算相干阈值频率。
+    @code
+    int fLimit = EstimateKroneckerFreqLimit(cfg, 0);
+    @endcode */
 int EstimateKroneckerFreqLimit(const SimWindConfig &cfg, int comp)
 {
 	if (!ShouldUseKroneckerApproximation(cfg, comp))
@@ -869,6 +1493,15 @@ int EstimateKroneckerFreqLimit(const SimWindConfig &cfg, int comp)
 	return std::clamp(static_cast<int>(fThresh / cfg.df), 1, std::max(cfg.nFreq - 1, 1));
 }
 
+/** @brief 在两个有序向量之间进行线性插值。
+    @param x 自变量坐标向量（必须单调递增）。
+    @param y 因变量值向量。
+    @param xi 插值点。
+    @return xi处的插值结果，越界时返回边界值，空向量返回0。
+    @note 使用std::upper_bound二分查找，外推时取边界值（端点保持）。
+    @code
+    double val = InterpolateProfile(heights, speeds, hubHeight);
+    @endcode */
 double InterpolateProfile(const std::vector<double> &x, const std::vector<double> &y, double xi)
 {
 	if (x.empty() || y.empty())
@@ -887,39 +1520,65 @@ double InterpolateProfile(const std::vector<double> &x, const std::vector<double
 	return y[i0] * (1.0 - a) + y[i1] * a;
 }
 
+/** @brief InterpolateProfile 的别名，进行线性插值。
+    @param x 自变量坐标向量。
+    @param y 因变量值向量。
+    @param xi 插值点。
+    @return 插值结果。
+    @code
+    double val = LinearInterpolate(heights, speeds, hubHeight);
+    @endcode */
 double LinearInterpolate(const std::vector<double> &x, const std::vector<double> &y, double xi)
 {
 	return InterpolateProfile(x, y, xi);
 }
 
+/** @brief 验证 WindLInput 输入参数的有效性。
+    @param input WindLInput输入参数。
+    @throws std::runtime_error 当任何必填参数无效时抛出异常。
+    @note 检查模式、网格、时间参数、风速、轮毂高度、分量选择、相干模型等约束。
+    @code
+    ValidateInput(input); // throws on invalid input
+    @endcode */
 void ValidateInput(const WindLInput &input)
 {
 	if (input.mode != Mode::GENERATE)
-		throw std::runtime_error("SimWind only supports Mode=GENERATE.");
-	if (input.gridPtsY <= 0 || input.gridPtsZ <= 0)
-		throw std::runtime_error("SimWind requires NumPointY and NumPointZ to be positive.");
-	if (input.fieldDimY <= 0.0 || input.fieldDimZ <= 0.0)
-		throw std::runtime_error("SimWind requires LenWidthY and LenHeightZ to be positive.");
+		throw std::runtime_error(L_WIND_OnlyGenerateMode);
+	if (input.gridPtsY <= 0)
+		throw std::runtime_error(L_WIND_NumPointYPositive);
+	if (input.gridPtsZ <= 0)
+		throw std::runtime_error(L_WIND_NumPointZPositive);
+	if (input.fieldDimY <= 0.0)
+		throw std::runtime_error(L_WIND_LenWidthPositive);
+	if (input.fieldDimZ <= 0.0)
+		throw std::runtime_error(L_WIND_LenHeightPositive);
 	if (input.simTime <= 0.0 && input.analysisTime <= 0.0)
-		throw std::runtime_error("SimWind requires WindDuration or AnalysisTime to be positive.");
+		throw std::runtime_error(L_WIND_DurOrAnaPositive);
 	if (input.timeStep <= 0.0)
-		throw std::runtime_error("SimWind requires TimeStep to be positive.");
+		throw std::runtime_error(L_WIND_TimeStepPositive);
 	if (input.meanWindSpeed <= 0.0)
-		throw std::runtime_error("SimWind requires MeanWindSpeed to be positive.");
+		throw std::runtime_error(L_WIND_SpeedPositive);
 	if (input.hubHeight <= 0.0)
-		throw std::runtime_error("SimWind requires HubHt to be positive.");
+		throw std::runtime_error(L_WIND_HubHtPositive);
 	if (!input.calWu && !input.calWv && !input.calWw)
-		throw std::runtime_error("At least one of CalWu, CalWv, or CalWw must be true.");
+		throw std::runtime_error(L_WIND_OneCompTrue);
 	if (input.cohMod2 == CohModel::API || input.cohMod3 == CohModel::API)
-		throw std::runtime_error("API coherence model is valid only for the u component (CohMod1).");
+		throw std::runtime_error(L_WIND_APIOnlyForU);
 	if (input.turbModel == TurbModel::USER_SPECTRA && input.userTurbFile.empty())
-		throw std::runtime_error("USER_SPECTRA requires TurbFilePath/UserTurbFile.");
+		throw std::runtime_error(L_WIND_SpectraNeedFile);
 	if (input.turbModel == TurbModel::USER_WIND_SPEED && input.userTurbFile.empty())
-		throw std::runtime_error("USER_WIND_SPEED requires TurbFilePath/UserTurbFile.");
+		throw std::runtime_error(L_WIND_WindSpeedNeedFile);
 	if (input.turbModel == TurbModel::USRVKM && input.userShearFile.empty())
-		throw std::runtime_error("USRVKM requires UserShearFile.");
+		throw std::runtime_error(L_WIND_USRVKMNeedShear);
 }
 
+/** @brief 根据IEC标准版本应用默认湍流参数。
+    @param cfg SimWind配置对象（将被修改）。
+    @note 设置 lambda, lc, cohDecay, cohB, sigma, integralScale, lateralScale, verticalScale。
+    确定性事件和均匀风模型会清零湍流参数。
+    @code
+    ApplyIecDefaults(cfg);
+    @endcode */
 void ApplyIecDefaults(SimWindConfig &cfg)
 {
 	const auto &in = cfg.input;
@@ -1025,6 +1684,15 @@ void ApplyIecDefaults(SimWindConfig &cfg)
 	}
 }
 
+/** @brief 将 DEFAULT_COH 相干模型解析为实际模型。
+    @param input WindLInput输入参数。
+    @return 三个分量的 CohModel 数组。
+    @note IEC/IEC_VKAIMAL/USRVKM: u=IEC, v=NONE, w=NONE;
+    USER_SPECTRA: u=GENERAL, v=NONE, w=NONE;
+    其他: 全部 GENERAL。
+    @code
+    auto models = ResolveCoherenceModels(input);
+    @endcode */
 std::array<CohModel, 3> ResolveCoherenceModels(const WindLInput &input)
 {
 	std::array<CohModel, 3> models{input.cohMod1, input.cohMod2, input.cohMod3};
@@ -1052,6 +1720,12 @@ std::array<CohModel, 3> ResolveCoherenceModels(const WindLInput &input)
 	return models;
 }
 
+/** @brief 如果需要，从文件加载用户风剪切剖面数据。
+    @param cfg SimWind配置对象（将被修改）。
+    @note 仅在 ShearType::USER, WindProfileType::USER 或 USRVKM 且文件非空时加载。
+    @code
+    LoadUserShearIfNeeded(cfg);
+    @endcode */
 void LoadUserShearIfNeeded(SimWindConfig &cfg)
 {
 	const auto &in = cfg.input;
@@ -1065,12 +1739,17 @@ void LoadUserShearIfNeeded(SimWindConfig &cfg)
 	cfg.hasUserShear = !cfg.userShear.heights.empty();
 }
 
+/** @brief 根据模型配置追加消耗/限制警告信息。
+    @param cfg SimWind配置对象（将被修改）。
+    @note 对 USER_WIND_SPEED 有气象输入时、非随机模型有雷诺应力目标时发出警告。
+    @code
+    AppendModelConsumptionNotes(cfg);
+    @endcode */
 void AppendModelConsumptionNotes(SimWindConfig &cfg)
 {
 	if (cfg.input.turbModel == TurbModel::USER_WIND_SPEED && HasAnyMeteorologyHints(cfg.input))
 	{
-		AppendWarning(cfg.warnings,
-		              "USER_WIND_SPEED imports the supplied time series without inferred stability, coherence, or Reynolds-stress corrections.");
+		AppendWarning(cfg.warnings, L_WARN_UserWindMeteoSkip);
 	}
 
 	if (!IsSyntheticStochasticModel(cfg.input) &&
@@ -1078,11 +1757,18 @@ void AppendModelConsumptionNotes(SimWindConfig &cfg)
 	     HasExplicitReynoldsTarget(cfg.input.reynoldsUV) ||
 	     HasExplicitReynoldsTarget(cfg.input.reynoldsVW)))
 	{
-		AppendWarning(cfg.warnings,
-		              "Reynolds-stress targets are only applied to synthetic stochastic turbulence models; the current wind model skips this step.");
+		AppendWarning(cfg.warnings, L_WARN_ReynoldsStressSkipNonSynthetic);
 	}
 }
 
+/** @brief 在轮毂高度处插值剖面值。
+    @param cfg SimWind配置对象。
+    @param valuesByZ 按高度分布的剖面值。
+    @return 轮毂高度处的插值结果，空剖面返回0。
+    @note 内部调用 LinearInterpolate。
+    @code
+    double sigmaHub = ProfileValueAtHub(cfg, sigmaByZ[0]);
+    @endcode */
 double ProfileValueAtHub(const SimWindConfig &cfg, const std::vector<double> &valuesByZ)
 {
 	if (cfg.zCoords.empty() || valuesByZ.empty())
@@ -1090,6 +1776,14 @@ double ProfileValueAtHub(const SimWindConfig &cfg, const std::vector<double> &va
 	return LinearInterpolate(cfg.zCoords, valuesByZ, cfg.hubHeight);
 }
 
+/** @brief 获取指定高度处的局部湍流标准差。
+    @param cfg SimWind配置对象。
+    @param comp 分量索引 (0=u, 1=v, 2=w)。
+    @param iz 高度索引。
+    @return 局部sigma值，若无剖面则返回全局sigma。
+    @code
+    double sigma = LocalSigmaAtZ(cfg, 0, iz);
+    @endcode */
 double LocalSigmaAtZ(const SimWindConfig &cfg, int comp, int iz)
 {
 	if (cfg.hasSigmaProfileByZ &&
@@ -1099,6 +1793,14 @@ double LocalSigmaAtZ(const SimWindConfig &cfg, int comp, int iz)
 	return cfg.sigma[static_cast<std::size_t>(comp)];
 }
 
+/** @brief 获取指定高度处的局部湍流长度尺度。
+    @param cfg SimWind配置对象。
+    @param comp 分量索引。
+    @param iz 高度索引。
+    @return 局部长度尺度值，若无剖面则返回全局integralScale。
+    @code
+    double L = LocalLengthScaleAtZ(cfg, 0, iz);
+    @endcode */
 double LocalLengthScaleAtZ(const SimWindConfig &cfg, int comp, int iz)
 {
 	if (cfg.hasLengthScaleProfileByZ &&
@@ -1108,6 +1810,12 @@ double LocalLengthScaleAtZ(const SimWindConfig &cfg, int comp, int iz)
 	return std::max(cfg.integralScale[static_cast<std::size_t>(comp)], kTiny);
 }
 
+/** @brief 使用剖面数据的轮毂高度值覆盖全局湍流参数。
+    @param cfg SimWind配置对象（将被修改）。
+    @note 当存在 sigmaByZ 或 lengthScaleByZ 剖面时，将 hub 高度处的插值赋给全局面 sigma/integralScale。
+    @code
+    ApplyUserProfileTurbulenceOverrides(cfg);
+    @endcode */
 void ApplyUserProfileTurbulenceOverrides(SimWindConfig &cfg)
 {
 	if (cfg.hasSigmaProfileByZ)
@@ -1123,13 +1831,20 @@ void ApplyUserProfileTurbulenceOverrides(SimWindConfig &cfg)
 	}
 }
 
+/** @brief 验证并排序用户自定义频谱数据。
+    @param data UserSpectraData 对象（将被修改）。
+    @throws std::runtime_error 数据不足或无效时抛出。
+    @note 要求至少3个频点，所有PSD值严格为正，频率唯一且升序。
+    @code
+    NormalizeAndValidateUserSpectra(userSpectra);
+    @endcode */
 void NormalizeAndValidateUserSpectra(UserSpectraData &data)
 {
 	const std::size_t n = data.frequencies.size();
 	if (n < 3 || data.uPsd.size() != n || data.vPsd.size() != n || data.wPsd.size() != n)
-		throw std::runtime_error("USER_SPECTRA requires at least 3 rows with Frequency/uPSD/vPSD/wPSD.");
+		throw std::runtime_error(L_WIND_Spectra3Rows);
 	if (data.specScale1 <= 0.0 || data.specScale2 <= 0.0 || data.specScale3 <= 0.0)
-		throw std::runtime_error("USER_SPECTRA requires SpecScale1/2/3 to be positive.");
+		throw std::runtime_error(L_WIND_SpectraScalePos);
 
 	struct UserSpectraRow
 	{
@@ -1143,7 +1858,7 @@ void NormalizeAndValidateUserSpectra(UserSpectraData &data)
 	for (std::size_t i = 0; i < n; ++i)
 	{
 		if (data.uPsd[i] <= 0.0 || data.vPsd[i] <= 0.0 || data.wPsd[i] <= 0.0)
-			throw std::runtime_error("USER_SPECTRA requires strictly positive u/v/w PSD values.");
+			throw std::runtime_error(L_WIND_SpectraPosValues);
 		rows[i] = {data.frequencies[i], data.uPsd[i], data.vPsd[i], data.wPsd[i]};
 	}
 
@@ -1151,7 +1866,7 @@ void NormalizeAndValidateUserSpectra(UserSpectraData &data)
 	for (std::size_t i = 1; i < rows.size(); ++i)
 	{
 		if (rows[i].f <= rows[i - 1].f + kTiny)
-			throw std::runtime_error("USER_SPECTRA requires unique frequencies in strictly ascending order.");
+			throw std::runtime_error(L_WIND_SpectraUniqueFreq);
 	}
 
 	for (std::size_t i = 0; i < rows.size(); ++i)
@@ -1164,6 +1879,13 @@ void NormalizeAndValidateUserSpectra(UserSpectraData &data)
 	data.numFrequencies = static_cast<int>(rows.size());
 }
 
+/** @brief 解析所有气象参数，完成气象闭包。
+    @param cfg SimWind配置对象（将被修改）。
+    @note 计算理查森数、z/L、Monin-Obukhov长度、科氏力、摩擦速度、混合层深度、相干参数和雷诺应力。
+    不稳定条件下若无有效混合层深度则抛出异常。
+    @code
+    ResolveMeteorologyClosure(cfg);
+    @endcode */
 void ResolveMeteorologyClosure(SimWindConfig &cfg)
 {
 	cfg.met.richardson = cfg.input.richardson;
@@ -1193,7 +1915,7 @@ void ResolveMeteorologyClosure(SimWindConfig &cfg)
 	if (IsSyntheticStochasticModel(cfg.input) && cfg.met.zL < 0.0 &&
 	    (!std::isfinite(cfg.met.mixingLayerDepth) || cfg.met.mixingLayerDepth <= 0.0))
 	{
-		throw std::runtime_error("Unstable synthetic turbulence generation requires a positive mixing-layer depth (ZI).");
+		throw std::runtime_error(L_WIND_MixingDepthNeed);
 	}
 
 	const double stabilityFactor = std::clamp(1.0 + 0.35 * cfg.met.zL, 0.65, 1.50);
@@ -1227,6 +1949,12 @@ void ResolveMeteorologyClosure(SimWindConfig &cfg)
 	                                !cfg.met.reynoldsStress.skip[2];
 }
 
+/** @brief 对未显式设置的相干参数应用气象默认值。
+    @param cfg SimWind配置对象（将被修改）。
+    @note GENERAL模型使用气象推导的衰减系数和偏移参数；NONE模型清零相干参数。
+    @code
+    ApplyMeteorologyCoherenceDefaults(cfg);
+    @endcode */
 void ApplyMeteorologyCoherenceDefaults(SimWindConfig &cfg)
 {
 	for (int comp = 0; comp < 3; ++comp)
@@ -1249,22 +1977,36 @@ void ApplyMeteorologyCoherenceDefaults(SimWindConfig &cfg)
 	}
 }
 
+/** @brief 在数据加载后验证用户输入的完整性。
+    @param cfg SimWind配置对象。
+    @throws std::runtime_error 当USRVKM缺少必要的剖面列时抛出。
+    @note 主要验证USRVKM模式的用户剪切文件是否包含所需所有列。
+    @code
+    ValidateResolvedUserInputs(cfg);
+    @endcode */
 void ValidateResolvedUserInputs(const SimWindConfig &cfg)
 {
 	if (cfg.input.turbModel == TurbModel::USRVKM)
 	{
 		if (!cfg.hasUserShear)
-			throw std::runtime_error("USRVKM requires a readable UserShearFile with profile rows.");
+			throw std::runtime_error(L_WIND_USRVKMNoData);
 		if (!HasProfileColumn(cfg.userShear.heights, cfg.userShear.windSpeeds) ||
 		    !HasProfileColumn(cfg.userShear.heights, cfg.userShear.windDirections) ||
 		    !HasProfileColumn(cfg.userShear.heights, cfg.userShear.standardDeviations) ||
 		    !HasProfileColumn(cfg.userShear.heights, cfg.userShear.lengthScales))
 		{
-			throw std::runtime_error("USRVKM requires UserShearFile columns Height/U/WindDir/Sigma/L with matching row counts.");
+			throw std::runtime_error(L_WIND_UserShearNoProfile);
 		}
 	}
 }
 
+/** @brief 构建空间网格坐标和风场剖面。
+    @param cfg SimWind配置对象（将被修改）。
+    @note 计算y/z坐标、平均风速剖面、风向剖面、湍流剖面；
+    支持用户剪切文件、对数律、IEC幂律、改进von Karman等剖面类型。
+    @code
+    BuildGridAndProfiles(cfg);
+    @endcode */
 void BuildGridAndProfiles(SimWindConfig &cfg)
 {
 	const auto &in = cfg.input;
@@ -1310,11 +2052,11 @@ void BuildGridAndProfiles(SimWindConfig &cfg)
 	if (cfg.hasUserShear)
 	{
 		if (!cfg.userShear.windDirections.empty() && !cfg.hasUserDirectionProfile)
-			AppendWarning(cfg.warnings, "UserShear wind-direction column size does not match the height column; direction profile is ignored.");
+			AppendWarning(cfg.warnings, L_WARN_UserShearDirMismatch);
 		if (!cfg.userShear.standardDeviations.empty() && !cfg.hasUserSigmaProfile)
-			AppendWarning(cfg.warnings, "UserShear standard-deviation column size does not match the height column; sigma profile is ignored.");
+			AppendWarning(cfg.warnings, L_WARN_UserShearSigmaMismatch);
 		if (!cfg.userShear.lengthScales.empty() && !cfg.hasUserLengthScaleProfile)
-			AppendWarning(cfg.warnings, "UserShear length-scale column size does not match the height column; length-scale profile is ignored.");
+			AppendWarning(cfg.warnings, L_WARN_UserShearLengthMismatch);
 	}
 
 	const double luBase = std::max(cfg.integralScale[0], kTiny);
@@ -1401,8 +2143,7 @@ void BuildGridAndProfiles(SimWindConfig &cfg)
 
 	if (IsImprovedVonKarman(in.turbModel) && !cfg.hasImprovedVkProfile)
 	{
-		AppendWarning(cfg.warnings,
-		              "B_IVKAL requires valid Latitude and Roughness to derive the Bladed 4.11 improved von Karman profile; missing atmospheric inputs fall back to the Bladed von Karman sigma/length defaults.");
+		AppendWarning(cfg.warnings, L_WARN_ImprovedVkFallback);
 	}
 
 	if (cfg.hasImprovedVkProfile)
@@ -1417,6 +2158,13 @@ void BuildGridAndProfiles(SimWindConfig &cfg)
 	}
 }
 
+/** @brief 估算生成过程的内存消耗和计算量(FLOPs)。
+    @param cfg SimWind配置对象（将被修改）。
+    @note 计算严格相干分量的Cholesky FLOPs和估计峰值内存(GiB)；
+    Mann模型使用FFT估计，其他使用矩阵分解估计。
+    @code
+    EstimateGenerationCost(cfg);
+    @endcode */
 void EstimateGenerationCost(SimWindConfig &cfg)
 {
 	cfg.strictCoherenceComponents = 0;
@@ -1464,6 +2212,14 @@ void EstimateGenerationCost(SimWindConfig &cfg)
 	cfg.estimatedPeakMemoryGiB = (strictMatrixBytes + spectrumBytes + fieldBytes) / (1024.0 * 1024.0 * 1024.0);
 }
 
+/** @brief 从 WindLInput 构建完整的 SimWindConfig。
+    @param input WindLInput输入参数。
+    @return 完整的SimWindConfig配置对象。
+    @note 依次调用：验证、设置网格/时间参数、解析相干模型、应用IEC默认、加载频谱、
+    气象闭包、构建坐标剖面、验证、覆盖参数、消耗说明、Kronecker决策、成本估算。
+    @code
+    SimWindConfig cfg = BuildConfig(input);
+    @endcode */
 SimWindConfig BuildConfig(const WindLInput &input)
 {
 	ValidateInput(input);
@@ -1498,7 +2254,7 @@ SimWindConfig BuildConfig(const WindLInput &input)
 	cfg.hasExplicitCohB = input.cohScaleB > 0.0;
 
 	if (cfg.zBottom <= 0.0)
-		cfg.warnings.push_back("Grid bottom is at or below ground; low grid heights are clamped in profile calculations.");
+		cfg.warnings.push_back(L_WARN_GridBottomClamped);
 
 	ApplyIecDefaults(cfg);
 
@@ -1540,17 +2296,17 @@ SimWindConfig BuildConfig(const WindLInput &input)
 	if (IsMann(input.turbModel) && cfg.mannFftPoints < cfg.nSteps)
 		cfg.warnings.push_back(BuildMannRepeatWarning(cfg));
 	if (IsMann(input.turbModel) && cfg.scaleIEC < 1)
-		cfg.warnings.push_back("B_MANN uses MannAlphaEps for absolute energy because ScaleIEC=0; set ScaleIEC=1 or 2 to match IEC target sigma exactly.");
+		cfg.warnings.push_back(L_WARN_MannScaleIEC0);
 	for (int comp = 0; comp < 3; ++comp)
 	{
 		if (cfg.useKronecker[static_cast<std::size_t>(comp)])
 		{
 			const char axis = comp == 0 ? 'u' : (comp == 1 ? 'v' : 'w');
 			std::ostringstream note;
-			note << "Component " << axis
-			     << " uses the legacy WindL Kronecker coherence acceleration for the first "
+			note << L_WARN_KroneckerCompPrefix << axis
+			     << L_WARN_KroneckerCompUses
 			     << cfg.kroneckerFreqLimit[static_cast<std::size_t>(comp)]
-			     << " positive frequencies, then switches to diagonal high-frequency synthesis. Set AllowCohApprox=false to force the exact strict-coherence path.";
+			     << L_WARN_KroneckerCompEnd;
 			cfg.warnings.push_back(note.str());
 		}
 	}
@@ -1564,7 +2320,7 @@ SimWindConfig BuildConfig(const WindLInput &input)
 		        << ".";
 		cfg.warnings.push_back(warning.str());
 		if (!cfg.input.allowCohApprox)
-			AppendWarning(cfg.warnings, "AllowCohApprox=false requests the exact strict-coherence path; large grids may run much longer than the approximate path.");
+			AppendWarning(cfg.warnings, L_WARN_LargeStrictCoh);
 	}
 
 	const std::filesystem::path outputDir = input.savePath.empty() ? std::filesystem::current_path() : std::filesystem::path(input.savePath);
@@ -1575,6 +2331,13 @@ SimWindConfig BuildConfig(const WindLInput &input)
 	return cfg;
 }
 
+/** @brief 获取用户频谱各分量的缩放因子。
+    @param data UserSpectraData数据。
+    @param comp 分量索引 (0=specScale1, 1=specScale2, 其他=specScale3)。
+    @return 对应分量的缩放因子。
+    @code
+    double scale = UserSpectraScale(data, 0); // specScale1
+    @endcode */
 double UserSpectraScale(const UserSpectraData &data, int comp)
 {
 	if (comp == 0)
@@ -1584,6 +2347,20 @@ double UserSpectraScale(const UserSpectraData &data, int comp)
 	return data.specScale3;
 }
 
+/**
+ * @brief 使用端点保持插值用户自定义PSD谱值，超出范围时锁定边界值
+ * @param freqs   用户提供的频率点数组（单调递增）
+ * @param values  用户提供的PSD值数组，与freqs一一对应
+ * @param freq    待插值的查询频率 [Hz]
+ * @return        插值后的PSD值，始终非负；若输入为空则返回0.0
+ * @note         f <= freqs.front()时取values.front()，f >= freqs.back()时取values.back()；
+ *               中间区域使用InterpolateProfile线性插值，结果强制截断到非负。
+ * @code
+ *   std::vector<double> f{0.1, 1.0, 5.0};
+ *   std::vector<double> val{10.0, 2.0, 3.0};
+ *   double psd = InterpolateUserPsdWithEndpointHold(f, val, 2.5); // 插值至约2.5
+ * @endcode
+ */
 double InterpolateUserPsdWithEndpointHold(const std::vector<double> &freqs,
                                           const std::vector<double> &values,
                                           double freq)
@@ -1600,6 +2377,25 @@ double InterpolateUserPsdWithEndpointHold(const std::vector<double> &freqs,
 	return std::max(InterpolateProfile(freqs, values, freq), 0.0);
 }
 
+/**
+ * @brief 根据湍流模型计算给定频率和参数下的单点风速谱值 S(f)
+ * @param cfg           仿真配置，包含湍流模型、用户谱数据等
+ * @param comp          速度分量索引：0=u（纵向）, 1=v（横向）, 2=w（竖向）
+ * @param freq          目标频率 [Hz]，频率≤0时直接返回0
+ * @param uMean         该点的平均风速 [m/s]，被钳位至≥0.1
+ * @param sigma         该分量的标准差 [m/s]
+ * @param integralScale 该分量的积分尺度 [m]
+ * @param height        该点的高度 [m]，用于改进VonKarman模型的高度相关参数计算
+ * @return              谱值 S(f) [m²/s]，若分量未启用或freq≤0则返回0
+ * @note                支持四种路径：(1)USER_SPECTRA直接插值用户PSD；
+ *                      (2)Improved Von Karman使用双项混合公式与高度相关的尺度修正；
+ *                      (3)Von Karman/Mann使用经典VK公式S∝2σ²L/(1+71f²)⁵⁄⁶；
+ *                      (4)Kaimal退化为S∝4σ²L/(1+6f)⁵⁄³。
+ * @code
+ *   double su = SpectrumWithParameters(cfg, 0, 0.5, cfg.uHub,
+ *                                       cfg.sigma[0], cfg.integralScale[0], cfg.hubHeight);
+ * @endcode
+ */
 double SpectrumWithParameters(const SimWindConfig &cfg,
                               int comp,
                               double freq,
@@ -1679,6 +2475,15 @@ double SpectrumWithParameters(const SimWindConfig &cfg,
 	return sigmaLU / std::pow(1.0 + 6.0 * lOverU * freq, 5.0 / 3.0);
 }
 
+/**
+ * @brief SpectrumWithParameters的便捷包装：使用给定的平均风速，其余参数从cfg取默认值
+ * @param cfg   仿真配置
+ * @param comp  速度分量索引（0/1/2）
+ * @param freq  频率 [Hz]
+ * @param uMean 平均风速 [m/s]
+ * @return      谱值 S(f) [m²/s]
+ * @code double su = SpectrumAtMeanU(cfg, 0, 0.5, 12.0); @endcode
+ */
 double SpectrumAtMeanU(const SimWindConfig &cfg, int comp, double freq, double uMean)
 {
 	return SpectrumWithParameters(cfg,
@@ -1690,11 +2495,35 @@ double SpectrumAtMeanU(const SimWindConfig &cfg, int comp, double freq, double u
 	                              cfg.hubHeight);
 }
 
+/**
+ * @brief SpectrumAtMeanU的最简包装：使用轮毂高度平均风速cfg.uHub
+ * @param cfg  仿真配置
+ * @param comp 速度分量索引（0/1/2）
+ * @param freq 频率 [Hz]
+ * @return     谱值 S(f) [m²/s]
+ * @code double su = SpectrumAt(cfg, 0, 1.0); @endcode
+ */
 double SpectrumAt(const SimWindConfig &cfg, int comp, double freq)
 {
 	return SpectrumAtMeanU(cfg, comp, freq, cfg.uHub);
 }
 
+/**
+ * @brief 计算空间两点之间的相干函数值 Coh(dy, dz, f)
+ * @param cfg   仿真配置，包含相干模型、衰减系数、指数等参数
+ * @param comp  速度分量索引（0/1/2），API模型仅支持u分量
+ * @param freq  频率 [Hz]
+ * @param dy    两点横向距离（y方向）[m]
+ * @param dz    两点竖向距离（z方向）[m]
+ * @param meanU 两点平均风速 [m/s]，用于归一化距离
+ * @param z1    点1高度 [m]，用于API模型的几何平均高度及SMOOTH模型的尺度计算
+ * @param z2    点2高度 [m]
+ * @return      相干值∈[0,1]；距离≤kTiny时返回1.0；NONE模型返回0.0
+ * @note        支持三种模型：API（u分量专用，含ay/az方向性衰减）、
+ *              IEC（exp(-a·√(f²·d²/U²+b²·d²))）、
+ *              SMOOTH（含高度尺度归一化指数的衰减模型）。
+ * @code double coh = CoherenceAtOffsets(cfg, 0, 0.5, 5.0, 3.0, 12.0, 90.0, 95.0); @endcode
+ */
 double CoherenceAtOffsets(const SimWindConfig &cfg,
                           int comp,
                           double freq,
@@ -1743,6 +2572,20 @@ double CoherenceAtOffsets(const SimWindConfig &cfg,
 	return std::exp(decay * distExp * std::sqrt(std::pow(freq * distU, 2.0) + std::pow(b * distance, 2.0)));
 }
 
+/**
+ * @brief 填充N×N频谱矩阵：对角线存入各点PSD，非对角线填入PSD乘积开方×相干系数
+ * @param cfg        仿真配置
+ * @param comp       速度分量索引
+ * @param freq       当前频率 [Hz]
+ * @param psdByPoint 每个空间点的PSD值（长度=nPoints）
+ * @param matrix     输出的N×N对称矩阵（扁平存储，行优先），仅下三角有意义
+ * @note             matrix[i*n+i]=psd[i]；matrix[i*n+j]=√(psd[i]·psd[j])·Coh(i,j)。
+ *                   若cohDecay≥kHugeDecay/2则只写对角线（即无空间相干）。
+ * @code
+ *   std::vector<double> m(n*n);
+ *   FillSpectralMatrix(cfg, 0, 0.5, psdVec, m);
+ * @endcode
+ */
 void FillSpectralMatrix(const SimWindConfig &cfg,
                         int comp,
                         double freq,
@@ -1781,6 +2624,17 @@ void FillSpectralMatrix(const SimWindConfig &cfg,
 	}
 }
 
+/**
+ * @brief 尝试对N×N对称正定矩阵进行 Cholesky 分解 L·Lᵀ，失败返回false
+ * @param matrix 输入矩阵（扁平存储，行优先，仅下三角被引用）
+ * @param n      矩阵维度
+ * @param lower  输出的下三角矩阵L（扁平存储），失败时内容未定义
+ * @param cfg    可选配置指针，用于大矩阵（n≥200）时输出进度报告
+ * @return       分解成功返回true；遇到非正对角元或非有限值返回false
+ * @note         i==j对角元计算 L[i][i]=√sum；i>j时L[i][j]=sum/L[j][j]。
+ *               进度估算使用行索引三次方作为完成度预测（O(n³)特性）。
+ * @code TryCholesky(denseMatrix, n, lower, &cfg); @endcode
+ */
 bool TryCholesky(const std::vector<double> &matrix, int n, std::vector<double> &lower, const SimWindConfig *cfg = nullptr)
 {
 	std::fill(lower.begin(), lower.end(), 0.0);
@@ -1827,6 +2681,16 @@ bool TryCholesky(const std::vector<double> &matrix, int n, std::vector<double> &
 	return true;
 }
 
+/**
+ * @brief 强制Cholesky分解：尝试失败时逐步添加对角线抖动(jitter)直到正定
+ * @param matrix 输入矩阵（按值传递，内部可修改），扁平存储
+ * @param n      矩阵维度
+ * @param cfg    可选配置指针，首次尝试传递以显示进度
+ * @return       分解成功的下三角矩阵L
+ * @throw        8次尝试（jitter=10⁻¹⁰~10⁻³）全部失败时抛出runtime_error
+ * @note         每次失败后在所有对角元上加jitter=10^(-10+attempt)，重新尝试。
+ * @code auto lower = StrictCholeskyL(denseMatrix, nPoints, &cfg); @endcode
+ */
 std::vector<double> StrictCholeskyL(std::vector<double> matrix, int n, const SimWindConfig *cfg = nullptr)
 {
 	std::vector<double> lower(static_cast<std::size_t>(n) * n, 0.0);
@@ -1840,9 +2704,17 @@ std::vector<double> StrictCholeskyL(std::vector<double> matrix, int n, const Sim
 			matrix[static_cast<std::size_t>(i) * n + i] += jitter;
 	}
 
-	throw std::runtime_error("Strict coherence matrix is not positive definite.");
+	throw std::runtime_error(L_WIND_CholeskyNotPD);
 }
 
+/**
+ * @brief 下三角矩阵乘以复数列向量：result = L·phase（仅用下三角元素）
+ * @param lower  下三角矩阵L（扁平存储，行优先）
+ * @param phase  复数列向量（长度n）
+ * @param n      向量/矩阵维度
+ * @param result 输出复向量 result[i]=Σ_{j≤i} L[i*n+j]·phase[j]
+ * @code MultiplyLower(lower, randomPhase, nPoints, correlated); @endcode
+ */
 void MultiplyLower(const std::vector<double> &lower,
                    const std::vector<std::complex<double>> &phase,
                    int n,
@@ -1858,6 +2730,16 @@ void MultiplyLower(const std::vector<double> &lower,
 	}
 }
 
+/**
+ * @brief 对2D复数据应用右乘下三角转置：data = data·Lᵀ（数据按列优先布局）
+ * @param lower   下三角矩阵L（cols×cols，扁平存储）
+ * @param rows    数据行数（空间点数）
+ * @param cols    数据列数（=L的维度）
+ * @param data    复矩阵数据，列优先（row + col*rows），原地修改
+ * @param scratch 临时缓冲区
+ * @note         data[row+col*rows] = Σ_{k≤col} data[row+k*rows]·L[col*cols+k]
+ * @code ApplyRightLowerTranspose(lz, cfg.ny, cfg.nz, correlated, scratch); @endcode
+ */
 void ApplyRightLowerTranspose(const std::vector<double> &lower,
                               int rows,
                               int cols,
@@ -1879,6 +2761,16 @@ void ApplyRightLowerTranspose(const std::vector<double> &lower,
 	data.swap(scratch);
 }
 
+/**
+ * @brief 对2D复数据应用左乘下三角：data = L·data（数据列优先布局）
+ * @param lower   下三角矩阵L（rows×rows，扁平存储）
+ * @param rows    数据行数（=L的维度）
+ * @param cols    数据列数
+ * @param data    复矩阵数据，列优先（row + col*rows），原地修改
+ * @param scratch 临时缓冲区
+ * @note         data[row+col*rows] = Σ_{k≤row} L[row*rows+k]·data[k+col*rows]
+ * @code ApplyLeftLower(ly, cfg.ny, cfg.nz, correlated, scratch); @endcode
+ */
 void ApplyLeftLower(const std::vector<double> &lower,
                     int rows,
                     int cols,
@@ -1900,6 +2792,12 @@ void ApplyLeftLower(const std::vector<double> &lower,
 	data.swap(scratch);
 }
 
+/**
+ * @brief 计算数据向量的标准差 σ = √(Σ(xᵢ-μ)²/N)
+ * @param values 数据向量
+ * @return       标准差；空向量返回0.0
+ * @code double sigma = ComponentSigma(component); @endcode
+ */
 double ComponentSigma(const std::vector<double> &values)
 {
 	if (values.empty())
@@ -1911,6 +2809,13 @@ double ComponentSigma(const std::vector<double> &values)
 	return std::sqrt(sum2 / static_cast<double>(values.size()));
 }
 
+/**
+ * @brief 将数据去均值后缩放至目标标准差（原地修改）
+ * @param values      数据向量（原地修改）
+ * @param targetSigma 目标标准差，≤0或数据为空则直接返回
+ * @note              scale = targetSigma / 实际σ；实际σ≤kTiny则不缩放。
+ * @code ScaleZeroMeanComponent(uComponent, 2.5); @endcode
+ */
 void ScaleZeroMeanComponent(std::vector<double> &values, double targetSigma)
 {
 	if (targetSigma <= 0.0 || values.empty())
@@ -1929,6 +2834,13 @@ void ScaleZeroMeanComponent(std::vector<double> &values, double targetSigma)
 	}
 }
 
+/**
+ * @brief 在网格中搜索最接近轮毂高度(y=0, z=hubHeight)的空间点索引
+ * @param cfg 仿真配置，含坐标数组和网格尺寸
+ * @return    最近网格点的Flatten线性索引
+ * @note      分别在y、z方向独立搜索最小|Δy|和|Δz|后通过GridIndex组合。
+ * @code int hubPoint = HubPointIndex(cfg); @endcode
+ */
 int HubPointIndex(const SimWindConfig &cfg)
 {
 	int hubIy = 0;
@@ -1958,6 +2870,14 @@ int HubPointIndex(const SimWindConfig &cfg)
 	return GridIndex(cfg, hubIz, hubIy);
 }
 
+/**
+ * @brief 计算轮毂高度处某分量时间序列的标准差
+ * @param cfg    仿真配置
+ * @param values 时间序列（第一维为时间步，第二维为空间点，扁平布局）
+ * @return       轮毂点的标准差；空数据或无步数返回0.0
+ * @note         先定位HubPointIndex，取该点在所有时间步的值计算σ。
+ * @code double sigma = HubPointSigma(cfg, field.component[0]); @endcode
+ */
 double HubPointSigma(const SimWindConfig &cfg, const std::vector<double> &values)
 {
 	if (values.empty() || cfg.nSteps <= 0 || cfg.nPoints <= 0)
@@ -1978,6 +2898,14 @@ double HubPointSigma(const SimWindConfig &cfg, const std::vector<double> &values
 	return std::sqrt(sum2 / static_cast<double>(cfg.nSteps));
 }
 
+/**
+ * @brief 按轮毂点目标σ缩放全时间序列（全局统一缩放因子）
+ * @param cfg         仿真配置
+ * @param values      时间序列（原地修改）
+ * @param targetSigma 目标标准差，≤0或无数据时返回
+ * @note              scale = targetσ / 轮毂点实际σ；所有空间点统一乘以scale。
+ * @code ScaleComponentToHubSigma(cfg, uValues, 3.0); @endcode
+ */
 void ScaleComponentToHubSigma(const SimWindConfig &cfg, std::vector<double> &values, double targetSigma)
 {
 	if (targetSigma <= 0.0 || values.empty())
@@ -1992,6 +2920,15 @@ void ScaleComponentToHubSigma(const SimWindConfig &cfg, std::vector<double> &val
 		value *= scale;
 }
 
+/**
+ * @brief 按目标σ独立缩放每个空间点的时间序列（逐点缩放）
+ * @param cfg         仿真配置
+ * @param values      时间序列（原地修改）
+ * @param targetSigma 目标标准差，≤0或无数据时返回
+ * @note              每个空间点分别去均值、计算实际σ、缩放至targetSigma。
+ *                   与ScaleComponentToHubSigma不同：每个点独立缩放，不共享全局因子。
+ * @code ScaleComponentPerPointSigma(cfg, uValues, 3.0); @endcode
+ */
 void ScaleComponentPerPointSigma(const SimWindConfig &cfg, std::vector<double> &values, double targetSigma)
 {
 	if (targetSigma <= 0.0 || values.empty() || cfg.nSteps <= 0 || cfg.nPoints <= 0)
@@ -2021,6 +2958,15 @@ void ScaleComponentPerPointSigma(const SimWindConfig &cfg, std::vector<double> &
 	}
 }
 
+/**
+ * @brief 根据IEC缩放策略对湍流分量应用标准差缩放
+ * @param cfg   仿真配置
+ * @param field 风场数据（原地修改）
+ * @param comp  分量索引（0/1/2）
+ * @note        scaleIEC<1时不缩放；scaleIEC==1时u分量逐点缩放，其他分量轮毂点缩放；
+ *              scaleIEC>1时全部使用轮毂点缩放。
+ * @code ApplyScaleIecForComponent(cfg, field, 0); @endcode
+ */
 void ApplyScaleIecForComponent(const SimWindConfig &cfg, WindField &field, int comp)
 {
 	if (cfg.scaleIEC < 1)
@@ -2034,6 +2980,13 @@ void ApplyScaleIecForComponent(const SimWindConfig &cfg, WindField &field, int c
 		ScaleComponentPerPointSigma(cfg, values, targetSigma);
 }
 
+/**
+ * @brief 分配并零初始化一个WindField结构
+ * @param cfg 仿真配置，提供nSteps和nPoints
+ * @return    三个分量均以0.0填充的WindField
+ * @note      每个分量大小=nSteps×nPoints，全部初始化为0。
+ * @code WindField field = AllocateField(cfg); @endcode
+ */
 WindField AllocateField(const SimWindConfig &cfg)
 {
 	WindField field;
@@ -2045,12 +2998,23 @@ WindField AllocateField(const SimWindConfig &cfg)
 	return field;
 }
 
+/** @brief 用户风场空间插值权重，将源风场点通过反距离加权映射到目标网格点 */
 struct UserWindSpatialWeight
 {
-	int index = 0;
-	double weight = 0.0;
+	int index = 0;         ///< 源风场数据点索引
+	double weight = 0.0;   ///< 归一化反距离平方插值权重，所有点权重之和为 1.0
 };
 
+/**
+ * @brief 为用户风场目标空间点构建反距离加权插值权重（最多4个最近源点）
+ * @param data    用户风速数据（含所有源点坐标）
+ * @param targetY 目标点的y坐标 [m]
+ * @param targetZ 目标点的z坐标 [m]
+ * @return        权重向量，每个元素含源点索引和归一化权重（距离1/d²加权）
+ * @note          若某源点与目标重合（d²≤1e-12）则返回单点权重1.0；
+ *                最大保留4个最近邻，权重归一化使∑w=1。
+ * @code auto weights = BuildUserWindSpatialWeights(data, 5.0, 90.0); @endcode
+ */
 std::vector<UserWindSpatialWeight> BuildUserWindSpatialWeights(const UserWindSpeedData &data, double targetY, double targetZ)
 {
 	std::vector<std::pair<double, int>> distances;
@@ -2085,6 +3049,15 @@ std::vector<UserWindSpatialWeight> BuildUserWindSpatialWeights(const UserWindSpe
 	return weights;
 }
 
+/**
+ * @brief 用户风场时间序列线性插值，可外延到端点
+ * @param time       时间点数组（已排序）
+ * @param values     风速值数组
+ * @param targetTime 目标时间 [s]
+ * @return           插值结果；targetTime≤首点取首值，≥末点取末值
+ * @note             使用std::lower_bound二分查找区间，线性比例定位。
+ * @code double u = InterpolateUserWindTimeSeries(times, uSeries, 12.5); @endcode
+ */
 double InterpolateUserWindTimeSeries(const std::vector<double> &time,
                                      const std::vector<double> &values,
                                      double targetTime)
@@ -2109,15 +3082,23 @@ double InterpolateUserWindTimeSeries(const std::vector<double> &time,
 	return values[i0] * (1.0 - a) + values[i1] * a;
 }
 
+/**
+ * @brief 从用户提供的外部风速时间序列文件加载并插值生成完整风场
+ * @param cfg 仿真配置（含输出网格、时间步、userTurbFile路径）
+ * @return    填充完毕的WindField
+ * @throw     文件为空、时间未排序或插值权重构建失败时抛出runtime_error
+ * @note      先为每个输出网格点构建空间插值权重，再逐时间步、逐分量插值。
+ * @code WindField field = LoadUserWindSpeedField(cfg); @endcode
+ */
 WindField LoadUserWindSpeedField(const SimWindConfig &cfg)
 {
 	const UserWindSpeedData data = ReadUserWindSpeed(cfg.input.userTurbFile);
 	if (data.time.empty() || data.components.empty())
-		throw std::runtime_error("USER_WIND_SPEED requires a non-empty user wind speed file.");
+		throw std::runtime_error(L_WIND_UserWindSpeedEmpty);
 
 	WindField field = AllocateField(cfg);
 	if (!std::is_sorted(data.time.begin(), data.time.end()))
-		throw std::runtime_error("USER_WIND_SPEED requires time samples sorted in ascending order.");
+		throw std::runtime_error(L_WIND_TimeNotSorted);
 
 	std::vector<std::vector<UserWindSpatialWeight>> weightsByPoint(static_cast<std::size_t>(cfg.nPoints));
 
@@ -2126,7 +3107,7 @@ WindField LoadUserWindSpeedField(const SimWindConfig &cfg)
 		weightsByPoint[static_cast<std::size_t>(p)] =
 		    BuildUserWindSpatialWeights(data, cfg.y[static_cast<std::size_t>(p)], cfg.z[static_cast<std::size_t>(p)]);
 		if (weightsByPoint[static_cast<std::size_t>(p)].empty())
-			throw std::runtime_error("USER_WIND_SPEED could not build spatial interpolation weights.");
+			throw std::runtime_error(L_WIND_SpatialWeightFail);
 	}
 
 	for (int p = 0; p < cfg.nPoints; ++p)
@@ -2154,6 +3135,16 @@ WindField LoadUserWindSpeedField(const SimWindConfig &cfg)
 	return field;
 }
 
+/**
+ * @brief 按高度填充PSD和sqrt(PSD)数组：为每个z层计算谱值
+ * @param cfg       仿真配置
+ * @param comp      速度分量索引
+ * @param freq      当前频率 [Hz]
+ * @param psdByZ    输出的PSD数组（长度nz）
+ * @param sqrtPsdByZ 输出的√PSD数组（长度nz），用于后续幅度计算
+ * @note            为每个高度层调用SpectrumWithParameters，传入该层的meanU、σ和积分尺度。
+ * @code FillPsdByHeight(cfg, 0, 0.5, psdByZ, sqrtPsdByZ); @endcode
+ */
 void FillPsdByHeight(const SimWindConfig &cfg,
                      int comp,
                      double freq,
@@ -2177,11 +3168,26 @@ void FillPsdByHeight(const SimWindConfig &cfg,
 	}
 }
 
+/**
+ * @brief 生成单个湍流分量的全频率随机相位频谱，通过IFFT得到时间序列
+ * @param cfg   仿真配置，含网格、频率、相干性等参数
+ * @param comp  分量索引（0=u, 1=v, 2=w）
+ * @param rng   随机数生成器（Mersenne Twister 64位），用于相位生成
+ * @param field 输出的风场（写入comp分量）
+ * @note        流程：(1)遍历频率k=1..nFreq-1；(2)FillPsdByHeight计算各高度层PSD；
+ *              (3)根据相干性策略构建频谱矩阵：Kronecker分解（y/z方向分别Cholesky）、
+ *              全矩阵Cholesky、或对角（无空间相干）；
+ *              (4)频谱对称共轭填充nSteps-k位置；(5)批量IFFT后缩放1/nSteps写入field。
+ *              跳过分量未启用或标准差为0的情况。含频率和复制进度报告。
+ * @code GenerateSpectralComponent(cfg, 0, rng, field); @endcode
+ */
 void GenerateSpectralComponent(const SimWindConfig &cfg, int comp, std::mt19937_64 &rng, WindField &field)
 {
 	if (!ComponentEnabled(cfg.input, comp) || cfg.sigma[static_cast<std::size_t>(comp)] <= 0.0)
 	{
-		Report(cfg, "  component " + std::to_string(comp + 1) + "/3 skipped.");
+		char buf[128];
+		std::snprintf(buf, sizeof(buf), L_PROG_CompSkipped, comp + 1);
+		Report(cfg, buf);
 		return;
 	}
 
@@ -2189,16 +3195,15 @@ void GenerateSpectralComponent(const SimWindConfig &cfg, int comp, std::mt19937_
 	const bool useKronecker = strictCoherence && cfg.useKronecker[static_cast<std::size_t>(comp)];
 	const int kroneckerFreqLimit = useKronecker ? cfg.kroneckerFreqLimit[static_cast<std::size_t>(comp)] : 0;
 	Report(cfg,
-	       "    " + std::string(comp == 0 ? "u" : (comp == 1 ? "v" : "w")) + "-component matrices (" +
-	           (strictCoherence ? (useKronecker ? "legacy Kronecker strict coherence" : "strict coherence")
-	                            : "uncorrelated spatial phases") +
+	       std::string(L_PROG_CompMatrices) + std::string(comp == 0 ? "u" : (comp == 1 ? "v" : "w")) + ") (" +
+	           (strictCoherence ? (useKronecker ? L_PROG_LegacyKronecker : L_PROG_StrictCoherence)
+	                            : L_PROG_UncorrelatedPhases) +
 	           ").");
 	if (useKronecker)
 	{
 		Report(cfg,
-		       "      Kronecker factorization active for " + std::to_string(kroneckerFreqLimit) +
-		           " of " + std::to_string(std::max(cfg.nFreq - 1, 0)) +
-		           " positive frequencies; higher frequencies use diagonal synthesis.");
+		       std::string(L_PROG_KroneckerActive) + std::to_string(kroneckerFreqLimit) + L_PROG_OfFreq +
+		           std::to_string(std::max(cfg.nFreq - 1, 0)) + L_PROG_HigherDiag);
 	}
 
 	FftwBatchPlan1D spectrum(cfg.nSteps, cfg.nPoints);
@@ -2223,7 +3228,7 @@ void GenerateSpectralComponent(const SimWindConfig &cfg, int comp, std::mt19937_
 
 	const int reportEvery = std::max(1, cfg.nFreq / 10);
 	const auto freqStart = std::chrono::steady_clock::now();
-	Report(cfg, "      frequency progress 0% (ETA unknown until first block completes).");
+	Report(cfg, L_PROG_FreqUnknownETA);
 
 	for (int k = 1; k < cfg.nFreq; ++k)
 	{
@@ -2342,17 +3347,16 @@ void GenerateSpectralComponent(const SimWindConfig &cfg, int comp, std::mt19937_
 			const double perFreq = elapsed / static_cast<double>(k);
 			const double remaining = perFreq * static_cast<double>(totalFreq - k);
 			Report(cfg,
-			       "      frequency progress " + std::to_string(percent) +
-			           "%, elapsed " + FormatDuration(elapsed) +
-			           ", ETA " + FormatDuration(remaining) + ".");
+			       std::string(L_PROG_FreqProgress) + std::to_string(percent) + "%" + L_PROG_Elapsed +
+			           FormatDuration(elapsed) + L_PROG_ETA + FormatDuration(remaining) + ".");
 		}
 	}
 
-	Report(cfg, "      FFTW batch inverse transform for all grid points.");
+	Report(cfg, L_PROG_IFFTBatch);
 	const auto ifftStart = std::chrono::steady_clock::now();
 	spectrum.Execute();
 	const double ifftElapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - ifftStart).count();
-	Report(cfg, "      FFTW batch inverse transform complete in " + FormatDuration(ifftElapsed) + ".");
+	Report(cfg, std::string(L_PROG_IFFTDone) + FormatDuration(ifftElapsed) + ".");
 
 	const double invN = 1.0 / static_cast<double>(cfg.nSteps);
 	const int copyReportEvery = std::max(1, cfg.nSteps / 10);
@@ -2370,22 +3374,44 @@ void GenerateSpectralComponent(const SimWindConfig &cfg, int comp, std::mt19937_
 			const double perStep = elapsed / static_cast<double>(completed);
 			const double remaining = perStep * static_cast<double>(cfg.nSteps - completed);
 			Report(cfg,
-			       "      copy-out progress " + std::to_string(percent) +
-			           "%, elapsed " + FormatDuration(elapsed) +
-			           ", ETA " + FormatDuration(remaining) + ".");
+			       std::string(L_PROG_CopyProgress) + std::to_string(percent) + "%" + L_PROG_Elapsed +
+			           FormatDuration(elapsed) + L_PROG_ETA + FormatDuration(remaining) + ".");
 		}
 	}
 
 	ApplyScaleIecForComponent(cfg, field, comp);
-	Report(cfg, "    component complete.");
+	Report(cfg, L_PROG_ComponentComplete);
 }
 
+/**
+ * @brief DFT波数计算：将FFT索引映射为物理波数 k = 2π·i/L（带符号）
+ * @param index  FFT索引（0..count-1）
+ * @param count  FFT点数
+ * @param length 物理域长度 [m]，被钳位至≥kTiny
+ * @return       有符号波数 [rad/m]，正频率段在index≤count/2
+ * @code double k1 = DftWaveNumber(ix, nx, lx); @endcode
+ */
 double DftWaveNumber(int index, int count, double length)
 {
 	const int signedIndex = index <= count / 2 ? index : index - count;
 	return 2.0 * kPi * static_cast<double>(signedIndex) / std::max(length, kTiny);
 }
 
+/**
+ * @brief Mann谱张量的3×3 Cholesky分解 L·Lᵀ = Φ(k₁,k₂,k₃)
+ * @param cfg   仿真配置，提供Mann参数（gamma, length）和alphaEps
+ * @param k1    波数分量1（纵向）[rad/m]
+ * @param k2    波数分量2（横向）[rad/m]
+ * @param k3    波数分量3（竖向）[rad/m]
+ * @param lower 输出的下三角矩阵（6个元素按列优先: L00,L10,L11,L20,L21,L22）
+ * @return      分解成功返回true，8次jitter尝试均失败返回false
+ * @note        基础公式：Φ_ij由各向同性张量+剪切修正构成，k₀=k₃+γk₁。
+ *              能量E∝αε^(2/3)·k₀L⁴/(1+k₀²L²)^(17/6)，数值不稳定时递增jitter重试。
+ * @code
+ *   std::array<double,6> lower;
+ *   if (MannLowerCholesky(cfg, k1, k2, k3, lower)) { ... }
+ * @endcode
+ */
 bool MannLowerCholesky(const SimWindConfig &cfg,
                        double k1,
                        double k2,
@@ -2455,6 +3481,16 @@ bool MannLowerCholesky(const SimWindConfig &cfg,
 	return false;
 }
 
+/**
+ * @brief 将输出网格的物理坐标映射到Mann FFT网格的最接近离散索引
+ * @param coord    物理坐标 [m]
+ * @param minCoord 网格起始坐标 [m]
+ * @param width    网格宽度 [m]
+ * @param count    FFT网格点数
+ * @return         最近索引∈[0,count-1]
+ * @note           使用lround四舍五入后clamp到有效范围。
+ * @code int mix = NearestMannIndex(z, zMin, gridHeight, nz); @endcode
+ */
 int NearestMannIndex(double coord, double minCoord, double width, int count)
 {
 	if (count <= 1 || width <= kTiny)
@@ -2463,6 +3499,18 @@ int NearestMannIndex(double coord, double minCoord, double width, int count)
 	return std::clamp(static_cast<int>(std::lround(position)), 0, count - 1);
 }
 
+/**
+ * @brief 基于Mann 3D谱张量模型生成完整湍流风场（u/v/w三分量同时生成）
+ * @param cfg 仿真配置，含Mann参数、网格和FFT尺寸
+ * @return    已填充三速度分量的WindField
+ * @note      流程：(1)按Mann谱张量填充3D复振幅体(uHat/vHat/wHat)；
+ *            (2)对每个(k₁,k₂,k₃)调用MannLowerCholesky，用复高斯随机数乘以
+ *            分解因子得到各分量振幅；(3)遵守共轭对称性只填充半个谱；
+ *            (4)对三个谱体同步批量IFFT得到物理空间场；
+ *            (5)通过NearestMannIndex将FFT网格采样到输出WindField网格。
+ *            分量未启用时整列为零。含降采样到输出网格和ApplyScaleIecForComponent。
+ * @code WindField field = GenerateMannWindField(cfg); @endcode
+ */
 WindField GenerateMannWindField(const SimWindConfig &cfg)
 {
 	const int nx = std::max(2, cfg.mannFftPoints);
@@ -2475,7 +3523,7 @@ WindField GenerateMannWindField(const SimWindConfig &cfg)
 	const double fftScale = std::sqrt(std::max(dkVolume, 0.0)) * static_cast<double>(nx) * ny * nz;
 
 	Report(cfg,
-	       " Calculating Mann 3D spectral tensor field: " + std::to_string(nx) + " x " +
+	       std::string(L_PROG_MannCalcTensor) + std::to_string(nx) + " x " +
 	           std::to_string(ny) + " x " + std::to_string(nz) + ".");
 
 	FftwComplexVolume uHat(nx, ny, nz);
@@ -2542,13 +3590,12 @@ WindField GenerateMannWindField(const SimWindConfig &cfg)
 			const double perStep = elapsed / static_cast<double>(completed);
 			const double remaining = perStep * static_cast<double>(nx - completed);
 			Report(cfg,
-			       "      Mann tensor progress " + std::to_string(percent) +
-			           "%, elapsed " + FormatDuration(elapsed) +
-			           ", ETA " + FormatDuration(remaining) + ".");
+			       std::string(L_PROG_MannProgress) + std::to_string(percent) + "%" + L_PROG_Elapsed +
+			           FormatDuration(elapsed) + L_PROG_ETA + FormatDuration(remaining) + ".");
 		}
 	}
 
-	Report(cfg, "      Mann 3D FFTW inverse transform.");
+	Report(cfg, L_PROG_Mann3DIFFT);
 	uHat.ExecuteBackward();
 	vHat.ExecuteBackward();
 	wHat.ExecuteBackward();
@@ -2589,15 +3636,24 @@ WindField GenerateMannWindField(const SimWindConfig &cfg)
 	return field;
 }
 
+/** @brief 轮毂高度处三个湍流速度分量的零滞后二阶协方差矩阵（对称，不含 vv，因其可由 uu, ww, sigma 导出） */
 struct HubCovariances
 {
-	double uu = 0.0;
-	double uv = 0.0;
-	double uw = 0.0;
-	double vw = 0.0;
-	double ww = 0.0;
+	double uu = 0.0;  ///< u 分量的方差 Var(u) [m²/s²]
+	double uv = 0.0;  ///< u-v 协方差 Cov(u, v) [m²/s²]
+	double uw = 0.0;  ///< u-w 协方差 Cov(u, w) [m²/s²]
+	double vw = 0.0;  ///< v-w 协方差 Cov(v, w) [m²/s²]
+	double ww = 0.0;  ///< w 分量的方差 Var(w) [m²/s²]
 };
 
+/**
+ * @brief 计算轮毂高度点三个速度分量的二阶协方差（uu, uv, uw, vw, ww）
+ * @param cfg   仿真配置
+ * @param field 已生成的湍流风场
+ * @return      HubCovariances结构体，含5个协方差分量（vv可由对称性隐含）
+ * @note        定位HubPointIndex后计算该点时间序列的零滞后协方差，除以nSteps归一化。
+ * @code auto cov = ComputeHubCovariances(cfg, field); @endcode
+ */
 HubCovariances ComputeHubCovariances(const SimWindConfig &cfg, const WindField &field)
 {
 	HubCovariances cov;
@@ -2626,6 +3682,15 @@ HubCovariances ComputeHubCovariances(const SimWindConfig &cfg, const WindField &
 	return cov;
 }
 
+/**
+ * @brief 对固定3×3矩阵进行带jitter的Cholesky分解 L·Lᵀ
+ * @param matrix 输入对称矩阵（Matrix3 = 3×3 std::array<std::array<double,3>,3>）
+ * @param n      矩阵阶数（≤3，仅前n×n子块被分解）
+ * @param lower  输出的下三角矩阵L（原地初始化为零）
+ * @return       分解成功返回true，8次jitter尝试失败返回false
+ * @note         jitter从trace·1e-12起步，每次成10倍递增，失败时对角元+=jitter再试。
+ * @code Matrix3 lower; bool ok = CholeskyLower(covMatrix, dim, lower); @endcode
+ */
 bool CholeskyLower(const Matrix3 &matrix, int n, Matrix3 &lower)
 {
 	lower = ZeroMatrix3();
@@ -2674,6 +3739,14 @@ bool CholeskyLower(const Matrix3 &matrix, int n, Matrix3 &lower)
 	return false;
 }
 
+/**
+ * @brief 两个Matrix3矩阵相乘 C = A·B
+ * @param a 左乘矩阵A
+ * @param b 右乘矩阵B
+ * @param n 矩阵阶数（≤3）
+ * @return  乘积矩阵C
+ * @code Matrix3 transform = MultiplyMatrix(targetLower, invCurrentLower, dim); @endcode
+ */
 Matrix3 MultiplyMatrix(const Matrix3 &a, const Matrix3 &b, int n)
 {
 	Matrix3 out = ZeroMatrix3();
@@ -2691,6 +3764,14 @@ Matrix3 MultiplyMatrix(const Matrix3 &a, const Matrix3 &b, int n)
 	return out;
 }
 
+/**
+ * @brief 计算下三角矩阵的逆矩阵（前代法，仍为下三角）
+ * @param lower 下三角矩阵L
+ * @param n     矩阵阶数（≤3）
+ * @return      L⁻¹（下三角）
+ * @note        对角元取倒数，非对角元通过前代求解递推。
+ * @code Matrix3 invL = InvertLowerTriangular(currentLower, dim); @endcode
+ */
 Matrix3 InvertLowerTriangular(const Matrix3 &lower, int n)
 {
 	Matrix3 inv = ZeroMatrix3();
@@ -2711,6 +3792,16 @@ Matrix3 InvertLowerTriangular(const Matrix3 &lower, int n)
 	return inv;
 }
 
+/**
+ * @brief 对非正定的协方差矩阵做二分搜索"软化"（收缩非对角元），直到可Cholesky分解
+ * @param target 输入/输出的对称矩阵（原地修改）
+ * @param n      矩阵阶数（≤3）
+ * @return       找到可行的软化系数返回true，否则返回false
+ * @note         在[0,1]区间二分搜索收缩系数scale，将非对角元乘以scale后尝试Cholesky分解。
+ *               目标是不能正定分解时逐步收缩协方差，同时保留对角元素（方差）不变。
+ * @code if (!CholeskyLower(target, dim, targetLower))
+ *          SoftenedTargetCovariance(target, dim); @endcode
+ */
 bool SoftenedTargetCovariance(Matrix3 &target, int n)
 {
 	const Matrix3 original = target;
@@ -2748,6 +3839,18 @@ bool SoftenedTargetCovariance(Matrix3 &target, int n)
 	return found;
 }
 
+/**
+ * @brief 对已生成的湍流风场施加雷诺应力缩放，使各点协方差矩阵匹配目标应力张量
+ * @param cfg   仿真配置，含reynoldsStress目标、scaleIEC策略及各组分σ
+ * @param field 风场数据（原地修改），对每个空间点独立变换
+ * @note        流程：(1)计算每个点的当前协方差矩阵（仅启用分量）；
+ *              (2)Cholesky分解当前矩阵得L_cur；(3)构造目标协方差矩阵（对角=目标σ²，
+ *              非对角取自reynoldsStress配置项或保留当前值）；
+ *              (4)Cholesky分解目标矩阵得L_tgt（失败则软化重试）；
+ *              (5)变换矩阵T=L_tgt·L_cur⁻¹；(6)对每个时间步应用mapped=T·(v-mean)。
+ *              跳过不可分解的点并累积警告。软化时非对角元收缩而保留对角σ。
+ * @code ApplyReynoldsStressScaling(cfg, field); @endcode
+ */
 void ApplyReynoldsStressScaling(const SimWindConfig &cfg, WindField &field)
 {
 	if (!cfg.met.reynoldsStress.active)
@@ -2880,16 +3983,24 @@ void ApplyReynoldsStressScaling(const SimWindConfig &cfg, WindField &field)
 
 	if (anySoftened)
 	{
-		AppendWarning(MutableWarnings(cfg),
-		              "Reynolds-stress target covariance was softened at some points to remain positive-definite while preserving the final component sigmas.");
+		AppendWarning(MutableWarnings(cfg), L_WARN_ReynoldsSoften);
 	}
 	if (anySkipped)
 	{
-		AppendWarning(MutableWarnings(cfg),
-		              "Reynolds-stress scaling skipped at some points because the local covariance matrix was singular or numerically degenerate.");
+		AppendWarning(MutableWarnings(cfg), L_WARN_ReynoldsSkipSingular);
 	}
 }
 
+/**
+ * @brief 对湍流风场叠加平均风廓线和IEC瞬态事件（EOG/EDC/ECD/EWS）
+ * @param cfg   仿真配置，含windModel、角度、事件参数
+ * @param field 风场数据（原地修改）：确定性模型直接赋值，湍流模型叠加到现有值
+ * @note        两类处理：(1)确定性/均匀风：每个时间步用meanU重建全场速度；
+ *              (2)湍流叠加：现有湍流速度+=平均风向分量分解（cosθ·cosφ, sinθ, sinφ）。
+ *              事件支持EOG（极端运行阵风）、EDC（极端方向变化）、ECD（极端相干阵风+方向变化）、
+ *              EWS（极端风切变）。均匀风/非确定性事件提前返回。
+ * @code ApplyMeanAndEvents(cfg, field); @endcode
+ */
 void ApplyMeanAndEvents(const SimWindConfig &cfg, WindField &field)
 {
 	const double hAngleBase = cfg.input.horAngle * kRad;
@@ -3014,28 +4125,38 @@ void ApplyMeanAndEvents(const SimWindConfig &cfg, WindField &field)
 	}
 }
 
+/**
+ * @brief 顶层风场生成调度器：根据湍流/风模型选择生成路径
+ * @param cfg 仿真配置
+ * @return    已填充并缩放的WindField
+ * @note      路径：(1)USER_WIND_SPEED→LoadUserWindSpeedField；
+ *            (2)UNIFORM/确定性事件→分配空场后直接ApplyMeanAndEvents；
+ *            (3)Mann湍流→GenerateMannWindField+可选Reynolds应力缩放+ApplyMeanAndEvents；
+ *            (4)其他谱模型→GenerateSpectralComponent×3+可选Reynolds应力缩放+ApplyMeanAndEvents。
+ * @code WindField field = GenerateWindField(cfg); @endcode
+ */
 WindField GenerateWindField(const SimWindConfig &cfg)
 {
 	if (cfg.input.turbModel == TurbModel::USER_WIND_SPEED)
 	{
-		Report(cfg, " Loading user wind-speed time series.");
+		Report(cfg, L_PROG_LoadingUserWind);
 		return LoadUserWindSpeedField(cfg);
 	}
 
 	if (IsUniformWindModel(cfg.input.windModel))
 	{
-		Report(cfg, " WindModel=UNIFORM; generating mean profile only without turbulence.");
+		Report(cfg, L_PROG_UniformWindOnly);
 		WindField field = AllocateField(cfg);
-		Report(cfg, " Applying mean wind profile and IEC event shape.");
+		Report(cfg, L_PROG_ApplyMeanProfile);
 		ApplyMeanAndEvents(cfg, field);
 		return field;
 	}
 
 	if (IsDeterministicEventWindModel(cfg.input.windModel))
 	{
-		Report(cfg, " WindModel is a deterministic IEC event; generating event field without spectral turbulence.");
+		Report(cfg, L_PROG_DeterministicEvent);
 		WindField field = AllocateField(cfg);
-		Report(cfg, " Applying mean wind profile and IEC event shape.");
+		Report(cfg, L_PROG_ApplyMeanProfile);
 		ApplyMeanAndEvents(cfg, field);
 		return field;
 	}
@@ -3043,33 +4164,40 @@ WindField GenerateWindField(const SimWindConfig &cfg)
 	if (IsMann(cfg.input.turbModel))
 	{
 		WindField field = GenerateMannWindField(cfg);
-		Report(cfg, " Generating Mann time series for all points.");
+		Report(cfg, L_PROG_GenMannSeries);
 		if (cfg.met.reynoldsStress.active)
 		{
-			Report(cfg, " Applying Reynolds-stress scaling before mean-wind addition.");
+			Report(cfg, L_PROG_ApplyReynolds);
 			ApplyReynoldsStressScaling(cfg, field);
 		}
-		Report(cfg, " Applying mean wind profile and IEC event shape.");
+		Report(cfg, L_PROG_ApplyMeanProfile);
 		ApplyMeanAndEvents(cfg, field);
 		return field;
 	}
 
-	Report(cfg, " Calculating the spectral and transfer function matrices:");
+	Report(cfg, L_PROG_CalcSpectral);
 	WindField field = AllocateField(cfg);
 	std::mt19937_64 rng(static_cast<std::uint64_t>(cfg.input.turbSeed));
 	for (int comp = 0; comp < 3; ++comp)
 		GenerateSpectralComponent(cfg, comp, rng, field);
 	if (cfg.met.reynoldsStress.active)
 	{
-		Report(cfg, " Applying Reynolds-stress scaling before mean-wind addition.");
+		Report(cfg, L_PROG_ApplyReynolds);
 		ApplyReynoldsStressScaling(cfg, field);
 	}
-	Report(cfg, " Generating time series for all points.");
-	Report(cfg, " Applying mean wind profile and IEC event shape.");
+	Report(cfg, L_PROG_GenTimeSeries);
+	Report(cfg, L_PROG_ApplyMeanProfile);
 	ApplyMeanAndEvents(cfg, field);
 	return field;
 }
 
+/**
+ * @brief 计算单个分量时间序列的均值、标准差和湍流强度
+ * @param values 数据向量
+ * @param uHub   轮毂高度平均风速 [m/s]，用于计算TI=σ/uHub
+ * @return       含mean, sigma, turbulenceIntensity的统计结构体
+ * @code auto stats = ComputeStats(field.component[0], cfg.uHub); @endcode
+ */
 SimWindComponentStats ComputeStats(const std::vector<double> &values, double uHub)
 {
 	SimWindComponentStats stats;
@@ -3085,6 +4213,13 @@ SimWindComponentStats ComputeStats(const std::vector<double> &values, double uHu
 	return stats;
 }
 
+/**
+ * @brief 计算三个速度分量的完整场统计
+ * @param cfg   仿真配置，提供uHub
+ * @param field 已生成的风场
+ * @return      三个SimWindComponentStats的数组 [u, v, w]
+ * @code auto stats = ComputeFieldStats(cfg, field); @endcode
+ */
 std::array<SimWindComponentStats, 3> ComputeFieldStats(const SimWindConfig &cfg, const WindField &field)
 {
 	std::array<SimWindComponentStats, 3> stats{};
@@ -3093,6 +4228,14 @@ std::array<SimWindComponentStats, 3> ComputeFieldStats(const SimWindConfig &cfg,
 	return stats;
 }
 
+/**
+ * @brief 计算int16编码的缩放因子和偏移量（将double映射到[-32768,32767]）
+ * @param values 数据向量
+ * @return       pair{slope, offset}：编码值 = slope × value + offset
+ * @note         斜率 = 65535/(max-min)；偏移 = -32768 - slope·min。
+ *               当数据无变化或为空时返回{1.0, -value}。
+ * @code auto [scl, off] = ScalingForComponent(field.component[0]); @endcode
+ */
 std::pair<float, float> ScalingForComponent(const std::vector<double> &values)
 {
 	const auto [minIt, maxIt] = std::minmax_element(values.begin(), values.end());
@@ -3106,12 +4249,24 @@ std::pair<float, float> ScalingForComponent(const std::vector<double> &values)
 	return {static_cast<float>(slope), static_cast<float>(offset)};
 }
 
+/**
+ * @brief 将double值钳位到[-32768,32767]并四舍五入为int16
+ * @param value 待编码值
+ * @return      int16编码结果
+ * @code auto i16 = EncodeInt16(slope * field.At(0,t,p) + offset); @endcode
+ */
 std::int16_t EncodeInt16(double value)
 {
 	const long rounded = std::lround(std::clamp(value, -32768.0, 32767.0));
 	return static_cast<std::int16_t>(rounded);
 }
 
+/**
+ * @brief 将内部湍流模型枚举映射为Bladed .wnd文件中的模型ID
+ * @param model 湍流模型枚举值
+ * @return      Bladed模型ID（3=VK, 4=IVK, 5=Kaimal, 7=BKal, 8=BMann, 默认4）
+ * @code int modelId = BladedModelId(cfg.input.turbModel); @endcode
+ */
 int BladedModelId(TurbModel model)
 {
 	switch (model)
@@ -3127,22 +4282,47 @@ int BladedModelId(TurbModel model)
 	}
 }
 
+/**
+ * @brief 返回正值尺度参数，零或负值时使用回退值
+ * @param value    用户指定的尺度值
+ * @param fallback 默认回退值
+ * @return         value>0 ? value : max(fallback, kTiny)
+ * @code float xLu = LengthScaleOrDefault(cfg.input.vkLu, cfg.integralScale[0]); @endcode
+ */
 double LengthScaleOrDefault(double value, double fallback)
 {
 	return value > 0.0 ? value : std::max(fallback, kTiny);
 }
 
+/**
+ * @brief 计算Bladed格式的湍流强度百分比
+ * @param stats 三分量统计
+ * @param cfg   仿真配置，提供uHub
+ * @param comp  分量索引（0/1/2）
+ * @return      TI百分比 = 100·σ/uHub [%]
+ * @code float ti = BladedTiPercent(stats, cfg, 0); @endcode
+ */
 float BladedTiPercent(const std::array<SimWindComponentStats, 3> &stats, const SimWindConfig &cfg, int comp)
 {
 	const double ti = std::max(stats[static_cast<std::size_t>(comp)].sigma / std::max(cfg.uHub, kTiny), 1.0e-6);
 	return static_cast<float>(100.0 * ti);
 }
 
+/**
+ * @brief 输出TurbSim .bts二进制全场风文件
+ * @param cfg   仿真配置，提供网格参数和hubHeight
+ * @param field 已生成的风场（三分量时间序列）
+ * @param path  输出文件路径
+ * @throw       无法打开文件时抛出runtime_error
+ * @note        格式：int16标记(7=非循环/8=循环) → 网格和时间参数 → 每分量int16编码和偏移 →
+ *              按(时间, z, y)循环写入三个int16分量（uScl*u+uOff等）。
+ * @code WriteBts(cfg, field, "output.bts"); @endcode
+ */
 void WriteBts(const SimWindConfig &cfg, const WindField &field, const std::filesystem::path &path)
 {
 	std::ofstream out(path, std::ios::binary);
 	if (!out)
-		throw std::runtime_error("Cannot open BTS output: " + path.string());
+		throw std::runtime_error(std::string(L_WIND_CannotOpenBTS) + ": " + path.string());
 
 	const auto [uScl, uOff] = ScalingForComponent(field.component[0]);
 	const auto [vScl, vOff] = ScalingForComponent(field.component[1]);
@@ -3184,6 +4364,18 @@ void WriteBts(const SimWindConfig &cfg, const WindField &field, const std::files
 	}
 }
 
+/**
+ * @brief 输出Bladed .wnd二进制全场风文件
+ * @param cfg   仿真配置，含模型ID、尺度参数、输出参数
+ * @param field 已生成的风场
+ * @param stats 三分量统计（用于归一化编码）
+ * @param path  输出文件路径
+ * @throw       无法打开文件时抛出runtime_error
+ * @note        根据modelId不同写不同的头部：(4)IVK含TI百分比；(7)BKal含coh参数；(8)BMann含
+ *              Mann参数和sigma比值；modelId≥7时写变长头部。数据按(时间,z,-y)循环，
+ *              每个分量编码为 1000·(v-mean)/σ 的int16。
+ * @code WriteBladedWnd(cfg, field, stats, "output.wnd"); @endcode
+ */
 void WriteBladedWnd(const SimWindConfig &cfg,
                     const WindField &field,
                     const std::array<SimWindComponentStats, 3> &stats,
@@ -3191,7 +4383,7 @@ void WriteBladedWnd(const SimWindConfig &cfg,
 {
 	std::ofstream out(path, std::ios::binary);
 	if (!out)
-		throw std::runtime_error("Cannot open Bladed WND output: " + path.string());
+		throw std::runtime_error(std::string(L_WIND_CannotOpenBlndWND) + ": " + path.string());
 
 	const int modelId = BladedModelId(cfg.input.turbModel);
 	const int componentCount = 3;
@@ -3306,6 +4498,17 @@ void WriteBladedWnd(const SimWindConfig &cfg,
 	}
 }
 
+/**
+ * @brief 输出TurbSim兼容的Bladed格式.wnd文件
+ * @param cfg   仿真配置
+ * @param field 已生成的风场
+ * @param stats 三分量统计
+ * @param path  输出文件路径
+ * @throw       无法打开文件时抛出runtime_error
+ * @note        固定modelId=4（IVK）。编码方式：u分量 = 1000/(U·TIu)·u - 1000/TIu，
+ *              v/w分量 = 1000/(U·TI)·v。按(时间,z,y)循环写入三个int16。
+ * @code WriteTurbSimWnd(cfg, field, stats, "output.wnd"); @endcode
+ */
 void WriteTurbSimWnd(const SimWindConfig &cfg,
                      const WindField &field,
                      const std::array<SimWindComponentStats, 3> &stats,
@@ -3313,7 +4516,7 @@ void WriteTurbSimWnd(const SimWindConfig &cfg,
 {
 	std::ofstream out(path, std::ios::binary);
 	if (!out)
-		throw std::runtime_error("Cannot open TurbSim-compatible WND output: " + path.string());
+		throw std::runtime_error(std::string(L_WIND_CannotOpenTSWND) + ": " + path.string());
 
 	double maxUDev = 0.0;
 	for (double value : field.component[0])
@@ -3366,6 +4569,17 @@ void WriteTurbSimWnd(const SimWindConfig &cfg,
 	}
 }
 
+/**
+ * @brief 输出.sum统计摘要文件：写入输入参数、网格信息、IEC导出参数和分分量统计
+ * @param cfg    仿真配置
+ * @param stats  三分量统计
+ * @param result 生成结果（含输出路径和警告）
+ * @param path   输出.sum文件路径
+ * @throw        无法打开文件时抛出runtime_error
+ * @note         输出内容包括：输入参数、网格、预估成本、导出参数、输出文件清单、
+ *               关键字状态、分分量均值/σ/TI，以及警告信息。
+ * @code WriteSummary(cfg, stats, result, "output.sum"); @endcode
+ */
 void WriteSummary(const SimWindConfig &cfg,
                   const std::array<SimWindComponentStats, 3> &stats,
                   const SimWindResult &result,
@@ -3373,19 +4587,19 @@ void WriteSummary(const SimWindConfig &cfg,
 {
 	std::ofstream out(path);
 	if (!out)
-		throw std::runtime_error("Cannot open SUM output: " + path.string());
+		throw std::runtime_error(std::string(L_WIND_CannotOpenSUM) + ": " + path.string());
 
-	out << "Qahse WindL SimWind Summary\n";
-	out << "===========================\n\n";
+	out << L_SUM_Title << "\n";
+	out << L_SUM_Separator << "\n\n";
 	out << std::setprecision(10);
-	out << "Input\n";
+	out << L_SUM_Input << "\n";
 	out << "  TurbModel: " << static_cast<int>(cfg.input.turbModel) << "\n";
 	out << "  WindModel: " << static_cast<int>(cfg.input.windModel) << "\n";
 	out << "  RandSeed: " << cfg.input.turbSeed << "\n";
 	out << "  MeanWindSpeed: " << cfg.uHub << " m/s\n";
 	out << "  HubHt: " << cfg.hubHeight << " m\n\n";
 
-	out << "Grid\n";
+	out << L_SUM_Grid << "\n";
 	out << "  NumPointY: " << cfg.ny << "\n";
 	out << "  NumPointZ: " << cfg.nz << "\n";
 	out << "  LenWidthY: " << cfg.gridWidth << " m\n";
@@ -3394,12 +4608,12 @@ void WriteSummary(const SimWindConfig &cfg,
 	out << "  TimeStep: " << cfg.dt << " s\n";
 	out << "  NumSteps: " << cfg.nSteps << "\n\n";
 
-	out << "Generation Cost Estimate\n";
+	out << L_SUM_GenCostEstimate << "\n";
 	out << "  StrictCoherenceComponents: " << cfg.strictCoherenceComponents << "\n";
 	out << "  EstimatedPeakMemoryGiB: " << cfg.estimatedPeakMemoryGiB << "\n";
 	out << "  EstimatedCholeskyFLOPs: " << cfg.estimatedCholeskyFlops << "\n\n";
 
-	out << "Derived IEC Parameters\n";
+	out << L_SUM_DerivedIEC << "\n";
 	out << "  Lambda: " << cfg.lambda << " m\n";
 	out << "  LC: " << cfg.lc << " m\n";
 	out << "  SigmaU/SigmaV/SigmaW: " << cfg.sigma[0] << ", " << cfg.sigma[1] << ", " << cfg.sigma[2] << " m/s\n";
@@ -3417,7 +4631,7 @@ void WriteSummary(const SimWindConfig &cfg,
 	out << "  ZI: " << cfg.met.mixingLayerDepth << " m\n";
 	out << "  ReynoldsStressActive: " << (cfg.met.reynoldsStress.active ? "true" : "false") << "\n\n";
 
-	out << "Bladed Export Parameters\n";
+	out << L_SUM_BladedExport << "\n";
 	out << "  Record2ModelID: " << BladedModelId(cfg.input.turbModel) << "\n";
 	out << "  ExportLateralScaleU/V/W: " << cfg.lateralScale[0] << ", " << cfg.lateralScale[1] << ", " << cfg.lateralScale[2] << " m\n";
 	out << "  ExportVerticalScaleU/V/W: " << cfg.verticalScale[0] << ", " << cfg.verticalScale[1] << ", " << cfg.verticalScale[2] << " m\n";
@@ -3429,14 +4643,14 @@ void WriteSummary(const SimWindConfig &cfg,
 	}
 	out << "\n";
 
-	out << "Output Files\n";
+	out << L_SUM_OutputFiles << "\n";
 	if (!result.btsPath.empty()) out << "  BTS: " << result.btsPath << "\n";
 	if (!result.bladedWndPath.empty()) out << "  Bladed WND: " << result.bladedWndPath << "\n";
 	if (!result.turbsimWndPath.empty()) out << "  TurbSim-compatible WND: " << result.turbsimWndPath << "\n";
 	if (!result.wndPath.empty()) out << "  WND alias: " << result.wndPath << "\n";
 	out << "  SUM: " << path.string() << "\n\n";
 
-	out << "Input Keyword Status\n";
+	out << L_SUM_InputKeywordStatus << "\n";
 	out << "  CalWu/CalWv/CalWw: turbulence-only component switches\n";
 	out << "  WrBlwnd/WrTrbts/WrTrwnd: export the same generated wind field in multiple formats\n";
 	out << "  EWMReturn: removed legacy keyword; ignored if present in old input files\n";
@@ -3444,7 +4658,7 @@ void WriteSummary(const SimWindConfig &cfg,
 	out << "  UseFFT: legacy keyword; does not override the current generator path\n";
 	out << "  SumPrint: " << (cfg.input.sumPrint ? "true" : "false") << " (summary requested)\n\n";
 
-	out << "Statistics\n";
+	out << L_SUM_Statistics << "\n";
 	static const char *names[3] = {"u", "v", "w"};
 	for (int comp = 0; comp < 3; ++comp)
 	{
@@ -3455,37 +4669,54 @@ void WriteSummary(const SimWindConfig &cfg,
 
 	if (!result.warnings.empty())
 	{
-		out << "\nWarnings\n";
+		out << "\n" << L_SUM_Warnings << "\n";
 		for (const auto &warning : result.warnings)
 			out << "  - " << warning << "\n";
 	}
 }
 } // namespace
 
+/**
+ * @brief 仅验证输入文件而不生成风场的公开入口（诊断模式）
+ * @param input 已解析的WindLInput配置
+ * @note       直接委托给ValidateInput；无输出文件生成。
+ * @code SimWind::ValidateInputOnly(input); @endcode
+ */
 void SimWind::ValidateInputOnly(const WindLInput &input)
 {
 	ValidateInput(input);
 }
 
+/**
+ * @brief SimWind主生成入口：解析配置→生成湍流风场→写入输出文件→返回结果
+ * @param input    已解析的WindLInput配置（湍流模型、网格、文件输出开关等）
+ * @param progress 进度回调函数（接收字符串描述），可为空
+ * @return         SimWindResult含统计量、输出路径、警告和预估成本
+ * @note          流程：(1)BuildConfig构建配置并报告；(2)GenerateWindField分派生成路径；
+ *                (3)ComputeFieldStats统计输出场；(4)按input.wrTrbts/wrBlwnd/wrTrwnd
+ *                开关分别写.bts/.wnd/.ts.wnd；(5)按input.sumPrint写.sum摘要。
+ *                全程含大量进度报告和ETA估算。
+ * @code auto result = SimWind::Generate(input, [](const std::string& msg) { std::cout << msg << "\n"; }); @endcode
+ */
 SimWindResult SimWind::Generate(const WindLInput &input, SimWindProgressCallback progress)
 {
 	const auto startTime = std::chrono::steady_clock::now();
 	if (progress)
-		progress(" Reading and normalizing the SimWind input file.");
+		progress(L_PROG_ReadingInput);
 	SimWindConfig cfg = BuildConfig(input);
 	cfg.progress = std::move(progress);
 	Report(cfg,
-	       " Grid/time prepared: " + std::to_string(cfg.ny) + " x " + std::to_string(cfg.nz) +
+	       std::string(L_PROG_GridPrepared) + std::to_string(cfg.ny) + " x " + std::to_string(cfg.nz) +
 	           ", steps=" + std::to_string(cfg.nSteps) +
 	           ", strict-coherence components=" + std::to_string(cfg.strictCoherenceComponents) +
 	           ", estimated peak memory=" + FormatGiB(cfg.estimatedPeakMemoryGiB) +
 	           ", estimated Cholesky FLOPs=" + FormatScientific(cfg.estimatedCholeskyFlops) + ".");
 	for (const auto &warning : cfg.warnings)
-		Report(cfg, " Warning: " + warning);
+		Report(cfg, std::string(L_PROG_WarningPrefix) + ": " + warning);
 	if (cfg.estimatedCholeskyFlops > 5.0e13 || cfg.estimatedPeakMemoryGiB > 12.0)
 	{
-		Report(cfg, " Large strict-coherence run requested; continuing and reporting elapsed time/ETA from measured progress.");
-		Report(cfg, " Initial runtime estimate: " + InitialRuntimeEstimate(cfg.estimatedCholeskyFlops) + ".");
+		Report(cfg, L_PROG_LargeStrictCoh);
+		Report(cfg, std::string(L_PROG_InitRuntimeEstimate) + ": " + InitialRuntimeEstimate(cfg.estimatedCholeskyFlops) + ".");
 	}
 	WindField field = GenerateWindField(cfg);
 
@@ -3499,15 +4730,15 @@ SimWindResult SimWind::Generate(const WindLInput &input, SimWindProgressCallback
 	result.estimatedPeakMemoryGiB = cfg.estimatedPeakMemoryGiB;
 	result.estimatedCholeskyFlops = cfg.estimatedCholeskyFlops;
 	result.warnings = cfg.warnings;
-	Report(cfg, " Computing generated-field statistics.");
+	Report(cfg, L_PROG_ComputingStats);
 	result.stats = ComputeFieldStats(cfg, field);
 
-	Report(cfg, " Writing requested wind output files.");
+	Report(cfg, L_PROG_WritingOutput);
 	if (input.wrTrbts)
 	{
 		auto path = cfg.outputBase;
 		result.btsPath = path.replace_extension(".bts").string();
-		Report(cfg, " Generating AeroDyn/TurbSim binary full-field file \"" + result.btsPath + "\".");
+		Report(cfg, std::string(L_PROG_GenBTS) + " \"" + result.btsPath + "\".");
 		WriteBts(cfg, field, result.btsPath);
 	}
 
@@ -3515,7 +4746,7 @@ SimWindResult SimWind::Generate(const WindLInput &input, SimWindProgressCallback
 	{
 		auto path = cfg.outputBase;
 		result.bladedWndPath = path.replace_extension(".wnd").string();
-		Report(cfg, " Generating Bladed binary full-field file \"" + result.bladedWndPath + "\".");
+		Report(cfg, std::string(L_PROG_GenBladed) + " \"" + result.bladedWndPath + "\".");
 		WriteBladedWnd(cfg, field, result.stats, result.bladedWndPath);
 		result.wndPath = result.bladedWndPath;
 	}
@@ -3524,7 +4755,7 @@ SimWindResult SimWind::Generate(const WindLInput &input, SimWindProgressCallback
 	{
 		auto path = cfg.outputBase;
 		result.turbsimWndPath = path.replace_extension(input.wrBlwnd ? ".ts.wnd" : ".wnd").string();
-		Report(cfg, " Generating TurbSim-compatible Bladed-style file \"" + result.turbsimWndPath + "\".");
+		Report(cfg, std::string(L_PROG_GenTurbSim) + " \"" + result.turbsimWndPath + "\".");
 		WriteTurbSimWnd(cfg, field, result.stats, result.turbsimWndPath);
 		if (result.wndPath.empty())
 			result.wndPath = result.turbsimWndPath;
@@ -3534,15 +4765,23 @@ SimWindResult SimWind::Generate(const WindLInput &input, SimWindProgressCallback
 	{
 		auto path = cfg.outputBase;
 		result.sumPath = path.replace_extension(".sum").string();
-		Report(cfg, " Writing statistics to summary file \"" + result.sumPath + "\".");
+		Report(cfg, std::string(L_PROG_WritingSum) + " \"" + result.sumPath + "\".");
 		WriteSummary(cfg, result.stats, result, result.sumPath);
 	}
 
 	const auto elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - startTime).count();
-	Report(cfg, " Processing complete. " + FormatSeconds(elapsed) + " CPU seconds used.");
+	Report(cfg, std::string(L_PROG_ProcessingComplete) + " " + FormatSeconds(elapsed) + L_PROG_CPUSeconds);
 	return result;
 }
 
+/**
+ * @brief 从.qwd文件路径直接生成湍流风场的便捷入口（文件→解析→生成一站式）
+ * @param qwdPath  .qwd输入文件路径（Qahse WindL定义格式）
+ * @param progress 进度回调函数，可为空
+ * @return         SimWindResult（同SimWind::Generate）
+ * @note           内部依次调用ReadWindLInput(qwdPath)和SimWind::Generate。
+ * @code auto result = SimWind::GenerateFromFile("project.qwd", progressCallback); @endcode
+ */
 SimWindResult SimWind::GenerateFromFile(const std::string &qwdPath, SimWindProgressCallback progress)
 {
 	return Generate(ReadWindLInput(qwdPath), std::move(progress));

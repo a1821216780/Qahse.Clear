@@ -49,6 +49,6 @@ default CohMod3
 1.0 EventStart
 0 EventSign
 15.0 EcdVcog
-"F:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result" WrWndPath
+"E:\\Qahse.Clear\\demo\\WindL\\IEC61400_3\\result" WrWndPath
 "IEC3_EDC" WrWndName
 true SumPrint

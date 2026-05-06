@@ -63,6 +63,7 @@ def iec_fixed_headers() -> list[str]:
         "Override.MeanWindSpeed",
         "Override.EWMType",
         "Override.EventSign",
+        "Override.RandSeed",
         "Override.WrTrbts",
         "Override.WrBlwnd",
         "Override.WrTrwnd",
@@ -115,59 +116,63 @@ def build_iec_rows(structure: str) -> tuple[list[str], list[list[str]]]:
         return base
 
     for speed in OPERATING_SPEEDS:
-        add_row(rows, headers, {
-            "CaseName": f"NREL5MW_NTM_U{fmt_speed(speed)}",
-            "OutputSubdir": f"NTM/U{fmt_speed(speed)}",
-            "Override.WindModel": "NTM",
-            **meta_base("1.2", "NTM", speed),
-        })
-        add_row(rows, headers, {
-            "CaseName": f"NREL5MW_ETM_U{fmt_speed(speed)}",
-            "OutputSubdir": f"ETM/U{fmt_speed(speed)}",
-            "Override.WindModel": "ETM",
-            **meta_base("1.3", "ETM", speed),
-        })
-        add_row(rows, headers, {
-            "CaseName": f"NREL5MW_EOG_U{fmt_speed(speed)}",
-            "OutputSubdir": f"EOG/U{fmt_speed(speed)}",
-            "Override.WindModel": "EOG",
-            **meta_base("1.4", "EOG", speed),
-        })
+        for seed_idx in range(1, 7):  # IEC requires 6 seeds per wind speed
+            seed_suffix = f"_S{seed_idx:02d}"
+            add_row(rows, headers, {
+                "CaseName": f"NREL5MW_DLC1p1_NTM_U{fmt_speed(speed)}{seed_suffix}",
+                "OutputSubdir": f"DLC1p1_NTM/U{fmt_speed(speed)}/S{seed_idx:02d}",
+                "Override.WindModel": "NTM",
+                "Override.RandSeed": 12345 + seed_idx,
+                **meta_base("1.1", "NTM", speed),
+            })
+            add_row(rows, headers, {
+                "CaseName": f"NREL5MW_DLC1p3_ETM_U{fmt_speed(speed)}{seed_suffix}",
+                "OutputSubdir": f"DLC1p3_ETM/U{fmt_speed(speed)}/S{seed_idx:02d}",
+                "Override.WindModel": "ETM",
+                "Override.RandSeed": 22345 + seed_idx,
+                **meta_base("1.3", "ETM", speed),
+            })
+        for seed_idx in range(1, 7):
+            seed_suffix = f"_S{seed_idx:02d}"
+            add_row(rows, headers, {
+                "CaseName": f"NREL5MW_DLC2p3_EOG_U{fmt_speed(speed)}{seed_suffix}",
+                "OutputSubdir": f"DLC2p3_EOG/U{fmt_speed(speed)}/S{seed_idx:02d}",
+                "Override.WindModel": "EOG",
+                "Override.RandSeed": 52345 + seed_idx,
+                **meta_base("2.3", "EOG", speed),
+            })
 
     for speed in EVENT_SPEEDS:
         for sign_name in ("POSITIVE", "NEGATIVE"):
             sign_suffix = "Pos" if sign_name == "POSITIVE" else "Neg"
-            add_row(rows, headers, {
-                "CaseName": f"NREL5MW_EDC_{sign_suffix}_U{fmt_speed(speed)}",
-                "OutputSubdir": f"EDC/{sign_suffix}/U{fmt_speed(speed)}",
-                "Override.WindModel": "EDC",
-                "Override.EventSign": sign_name,
-                **meta_base("1.4", "EDC", speed),
-            })
-            add_row(rows, headers, {
-                "CaseName": f"NREL5MW_ECD_{sign_suffix}_U{fmt_speed(speed)}",
-                "OutputSubdir": f"ECD/{sign_suffix}/U{fmt_speed(speed)}",
-                "Override.WindModel": "ECD",
-                "Override.EventSign": sign_name,
-                **meta_base("1.4", "ECD", speed),
-            })
-            add_row(rows, headers, {
-                "CaseName": f"NREL5MW_EWS_{sign_suffix}_U{fmt_speed(speed)}",
-                "OutputSubdir": f"EWS/{sign_suffix}/U{fmt_speed(speed)}",
-                "Override.WindModel": "EWS",
-                "Override.EventSign": sign_name,
-                **meta_base("1.4", "EWS", speed),
-            })
+            for seed_idx in range(1, 7):
+                seed_suffix_full = f"_{sign_suffix}_S{seed_idx:02d}"
+                for family, dlc_num in [("EDC", "2.3"), ("ECD", "2.3"), ("EWS", "2.3")]:
+                    add_row(rows, headers, {
+                        "CaseName": f"NREL5MW_DLC{dlc_num}_{family}{seed_suffix_full}_U{fmt_speed(speed)}",
+                        "OutputSubdir": f"DLC{dlc_num}_{family}/{sign_suffix}/U{fmt_speed(speed)}/S{seed_idx:02d}",
+                        "Override.WindModel": family,
+                        "Override.EventSign": sign_name,
+                        "Override.RandSeed": 42345 + seed_idx,
+                        **meta_base(dlc_num, family, speed),
+                    })
 
     for speed in EWM_SPEEDS:
-        for return_name in ("EWM1", "EWM50"):
-            for ewm_type in ("Steady", "Turbulent"):
+        for seed_idx in range(1, 7):
+            seed_suffix = f"_S{seed_idx:02d}"
+            for return_name, ewm_type, dlc_num in [
+                ("EWM1", "Turbulent",  "6.3"),
+                ("EWM1", "Steady",     "6.4"),
+                ("EWM50", "Turbulent", "6.1"),
+                ("EWM50", "Steady",    "6.2"),
+            ]:
                 add_row(rows, headers, {
-                    "CaseName": f"NREL5MW_{return_name}_{ewm_type}_U{fmt_speed(speed)}",
-                    "OutputSubdir": f"{return_name}/{ewm_type}/U{fmt_speed(speed)}",
+                    "CaseName": f"NREL5MW_DLC{dlc_num}_{return_name}_{ewm_type}_U{fmt_speed(speed)}{seed_suffix}",
+                    "OutputSubdir": f"DLC{dlc_num}_{return_name}/{ewm_type}/U{fmt_speed(speed)}/S{seed_idx:02d}",
                     "Override.WindModel": return_name,
                     "Override.EWMType": ewm_type,
-                    **meta_base("6.1", return_name, speed),
+                    "Override.RandSeed": 32345 + seed_idx,
+                    **meta_base(dlc_num, return_name, speed),
                 })
 
     add_row(rows, headers, {

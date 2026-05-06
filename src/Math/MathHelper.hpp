@@ -34,6 +34,7 @@
 #include <random>
 
 #include "../IO/LogHelper.h"
+#include "../IO/LocaleString_Math.hpp"
 #include "../Params.h"
 
 /**
@@ -906,8 +907,8 @@ public:
 	{
 		if (step == 0)
 		{
-			LogHelper::ErrorLog("step不能为0"); // 记录错误日志
-			throw std::invalid_argument("step cannot be zero");
+			LogHelper::ErrorLog(L_MATH_StepZero); // 记录错误日志
+			throw std::invalid_argument(L_MATH_StepZero);
 		}
 
 		// 计算所需元素个数（通过 round 处理浮点精度误差）
@@ -941,8 +942,8 @@ public:
 	{
 		if (step == 0)
 		{
-			LogHelper::ErrorLog("step不能为0"); // 记录错误日志
-			throw std::invalid_argument("step cannot be zero");
+			LogHelper::ErrorLog(L_MATH_StepZero); // 记录错误日志
+			throw std::invalid_argument(L_MATH_StepZero);
 		}
 
 		// 计算元素总数，委托 linspace 确保端点精度
@@ -972,8 +973,8 @@ public:
 	{
 		if (step == 0)
 		{
-			LogHelper::ErrorLog("step不能为0"); // 记录错误日志
-			throw std::invalid_argument("step cannot be zero");
+			LogHelper::ErrorLog(L_MATH_StepZero); // 记录错误日志
+			throw std::invalid_argument(L_MATH_StepZero);
 		}
 
 		Eigen::VectorXf result(length); // 预分配结果向量
@@ -1370,11 +1371,11 @@ public:
 		// 未找到合适区间，根据 error 参数记录对应级别日志
 		if (error)
 		{
-			LogHelper::ErrorLog("未找到索引!"); // 严重错误级别
+			LogHelper::ErrorLog(L_MATH_IndexNotFound); // 严重错误级别
 		}
 		else
 		{
-			LogHelper::WarnLog("未找到索引!", " FindIndex"); // 警告级别
+			LogHelper::WarnLog(L_MATH_IndexNotFound, " FindIndex"); // 警告级别
 		}
 		return -1; // 未找到时返回哨兵值 -1
 	}
@@ -1420,11 +1421,11 @@ public:
 		// 未找到，记录日志
 		if (error)
 		{
-			LogHelper::ErrorLog("未找到索引!");
+			LogHelper::ErrorLog(L_MATH_IndexNotFound);
 		}
 		else
 		{
-			LogHelper::WarnLog("未找到索引!", " FindIndex");
+			LogHelper::WarnLog(L_MATH_IndexNotFound, " FindIndex");
 		}
 		return -1;
 	}

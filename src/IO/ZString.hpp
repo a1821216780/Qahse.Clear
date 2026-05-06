@@ -27,9 +27,11 @@
 #include <Eigen/Dense>
 #include <cstddef>
 #include <cctype>
+#include <iomanip>
 #include <initializer_list>
 #include <fstream>
 #include <filesystem>
+#include <limits>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -38,7 +40,12 @@
 
 #include "magic_enum.hpp"
 #include "ZPath.hpp"
+#include "LocaleString.hpp"
 
+/**
+ * @class ZString
+ * @brief 提供类似 C# System.String 的跨平台字符串工具类，支持大小写转换、裁剪、替换、分割、拼接、文件读写和常用文本判断操作。
+ */
 class ZString
 {
 public:
@@ -527,6 +534,8 @@ public:
 	}
 	/**
 	 * @brief 将字符串转换为 int。
+	 * @param value 输入字符串。
+	 * @return 转换后的 int 值。
 	 */
 	static int StringToInt(const std::string &value)
 	{
@@ -535,6 +544,8 @@ public:
 
 	/**
 	 * @brief 将字符串转换为 long long。
+	 * @param value 输入字符串。
+	 * @return 转换后的 long long 值。
 	 */
 	static long long StringToLongLong(const std::string &value)
 	{
@@ -543,6 +554,8 @@ public:
 
 	/**
 	 * @brief 将字符串转换为 float。
+	 * @param value 输入字符串。
+	 * @return 转换后的 float 值。
 	 */
 	static float StringToFloat(const std::string &value)
 	{
@@ -551,6 +564,8 @@ public:
 
 	/**
 	 * @brief 将字符串转换为 double。
+	 * @param value 输入字符串。
+	 * @return 转换后的 double 值。
 	 */
 	static double StringToDouble(const std::string &value)
 	{
@@ -559,10 +574,25 @@ public:
 
 	/**
 	 * @brief 将字符串转换为 long double。
+	 * @param value 输入字符串。
+	 * @return 转换后的 long double 值。
 	 */
 	static long double StringToLongDouble(const std::string &value)
 	{
 		return StringTo<long double>(value);
+	}
+
+	/**
+	 * @brief 以最大精度格式化 double（保证 roundtrip 无损）。
+	 * @param value 输入数值。
+	 * @return 格式化后的字符串。
+	 */
+	static std::string FormatDouble(double value)
+	{
+		std::ostringstream stream;
+		stream.imbue(std::locale::classic());
+		stream << std::setprecision(std::numeric_limits<double>::max_digits10) << value;
+		return stream.str();
 	}
 
 	/**
@@ -886,7 +916,7 @@ public:
 		const std::string absPath = ZPath::GetABSPath(path);
 		std::ifstream file(absPath);
 		if (!file.is_open())
-			throw std::runtime_error("无法打开文件: " + absPath);
+			throw std::runtime_error(std::string(L_ZFILE_CannotRead) + ": " + absPath);
 
 		std::string line;
 		while (std::getline(file, line))
@@ -928,10 +958,10 @@ public:
 	}
 
 	/**
-	 * 在字符串数组中查找所有包含给定子串的元素索引
-	 * @param strs   字符串数组
-	 * @param target 待查找的子串
-	 * @return       所有匹配的索引（0-based）；若无匹配返回 [-1]
+	 * @brief 在字符串数组中查找所有包含给定子串的元素索引。
+	 * @param strs   字符串数组。
+	 * @param target 待查找的子串。
+	 * @return       所有匹配的索引（0-based）；若无匹配返回 [-1]。
 	 */
 	std::vector<int> findSubstringIndices(const std::vector<std::string> &strs,
 										  const std::string &target)

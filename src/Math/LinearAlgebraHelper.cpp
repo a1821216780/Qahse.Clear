@@ -34,6 +34,7 @@
 
 #include "LinearAlgebraHelper.h"
 #include "../Params.h"
+#include "../IO/LocaleString_Math.hpp"
 
 /**
  * @brief 修正贝塞尔函数 K_nu(z) 的近似计算
@@ -116,12 +117,12 @@ LinearAlgebraHelper::VectorXd LinearAlgebraHelper::ExpandArrayPreserveExact(cons
 
 	if (originalArray.size() == 0)
 	{
-		throw std::runtime_error("原始数组不能为空");
+		throw std::runtime_error(L_LINALG_SourceNotEmpty);
 	}
 
 	if (targetLength <= originalArray.size())
 	{
-		throw std::runtime_error("目标长度必须大于原数组长度");
+		throw std::runtime_error(L_LINALG_TargetLonger);
 	}
 
 	// Handle NaN values for bounds
@@ -281,7 +282,7 @@ LinearAlgebraHelper::VectorXd LinearAlgebraHelper::AddSortedValue(const VectorXd
 
 	if (v.size() == 0)
 	{
-		throw std::runtime_error("The input vector must not be null or empty.");
+		throw std::runtime_error(L_LINALG_NullVector);
 	}
 
 	VectorXd result(v.size() + 1);
@@ -420,7 +421,7 @@ std::tuple<int, double> LinearAlgebraHelper::FindClosestIndexAndValue<double>(co
 {
 	if (v.empty())
 	{
-		throw std::runtime_error("The input vector must not be null or empty.");
+		throw std::runtime_error(L_LINALG_NullVector);
 	}
 
 	int closestIndex = 0;
@@ -461,7 +462,7 @@ std::tuple<int, float> LinearAlgebraHelper::FindClosestIndexAndValue<float>(cons
 {
 	if (v.empty())
 	{
-		throw std::runtime_error("The input vector must not be null or empty.");
+		throw std::runtime_error(L_LINALG_NullVector);
 	}
 
 	int closestIndex = 0;
@@ -488,7 +489,7 @@ std::tuple<int, int> LinearAlgebraHelper::FindClosestIndexAndValue<int>(const st
 {
 	if (v.empty())
 	{
-		throw std::runtime_error("The input vector must not be null or empty.");
+		throw std::runtime_error(L_LINALG_NullVector);
 	}
 
 	int closestIndex = 0;
@@ -672,7 +673,7 @@ int LinearAlgebraHelper::Size(const MatrixXd &matrix, int a)
 	}
 	else
 	{
-		throw std::runtime_error("错误使用size a=1 or a=2");
+		throw std::runtime_error(L_LINALG_SizeMustBe1or2);
 	}
 }
 
@@ -950,7 +951,7 @@ LinearAlgebraHelper::MatrixXd LinearAlgebraHelper::ReadMatrixFromFile(const std:
 	std::ifstream file(filePath);
 	if (!file.is_open())
 	{
-		throw std::runtime_error("Cannot open file: " + filePath);
+		throw std::runtime_error(std::string(L_LINALG_CannotOpen) + ": " + filePath);
 	}
 
 	std::vector<std::vector<double>> data;
@@ -985,7 +986,7 @@ LinearAlgebraHelper::MatrixXd LinearAlgebraHelper::ReadMatrixFromFile(const std:
 
 	if (data.empty())
 	{
-		throw std::runtime_error("No valid data found in file");
+		throw std::runtime_error(L_LINALG_NoData);
 	}
 
 	int rows = static_cast<int>(data.size());
@@ -1026,7 +1027,7 @@ Eigen::MatrixXcd LinearAlgebraHelper::ReadMatlabMatrixFromFile(const std::string
 	std::ifstream file(filePath);
 	if (!file.is_open())
 	{
-		throw std::runtime_error("Cannot open file: " + filePath);
+		throw std::runtime_error(std::string(L_LINALG_CannotOpen) + ": " + filePath);
 	}
 
 	std::vector<std::vector<std::complex<double>>> data;
@@ -1065,7 +1066,7 @@ Eigen::MatrixXcd LinearAlgebraHelper::ReadMatlabMatrixFromFile(const std::string
 
 	if (data.empty())
 	{
-		throw std::runtime_error("No valid data found in file");
+		throw std::runtime_error(L_LINALG_NoData);
 	}
 
 	int rows = static_cast<int>(data.size());
@@ -1661,7 +1662,7 @@ LinearAlgebraHelper::MatrixXd LinearAlgebraHelper::Vact(const VectorXd &a, const
 
 	if (al != bl)
 	{
-		throw std::runtime_error("a 和 b 的长度不一样，无法 vcat！");
+		throw std::runtime_error(L_LINALG_VcatMismatch);
 	}
 
 	if (row)
@@ -1706,7 +1707,7 @@ LinearAlgebraHelper::MatrixXd LinearAlgebraHelper::SkewMatrix(const VectorXd &a)
 {
 	if (a.size() != 3)
 	{
-		throw std::runtime_error("Vector must have exactly 3 elements for skew matrix");
+		throw std::runtime_error(L_LINALG_SkewSize);
 	}
 
 	MatrixXd skew(3, 3);
@@ -1815,7 +1816,7 @@ LinearAlgebraHelper::VectorXd LinearAlgebraHelper::Diff(const VectorXd &input)
 {
 	if (input.size() < 2)
 	{
-		throw std::runtime_error("Input vector must contain at least two elements");
+		throw std::runtime_error(L_LINALG_MinTwoElements);
 	}
 
 	VectorXd result(input.size() - 1);
@@ -1862,7 +1863,7 @@ double LinearAlgebraHelper::Norm(const VectorXd &vector, int a)
 	}
 	else
 	{
-		throw std::runtime_error("Unsupported norm type");
+		throw std::runtime_error(L_LINALG_NormType);
 	}
 }
 
@@ -1896,7 +1897,7 @@ double LinearAlgebraHelper::Norm(const Vector3d &vector, int a)
 	}
 	else
 	{
-		throw std::runtime_error("Unsupported norm type");
+		throw std::runtime_error(L_LINALG_NormType);
 	}
 }
 
@@ -1969,7 +1970,7 @@ double LinearAlgebraHelper::Norm(const VectorXd &matrix, const std::string &a)
 	}
 	else
 	{
-		throw std::runtime_error("Unsupported norm type: " + a);
+		throw std::runtime_error(std::string(L_LINALG_NormType) + ": " + a);
 	}
 }
 
@@ -2000,7 +2001,7 @@ double LinearAlgebraHelper::Norm(const MatrixXd &matrix, int a)
 	}
 	else
 	{
-		throw std::runtime_error("Unsupported norm type");
+		throw std::runtime_error(L_LINALG_NormType);
 	}
 }
 
@@ -2030,7 +2031,7 @@ double LinearAlgebraHelper::Norm(const MatrixXd &matrix, const std::string &a)
 	}
 	else
 	{
-		throw std::runtime_error("Unsupported norm type: " + a);
+		throw std::runtime_error(std::string(L_LINALG_NormType) + ": " + a);
 	}
 }
 
@@ -2057,7 +2058,7 @@ LinearAlgebraHelper::MatrixXd LinearAlgebraHelper::Repmat(const VectorXd &a, int
 {
 	if (num <= 0)
 	{
-		throw std::runtime_error("Number of repetitions must be greater than 0");
+		throw std::runtime_error(L_LINALG_RepetitionZero);
 	}
 
 	int size = static_cast<int>(a.size());
@@ -2084,7 +2085,7 @@ LinearAlgebraHelper::MatrixXd LinearAlgebraHelper::Repmat(const VectorXd &a, int
 	}
 	else
 	{
-		throw std::runtime_error("Dimension must be 1 or 2");
+		throw std::runtime_error(L_LINALG_Dim1or2);
 	}
 }
 
@@ -2106,7 +2107,7 @@ LinearAlgebraHelper::VectorXd LinearAlgebraHelper::Repmat(const VectorXd &a, int
 {
 	if (num <= 0)
 	{
-		throw std::runtime_error("Number of repetitions must be greater than 0");
+		throw std::runtime_error(L_LINALG_RepetitionZero);
 	}
 
 	int size = static_cast<int>(a.size());
@@ -2139,7 +2140,7 @@ LinearAlgebraHelper::MatrixXd LinearAlgebraHelper::Repmat(const MatrixXd &a, int
 {
 	if (num <= 0)
 	{
-		throw std::runtime_error("Number of repetitions must be greater than 0");
+		throw std::runtime_error(L_LINALG_RepetitionZero);
 	}
 
 	int rows = static_cast<int>(a.rows());
@@ -2186,7 +2187,7 @@ LinearAlgebraHelper::MatrixXf LinearAlgebraHelper::Repmat(const VectorXf &a, int
 {
 	if (num <= 0)
 	{
-		throw std::runtime_error("Number of repetitions must be greater than 0");
+		throw std::runtime_error(L_LINALG_RepetitionZero);
 	}
 
 	int size = static_cast<int>(a.size());
@@ -2213,7 +2214,7 @@ LinearAlgebraHelper::MatrixXf LinearAlgebraHelper::Repmat(const VectorXf &a, int
 	}
 	else
 	{
-		throw std::runtime_error("Dimension must be 1 or 2");
+		throw std::runtime_error(L_LINALG_Dim1or2);
 	}
 }
 

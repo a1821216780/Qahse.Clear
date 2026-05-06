@@ -41,6 +41,7 @@
 #include "MSExcel.h"
 #include "ZString.hpp"
 #include "ZPath.hpp"
+#include "LocaleString.hpp"
 
 using namespace std;
 using namespace OpenXLSX;
@@ -84,7 +85,7 @@ MSExcel::MSExcel(const std::string &path, const std::string &mode)
 			}
 			else
 			{
-				LogHelper::ErrorLog("MSExcel: Cannot find file " + path);
+				LogHelper::ErrorLog(std::string(L_MSEXCEL_CannotFindFile) + path);
 			}
 		}
 		else if (lowerMode == "write" || lowerMode == "w") // 写入模式，强制覆盖现有文件
@@ -101,14 +102,14 @@ MSExcel::MSExcel(const std::string &path, const std::string &mode)
 			}
 			else
 			{
-				LogHelper::ErrorLog("当前文件不存在！无法执行增量数据操作！");
+				LogHelper::ErrorLog(L_MSEXCEL_NoFileAppend);
 				this->doc.create(path, XLForceOverwrite);
 				workbook = doc.workbook();
 			}
 		}
 		else
 		{
-			LogHelper::ErrorLog("IO.BinaryFile Cant find mode=" + mode, "", "", 20, "MSExcel::MSExcel");
+			LogHelper::ErrorLog(std::string(L_BINFILE_ModeNotFound) + mode, "", "", 20, "MSExcel::MSExcel");
 		}
 	}
 	catch (const std::exception &ex)
@@ -186,7 +187,7 @@ int MSExcel::RowCount(const std::string &sheetname)
 {
 	if (!workbook.sheetExists(sheetname))
 	{
-		LogHelper::ErrorLog("MSExcel: Cannot find worksheet " + sheetname);
+		LogHelper::ErrorLog(std::string(L_MSEXCEL_CannotFindSheet) + sheetname);
 		return 0;
 	}
 	return workbook.worksheet(sheetname).rowCount();
@@ -211,7 +212,7 @@ int MSExcel::ColumnCount(const std::string &sheetname)
 {
 	if (!workbook.sheetExists(sheetname))
 	{
-		LogHelper::ErrorLog("MSExcel: Cannot find worksheet " + sheetname);
+		LogHelper::ErrorLog(std::string(L_MSEXCEL_CannotFindSheet) + sheetname);
 		return 0;
 	}
 	return workbook.worksheet(sheetname).columnCount();
@@ -472,7 +473,7 @@ std::vector<double> MSExcel::RCellValue<std::vector<double>>(const std::string &
 
 	if (rowcount == 0) // 未指定行数，读到空单元格为止
 	{
-		LogHelper::WriteLogO("No rowcount specified, reading until empty cell");
+		LogHelper::WriteLogO(L_MSEXCEL_NoRowCount);
 		int i = 0;
 		while (true)
 		{
@@ -545,7 +546,7 @@ Eigen::MatrixXd MSExcel::RCellValue<Eigen::MatrixXd>(const std::string &sheetnam
 {
 	if (rowcount == 0 || columncount == 0)
 	{
-		LogHelper::ErrorLog("MSExcel: Must specify both rowcount and columncount for matrix reading");
+		LogHelper::ErrorLog(L_MSEXCEL_MustSpecifyRC);
 		return Eigen::MatrixXd(); // 返回空矩阵
 	}
 

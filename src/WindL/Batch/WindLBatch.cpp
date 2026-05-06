@@ -25,6 +25,7 @@
 #include "IO/ZFile.hpp"
 #include "IO/ZString.hpp"
 #include "WindL/IO/WindL_IO_Subs.hpp"
+#include "IO/LocaleString_WindL.hpp"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -32,32 +33,35 @@
 
 namespace
 {
+/** @brief 批量算例规格，描述 Excel 工作簿中单行的批次执行条目（算例名称、开关、输出目录、参数覆盖及元数据） */
 struct BatchCaseSpec
 {
-	int rowIndex = -1;
-	std::string caseName;
-	bool enabled = true;
-	std::string outputSubdir;
-	std::unordered_map<std::string, std::string> overrides;
-	std::unordered_map<std::string, std::string> metadata;
+	int rowIndex = -1;                                                ///< 在 Excel 表格中的行索引（1-based，不含表头），-1 表示无效
+	std::string caseName;                                            ///< 算例名称（用作输出子目录名的基础）
+	bool enabled = true;                                             ///< 该算例是否启用（false 则跳过执行）
+	std::string outputSubdir;                                        ///< 算例输出子目录名（相对于批次根目录）
+	std::unordered_map<std::string, std::string> overrides;          ///< 参数覆盖映射（键为参数路径如 "Turbine.HubHeight"，值为覆盖值）
+	std::unordered_map<std::string, std::string> metadata;           ///< 元数据键值对（如作者、备注等，不参与仿真逻辑）
 };
 
+/** @brief 已解析的批量工作簿，包含所有算例规格向量及其列头映射 */
 struct BatchWorkbook
 {
-	std::vector<BatchCaseSpec> cases;
-	std::vector<std::string> headers;
+	std::vector<BatchCaseSpec> cases;    ///< 所有解析出的算例规格列表
+	std::vector<std::string> headers;    ///< 表格列头字符串，用于索引列名到列号的映射
 };
 
+/** @brief 批量执行运行时上下文，封装模板输入、路径配置、线程策略、校验模式及进度回调 */
 struct BatchContext
 {
-	WindLInput input;
-	std::string templateQwdPath;
-	std::filesystem::path batchRoot;
-	std::string launcher;
-	int threadCount = 1;
-	bool validateOnly = false;
-	std::string executablePath;
-	WindLBatchProgressCallback progress;
+	WindLInput input;                              ///< 模板输入参数（作为覆盖应用的基础）
+	std::string templateQwdPath;                   ///< 模板 .qwd 文件路径（用于派生各算例的输入文件）
+	std::filesystem::path batchRoot;               ///< 批次输出根目录
+	std::string launcher;                          ///< 可执行文件启动器路径（可为空，直接调用 exe）
+	int threadCount = 1;                           ///< 并行执行线程数
+	bool validateOnly = false;                     ///< 仅校验模式（只解析覆盖，不实际运行仿真）
+	std::string executablePath;                    ///< 仿真可执行文件完整路径
+	WindLBatchProgressCallback progress;           ///< 批次进度回调函数
 };
 
 using OverrideApplier = std::function<void(WindLInput &, const std::string &)>;
@@ -69,24 +73,7 @@ constexpr const char *kColOutputSubdir = "OutputSubdir";
 constexpr const char *kOverridePrefix = "Override.";
 constexpr const char *kMetaPrefix = "Meta.";
 
-std::string Upper(std::string value)
-{
-	return ZString::ToUpper(std::move(value));
-}
-
-std::string Trimmed(const std::string &value)
-{
-	return ZString::Trim(value);
-}
-
-std::string FormatDouble(double value)
-{
-	std::ostringstream stream;
-	stream.imbue(std::locale::classic());
-	stream << std::setprecision(std::numeric_limits<double>::max_digits10) << value;
-	return stream.str();
-}
-
+/** @brief 对字符串中的特殊字符进行JSON转义处理，将不可打印字符转换为\uXXXX十六进制转义序列。 */
 std::string JsonEscape(const std::string &value)
 {
 	std::ostringstream stream;
@@ -116,6 +103,7 @@ std::string JsonEscape(const std::string &value)
 	return stream.str();
 }
 
+/** @brief 对CSV字段值进行转义处理，含逗号、引号或换行等特殊字符时用双引号包裹并转义内部引号。 */
 std::string CsvEscape(const std::string &value)
 {
 	if (value.find_first_of(",\"\n\r") == std::string::npos)
@@ -131,6 +119,7 @@ std::string CsvEscape(const std::string &value)
 	return "\"" + escaped + "\"";
 }
 
+/** @brief 清洗字符串以用作文件路径组件，将非法字符和不可打印字符替换为下划线。 */
 std::string SanitizePathComponent(std::string value)
 {
 	if (value.empty())
@@ -160,16 +149,18 @@ std::string SanitizePathComponent(std::string value)
 	return value;
 }
 
+/** @brief 严格解析布尔值令牌，支持1/TRUE/YES/ON（真）和0/FALSE/NO/OFF（假）形式，解析失败抛出异常。 */
 bool ParseBoolStrict(const std::string &token)
 {
-	const std::string text = Upper(Trimmed(token));
+	const std::string text = ZString::ToUpper(ZString::Trim(token));
 	if (text == "1" || text == "TRUE" || text == "YES" || text == "Y" || text == "ON")
 		return true;
 	if (text == "0" || text == "FALSE" || text == "NO" || text == "N" || text == "OFF")
 		return false;
-	throw std::runtime_error("Invalid boolean token: " + token);
+	throw std::runtime_error(std::string(L_BATCH_InvalidBool) + ": " + token);
 }
 
+/** @brief 严格解析枚举值令牌，先尝试名称匹配，失败后尝试整数值匹配，均失败则抛出异常。 */
 template <typename E>
 E ParseEnumStrict(const std::string &token)
 {
@@ -194,9 +185,10 @@ E ParseEnumStrict(const std::string &token)
 	{
 	}
 
-	throw std::runtime_error("Invalid enum token: " + token);
+	throw std::runtime_error(std::string(L_BATCH_InvalidEnum) + ": " + token);
 }
 
+/** @brief 严格解析数值令牌，解析失败时抛出异常。 */
 template <typename T>
 T ParseNumberStrict(const std::string &token)
 {
@@ -206,48 +198,54 @@ T ParseNumberStrict(const std::string &token)
 	}
 	catch (...)
 	{
-		throw std::runtime_error("Invalid numeric token: " + token);
+		throw std::runtime_error(std::string(L_BATCH_InvalidNumeric) + ": " + token);
 	}
 }
 
+/** @brief 将值转换为字符串表示，布尔值输出"true"/"false"，算术类型使用格式化双精度输出。 */
 template <typename T>
 std::string ToText(const T &value)
 {
 	if constexpr (std::is_same_v<T, bool>)
 		return value ? "true" : "false";
 	else if constexpr (std::is_arithmetic_v<T>)
-		return FormatDouble(static_cast<double>(value));
+		return ZString::FormatDouble(static_cast<double>(value));
 	else
 		return value;
 }
 
+/** @brief 规范化批处理启动器配置字符串，支持subprocess/cmd/powershell（统一为subprocess）和inproc，其他值抛出异常。 */
 std::string NormalizeBatchLauncher(const std::string &value)
 {
-	const std::string upper = Upper(Trimmed(value));
+	const std::string upper = ZString::ToUpper(ZString::Trim(value));
 	if (upper.empty() || upper == "SUBPROCESS" || upper == "CMD" || upper == "POWERSHELL")
 		return "subprocess";
 	if (upper == "INPROC")
 		return "inproc";
-	throw std::runtime_error("Unsupported BatchLauncher: " + value);
+	throw std::runtime_error(std::string(L_BATCH_UnsupportedLauncher) + ": " + value);
 }
 
+/** @brief 将字符串令牌解析为数值并赋值给指定字段。 */
 template <typename T>
 void SetNumber(T &field, const std::string &token)
 {
 	field = ParseNumberStrict<T>(token);
 }
 
+/** @brief 将字符串令牌解析为枚举值并赋值给指定字段。 */
 template <typename E>
 void SetEnum(E &field, const std::string &token)
 {
 	field = ParseEnumStrict<E>(token);
 }
 
+/** @brief 将字符串令牌去除首尾空白后赋值给指定字符串字段。 */
 void SetText(std::string &field, const std::string &token)
 {
-	field = Trimmed(token);
+	field = ZString::Trim(token);
 }
 
+/** @brief 返回覆盖键到应用函数的映射表，支持对WindLInput各参数字段通过字符串键进行批量覆盖设置。 */
 const std::unordered_map<std::string, OverrideApplier> &OverrideAppliers()
 {
 	static const std::unordered_map<std::string, OverrideApplier> appliers{
@@ -334,6 +332,7 @@ const std::unordered_map<std::string, OverrideApplier> &OverrideAppliers()
 	return appliers;
 }
 
+/** @brief 从Excel工作表指定单元格中读取值并转换为字符串返回，支持空、布尔、整数、浮点和字符串类型。 */
 std::string CellString(const OpenXLSX::XLWorksheet &sheet, int rowIndex1, int columnIndex1)
 {
 	const auto cell = sheet.cell(rowIndex1, columnIndex1);
@@ -343,7 +342,7 @@ std::string CellString(const OpenXLSX::XLWorksheet &sheet, int rowIndex1, int co
 	case OpenXLSX::XLValueType::Empty: return "";
 	case OpenXLSX::XLValueType::Boolean: return cell.value().get<bool>() ? "true" : "false";
 	case OpenXLSX::XLValueType::Integer: return std::to_string(cell.value().get<int64_t>());
-	case OpenXLSX::XLValueType::Float: return FormatDouble(cell.value().get<double>());
+	case OpenXLSX::XLValueType::Float: return ZString::FormatDouble(cell.value().get<double>());
 	case OpenXLSX::XLValueType::String: return cell.value().get<std::string>();
 	default:
 		try
@@ -357,47 +356,66 @@ std::string CellString(const OpenXLSX::XLWorksheet &sheet, int rowIndex1, int co
 	}
 }
 
+/**
+ * @brief 从WindLInput指定的Excel工作簿中读取批处理案例定义。
+ *
+ * 读取指定工作表的列头（CaseName/Enabled/OutputSubdir及Override.Meta.*列），
+ * 逐行解析每个案例的配置信息和覆盖参数，构建BatchWorkbook结构返回。
+ *
+ * @param input 包含batchExcelPath和batchSheetName的WindLInput配置
+ * @return 解析完成的BatchWorkbook，包含所有案例规范和列头信息
+ * @note 列头必须为CaseName/Enabled/OutputSubdir或以Override./Meta.为前缀；
+ *       重复列头和不支持的Override键将抛出异常；
+ *       空白行自动跳过，有数据但CaseName为空的行抛出异常；
+ *       重复CaseName抛出异常。
+ * @code
+ *   WindLInput input = ReadWindLInput("template.qwd");
+ *   BatchWorkbook workbook = ReadBatchWorkbook(input);
+ *   for (const auto &spec : workbook.cases)
+ *       std::cout << spec.caseName << "\n";
+ * @endcode
+ */
 BatchWorkbook ReadBatchWorkbook(const WindLInput &input)
 {
 	if (input.batchExcelPath.empty())
-		throw std::runtime_error("Mode=BATCH requires BatchExcel.");
+		throw std::runtime_error(L_BATCH_RequiresBatchExcel);
 
 	MSExcel excel(input.batchExcelPath, "read");
 	if (!excel.SheetExist(input.batchSheetName))
-		throw std::runtime_error("Batch sheet not found: " + input.batchSheetName);
+		throw std::runtime_error(std::string(L_BATCH_SheetNotFound) + ": " + input.batchSheetName);
 
 	const auto sheet = excel.GetSheet(input.batchSheetName);
 	const int rowCount = static_cast<int>(sheet.rowCount());
 	const int columnCount = static_cast<int>(sheet.columnCount());
 	if (rowCount <= 0 || columnCount <= 0)
-		throw std::runtime_error("Batch workbook sheet is empty: " + input.batchSheetName);
+		throw std::runtime_error(std::string(L_BATCH_SheetEmpty) + ": " + input.batchSheetName);
 
 	BatchWorkbook workbook;
 	workbook.headers.reserve(static_cast<std::size_t>(columnCount));
 	std::unordered_set<std::string> seenHeaders;
 	for (int c = 1; c <= columnCount; ++c)
 	{
-		std::string header = Trimmed(CellString(sheet, 1, c));
+		std::string header = ZString::Trim(CellString(sheet, 1, c));
 		workbook.headers.push_back(header);
 		if (header.empty())
 			continue;
 		if (!seenHeaders.insert(header).second)
-			throw std::runtime_error("Duplicate batch header: " + header);
+			throw std::runtime_error(std::string(L_BATCH_DuplicateHeader) + ": " + header);
 
 		const bool fixed = header == kColCaseName || header == kColEnabled || header == kColOutputSubdir;
 		const bool prefixed = ZString::StartsWith(header, kOverridePrefix) || ZString::StartsWith(header, kMetaPrefix);
 		if (!fixed && !prefixed)
-			throw std::runtime_error("Unsupported batch column: " + header);
+			throw std::runtime_error(std::string(L_BATCH_UnsupportedColumn) + ": " + header);
 		if (ZString::StartsWith(header, kOverridePrefix))
 		{
 			const std::string key = header.substr(std::strlen(kOverridePrefix));
 			if (OverrideAppliers().find(key) == OverrideAppliers().end())
-				throw std::runtime_error("Unsupported Override column: " + header);
+				throw std::runtime_error(std::string(L_BATCH_UnsupportedOverrideCol) + ": " + header);
 		}
 	}
 
 	if (seenHeaders.find(kColCaseName) == seenHeaders.end())
-		throw std::runtime_error("Batch workbook requires a CaseName column.");
+		throw std::runtime_error(L_BATCH_RequiresCaseNameCol);
 
 	std::unordered_set<std::string> seenCases;
 	for (int r = 2; r <= rowCount; ++r)
@@ -412,7 +430,7 @@ BatchWorkbook ReadBatchWorkbook(const WindLInput &input)
 			const std::string header = workbook.headers[static_cast<std::size_t>(c - 1)];
 			if (header.empty())
 				continue;
-			const std::string value = Trimmed(CellString(sheet, r, c));
+			const std::string value = ZString::Trim(CellString(sheet, r, c));
 			if (!value.empty())
 				hasAnyData = true;
 			if (header == kColCaseName)
@@ -443,9 +461,9 @@ BatchWorkbook ReadBatchWorkbook(const WindLInput &input)
 		if (!hasAnyData)
 			continue;
 		if (item.caseName.empty())
-			throw std::runtime_error("Batch row " + std::to_string(r) + " has data but no CaseName.");
+			throw std::runtime_error(std::string(L_BATCH_RowNoCaseName) + ": " + std::to_string(r));
 		if (!seenCases.insert(item.caseName).second)
-			throw std::runtime_error("Duplicate CaseName in batch workbook: " + item.caseName);
+			throw std::runtime_error(std::string(L_BATCH_DuplicateCaseName) + ": " + item.caseName);
 		if (item.outputSubdir.empty())
 			item.outputSubdir = item.caseName;
 		workbook.cases.push_back(std::move(item));
@@ -454,6 +472,20 @@ BatchWorkbook ReadBatchWorkbook(const WindLInput &input)
 	return workbook;
 }
 
+/**
+ * @brief 基于基础输入和案例覆盖规范生成派生WindLInput。
+ *
+ * 复制基础输入，清除批处理相关字段，将mode设为GENERATE，然后逐一应用案例特定的覆盖参数。
+ *
+ * @param base 基础WindLInput配置模板
+ * @param spec 包含覆盖键值对的BatchCaseSpec案例规范
+ * @return 应用覆盖后的派生WindLInput，mode已设置为GENERATE
+ * @note 覆盖键通过OverrideAppliers()映射表查找对应应用函数；不支持的覆盖键将抛出异常。
+ * @code
+ *   WindLInput derived = ApplyOverrides(baseInput, caseSpec);
+ *   WriteWindLInput(derived, "case_output.qwd");
+ * @endcode
+ */
 WindLInput ApplyOverrides(const WindLInput &base, const BatchCaseSpec &spec)
 {
 	WindLInput derived = base;
@@ -469,13 +501,25 @@ WindLInput ApplyOverrides(const WindLInput &base, const BatchCaseSpec &spec)
 	{
 		const auto it = OverrideAppliers().find(key);
 		if (it == OverrideAppliers().end())
-			throw std::runtime_error("Unsupported override key: " + key);
+			throw std::runtime_error(std::string(L_BATCH_UnsupportedOverrideKey) + ": " + key);
 		it->second(derived, value);
 	}
 
 	return derived;
 }
 
+/**
+ * @brief 将批处理运行结果写入JSON清单文件。
+ *
+ * 输出总体统计信息（totalCases/succeeded/failed/invalid/skipped/validated）
+ * 以及每个案例的详细结果（名称、状态、消息、输出路径、退出码、耗时等）。
+ *
+ * @param result 批处理运行结果，包含统计数据和各案例结果
+ * @note 输出文件路径由result.manifestPath指定；案例字符串值通过JsonEscape转义。
+ * @code
+ *   WriteBatchManifest(result);
+ * @endcode
+ */
 void WriteBatchManifest(const WindLBatchResult &result)
 {
 	std::ofstream out(result.manifestPath, std::ios::binary);
@@ -503,7 +547,7 @@ void WriteBatchManifest(const WindLBatchResult &result)
 		out << "      \"sumPath\": \"" << JsonEscape(item.sumPath) << "\",\n";
 		out << "      \"rowIndex\": " << item.rowIndex << ",\n";
 		out << "      \"exitCode\": " << item.exitCode << ",\n";
-		out << "      \"durationSeconds\": " << FormatDouble(item.durationSeconds) << "\n";
+		out << "      \"durationSeconds\": " << ZString::FormatDouble(item.durationSeconds) << "\n";
 		out << "    }";
 		if (i + 1 != result.cases.size())
 			out << ",";
@@ -513,6 +557,17 @@ void WriteBatchManifest(const WindLBatchResult &result)
 	out << "}\n";
 }
 
+/**
+ * @brief 将批处理运行结果写入CSV状态文件。
+ *
+ * 输出每行包含案例名称、状态、消息、输出目录、派生QWD路径、日志路径、退出码、耗时、行索引。
+ *
+ * @param result 批处理运行结果，包含各案例的详细输出信息
+ * @note 输出文件路径由result.csvPath指定；CSV字段使用CsvEscape进行转义。
+ * @code
+ *   WriteBatchCsv(result);
+ * @endcode
+ */
 void WriteBatchCsv(const WindLBatchResult &result)
 {
 	std::ofstream out(result.csvPath, std::ios::binary);
@@ -526,11 +581,23 @@ void WriteBatchCsv(const WindLBatchResult &result)
 		    << CsvEscape(item.derivedQwdPath) << ','
 		    << CsvEscape(item.logPath) << ','
 		    << item.exitCode << ','
-		    << FormatDouble(item.durationSeconds) << ','
+		    << ZString::FormatDouble(item.durationSeconds) << ','
 		    << item.rowIndex << '\n';
 	}
 }
 
+/**
+ * @brief 将批处理运行结果写入文本摘要文件。
+ *
+ * 输出运行模式标题（验证或生成）、总体统计信息，并按案例逐行输出状态和消息。
+ *
+ * @param result 批处理运行结果，包含统计数据和各案例状态
+ * @param validateOnly 是否仅验证模式，影响摘要标题文本
+ * @note 输出文件路径由result.summaryPath指定。
+ * @code
+ *   WriteBatchSummary(result, false);
+ * @endcode
+ */
 void WriteBatchSummary(const WindLBatchResult &result, bool validateOnly)
 {
 	std::ofstream out(result.summaryPath, std::ios::binary);
@@ -546,6 +613,7 @@ void WriteBatchSummary(const WindLBatchResult &result, bool validateOnly)
 		out << "[" << item.status << "] " << item.caseName << " - " << item.message << "\n";
 }
 
+/** @brief 根据配置值和任务数计算有效线程数，配置为0时自动检测硬件并发数，上限为任务数。 */
 int EffectiveThreadCount(int configured, std::size_t taskCount)
 {
 	if (taskCount == 0)
@@ -557,17 +625,36 @@ int EffectiveThreadCount(int configured, std::size_t taskCount)
 	return std::max(1, std::min(fallback, static_cast<int>(taskCount)));
 }
 
+/** @brief 计算案例的输出目录绝对路径，基于批处理根目录和案例输出子目录名（默认使用案例名称）。 */
 std::filesystem::path CaseOutputDir(const BatchContext &ctx, const BatchCaseSpec &spec)
 {
 	return std::filesystem::absolute(ctx.batchRoot / SanitizePathComponent(spec.outputSubdir.empty() ? spec.caseName : spec.outputSubdir));
 }
 
+/** @brief 以追加模式向指定日志文件写入一行文本。 */
 void WriteLogLine(const std::string &path, const std::string &line)
 {
 	std::ofstream log(path, std::ios::app | std::ios::binary);
 	log << line << "\n";
 }
 
+/**
+ * @brief 通过子进程运行QWD文件生成风场。
+ *
+ * Windows平台使用CreateProcess创建无窗口子进程，重定向stdout/stderr到日志文件；
+ * 其他平台使用system()调用命令行并重定向输出。
+ *
+ * @param executablePath 可执行文件路径
+ * @param qwdPath QWD输入文件路径
+ * @param workingDir 子进程工作目录
+ * @param logPath 日志输出文件路径
+ * @return 子进程退出码，成功为0
+ * @note Windows版本通过SECURITY_ATTRIBUTES继承日志句柄实现重定向；
+ *       非Windows版本将输出重定向到日志文件并合并stderr。
+ * @code
+ *   int exitCode = RunSubprocessQwd("/path/to/windl.exe", "case.qwd", ".", "output.log");
+ * @endcode
+ */
 #ifdef _WIN32
 int RunSubprocessQwd(const std::string &executablePath,
                      const std::string &qwdPath,
@@ -588,7 +675,7 @@ int RunSubprocessQwd(const std::string &executablePath,
 	                               FILE_ATTRIBUTE_NORMAL,
 	                               nullptr);
 	if (logHandle == INVALID_HANDLE_VALUE)
-		throw std::runtime_error("Failed to create batch log file: " + logPath);
+		throw std::runtime_error(std::string(L_BATCH_FailCreateLog) + ": " + logPath);
 
 	STARTUPINFOW startup{};
 	startup.cb = sizeof(startup);
@@ -617,7 +704,7 @@ int RunSubprocessQwd(const std::string &executablePath,
 	                                    &process);
 	CloseHandle(logHandle);
 	if (!created)
-		throw std::runtime_error("Failed to launch subprocess for case qwd: " + qwdPath);
+		throw std::runtime_error(std::string(L_BATCH_FailLaunchSubprocess) + ": " + qwdPath);
 
 	WaitForSingleObject(process.hProcess, INFINITE);
 	DWORD exitCode = 1;
@@ -637,12 +724,34 @@ int RunSubprocessQwd(const std::string &executablePath,
 }
 #endif
 
+/**
+ * @brief 执行单个批处理案例的完整流程。
+ *
+ * 依次执行：应用覆盖参数生成派生输入 → 创建输出目录 → 写入派生QWD → 验证输入 →
+ * 根据launcher模式（subprocess/inproc）运行风场生成。validateOnly模式下仅验证不生成。
+ * 异常情况下标记为invalid或failed。
+ *
+ * @param ctx 批处理上下文，包含基础输入、启动器模式、验证模式等全局配置
+ * @param spec 当前案例的规范，包含案例名称、覆盖参数等
+ * @return WindLBatchCaseResult 包含执行状态、耗时、输出路径等完整结果
+ * @note subprocess模式通过子进程运行并检测输出文件存在性确认结果；
+ *       inproc模式在进程内直接调用SimWind::Generate；
+ *       validateOnly模式仅执行SimWind::ValidateInputOnly，状态标记为validated；
+ *       输入验证失败在validateOnly模式下标记为invalid，否则标记为failed。
+ * @code
+ *   BatchContext ctx;
+ *   ctx.input = baseInput;
+ *   ctx.launcher = "subprocess";
+ *   BatchCaseSpec spec{"Case1", ...};
+ *   WindLBatchCaseResult result = ExecuteSingleCase(ctx, spec);
+ * @endcode
+ */
 WindLBatchCaseResult ExecuteSingleCase(const BatchContext &ctx, const BatchCaseSpec &spec)
 {
 	WindLBatchCaseResult result;
 	result.caseName = spec.caseName;
 	result.rowIndex = spec.rowIndex;
-	result.status = "failed";
+	result.status = L_STATUS_Failed;
 	const auto start = std::chrono::steady_clock::now();
 	bool validatedInput = false;
 
@@ -664,17 +773,17 @@ WindLBatchCaseResult ExecuteSingleCase(const BatchContext &ctx, const BatchCaseS
 
 		if (ctx.validateOnly)
 		{
-			result.status = "validated";
-			result.message = "Pre-validation passed.";
+			result.status = L_STATUS_Validated;
+			result.message = L_CASE_PreValidationPassed;
 		}
 		else if (ctx.launcher == "inproc")
 		{
-			WriteLogLine(result.logPath, "Running in-process WindL batch case.");
+			WriteLogLine(result.logPath, L_CASE_RunningInproc);
 			const auto simResult = SimWind::Generate(derived, [&](const std::string &message) {
 				WriteLogLine(result.logPath, message);
 			});
-			result.status = "success";
-			result.message = "Wind field generated successfully.";
+			result.status = L_STATUS_Success;
+			result.message = L_CASE_WindFieldGenerated;
 			result.btsPath = simResult.btsPath;
 			result.bladedWndPath = simResult.bladedWndPath;
 			result.turbsimWndPath = simResult.turbsimWndPath;
@@ -683,14 +792,14 @@ WindLBatchCaseResult ExecuteSingleCase(const BatchContext &ctx, const BatchCaseS
 		}
 		else
 		{
-			WriteLogLine(result.logPath, "Running subprocess WindL batch case.");
+			WriteLogLine(result.logPath, L_CASE_RunningSubprocess);
 			result.exitCode = RunSubprocessQwd(ctx.executablePath,
 			                                  result.derivedQwdPath,
 			                                  outputDir.string(),
 			                                  result.logPath);
-			result.status = result.exitCode == 0 ? "success" : "failed";
-			result.message = result.exitCode == 0 ? "Wind field generated successfully."
-			                                      : "Subprocess exited with code " + std::to_string(result.exitCode) + ".";
+			result.status = result.exitCode == 0 ? L_STATUS_Success : L_STATUS_Failed;
+			result.message = result.exitCode == 0 ? L_CASE_WindFieldGenerated
+			                                      : std::string(L_CASE_SubprocessExitedWithCode) + std::to_string(result.exitCode) + ".";
 
 			const std::filesystem::path basePath = outputDir / SanitizePathComponent(spec.caseName);
 			const auto btsPath = basePath;
@@ -705,7 +814,7 @@ WindLBatchCaseResult ExecuteSingleCase(const BatchContext &ctx, const BatchCaseS
 	}
 	catch (const std::exception &ex)
 	{
-		result.status = (!validatedInput || ctx.validateOnly) ? "invalid" : "failed";
+		result.status = (!validatedInput || ctx.validateOnly) ? L_STATUS_Invalid : L_STATUS_Failed;
 		result.message = ex.what();
 		if (!result.logPath.empty())
 			WriteLogLine(result.logPath, ex.what());
@@ -715,21 +824,44 @@ WindLBatchCaseResult ExecuteSingleCase(const BatchContext &ctx, const BatchCaseS
 	return result;
 }
 
+/** @brief 根据案例结果状态（success/failed/invalid/skipped/validated）累加计入批次汇总统计。 */
 void TallyResult(const WindLBatchCaseResult &item, WindLBatchResult &result)
 {
-	if (item.status == "success")
+	if (item.status == L_STATUS_Success)
 		++result.succeeded;
-	else if (item.status == "failed")
+	else if (item.status == L_STATUS_Failed)
 		++result.failed;
-	else if (item.status == "invalid")
+	else if (item.status == L_STATUS_Invalid)
 		++result.invalid;
-	else if (item.status == "skipped")
+	else if (item.status == L_STATUS_Skipped)
 		++result.skipped;
-	else if (item.status == "validated")
+	else if (item.status == L_STATUS_Validated)
 		++result.validated;
 }
 } // namespace
 
+/**
+ * @brief 从QWD文件运行批处理风场生成任务，这是批处理的主入口函数。
+ *
+ * 完整流程：读取QWD输入 → 验证Mode=BATCH → 解析Excel批处理工作簿 → 计算线程数 →
+ * 标记disabled案例为skipped → 多线程并行执行各enabled案例 → 汇总结果 →
+ * 自动写入batch_manifest.json、batch_status.csv和batch_summary.txt。
+ *
+ * @param qwdPath 模板QWD文件路径，其Mode必须为BATCH
+ * @param executablePath 子进程模式下的可执行文件路径（inproc模式可为空）
+ * @param progress 进度回调函数，用于报告批处理执行进展
+ * @return WindLBatchResult 包含总体统计信息和各案例详细结果的批处理运行结果
+ * @note 批处理输出目录默认为QWD文件同级的batch_output目录；
+ *       disabled案例自动跳过并标记为skipped；
+ *       enabled案例通过原子索引分配任务以多线程并行执行；
+ *       执行完毕后自动写入清单、CSV和摘要三个输出文件。
+ * @code
+ *   WindLBatchResult result = WindLBatch::RunFromFile(
+ *       "template.qwd", "windl.exe",
+ *       [](const std::string &msg) { std::cout << msg << "\n"; });
+ *   std::cout << "Succeeded: " << result.succeeded << "\n";
+ * @endcode
+ */
 WindLBatchResult WindLBatch::RunFromFile(const std::string &qwdPath,
                                          const std::string &executablePath,
                                          WindLBatchProgressCallback progress)
@@ -738,7 +870,7 @@ WindLBatchResult WindLBatch::RunFromFile(const std::string &qwdPath,
 	ctx.templateQwdPath = std::filesystem::absolute(qwdPath).string();
 	ctx.input = ReadWindLInput(qwdPath);
 	if (ctx.input.mode != Mode::BATCH)
-		throw std::runtime_error("WindL batch runner requires Mode=BATCH in the input .qwd.");
+		throw std::runtime_error(L_BATCH_RequiresModeBatch);
 
 	ctx.launcher = NormalizeBatchLauncher(ctx.input.batchLauncher);
 	ctx.validateOnly = ctx.input.batchValidateOnly;
@@ -750,7 +882,7 @@ WindLBatchResult WindLBatch::RunFromFile(const std::string &qwdPath,
 	std::filesystem::create_directories(ctx.batchRoot);
 
 	if (ctx.progress)
-		ctx.progress(" Reading batch Excel workbook \"" + ctx.input.batchExcelPath + "\".");
+		ctx.progress(std::string(L_BATCH_ReadingWorkbook) + ctx.input.batchExcelPath + "\".");
 	const BatchWorkbook workbook = ReadBatchWorkbook(ctx.input);
 	ctx.threadCount = EffectiveThreadCount(ctx.input.batchThreads, workbook.cases.size());
 
@@ -770,8 +902,8 @@ WindLBatchResult WindLBatch::RunFromFile(const std::string &qwdPath,
 			WindLBatchCaseResult skipped;
 			skipped.caseName = item.caseName;
 			skipped.rowIndex = item.rowIndex;
-			skipped.status = "skipped";
-			skipped.message = "Case disabled by Enabled=false.";
+			skipped.status = L_STATUS_Skipped;
+			skipped.message = L_CASE_DisabledByEnabled;
 			skipped.outputDir = CaseOutputDir(ctx, item).string();
 			result.cases.push_back(std::move(skipped));
 			continue;
@@ -785,7 +917,7 @@ WindLBatchResult WindLBatch::RunFromFile(const std::string &qwdPath,
 
 	if (ctx.progress)
 	{
-		ctx.progress(" Batch workbook loaded: " + std::to_string(workbook.cases.size()) +
+		ctx.progress(std::string(L_BATCH_WorkbookLoaded) + ": " + std::to_string(workbook.cases.size()) +
 		             " rows, runnable cases=" + std::to_string(runnable.size()) +
 		             ", launcher=" + ctx.launcher +
 		             ", threads=" + std::to_string(ctx.threadCount) +
@@ -814,14 +946,14 @@ WindLBatchResult WindLBatch::RunFromFile(const std::string &qwdPath,
 				{
 					std::lock_guard<std::mutex> lock(progressMutex);
 					if (ctx.progress)
-						ctx.progress(" Starting batch case \"" + spec.caseName + "\".");
+						ctx.progress(std::string(L_BATCH_StartCase) + spec.caseName + "\".");
 				}
 
 				auto caseResult = ExecuteSingleCase(ctx, spec);
 				{
 					std::lock_guard<std::mutex> lock(progressMutex);
 					if (ctx.progress)
-						ctx.progress(" Batch case \"" + spec.caseName + "\" finished with status " + caseResult.status + ".");
+						ctx.progress(std::string(L_BATCH_StartCase) + spec.caseName + L_BATCH_CaseFinished + caseResult.status + ".");
 				}
 
 				const auto it = resultIndexByCase.find(spec.caseName);

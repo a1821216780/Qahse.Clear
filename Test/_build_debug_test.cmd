@@ -3,17 +3,16 @@ setlocal
 cd /d "%~dp0\.."
 
 echo ================================================================
-echo   Unit Tests — Release Build (matching .vscode/tasks.json)
+echo   Unit Tests — Debug Build (matching .vscode/tasks.json)
 echo   %DATE% %TIME%
 echo ================================================================
 
 call ".vscode\build_with_msvc_env.cmd" ^
   /EHsc /std:c++20 /Zc:__cplusplus ^
-  /MD ^
-  /O2 /Ob2 /Ot /Oi /GL /Gy ^
+  /MDd ^
+  /Zi /Od /Ob0 /RTC1 ^
   /wd4251 /wd4275 ^
   /MP /W3 /permissive- ^
-  /openmp /arch:AVX2 ^
   /FS /utf-8 /bigobj /Zm999 ^
   /DNDEBUG /DNOMINMAX /D_CRT_SECURE_NO_WARNINGS /DEIGEN_USE_MKL_ALL ^
   /nologo ^
@@ -26,43 +25,43 @@ call ".vscode\build_with_msvc_env.cmd" ^
   /I "src" ^
   /I "Test\Io\math" ^
   @"Test\test_sources.rsp" ^
-  /Fe"build\test\UnitTests_release_new.exe" ^
-  /Fo"build\test\release_obj\\" ^
-  /Fd"build\test\release_obj\vc143.pdb" ^
+  /Fe"build\test\UnitTests_debug.exe" ^
+  /Fo"build\test\debug_obj\\" ^
+  /Fd"build\test\debug_obj\vc143.pdb" ^
   /link ^
   /SUBSYSTEM:CONSOLE ^
-  /OPT:REF /OPT:ICF /LTCG /DEBUG:NONE ^
+  /DEBUG:FULL ^
   /LIBPATH:"C:\Program Files (x86)\Intel\oneAPI\mkl\latest\lib" ^
   /LIBPATH:"C:\Program Files (x86)\Intel\oneAPI\compiler\latest\lib" ^
-  /LIBPATH:"lib\Release_d" ^
+  /LIBPATH:"lib\Debug_d" ^
   mkl_intel_lp64_dll.lib ^
   mkl_intel_thread_dll.lib ^
   mkl_core_dll.lib ^
   libiomp5md.lib ^
-  fmt.lib ^
-  "project\googletest-main\build_md_release\lib\Release\gtest.lib" ^
-  "project\googletest-main\build_md_release\lib\Release\gmock.lib" ^
-  OpenXLSX.lib ^
-  > "build\test\release_build_new.log" 2>&1
+  fmtd.lib ^
+  gtest.lib ^
+  gmock.lib ^
+  OpenXLSXd.lib ^
+  > "build\test\debug_build.log" 2>&1
 
 set BUILD_RESULT=%ERRORLEVEL%
 
 echo.
 echo ================================================================
 if %BUILD_RESULT% EQU 0 (
-    echo   RELEASE BUILD SUCCEEDED
+    echo   DEBUG BUILD SUCCEEDED
     echo ================================================================
     echo.
-    echo [RUN] WindL release tests...
-    "build\test\UnitTests_release_new.exe" --gtest_filter="WindL*"
+    echo [RUN] WindL debug tests...
+    "build\test\UnitTests_debug.exe" --gtest_filter="WindL*"
     echo.
-    echo [RUN] All release tests...
-    "build\test\UnitTests_release_new.exe"
+    echo [RUN] All debug tests...
+    "build\test\UnitTests_debug.exe"
 ) else (
-    echo   RELEASE BUILD FAILED (exit code: %BUILD_RESULT%)
+    echo   DEBUG BUILD FAILED (exit code: %BUILD_RESULT%)
     echo ================================================================
     echo Last 30 lines of build log:
-    powershell -Command "Get-Content 'build\test\release_build_new.log' | Select-Object -Last 30"
+    powershell -Command "Get-Content 'build\test\debug_build.log' | Select-Object -Last 30"
 )
 
 exit /b %BUILD_RESULT%

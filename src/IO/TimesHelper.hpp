@@ -33,6 +33,7 @@
 #include "ZString.hpp"
 #include "OtherHelper.hpp"
 #include "LogHelper.h"
+#include "LocaleString.hpp"
 
 #ifdef _WIN32
 // #include <windows.h>
@@ -41,16 +42,21 @@
 #include <unistd.h>
 #endif
 
+/**
+ * @class TimesHelper
+ * @brief 时间操作实用工具类，提供当前时间获取、秒表计时、仿真剩余时间估算及时间格式化功能
+ * @details 所有方法均为静态内联方法，可直接通过类名调用无需实例化。
+ *          功能涵盖：年/月/小时/分钟获取、日期时间格式化字符串、高精度秒表（Tic/Toc）、
+ *          仿真剩余时间线性预估、毫秒/秒/分/小时单位换算输出。
+ */
 class TimesHelper
 {
 private:
     // 静态成员变量初始化
     static inline std::chrono::steady_clock::time_point stopwatch_start{}; ///< 秒表起始时间点（调用 Tic() 时记录）
-    static inline bool stopwatch_running = false;
+    static inline bool stopwatch_running = false;                          ///< 秒表运行状态标志，true 表示正在计时
 
 public:
-    ///< 秒表运行状态标志，true 表示正在计时
-
     /**
      * @brief 获取系统当前年份（基于本地时区）。
      * @return 当前年份的四位整数，例如 2025。
@@ -205,7 +211,7 @@ public:
 
                 // Unix/Linux console manipulation
                 std::cout << "\r";
-                std::cout << "Simulation time elapsed: " << std::round(elapsedTime)
+                std::cout << L_TIME_SimElapsed << std::round(elapsedTime)
                           << " secs. Computation time left: " << std::round(remainingTime)
                           << " minutes.     ";
                 std::cout.flush();
@@ -217,7 +223,7 @@ public:
                 {
 
                     std::cout << "\r";
-                    std::cout << "Simulation time elapsed: " << std::round(elapsedTime)
+                    std::cout << L_TIME_SimElapsed << std::round(elapsedTime)
                               << " secs. Computation time left: " << std::round(remainingTime)
                               << " minutes.        ";
                     std::cout.flush();
@@ -226,7 +232,7 @@ public:
                 {
 
                     std::cout << "\r";
-                    std::cout << "Simulation time elapsed: " << std::round(elapsedTime)
+                    std::cout << L_TIME_SimElapsed << std::round(elapsedTime)
                               << " secs. Computation time left: " << std::round(remainingTime)
                               << " seconds.           ";
                     std::cout.flush();
@@ -370,7 +376,7 @@ public:
         }
         else
         { // default to seconds
-            LogHelper::ErrorLog("错误的时间参数!");
+            LogHelper::ErrorLog(L_TIME_IllegalParam);
             auto seconds = std::chrono::duration_cast<std::chrono::duration<double>>(elapsed);
             std::stringstream ss;
             ss << std::fixed << std::setprecision(2) << seconds.count() << " s";

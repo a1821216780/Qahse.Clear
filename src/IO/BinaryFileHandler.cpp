@@ -30,6 +30,8 @@
 #include <iomanip>
 #include <stdexcept>
 
+#include "LocaleString.hpp"
+
 /**
  * @brief 构造函数，根据指定模式打开二进制文件。
  * @param filePath 文件路径，包含文件名和扩展名。
@@ -59,7 +61,7 @@ BinaryFile::BinaryFile(const std::string &filePath, const std::string &mode)
             reader = std::make_unique<std::ifstream>(filePath, std::ios::binary);
             if (!reader->good())
             {
-                LogHelper::ErrorLog("Failed to open file for reading: " + filePath, "", "", 20, "BinaryFile::BinaryFile");
+                LogHelper::ErrorLog(std::string(L_BINFILE_OpenReadFail) + filePath, "", "", 20, "BinaryFile::BinaryFile");
             }
             isReading = true;
         }
@@ -68,7 +70,7 @@ BinaryFile::BinaryFile(const std::string &filePath, const std::string &mode)
             writer = std::make_unique<std::ofstream>(filePath, std::ios::binary | std::ios::trunc);
             if (!writer->good())
             {
-                LogHelper::ErrorLog("Failed to open file for writing: " + filePath, "", "", 20, "BinaryFile::BinaryFile");
+                LogHelper::ErrorLog(std::string(L_BINFILE_OpenWriteFail) + filePath, "", "", 20, "BinaryFile::BinaryFile");
             }
             isWriting = true;
         }
@@ -77,13 +79,13 @@ BinaryFile::BinaryFile(const std::string &filePath, const std::string &mode)
             writer = std::make_unique<std::ofstream>(filePath, std::ios::binary | std::ios::app);
             if (!writer->good())
             {
-                LogHelper::ErrorLog("Failed to open file for appending: " + filePath, "", "", 20, "BinaryFile::BinaryFile");
+                LogHelper::ErrorLog(std::string(L_BINFILE_OpenAppendFail) + filePath, "", "", 20, "BinaryFile::BinaryFile");
             }
             isWriting = true;
         }
         else
         {
-            LogHelper::ErrorLog("IO.BinaryFile Cant find mode=" + mode, "", "", 20, "BinaryFile::BinaryFile");
+            LogHelper::ErrorLog(std::string(L_BINFILE_ModeNotFound) + mode, "", "", 20, "BinaryFile::BinaryFile");
             writer = std::make_unique<std::ofstream>(filePath, std::ios::binary | std::ios::app);
             if (writer->good())
             {
@@ -141,8 +143,8 @@ void BinaryFile::Close()
 
 // 基本类型写入特化
 /**
- * @brief 写入short类型数据的特化实现。
- * @param data 要写入的short数据。
+ * @brief WriteData 模板特化：写入 short 类型数据
+ * @param data 要写入的 short 数据
  */
 template <>
 void BinaryFile::WriteData<short>(const short &data)
@@ -150,36 +152,54 @@ void BinaryFile::WriteData<short>(const short &data)
     WriteBasicType(data); ///< 直接写入二进制数据
 }
 
+/**
+ * @brief WriteData 模板特化：写入 int 类型数据
+ */
 template <>
 void BinaryFile::WriteData<int>(const int &data)
 {
     WriteBasicType(data);
 }
 
+/**
+ * @brief WriteData 模板特化：写入 int64_t 类型数据
+ */
 template <>
 void BinaryFile::WriteData<std::int64_t>(const std::int64_t &data)
 {
     WriteBasicType(data);
 }
 
+/**
+ * @brief WriteData 模板特化：写入 float 类型数据
+ */
 template <>
 void BinaryFile::WriteData<float>(const float &data)
 {
     WriteBasicType(data);
 }
 
+/**
+ * @brief WriteData 模板特化：写入 double 类型数据
+ */
 template <>
 void BinaryFile::WriteData<double>(const double &data)
 {
     WriteBasicType(data);
 }
 
+/**
+ * @brief WriteData 模板特化：写入 char 类型数据
+ */
 template <>
 void BinaryFile::WriteData<char>(const char &data)
 {
     WriteBasicType(data);
 }
 
+/**
+ * @brief WriteData 模板特化：写入 bool 类型数据（转为 int 存储，1=true, 0=false）
+ */
 template <>
 void BinaryFile::WriteData<bool>(const bool &data)
 {
@@ -187,6 +207,9 @@ void BinaryFile::WriteData<bool>(const bool &data)
     WriteBasicType(value);
 }
 
+/**
+ * @brief WriteData 模板特化：写入 std::string 类型数据（先写长度再写内容）
+ */
 template <>
 void BinaryFile::WriteData<std::string>(const std::string &data)
 {
@@ -194,6 +217,9 @@ void BinaryFile::WriteData<std::string>(const std::string &data)
 }
 
 // 数组类型写入特化
+/**
+ * @brief WriteData 模板特化：写入 std::vector<char> 数组（先写长度再写内容）
+ */
 template <>
 void BinaryFile::WriteData<std::vector<char>>(const std::vector<char> &data)
 {
@@ -206,6 +232,9 @@ void BinaryFile::WriteData<std::vector<char>>(const std::vector<char> &data)
     }
 }
 
+/**
+ * @brief WriteData 模板特化：写入 std::vector<std::string> 数组
+ */
 template <>
 void BinaryFile::WriteData<std::vector<std::string>>(const std::vector<std::string> &data)
 {
@@ -218,6 +247,9 @@ void BinaryFile::WriteData<std::vector<std::string>>(const std::vector<std::stri
     }
 }
 
+/**
+ * @brief WriteData 模板特化：写入 std::vector<float> 数组
+ */
 template <>
 void BinaryFile::WriteData<std::vector<float>>(const std::vector<float> &data)
 {
@@ -230,6 +262,9 @@ void BinaryFile::WriteData<std::vector<float>>(const std::vector<float> &data)
     }
 }
 
+/**
+ * @brief WriteData 模板特化：写入 std::vector<double> 数组
+ */
 template <>
 void BinaryFile::WriteData<std::vector<double>>(const std::vector<double> &data)
 {
@@ -242,6 +277,9 @@ void BinaryFile::WriteData<std::vector<double>>(const std::vector<double> &data)
     }
 }
 
+/**
+ * @brief WriteData 模板特化：写入 std::vector<int> 数组
+ */
 template <>
 void BinaryFile::WriteData<std::vector<int>>(const std::vector<int> &data)
 {
@@ -254,6 +292,9 @@ void BinaryFile::WriteData<std::vector<int>>(const std::vector<int> &data)
     }
 }
 
+/**
+ * @brief WriteData 模板特化：写入 std::vector<bool> 数组（bool 转为 int 存储）
+ */
 template <>
 void BinaryFile::WriteData<std::vector<bool>>(const std::vector<bool> &data)
 {
@@ -268,6 +309,9 @@ void BinaryFile::WriteData<std::vector<bool>>(const std::vector<bool> &data)
 }
 
 // 二维数组写入特化
+/**
+ * @brief WriteData 模板特化：写入二维 std::vector<std::vector<double>> 数组（先写行列数再写元素）
+ */
 template <>
 void BinaryFile::WriteData<std::vector<std::vector<double>>>(const std::vector<std::vector<double>> &data)
 {
@@ -284,6 +328,9 @@ void BinaryFile::WriteData<std::vector<std::vector<double>>>(const std::vector<s
     }
 }
 
+/**
+ * @brief WriteData 模板特化：写入二维 std::vector<std::vector<float>> 数组
+ */
 template <>
 void BinaryFile::WriteData<std::vector<std::vector<float>>>(const std::vector<std::vector<float>> &data)
 {
@@ -300,6 +347,9 @@ void BinaryFile::WriteData<std::vector<std::vector<float>>>(const std::vector<st
     }
 }
 
+/**
+ * @brief WriteData 模板特化：写入二维 std::vector<std::vector<int>> 数组
+ */
 template <>
 void BinaryFile::WriteData<std::vector<std::vector<int>>>(const std::vector<std::vector<int>> &data)
 {
@@ -317,6 +367,9 @@ void BinaryFile::WriteData<std::vector<std::vector<int>>>(const std::vector<std:
 }
 
 // Eigen矩阵和向量写入特化
+/**
+ * @brief WriteData 模板特化：写入 Eigen::MatrixXd 矩阵（先写行列数再逐元素写入）
+ */
 template <>
 void BinaryFile::WriteData<Eigen::MatrixXd>(const Eigen::MatrixXd &data)
 {
@@ -333,6 +386,9 @@ void BinaryFile::WriteData<Eigen::MatrixXd>(const Eigen::MatrixXd &data)
     }
 }
 
+/**
+ * @brief WriteData 模板特化：写入 Eigen::MatrixXf 矩阵
+ */
 template <>
 void BinaryFile::WriteData<Eigen::MatrixXf>(const Eigen::MatrixXf &data)
 {
@@ -349,6 +405,9 @@ void BinaryFile::WriteData<Eigen::MatrixXf>(const Eigen::MatrixXf &data)
     }
 }
 
+/**
+ * @brief WriteData 模板特化：写入 Eigen::VectorXd 向量（先写长度再逐元素写入）
+ */
 template <>
 void BinaryFile::WriteData<Eigen::VectorXd>(const Eigen::VectorXd &data)
 {
@@ -361,6 +420,9 @@ void BinaryFile::WriteData<Eigen::VectorXd>(const Eigen::VectorXd &data)
     }
 }
 
+/**
+ * @brief WriteData 模板特化：写入 Eigen::VectorXf 向量
+ */
 template <>
 void BinaryFile::WriteData<Eigen::VectorXf>(const Eigen::VectorXf &data)
 {
@@ -374,42 +436,63 @@ void BinaryFile::WriteData<Eigen::VectorXf>(const Eigen::VectorXf &data)
 }
 
 // 基本类型读取特化
+/**
+ * @brief ReadData 模板特化：读取 short 类型数据
+ */
 template <>
 short BinaryFile::ReadData<short>()
 {
     return ReadBasicType<short>();
 }
 
+/**
+ * @brief ReadData 模板特化：读取 int 类型数据
+ */
 template <>
 int BinaryFile::ReadData<int>()
 {
     return ReadBasicType<int>();
 }
 
+/**
+ * @brief ReadData 模板特化：读取 int64_t 类型数据
+ */
 template <>
 std::int64_t BinaryFile::ReadData<std::int64_t>()
 {
     return ReadBasicType<std::int64_t>();
 }
 
+/**
+ * @brief ReadData 模板特化：读取 float 类型数据
+ */
 template <>
 float BinaryFile::ReadData<float>()
 {
     return ReadBasicType<float>();
 }
 
+/**
+ * @brief ReadData 模板特化：读取 double 类型数据
+ */
 template <>
 double BinaryFile::ReadData<double>()
 {
     return ReadBasicType<double>();
 }
 
+/**
+ * @brief ReadData 模板特化：读取 char 类型数据
+ */
 template <>
 char BinaryFile::ReadData<char>()
 {
     return ReadBasicType<char>();
 }
 
+/**
+ * @brief ReadData 模板特化：读取 bool 类型数据（从 int 还原，1=true, 0=false）
+ */
 template <>
 bool BinaryFile::ReadData<bool>()
 {
@@ -417,6 +500,9 @@ bool BinaryFile::ReadData<bool>()
     return value == 1;
 }
 
+/**
+ * @brief ReadData 模板特化：读取 std::string 类型数据
+ */
 template <>
 std::string BinaryFile::ReadData<std::string>()
 {
@@ -629,24 +715,36 @@ Eigen::VectorXf BinaryFile::ReadData<Eigen::VectorXf>()
 }
 
 // WriteLine 方法实现
+/**
+ * @brief WriteLine 模板实现：泛型数据写入（内部调用 WriteData）
+ */
 template <typename T>
 void BinaryFile::WriteLine(const T &data)
 {
     WriteData(data);
 }
 
+/**
+ * @brief WriteLine 格式化 double 版本
+ */
 void BinaryFile::WriteLine(const std::string &format, double message)
 {
     std::string formatted = FormatNumber(format, message);
     WriteData(formatted);
 }
 
+/**
+ * @brief WriteLine 格式化 float 版本
+ */
 void BinaryFile::WriteLine(const std::string &format, float message)
 {
     std::string formatted = FormatNumber(format, message);
     WriteData(formatted);
 }
 
+/**
+ * @brief WriteLine 无参版本（写入空行，当前为占位实现）
+ */
 void BinaryFile::WriteLine()
 {
     // C++中对于二进制文件，空行的概念需要根据具体需求定义
@@ -654,18 +752,27 @@ void BinaryFile::WriteLine()
 }
 
 // Write 方法实现
+/**
+ * @brief Write 模板实现：泛型数据写入（内部调用 WriteData）
+ */
 template <typename T>
 void BinaryFile::Write(const T &data)
 {
     WriteData(data);
 }
 
+/**
+ * @brief Write 格式化 double 版本
+ */
 void BinaryFile::Write(const std::string &format, double message)
 {
     std::string formatted = FormatNumber(format, message);
     WriteData(formatted);
 }
 
+/**
+ * @brief Write 格式化 float 版本
+ */
 void BinaryFile::Write(const std::string &format, float message)
 {
     std::string formatted = FormatNumber(format, message);
@@ -695,6 +802,12 @@ bool BinaryFile::Read2last()
 }
 
 // 私有辅助方法实现
+/**
+ * @brief 以二进制方式写入基本数据类型
+ * @tparam T 基本数据类型
+ * @param data 要写入的数据
+ * @details 直接以 reinterpret_cast 将数据按字节写入文件流
+ */
 template <typename T>
 void BinaryFile::WriteBasicType(const T &data)
 {
@@ -703,23 +816,33 @@ void BinaryFile::WriteBasicType(const T &data)
     writer->write(reinterpret_cast<const char *>(&data), sizeof(T));
 }
 
+/**
+ * @brief 以二进制方式读取基本数据类型
+ * @tparam T 基本数据类型
+ * @return 读取到的数据值
+ * @details 直接以 reinterpret_cast 从文件流按字节读取数据
+ */
 template <typename T>
 T BinaryFile::ReadBasicType()
 {
     if (!isReading || !reader)
     {
-        LogHelper::ErrorLog("Qahse.IO Unsupported data type or stream not available", "", "", 20, "T BinaryFile::ReadBasicType");
+        LogHelper::ErrorLog(L_BINFILE_UnsupportedType, "", "", 20, "T BinaryFile::ReadBasicType");
         return T{};
     }
     T value;
     reader->read(reinterpret_cast<char *>(&value), sizeof(T));
     if (!reader->good())
     {
-        LogHelper::WarnLog("Failed to read data from file ,it may end of file!");
+        LogHelper::WarnLog(L_BINFILE_ReadFail);
     }
     return value;
 }
 
+/**
+ * @brief 以二进制方式写入字符串（先写长度再写内容）
+ * @param str 要写入的字符串
+ */
 void BinaryFile::WriteString(const std::string &str)
 {
     if (!isWriting || !writer)
@@ -733,6 +856,10 @@ void BinaryFile::WriteString(const std::string &str)
     writer->write(str.c_str(), str.length());
 }
 
+/**
+ * @brief 以二进制方式读取字符串（先读长度再读内容）
+ * @return 读取到的字符串
+ */
 std::string BinaryFile::ReadString()
 {
     if (!isReading || !reader)
@@ -748,6 +875,12 @@ std::string BinaryFile::ReadString()
     return result;
 }
 
+/**
+ * @brief 按指定格式将 double 数值转为字符串
+ * @param format 格式标识符（"F1"/"F2"/"E"/"P"/"P0"/"P1"/"C"/"N" 等）
+ * @param value 要格式化的数值
+ * @return 格式化后的字符串
+ */
 std::string BinaryFile::FormatNumber(const std::string &format, double value)
 {
     std::ostringstream oss;
@@ -794,6 +927,12 @@ std::string BinaryFile::FormatNumber(const std::string &format, double value)
     return oss.str();
 }
 
+/**
+ * @brief 按指定格式将 float 数值转为字符串（委托 double 版本）
+ * @param format 格式标识符
+ * @param value 要格式化的 float 数值
+ * @return 格式化后的字符串
+ */
 std::string BinaryFile::FormatNumber(const std::string &format, float value)
 {
     return FormatNumber(format, static_cast<double>(value));

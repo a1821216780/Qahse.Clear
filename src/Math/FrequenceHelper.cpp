@@ -27,6 +27,7 @@
 
 #include "FrequenceHelper.h"
 #include "IO/LogHelper.h"
+#include "IO/LocaleString_Math.hpp"
 
 // ============================================================================
 // 内部辅助函数实现
@@ -67,7 +68,7 @@ void FrequenceHelper::ExecuteFFT(std::vector<std::complex<double>> &data, bool i
     fftw_complex *out = static_cast<fftw_complex *>(fftw_malloc(sizeof(fftw_complex) * n)); ///< FFTW对齐输出缓冲区（fftw_malloc分配）
     if (!out)
     {
-        LogHelper::ErrorLog("FFTW内存分配失败");
+        LogHelper::ErrorLog(L_FFT_AllocFail);
     }
 
     fftw_plan plan; ///< FFTW执行计划句柄
@@ -83,7 +84,7 @@ void FrequenceHelper::ExecuteFFT(std::vector<std::complex<double>> &data, bool i
     if (!plan)
     {
         fftw_free(out);
-        LogHelper::ErrorLog("FFTW计划创建失败");
+        LogHelper::ErrorLog(L_FFT_PlanFail);
     }
 
     // 执行FFT
@@ -146,7 +147,7 @@ void FrequenceHelper::ExecuteFFT(std::vector<std::complex<float>> &data, bool in
 
     if (!out)
     {
-        LogHelper::ErrorLog("FFTW内存分配失败");
+        LogHelper::ErrorLog(L_FFT_AllocFail);
     }
 
     fftwf_plan plan; ///< FFTW单精度执行计划句柄
@@ -162,7 +163,7 @@ void FrequenceHelper::ExecuteFFT(std::vector<std::complex<float>> &data, bool in
     if (!plan)
     {
         fftwf_free(out);
-        LogHelper::ErrorLog("FFTW计划创建失败");
+        LogHelper::ErrorLog(L_FFT_PlanFail);
     }
 
     // 执行FFT
@@ -452,7 +453,7 @@ std::pair<std::vector<double>, std::vector<double>> FrequenceHelper::Fft(
 
     if (real.size() != imag.size())
     {
-        LogHelper::ErrorLog("实部和虚部数组长度不匹配", "", "", 20, "FrequenceHelper::Fft");
+        LogHelper::ErrorLog(L_FFT_LengthMismatch, "", "", 20, "FrequenceHelper::Fft");
     }
 
     const size_t n = real.size(); ///< 信号样本点数

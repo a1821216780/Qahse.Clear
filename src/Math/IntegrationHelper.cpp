@@ -33,6 +33,7 @@
 #include <sstream>
 
 #include "../io/LogHelper.h"
+#include "../io/LocaleString_Math.hpp"
 
 // ============================================================================
 // 私有辅助函数实现
@@ -58,7 +59,7 @@ void IntegrationHelper::ValidateInputSizes(const std::vector<T> &x, const std::v
 {
 	if (x.size() != y.size())
 	{
-		LogHelper::ErrorLog("Input size mismatch. x.size()= " + std::to_string(x.size()) + ", y.size()= " + std::to_string(y.size()));
+		LogHelper::ErrorLog(std::string(L_INTEG_SizeMismatch) + ". x.size()= " + std::to_string(x.size()) + ", y.size()= " + std::to_string(y.size()));
 	}
 	if (x.size() == 0 || y.size() == 0)
 	{
@@ -90,7 +91,7 @@ void IntegrationHelper::ValidateInputSizes(const Eigen::MatrixBase<Derived1> &x,
 {
 	if (x.size() != y.size())
 	{
-		LogHelper::ErrorLog("Input size mismatch. x.size()= " + std::to_string(x.size()) + ", y.size()= " + std::to_string(y.size()));
+		LogHelper::ErrorLog(std::string(L_INTEG_SizeMismatch) + ". x.size()= " + std::to_string(x.size()) + ", y.size()= " + std::to_string(y.size()));
 	}
 	if (x.size() == 0 || y.size() == 0)
 	{
