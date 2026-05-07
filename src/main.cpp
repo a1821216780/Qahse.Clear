@@ -151,7 +151,42 @@ int main(int argc, char *argv[])
                     return (batch.failed == 0 && batch.invalid == 0) ? 0 : 1;
                 }
 
-                std::cerr << std::string(L_CLI_ImportNotImpl) + " for --qwd.\n";
+                if (input.mode == Mode::IMPORT)
+                {
+                    std::cout << std::string(L_CLI_RunningImport) + qwdPath + "\".\n" << std::flush;
+                    const auto field = SimWind::Import(input, progress);
+                    std::cout << L_CLI_ImportedField << "\n";
+                    std::cout << L_CLI_Source << field.sourcePath.string() << "\n";
+                    std::cout << L_CLI_Format;
+                    switch (field.wndFormat)
+                    {
+                    case WndFormat::TURBSIM_BTS: std::cout << "TURBSIM_BTS"; break;
+                    case WndFormat::TURBSIM_WND: std::cout << "TURBSIM_WND"; break;
+                    case WndFormat::BLADED_WND: std::cout << "BLADED_WND"; break;
+                    }
+                    std::cout << "\n";
+                    std::cout << L_CLI_Grid << field.ny << " x " << field.nz << "\n";
+                    std::cout << L_CLI_TimeStep << field.dt << "\n";
+                    std::cout << L_CLI_NumSteps << field.nSteps << "\n";
+                    std::cout << L_CLI_HubHt << field.hubHeight << "\n";
+                    std::cout << L_CLI_MeanWindSpeed << field.meanWindSpeed << "\n";
+                    std::cout << L_CLI_UsedCompSum << (field.usedCompanionSummary ? "true" : "false") << "\n";
+                    for (int comp = 0; comp < 3; ++comp)
+                    {
+                        static const char *names[3] = {"u", "v", "w"};
+                        std::cout << "  " << names[comp]
+                                  << ": mean=" << field.mean[static_cast<std::size_t>(comp)]
+                                  << " sigma=" << field.sigma[static_cast<std::size_t>(comp)]
+                                  << " TI=" << 100.0 * field.turbulenceIntensity[static_cast<std::size_t>(comp)] << "%\n";
+                    }
+                    if (!field.summaryPath.empty())
+                        std::cout << L_CLI_Summary << field.summaryPath << "\n";
+                    for (const auto &warning : field.warnings)
+                        std::cout << L_CLI_Warning << warning << "\n";
+                    return 0;
+                }
+
+                std::cerr << "Unsupported qwd Mode for SimWind.\n";
                 return 2;
             }
             catch (const std::exception &ex)

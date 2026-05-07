@@ -110,6 +110,9 @@
     <ClCompile Include="..\src\WindL\SimWind.cpp">
       <Filter>Source Files\WindL</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\WindL\WindField.cpp">
+      <Filter>Source Files\WindL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\IO\Outfile.h">
@@ -140,6 +143,9 @@
       <Filter>Header Files\WindL</Filter>
     </ClInclude>
     <ClInclude Include="..\src\WindL\SimWind.hpp">
+      <Filter>Header Files\WindL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WindL\WindField.hpp">
       <Filter>Header Files\WindL</Filter>
     </ClInclude>
     <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp">

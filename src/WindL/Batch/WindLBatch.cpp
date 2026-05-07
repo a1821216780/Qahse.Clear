@@ -25,7 +25,7 @@
 #include "IO/ZFile.hpp"
 #include "IO/ZString.hpp"
 #include "WindL/IO/WindL_IO_Subs.hpp"
-#include "IO/LocaleString_WindL.hpp"
+#include "../io/LocaleString_WindL.hpp"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -54,14 +54,15 @@ struct BatchWorkbook
 /** @brief 批量执行运行时上下文，封装模板输入、路径配置、线程策略、校验模式及进度回调 */
 struct BatchContext
 {
-	WindLInput input;                              ///< 模板输入参数（作为覆盖应用的基础）
-	std::string templateQwdPath;                   ///< 模板 .qwd 文件路径（用于派生各算例的输入文件）
-	std::filesystem::path batchRoot;               ///< 批次输出根目录
-	std::string launcher;                          ///< 可执行文件启动器路径（可为空，直接调用 exe）
-	int threadCount = 1;                           ///< 并行执行线程数
-	bool validateOnly = false;                     ///< 仅校验模式（只解析覆盖，不实际运行仿真）
-	std::string executablePath;                    ///< 仿真可执行文件完整路径
-	WindLBatchProgressCallback progress;           ///< 批次进度回调函数
+	WindLInput input;
+	std::string templateQwdPath;
+	std::filesystem::path batchRoot;
+	std::string launcher;
+	int threadCount = 1;
+	bool validateOnly = false;
+	std::string executablePath;
+	WindLBatchProgressCallback progress;
+	std::string templateExt = ".qwd";   ///< 模板文件扩展名，用于派生文件命名
 };
 
 using OverrideApplier = std::function<void(WindLInput &, const std::string &)>;
@@ -764,7 +765,7 @@ WindLBatchCaseResult ExecuteSingleCase(const BatchContext &ctx, const BatchCaseS
 		derived.saveName = SanitizePathComponent(spec.caseName);
 		derived.mode = Mode::GENERATE;
 		result.outputDir = outputDir.string();
-		result.derivedQwdPath = (outputDir / (SanitizePathComponent(spec.caseName) + ".qwd")).string();
+		result.derivedQwdPath = (outputDir / (SanitizePathComponent(spec.caseName) + ctx.templateExt)).string();
 		result.logPath = (outputDir / (SanitizePathComponent(spec.caseName) + ".log")).string();
 
 		WriteWindLInput(derived, result.derivedQwdPath);
@@ -868,6 +869,9 @@ WindLBatchResult WindLBatch::RunFromFile(const std::string &qwdPath,
 {
 	BatchContext ctx;
 	ctx.templateQwdPath = std::filesystem::absolute(qwdPath).string();
+	ctx.templateExt = std::filesystem::path(qwdPath).extension().string();
+	if (ctx.templateExt.empty())
+		ctx.templateExt = ".qwd";
 	ctx.input = ReadWindLInput(qwdPath);
 	if (ctx.input.mode != Mode::BATCH)
 		throw std::runtime_error(L_BATCH_RequiresModeBatch);

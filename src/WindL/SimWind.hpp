@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "WindL/WindField.hpp"
 #include "WindL/WindL_Type.hpp"
 
 /**
@@ -69,4 +70,8 @@ public:
 	 * @return 风场生成结果
 	 */
 	static SimWindResult GenerateFromFile(const std::string &qwdPath, SimWindProgressCallback progress = {});
+
+	static WindField Import(const WindLInput &input, SimWindProgressCallback progress = {});
+
+	static WindField ImportFromFile(const std::string &qwdPath, SimWindProgressCallback progress = {});
 };

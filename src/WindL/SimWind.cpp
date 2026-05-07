@@ -145,6 +145,7 @@ struct SimWindConfig
 };
 
 /** @brief 三维湍流风场容器，以交错存储方式管理 (u, v, w) 三个分量在全部时间步和空间点上的速度值 */
+#if 0
 struct WindField
 {
 	int nSteps = 0;                                    ///< 时间步数
@@ -182,6 +183,7 @@ struct WindField
 };
 
 /** @brief 批量一维 FFTW 逆变换计划 RAII 封装，管理复数数据缓冲区和 FFTW plan 的生命周期，提供频谱写入与时域实部读取接口 */
+#endif
 struct FftwBatchPlan1D
 {
 	int n = 0;                           ///< 每个变换的频点数
@@ -1540,10 +1542,8 @@ double LinearInterpolate(const std::vector<double> &x, const std::vector<double>
     @code
     ValidateInput(input); // throws on invalid input
     @endcode */
-void ValidateInput(const WindLInput &input)
+void ValidateGenerateInput(const WindLInput &input)
 {
-	if (input.mode != Mode::GENERATE)
-		throw std::runtime_error(L_WIND_OnlyGenerateMode);
 	if (input.gridPtsY <= 0)
 		throw std::runtime_error(L_WIND_NumPointYPositive);
 	if (input.gridPtsZ <= 0)
@@ -1570,6 +1570,36 @@ void ValidateInput(const WindLInput &input)
 		throw std::runtime_error(L_WIND_WindSpeedNeedFile);
 	if (input.turbModel == TurbModel::USRVKM && input.userShearFile.empty())
 		throw std::runtime_error(L_WIND_USRVKMNeedShear);
+}
+
+void ValidateImportInput(const WindLInput &input)
+{
+	if (input.wndFilePath.empty())
+		throw std::runtime_error("Mode=IMPORT requires TurWindFile");
+
+	const std::filesystem::path path(input.wndFilePath);
+	if (!std::filesystem::is_regular_file(path))
+		throw std::runtime_error("The import wind file does not exist: " + path.string());
+
+	auto ext = path.extension().string();
+	std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+	if (ext != ".bts" && ext != ".wnd")
+		throw std::runtime_error("Mode=IMPORT supports only .bts and .wnd wind files");
+}
+
+void ValidateInput(const WindLInput &input)
+{
+	switch (input.mode)
+	{
+	case Mode::GENERATE:
+		ValidateGenerateInput(input);
+		return;
+	case Mode::IMPORT:
+		ValidateImportInput(input);
+		return;
+	default:
+		throw std::runtime_error("SimWind supports only Mode=GENERATE and Mode=IMPORT");
+	}
 }
 
 /** @brief 根据IEC标准版本应用默认湍流参数。
@@ -2990,11 +3020,14 @@ void ApplyScaleIecForComponent(const SimWindConfig &cfg, WindField &field, int c
 WindField AllocateField(const SimWindConfig &cfg)
 {
 	WindField field;
-	field.nSteps = cfg.nSteps;
-	field.nPoints = cfg.nPoints;
-	const std::size_t total = static_cast<std::size_t>(cfg.nSteps) * cfg.nPoints;
-	for (auto &component : field.component)
-		component.assign(total, 0.0);
+	field.Resize(cfg.nSteps, cfg.ny, cfg.nz);
+	field.dt = cfg.dt;
+	field.dy = cfg.dy;
+	field.dz = cfg.dz;
+	field.hubHeight = cfg.hubHeight;
+	field.zBottom = cfg.zBottom;
+	field.meanWindSpeed = cfg.uHub;
+	field.BuildCoordinates();
 	return field;
 }
 
@@ -4674,6 +4707,74 @@ void WriteSummary(const SimWindConfig &cfg,
 			out << "  - " << warning << "\n";
 	}
 }
+
+std::filesystem::path ImportSummaryBasePath(const WindLInput &input)
+{
+	if (!input.savePath.empty() && !input.saveName.empty())
+		return std::filesystem::path(input.savePath) / input.saveName;
+
+	const std::filesystem::path source(input.wndFilePath);
+	if (!source.empty())
+		return source.parent_path() / (source.stem().string() + "_import");
+
+	return std::filesystem::current_path() / "import_wind";
+}
+
+void WriteImportSummary(const WindLInput &input, const ::WindField &field, const std::filesystem::path &path)
+{
+	std::ofstream out(path);
+	if (!out)
+		throw std::runtime_error(std::string(L_WIND_CannotOpenSUM) + ": " + path.string());
+
+	out << L_SUM_Title << "\n";
+	out << L_SUM_Separator << "\n\n";
+	out << std::setprecision(10);
+	out << "ImportSource: " << field.sourcePath.string() << "\n";
+	out << "ImportFormat: ";
+	switch (field.wndFormat)
+	{
+	case WndFormat::TURBSIM_BTS: out << "TURBSIM_BTS"; break;
+	case WndFormat::TURBSIM_WND: out << "TURBSIM_WND"; break;
+	case WndFormat::BLADED_WND: out << "BLADED_WND"; break;
+	}
+	out << "\n";
+	out << "UsedCompanionSummary: " << (field.usedCompanionSummary ? "true" : "false") << "\n\n";
+
+	out << L_SUM_Grid << "\n";
+	out << "  NumPointY: " << field.ny << "\n";
+	out << "  NumPointZ: " << field.nz << "\n";
+	out << "  LenWidthY: " << field.fieldDimY << " m\n";
+	out << "  LenHeightZ: " << field.fieldDimZ << " m\n";
+	out << "  Zbottom: " << field.zBottom << " m\n";
+	out << "  TimeStep: " << field.dt << " s\n";
+	out << "  NumSteps: " << field.nSteps << "\n";
+	out << "  HubHt: " << field.hubHeight << " m\n";
+	out << "  MeanWindSpeed: " << field.meanWindSpeed << " m/s\n\n";
+
+	out << L_SUM_InputKeywordStatus << "\n";
+	out << "  CalWu/CalWv/CalWw: turbulence-only component switches\n";
+	out << "  WrBlwnd/WrTrbts/WrTrwnd: ignored in Mode=IMPORT\n";
+	out << "  CycleWind: sampling-time boundary behavior\n";
+	out << "  InterpMethod: imported-field sampling interpolation method\n";
+	out << "  TurWindFile: import source path\n";
+	out << "  WndFormat: .wnd import decoder selector\n\n";
+
+	out << L_SUM_Statistics << "\n";
+	static const char *names[3] = {"u", "v", "w"};
+	for (int comp = 0; comp < 3; ++comp)
+	{
+		out << "  " << names[comp] << ": mean=" << field.mean[static_cast<std::size_t>(comp)]
+		    << " sigma=" << field.sigma[static_cast<std::size_t>(comp)]
+		    << " TI=" << 100.0 * field.turbulenceIntensity[static_cast<std::size_t>(comp)] << "%\n";
+	}
+
+	if (!field.warnings.empty())
+	{
+		out << "\n" << L_SUM_Warnings << "\n";
+		for (const auto &warning : field.warnings)
+			out << "  - " << warning << "\n";
+	}
+}
 } // namespace
 
 /**
@@ -4700,6 +4801,9 @@ void SimWind::ValidateInputOnly(const WindLInput &input)
  */
 SimWindResult SimWind::Generate(const WindLInput &input, SimWindProgressCallback progress)
 {
+	if (input.mode != Mode::GENERATE)
+		throw std::runtime_error("SimWind::Generate requires Mode=GENERATE");
+
 	const auto startTime = std::chrono::steady_clock::now();
 	if (progress)
 		progress(L_PROG_ReadingInput);
@@ -4718,7 +4822,7 @@ SimWindResult SimWind::Generate(const WindLInput &input, SimWindProgressCallback
 		Report(cfg, L_PROG_LargeStrictCoh);
 		Report(cfg, std::string(L_PROG_InitRuntimeEstimate) + ": " + InitialRuntimeEstimate(cfg.estimatedCholeskyFlops) + ".");
 	}
-	WindField field = GenerateWindField(cfg);
+	auto field = GenerateWindField(cfg);
 
 	SimWindResult result;
 	result.gridPtsY = cfg.ny;
@@ -4785,4 +4889,37 @@ SimWindResult SimWind::Generate(const WindLInput &input, SimWindProgressCallback
 SimWindResult SimWind::GenerateFromFile(const std::string &qwdPath, SimWindProgressCallback progress)
 {
 	return Generate(ReadWindLInput(qwdPath), std::move(progress));
+}
+
+::WindField SimWind::Import(const WindLInput &input, SimWindProgressCallback progress)
+{
+	if (input.mode != Mode::IMPORT)
+		throw std::runtime_error("SimWind::Import requires Mode=IMPORT");
+
+	ValidateInput(input);
+	if (progress)
+		progress(std::string(" Importing wind file \"") + input.wndFilePath + "\".");
+
+	::WindField field = ::WindField::ReadAny(input.wndFilePath, input.wndFormat, input);
+	if (progress)
+	{
+		progress(std::string(" Imported format with grid ") + std::to_string(field.ny) + " x " + std::to_string(field.nz) +
+		         ", steps=" + std::to_string(field.nSteps) + ", dt=" + FormatSeconds(field.dt) + ".");
+	}
+
+	if (input.sumPrint)
+	{
+		auto path = ImportSummaryBasePath(input);
+		field.summaryPath = path.replace_extension(".sum").string();
+		if (progress)
+			progress(std::string(" Writing import summary \"") + field.summaryPath + "\".");
+		WriteImportSummary(input, field, field.summaryPath);
+	}
+
+	return field;
+}
+
+::WindField SimWind::ImportFromFile(const std::string &qwdPath, SimWindProgressCallback progress)
+{
+	return Import(ReadWindLInput(qwdPath), std::move(progress));
 }

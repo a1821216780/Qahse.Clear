@@ -907,3 +907,134 @@ TEST(WindL_SimWind, LogProfileUsesZL)
 	EXPECT_NEAR(unstableLower[0][0], expectedUnstable, 1.0e-3);
 	EXPECT_GT(std::abs(stableLower[0][0] - unstableLower[0][0]), 1.0e-3);
 }
+
+TEST(WindL_SimWind, ImportsBtsRoundTripAndWritesSummary)
+{
+	auto input = SmallInput("import_bts_source");
+	input.wrBlwnd = false;
+	input.wrTrwnd = false;
+
+	const auto generated = SimWind::Generate(input);
+	ASSERT_TRUE(std::filesystem::is_regular_file(generated.btsPath));
+
+	WindLInput importInput;
+	importInput.mode = Mode::IMPORT;
+	importInput.wndFilePath = generated.btsPath;
+	importInput.wndFormat = WndFormat::TURBSIM_BTS;
+	importInput.sumPrint = true;
+	importInput.savePath = SimWindOutputDir().string();
+	importInput.saveName = "import_bts_roundtrip";
+
+	const auto field = SimWind::Import(importInput);
+	EXPECT_TRUE(std::filesystem::is_regular_file(field.summaryPath));
+	EXPECT_EQ(field.ny, input.gridPtsY);
+	EXPECT_EQ(field.nz, input.gridPtsZ);
+	EXPECT_EQ(field.nSteps, generated.timeSteps);
+
+	const auto series = ReadBtsPointSeries(generated.btsPath);
+	ASSERT_FALSE(series.empty());
+	EXPECT_NEAR(field.At(0, 0, field.nz / 2, field.ny / 2), series.front()[0], 1.0e-6);
+	EXPECT_NEAR(field.At(1, 0, field.nz / 2, field.ny / 2), series.front()[1], 1.0e-6);
+	EXPECT_NEAR(field.At(2, 0, field.nz / 2, field.ny / 2), series.front()[2], 1.0e-6);
+	EXPECT_NEAR(field.sigma[0], generated.stats[0].sigma, 1.0e-6);
+}
+
+TEST(WindL_SimWind, ImportsTurbSimWndRoundTripAgainstBtsReference)
+{
+	auto input = SmallInput("import_tswnd_source");
+	input.wrBlwnd = false;
+
+	const auto generated = SimWind::Generate(input);
+	ASSERT_TRUE(std::filesystem::is_regular_file(generated.btsPath));
+	ASSERT_TRUE(std::filesystem::is_regular_file(generated.turbsimWndPath));
+
+	WindLInput importInput;
+	importInput.mode = Mode::IMPORT;
+	importInput.wndFilePath = generated.turbsimWndPath;
+	importInput.wndFormat = WndFormat::TURBSIM_WND;
+
+	const auto field = SimWind::Import(importInput);
+	const auto series = ReadBtsPointSeries(generated.btsPath);
+	ASSERT_GE(series.size(), 3U);
+
+	for (int step = 0; step < 3; ++step)
+	{
+		EXPECT_NEAR(field.At(0, step, field.nz / 2, field.ny / 2), series[static_cast<std::size_t>(step)][0], 0.02);
+		EXPECT_NEAR(field.At(1, step, field.nz / 2, field.ny / 2), series[static_cast<std::size_t>(step)][1], 0.02);
+		EXPECT_NEAR(field.At(2, step, field.nz / 2, field.ny / 2), series[static_cast<std::size_t>(step)][2], 0.02);
+	}
+}
+
+TEST(WindL_SimWind, ImportsBladedWndUsingCompanionSummary)
+{
+	auto input = SmallInput("import_bladed_source");
+	const auto generated = SimWind::Generate(input);
+	ASSERT_TRUE(std::filesystem::is_regular_file(generated.btsPath));
+	ASSERT_TRUE(std::filesystem::is_regular_file(generated.bladedWndPath));
+	ASSERT_TRUE(std::filesystem::is_regular_file(generated.sumPath));
+
+	WindLInput importInput;
+	importInput.mode = Mode::IMPORT;
+	importInput.wndFilePath = generated.bladedWndPath;
+	importInput.wndFormat = WndFormat::BLADED_WND;
+	importInput.hubHeight = input.hubHeight;
+	importInput.meanWindSpeed = input.meanWindSpeed;
+
+	const auto field = SimWind::Import(importInput);
+	EXPECT_TRUE(field.usedCompanionSummary);
+	const auto series = ReadBtsPointSeries(generated.btsPath);
+	ASSERT_GE(series.size(), 3U);
+
+	for (int step = 0; step < 3; ++step)
+	{
+		EXPECT_NEAR(field.At(0, step, field.nz / 2, field.ny / 2), series[static_cast<std::size_t>(step)][0], 0.02);
+		EXPECT_NEAR(field.At(1, step, field.nz / 2, field.ny / 2), series[static_cast<std::size_t>(step)][1], 0.02);
+		EXPECT_NEAR(field.At(2, step, field.nz / 2, field.ny / 2), series[static_cast<std::size_t>(step)][2], 0.02);
+	}
+}
+
+TEST(WindL_SimWind, ImportedFieldSamplingMirrorsAndSupportsCubic)
+{
+	::WindField field;
+	field.Resize(3, 4, 4);
+	field.dy = 2.0;
+	field.dz = 10.0;
+	field.dt = 1.0;
+	field.zBottom = 50.0;
+	field.hubHeight = 65.0;
+	field.meanWindSpeed = 10.0;
+	field.BuildCoordinates();
+
+	for (int step = 0; step < field.nSteps; ++step)
+	{
+		for (int iz = 0; iz < field.nz; ++iz)
+		{
+			for (int iy = 0; iy < field.ny; ++iy)
+			{
+				const double y = field.yCoords[static_cast<std::size_t>(iy)];
+				const double z = field.zCoords[static_cast<std::size_t>(iz)];
+				field.At(0, step, iz, iy) = static_cast<double>(step) + 2.0 * y + 0.1 * z;
+				field.At(1, step, iz, iy) = 0.0;
+				field.At(2, step, iz, iy) = 0.0;
+			}
+		}
+	}
+	field.ComputeStats();
+
+	const auto mirrored = field.Sample(5.0, 200.0, 3.0, InterpMethod::TRILINEAR, true);
+	EXPECT_NEAR(mirrored[0], 1.0 + 2.0 * 1.0 + 0.1 * 80.0, 1.0e-9);
+
+	const auto cubic = field.Sample(0.3, 66.0, 1.25, InterpMethod::CUBIC, true);
+	const auto linear = field.Sample(0.3, 66.0, 1.25, InterpMethod::TRILINEAR, true);
+	EXPECT_NEAR(cubic[0], linear[0], 1.0e-6);
+
+	try
+	{
+		(void)field.Sample(0.0, 60.0, 5.0, InterpMethod::TRILINEAR, false);
+		FAIL() << "Expected imported-field sampling to reject out-of-range time when CycleWind=false.";
+	}
+	catch (const std::runtime_error &error)
+	{
+		EXPECT_NE(std::string(error.what()).find("CycleWind=false"), std::string::npos);
+	}
+}

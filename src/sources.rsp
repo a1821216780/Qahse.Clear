@@ -9,4 +9,5 @@
 "src\Math\Vec3.cpp"
 "src\Math\Vec3f.cpp"
 "src\WindL\SimWind.cpp"
+"src\WindL\WindField.cpp"
 "src\WindL\Batch\WindLBatch.cpp"

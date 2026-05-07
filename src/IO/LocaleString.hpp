@@ -201,6 +201,18 @@
 #define L_CLI_ImportNotImpl       TL("WindL 导入模式尚未实现", "WindL import mode is not implemented yet")
 #define L_CLI_SimWindFailed       TL("SimWind 失败: ", "SimWind failed: ")
 #define L_CLI_BatchRunnerFailed   TL("WindL 批量运行失败: ", "WindL batch runner failed: ")
+#define L_CLI_RunningImport       TL(" 正在运行 SimWind 导入，文件 \"", " Running SimWind import with file \"")
+#define L_CLI_ImportedField       TL("已导入风场", "Imported wind field")
+#define L_CLI_Source              TL("  来源: ", "  Source: ")
+#define L_CLI_Format              TL("  格式: ", "  Format: ")
+#define L_CLI_Grid                TL("  网格: ", "  Grid: ")
+#define L_CLI_TimeStep            TL("  时间步长: ", "  TimeStep: ")
+#define L_CLI_NumSteps            TL("  步数: ", "  NumSteps: ")
+#define L_CLI_HubHt               TL("  轮毂高度: ", "  HubHt: ")
+#define L_CLI_MeanWindSpeed       TL("  平均风速: ", "  MeanWindSpeed: ")
+#define L_CLI_UsedCompSum         TL("  使用配套 .sum: ", "  Used companion .sum: ")
+#define L_CLI_Summary             TL("  摘要: ", "  Summary: ")
+#define L_CLI_Warning             TL("  警告: ", "  Warning: ")
 
 // ============================================================================
 // OtherHelper — 通用错误/警告消息

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "LocaleString.hpp"
+#include "../../io/LocaleString.hpp"
 
 // ============================================================================
 // SimWind — Additional exception messages (not in LocaleString.hpp)

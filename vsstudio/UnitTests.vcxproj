@@ -83,6 +83,7 @@
     <ClCompile Include="..\src\Math\LinearAlgebraHelper.cpp" />
     <ClCompile Include="..\src\Math\FrequenceHelper.cpp" />
     <ClCompile Include="..\src\WindL\SimWind.cpp" />
+    <ClCompile Include="..\src\WindL\WindField.cpp" />
     <ClCompile Include="..\src\WindL\Batch\WindLBatch.cpp" />
     <ClCompile Include="..\Test\Math\MathHelperTests.cpp" />
     <ClCompile Include="..\Test\Math\Vec3QuaternionTests.cpp" />
@@ -100,6 +101,7 @@
     <ClInclude Include="..\src\IO\Yaml.hpp" />
     <ClInclude Include="..\src\WindL\WindL_Type.hpp" />
     <ClInclude Include="..\src\WindL\SimWind.hpp" />
+    <ClInclude Include="..\src\WindL\WindField.hpp" />
     <ClInclude Include="..\src\WindL\Batch\WindLBatch.hpp" />
     <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp" />
     <ClInclude Include="..\src\Params.h" />
