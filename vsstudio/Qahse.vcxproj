@@ -135,6 +135,9 @@
     <ClCompile Include="..\src\WindL\SimWind.cpp" />
     <ClCompile Include="..\src\WindL\WindField.cpp" />
     <ClCompile Include="..\src\WindL\Batch\WindLBatch.cpp" />
+    <ClCompile Include="..\src\WaveL\WaveSpectrum.cpp" />
+    <ClCompile Include="..\src\WaveL\WaveKinematics.cpp" />
+    <ClCompile Include="..\src\WaveL\WaveField.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\HawtC3\src\IO\IO\BinaryFileHandler.h" />
@@ -156,11 +159,18 @@
     <ClInclude Include="..\src\IO\LogHelper.h" />
     <ClInclude Include="..\src\IO\Serializer.hpp" />
     <ClInclude Include="..\src\IO\Yaml.hpp" />
+    <ClInclude Include="..\src\WindL\IO\LocaleString_WindL.hpp" />
     <ClInclude Include="..\src\WindL\WindL_Type.hpp" />
     <ClInclude Include="..\src\WindL\SimWind.hpp" />
     <ClInclude Include="..\src\WindL\WindField.hpp" />
     <ClInclude Include="..\src\WindL\Batch\WindLBatch.hpp" />
     <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp" />
+    <ClInclude Include="..\src\WaveL\WaveL_Type.hpp" />
+    <ClInclude Include="..\src\WaveL\WaveSpectrum.hpp" />
+    <ClInclude Include="..\src\WaveL\WaveKinematics.hpp" />
+    <ClInclude Include="..\src\WaveL\WaveField.hpp" />
+    <ClInclude Include="..\src\WaveL\IO\WaveL_IO_Subs.hpp" />
+    <ClInclude Include="..\src\WaveL\IO\LocaleString_WaveL.hpp" />
     <ClInclude Include="..\src\Params.h" />
     <ClInclude Include="..\src\Math\IntegrationHelper.h" />
     <ClInclude Include="..\src\Math\Vec3.h" />

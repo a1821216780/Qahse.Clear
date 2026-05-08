@@ -1,0 +1,54 @@
+----------------------------------------QBlade Wave Definition File-------------------------------------------------
+----------------------------------------Object Name-----------------------------------------------------------------
+WaveL	OBJECTNAME	- the name of the linear wave definition object
+
+----------------------------------------Main Parameters-------------------------------------------------------------
+0.000000	TIMEOFFSET	- the time offset from t=0s [s]
+3	WAVETYPE	- QBlade wave type
+2.500000	SIGHEIGHT	- the significant wave height (Hs) [m]
+8.500000	PEAKPERIOD	- the peak period (Tp) [s]
+1	AUTOGAMMA	- use gamma according to IEC
+0.000000	GAMMA	- custom gamma
+1	AUTOSIGMA	- use sigmas according to IEC
+0.000000	SIGMA1	- sigma1
+0.000000	SIGMA2	- sigma2
+0	DOUBLEPEAK	- double peak Torsethaugen
+0	AUTOORCHI	- automatic OCHI-HUBBLE parameters
+0.100000	MODFREQ1	- modal frequency 1
+0.200000	MODFREQ2	- modal frequency 2
+2.000000	SIGHEIGHT1	- significant height 1
+1.500000	SIGHEIGHT2	- significant height 2
+2.000000	LAMBDA1	- peak shape 1
+2.000000	LAMBDA2	- peak shape 2
+
+----------------------------------------Frequency Discretization ---------------------------------------------------
+0	DISCTYPE	- frequency discretization type
+1	AUTOFREQ	- use automatic frequency range
+0.000000	FCUTIN	- cut-in frequency
+0.000000	FCUTOUT	- cut-out frequency
+0.000000	MAXFBIN	- maximum freq. bin width [Hz]
+12	NUMFREQ	- the number of frequency bins
+0	RANDSEED	- the seed for the random phase generator
+
+----------------------------------------Directional Discretization (Equal Energy)-----------------------------------
+0	DIRTYPE	- directional type
+0.000000	DIRMEAN	- mean wave direction [deg]
+30.000000	DIRMAX	- directional spread [deg]
+2.000000	SPREADEXP	- spreading exponent
+1	NUMDIR	- the number of directional bins
+
+----------------------------------------Wave Train Data-------------------------------------------------------------
+WaveL.comp	FILENAME	- embedded component data
+Freq [Hz]	Amp [m]	Phase [deg]	Dir [deg]
+0.093099	0.255155	213.424062	0.000000
+0.103521	0.255155	303.935668	0.000000
+0.111085	0.255155	308.860423	0.000000
+0.118000	0.255155	305.010625	0.000000
+0.124928	0.255155	224.482931	0.000000
+0.132288	0.255155	138.377415	0.000000
+0.140505	0.255155	107.112458	0.000000
+0.150161	0.255155	20.416671	0.000000
+0.162249	0.255155	98.156266	0.000000
+0.178838	0.255155	171.959440	0.000000
+0.205668	0.255155	292.380742	0.000000
+0.273610	0.255155	172.791782	0.000000

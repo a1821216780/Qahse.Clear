@@ -144,46 +144,46 @@ struct SimWindConfig
 	std::vector<std::string> warnings;                         ///< 配置构建过程中的警告信息列表
 };
 
-/** @brief 三维湍流风场容器，以交错存储方式管理 (u, v, w) 三个分量在全部时间步和空间点上的速度值 */
-#if 0
-struct WindField
-{
-	int nSteps = 0;                                    ///< 时间步数
-	int nPoints = 0;                                   ///< 空间点数
-	std::array<std::vector<double>, 3> component;      ///< 三个速度分量向量，每个分量按 [step * nPoints + point] 交错存储
-
-	/** @brief 获取指定分量在指定时间步和空间点处的风速值（可写引用）
-	 *  @param comp  速度分量索引：0=u（纵向），1=v（横向），2=w（竖向）
-	 *  @param step  时间步索引，范围 [0, nSteps-1]
-	 *  @param point 空间点索引，范围 [0, nPoints-1]
-	 *  @return      对应位置的可写引用，允许直接赋值修改风场
-	 *  @note        内存布局为交错存储：component[comp][step * nPoints + point]，
-	 *               其中第一维为时间步（步长 nPoints），第二维为空间点连续排列，
-	 *               即同一时间步的所有空间点连续存放。
-	 */
-	double &At(int comp, int step, int point)
-	{
-		// 交错存储：每时间步内所有空间点连续排列，索引 = step × nPoints + point
-		return component[static_cast<std::size_t>(comp)][static_cast<std::size_t>(step) * nPoints + point];
-	}
-
-	/** @brief 获取指定分量在指定时间步和空间点处的风速值（只读）
-	 *  @param comp  速度分量索引：0=u（纵向），1=v（横向），2=w（竖向）
-	 *  @param step  时间步索引，范围 [0, nSteps-1]
-	 *  @param point 空间点索引，范围 [0, nPoints-1]
-	 *  @return      对应位置的风速值（const 副本）
-	 *  @note        与可写版本共享相同的内存布局：component[comp][step * nPoints + point]，
-	 *               即按时间步优先、空间点连续的交错存储方式。
-	 */
-	double At(int comp, int step, int point) const
-	{
-		// 交错存储：每时间步内所有空间点连续排列，索引 = step × nPoints + point
-		return component[static_cast<std::size_t>(comp)][static_cast<std::size_t>(step) * nPoints + point];
-	}
-};
-
-/** @brief 批量一维 FFTW 逆变换计划 RAII 封装，管理复数数据缓冲区和 FFTW plan 的生命周期，提供频谱写入与时域实部读取接口 */
-#endif
+///** @brief 三维湍流风场容器，以交错存储方式管理 (u, v, w) 三个分量在全部时间步和空间点上的速度值 */
+//#if 0
+//struct WindField
+//{
+//	int nSteps = 0;                                    ///< 时间步数
+//	int nPoints = 0;                                   ///< 空间点数
+//	std::array<std::vector<double>, 3> component;      ///< 三个速度分量向量，每个分量按 [step * nPoints + point] 交错存储
+//
+//	/** @brief 获取指定分量在指定时间步和空间点处的风速值（可写引用）
+//	 *  @param comp  速度分量索引：0=u（纵向），1=v（横向），2=w（竖向）
+//	 *  @param step  时间步索引，范围 [0, nSteps-1]
+//	 *  @param point 空间点索引，范围 [0, nPoints-1]
+//	 *  @return      对应位置的可写引用，允许直接赋值修改风场
+//	 *  @note        内存布局为交错存储：component[comp][step * nPoints + point]，
+//	 *               其中第一维为时间步（步长 nPoints），第二维为空间点连续排列，
+//	 *               即同一时间步的所有空间点连续存放。
+//	 */
+//	double &At(int comp, int step, int point)
+//	{
+//		// 交错存储：每时间步内所有空间点连续排列，索引 = step × nPoints + point
+//		return component[static_cast<std::size_t>(comp)][static_cast<std::size_t>(step) * nPoints + point];
+//	}
+//
+//	/** @brief 获取指定分量在指定时间步和空间点处的风速值（只读）
+//	 *  @param comp  速度分量索引：0=u（纵向），1=v（横向），2=w（竖向）
+//	 *  @param step  时间步索引，范围 [0, nSteps-1]
+//	 *  @param point 空间点索引，范围 [0, nPoints-1]
+//	 *  @return      对应位置的风速值（const 副本）
+//	 *  @note        与可写版本共享相同的内存布局：component[comp][step * nPoints + point]，
+//	 *               即按时间步优先、空间点连续的交错存储方式。
+//	 */
+//	double At(int comp, int step, int point) const
+//	{
+//		// 交错存储：每时间步内所有空间点连续排列，索引 = step × nPoints + point
+//		return component[static_cast<std::size_t>(comp)][static_cast<std::size_t>(step) * nPoints + point];
+//	}
+//};
+//
+///** @brief 批量一维 FFTW 逆变换计划 RAII 封装，管理复数数据缓冲区和 FFTW plan 的生命周期，提供频谱写入与时域实部读取接口 */
+//#endif
 struct FftwBatchPlan1D
 {
 	int n = 0;                           ///< 每个变换的频点数

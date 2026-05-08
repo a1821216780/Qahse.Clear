@@ -17,3 +17,9 @@ lib
 .vs
 *.log
 *.cmd
+*.wfc
+*.wvc
+*.wts
+*.wfm
+
+

@@ -213,6 +213,19 @@
 #define L_CLI_UsedCompSum         TL("  使用配套 .sum: ", "  Used companion .sum: ")
 #define L_CLI_Summary             TL("  摘要: ", "  Summary: ")
 #define L_CLI_Warning             TL("  警告: ", "  Warning: ")
+#define L_CLI_RunningWaveL        TL(" 正在运行 WaveL，输入文件 \"", " Running WaveL with input file \"")
+#define L_CLI_WaveLFailed         TL("WaveL 失败: ", "WaveL failed: ")
+#define L_CLI_WaveLGenerated      TL("WaveL 已生成波浪结果:", "WaveL generated wave results:")
+#define L_CLI_WaveLImported       TL("WaveL 已导入波浪成分", "WaveL imported wave components")
+#define L_CLI_WaveL_Hs            TL("  Hs: ", "  Hs: ")
+#define L_CLI_WaveL_Tp            TL("  Tp: ", "  Tp: ")
+#define L_CLI_WaveL_Fp            TL("  Fp: ", "  Fp: ")
+#define L_CLI_WaveL_Depth         TL("  WaterDepth: ", "  WaterDepth: ")
+#define L_CLI_WaveL_Components    TL("  Components: ", "  Components: ")
+#define L_CLI_WaveL_CompPath      TL("  Components file: ", "  Components file: ")
+#define L_CLI_WaveL_TimePath      TL("  Time series file: ", "  Time series file: ")
+#define L_CLI_WaveL_KinPath       TL("  Kinematics dir: ", "  Kinematics dir: ")
+#define L_CLI_WaveL_Unsupported   TL("WaveL BATCH 模式暂未实现", "WaveL BATCH mode is not implemented yet")
 
 // ============================================================================
 // OtherHelper — 通用错误/警告消息

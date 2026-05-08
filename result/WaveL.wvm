@@ -1,0 +1,18 @@
+Qahse WaveL Summary
+Mode: IMPORT
+Significant wave height Hs: 3.500000 m
+Peak period Tp: 7.812411 s
+Peak frequency fp: 0.128001 Hz
+Water depth: 60.000000 m
+Component count: 96
+Frequency range: [0.066447, 0.372347] Hz
+Spectral area: 0.765625 m^2
+m0: 0.765625 m^2
+Primary cache file: F:\Qahse.Clear\demo\WaveL\result\Qahse_WaveL_Main_DEMO.wfc
+Primary metadata file: F:\Qahse.Clear\demo\WaveL\result\Qahse_WaveL_Import_DEMO.wfm
+WaveStMod: 2
+WvDiffQTF: false
+WvSumQTF: false
+WvNewmanApprox: false
+WvLow/HiCOffD: 0.000000, 0.000000 rad/s
+WvLow/HiCOffS: 0.000000, 0.000000 rad/s

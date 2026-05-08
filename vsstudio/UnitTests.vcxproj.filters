@@ -27,6 +27,12 @@
     <Filter Include="Header Files\WindL">
       <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000008}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\WaveL">
+      <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000009}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\WaveL">
+      <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000010}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Test\test_main.cpp">
@@ -113,6 +119,18 @@
     <ClCompile Include="..\src\WindL\WindField.cpp">
       <Filter>Source Files\WindL</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\WaveL\WaveSpectrum.cpp">
+      <Filter>Source Files\WaveL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\WaveL\WaveKinematics.cpp">
+      <Filter>Source Files\WaveL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\WaveL\WaveField.cpp">
+      <Filter>Source Files\WaveL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Test\WaveL\WaveSpectrumTests.cpp">
+      <Filter>Source Files\WaveL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\IO\Outfile.h">
@@ -150,6 +168,24 @@
     </ClInclude>
     <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp">
       <Filter>Header Files\WindL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WaveL\WaveL_Type.hpp">
+      <Filter>Header Files\WaveL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WaveL\WaveSpectrum.hpp">
+      <Filter>Header Files\WaveL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WaveL\WaveKinematics.hpp">
+      <Filter>Header Files\WaveL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WaveL\WaveField.hpp">
+      <Filter>Header Files\WaveL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WaveL\IO\WaveL_IO_Subs.hpp">
+      <Filter>Header Files\WaveL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WaveL\IO\LocaleString_WaveL.hpp">
+      <Filter>Header Files\WaveL</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Params.h">
       <Filter>Header Files</Filter>
