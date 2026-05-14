@@ -88,11 +88,14 @@
     <ClCompile Include="..\src\WaveL\WaveSpectrum.cpp" />
     <ClCompile Include="..\src\WaveL\WaveKinematics.cpp" />
     <ClCompile Include="..\src\WaveL\WaveField.cpp" />
+    <ClCompile Include="..\src\HydroL\IO\HydroL_IO_Subs.cpp" />
+    <ClCompile Include="..\src\HydroL\HydroL.cpp" />
     <ClCompile Include="..\Test\Math\MathHelperTests.cpp" />
     <ClCompile Include="..\Test\Math\Vec3QuaternionTests.cpp" />
     <ClCompile Include="..\Test\Math\LinearAlgebraHelperTests.cpp" />
     <ClCompile Include="..\Test\WindL\WindLBatchTests.cpp" />
     <ClCompile Include="..\Test\WaveL\WaveSpectrumTests.cpp" />
+    <ClCompile Include="..\Test\HydroL\HydroLTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\IO\Outfile.h" />
@@ -114,6 +117,9 @@
     <ClInclude Include="..\src\WaveL\WaveField.hpp" />
     <ClInclude Include="..\src\WaveL\IO\WaveL_IO_Subs.hpp" />
     <ClInclude Include="..\src\WaveL\IO\LocaleString_WaveL.hpp" />
+    <ClInclude Include="..\src\HydroL\HydroL_Type.hpp" />
+    <ClInclude Include="..\src\HydroL\HydroL.hpp" />
+    <ClInclude Include="..\src\HydroL\IO\HydroL_IO_Subs.hpp" />
     <ClInclude Include="..\src\Params.h" />
     <ClInclude Include="..\src\Math\IntegrationHelper.h" />
     <ClInclude Include="..\src\Math\Vec3.h" />

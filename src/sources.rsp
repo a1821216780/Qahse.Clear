@@ -11,6 +11,3 @@
 "src\WindL\SimWind.cpp"
 "src\WindL\WindField.cpp"
 "src\WindL\Batch\WindLBatch.cpp"
-"src\WaveL\WaveSpectrum.cpp"
-"src\WaveL\WaveKinematics.cpp"
-"src\WaveL\WaveField.cpp"

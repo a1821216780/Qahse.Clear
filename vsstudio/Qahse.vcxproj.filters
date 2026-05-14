@@ -37,6 +37,12 @@
     <Filter Include="Source Files\WaveL">
       <UniqueIdentifier>{A1B2C3D4-0001-0001-0001-000000000010}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\HydroL">
+      <UniqueIdentifier>{A1B2C3D4-0001-0001-0001-000000000011}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\HydroL">
+      <UniqueIdentifier>{A1B2C3D4-0001-0001-0001-000000000012}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp">
@@ -86,6 +92,12 @@
     </ClCompile>
     <ClCompile Include="..\src\WaveL\WaveField.cpp">
       <Filter>Source Files\WaveL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\HydroL\IO\HydroL_IO_Subs.cpp">
+      <Filter>Source Files\HydroL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\HydroL\HydroL.cpp">
+      <Filter>Source Files\HydroL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +154,15 @@
     </ClInclude>
     <ClInclude Include="..\src\WaveL\IO\LocaleString_WaveL.hpp">
       <Filter>Header Files\WaveL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\HydroL\HydroL_Type.hpp">
+      <Filter>Header Files\HydroL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\HydroL\HydroL.hpp">
+      <Filter>Header Files\HydroL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\HydroL\IO\HydroL_IO_Subs.hpp">
+      <Filter>Header Files\HydroL</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Params.h">
       <Filter>Header Files</Filter>

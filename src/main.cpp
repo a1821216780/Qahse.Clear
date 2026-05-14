@@ -39,9 +39,6 @@
 #include "WindL/SimWind.hpp"
 #include "WindL/Batch/WindLBatch.hpp"
 #include "WindL/IO/WindL_IO_Subs.hpp"
-#include "WaveL/WaveSpectrum.hpp"
-#include "WaveL/WaveField.hpp"
-#include "WaveL/IO/WaveL_IO_Subs.hpp"
 #include "IO/LocaleString.hpp"
 
 #ifdef _WIN32
@@ -85,6 +82,7 @@ int main(int argc, char *argv[])
         LogHelper::WriteLogO(TL("  --mbdl <文件.qmd>      从 .qmd 文件运行独立 MBDL 结构动力学", "  --mbdl <file.qmd>     Run standalone MBDL structural dynamics from .qmd file"));
         LogHelper::WriteLogO(TL("  --windl-models        显示 WindL OOP 模型目录和路由 ID", "  --windl-models        Print WindL OOP model catalogs and route IDs"));
         LogHelper::WriteLogO(TL("  --qod <文件.qoe>       从 .qoe 文件运行独立海洋模式", "  --qod <file.qoe>      Run standalone ocean mode from .qoe file"));
+        LogHelper::WriteLogO("  --qhd <file.qhd>      Run standalone HydroL hydrodynamics from .qhd file");
         LogHelper::WriteLogO(TL("  --pcsl <输入文件>     从输入文件运行 PCSL 截面分析", "  --pcsl <input_file>   Run PCSL cross-section analysis from input file"));
         LogHelper::WriteLogO(TL("  --run <文件.trb|文件.sim> [选项]  从定义文件运行仿真，无 GUI", "  --run <file.trb|file.sim> [options]  Run simulation from definition file, no GUI"));
 
@@ -197,84 +195,7 @@ int main(int argc, char *argv[])
                 std::cerr << L_CLI_SimWindFailed << ex.what() << "\n";
                 return 1;
             }
-        }
-        if (arg == "--qod")
-        {
-            if (i + 1 >= argc)
-            {
-                std::cerr << "--qod requires a .qoe file path\n";
-                return 2;
-            }
-
-            try
-            {
-                const std::string qoePath = std::filesystem::absolute(argv[i + 1]).string();
-                const auto input = ReadWaveLInput(qoePath);
-                const auto progress = [](const std::string &message) {
-                    std::cout << message << std::endl;
-                };
-
-                std::cout << std::string(L_CLI_RunningWaveL) << qoePath << "\".\n" << std::flush;
-
-                if (input.mode == WaveMode::GENERATE)
-                {
-                    const auto field = WaveField::GenerateFromFile(qoePath, progress);
-                    const auto &result = field.GetResult();
-                    std::cout << L_CLI_WaveLGenerated << "\n";
-                    std::cout << L_CLI_WaveL_Hs << result.significantHeight << " m\n";
-                    std::cout << L_CLI_WaveL_Tp << result.peakPeriod << " s\n";
-                    std::cout << L_CLI_WaveL_Fp << result.peakFrequency << " Hz\n";
-                    std::cout << L_CLI_WaveL_Depth << field.GetDepth() << " m\n";
-                    std::cout << L_CLI_WaveL_Components << result.numComponents << "\n";
-                    if (!result.cacheFilePath.empty())
-                        std::cout << "  Cache: " << result.cacheFilePath << "\n";
-                    if (!result.metadataFilePath.empty())
-                        std::cout << "  Metadata: " << result.metadataFilePath << "\n";
-                    if (!result.componentsFilePath.empty())
-                        std::cout << L_CLI_WaveL_CompPath << result.componentsFilePath << "\n";
-                    if (!result.timeSeriesFilePath.empty())
-                        std::cout << L_CLI_WaveL_TimePath << result.timeSeriesFilePath << "\n";
-                    if (!result.kinematicsDirectory.empty())
-                        std::cout << L_CLI_WaveL_KinPath << result.kinematicsDirectory << "\n";
-                    if (!result.summaryFilePath.empty())
-                        std::cout << L_CLI_Summary << result.summaryFilePath << "\n";
-                    for (const auto &warning : result.warnings)
-                        std::cout << L_CLI_Warning << warning << "\n";
-                    return 0;
-                }
-
-                if (input.mode == WaveMode::IMPORT)
-                {
-                    const auto field = WaveField::ImportFromFile(qoePath, progress);
-                    const auto &result = field.GetResult();
-                    std::cout << L_CLI_WaveLImported << "\n";
-                    std::cout << L_CLI_WaveL_Hs << result.significantHeight << " m\n";
-                    std::cout << L_CLI_WaveL_Tp << result.peakPeriod << " s\n";
-                    std::cout << L_CLI_WaveL_Fp << result.peakFrequency << " Hz\n";
-                    std::cout << L_CLI_WaveL_Depth << field.GetDepth() << " m\n";
-                    std::cout << L_CLI_WaveL_Components << result.numComponents << "\n";
-                    if (!result.cacheFilePath.empty())
-                        std::cout << "  Cache: " << result.cacheFilePath << "\n";
-                    if (!result.metadataFilePath.empty())
-                        std::cout << "  Metadata: " << result.metadataFilePath << "\n";
-                    if (!result.componentsFilePath.empty())
-                        std::cout << L_CLI_WaveL_CompPath << result.componentsFilePath << "\n";
-                    if (!result.summaryFilePath.empty())
-                        std::cout << L_CLI_Summary << result.summaryFilePath << "\n";
-                    for (const auto &warning : result.warnings)
-                        std::cout << L_CLI_Warning << warning << "\n";
-                    return 0;
-                }
-
-                std::cerr << L_CLI_WaveL_Unsupported << "\n";
-                return 2;
-            }
-            catch (const std::exception &ex)
-            {
-                std::cerr << L_CLI_WaveLFailed << ex.what() << "\n";
-                return 1;
-            }
-        }
+        }     
     }
 
     return 0;
