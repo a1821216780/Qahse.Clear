@@ -1,0 +1,202 @@
+
+200		WATERDEPTH  //design depth
+
+1025		WATERDENSITY // design density, used for flooded member mass calcs
+
+true 		ISFLOATING //if the structure is fixed the joint coordinates are assigned in a coordinate system with O(0,0,0) at the mudline, for floaters O(0,0,0) is at the MSL and marks the floaters's NP
+
+100 		ADVANCEDBUOYANCY //using an advanced discretization technique (N must be a square int number) to calculate buoyancy of partially submerged members, especially usefull if "lying" cylinders are used to generate the draft
+
+0		WAVEKINEVAL_MOR // Morison element wake kinematics: 0 - local evaluation, 1 - eval at fixed ref pos, 2 - eval at lagged position (default 0)
+1		WAVEKINEVAL_POT // Potential flow wave kinematics: 0 - local evaluation, 1 - eval at fixed ref pos, 2 - eval at lagged position (default 1)
+30		WAVEKINTAU // time constant for the lagged waveKin position evaluation
+
+// potential flow model options, specify RADiation and EXCitation files separately (only RAD if BEMuse), don't forget the file endings, as this identifies the format!
+
+true		STATICBUOYANCY // static buoyancy, based on the MSL should be used when using Morison member buoyancy combined with potential flow diffraction forces
+
+IEA-15-240-RWT-UMaineSemi.1	POT_RAD_FILE
+true 				USE_RADIATION
+true				USE_RAD_ADDMASS
+0.05				DELTA_FREQ_RAD
+60.0				TRUNC_TIME_RAD
+		
+IEA-15-240-RWT-UMaineSemi.3	POT_EXC_FILE
+true				USE_EXCITATION
+0.05				DELTA_FREQ_EXC
+2.0 				DELTA_DIR_EXC
+60.0				TRUNC_TIME_EXC
+		
+IEA-15-240-RWT-UMaineSemi.12d	POT_DIFF_FILE
+2				DIFF_EVAL_TYPE  (0-none,1-explicit,2-newman,3-meandrift)
+		
+IEA-15-240-RWT-UMaineSemi.12s	POT_SUM_FILE
+false				USE_SUM_FREQS
+
+JOINTOFFSET // these global offsets are only applied to joints (not the TP or cog position)	
+XPOS	YPOS	ZPOS
+0	0	0
+
+MARINEGROWTH
+ID	Thickn	Density		
+1	0.1	1100		
+
+//all following positions are defined in (x,y,z) [m]: for floaters: from the neutral point, which is located at MSL (0,0,0); for bottom fixed substructures: defined from seabed
+
+TP_INTERFACE_POS //the interface position between substructure and tower or RNA 
+X[m]		Y[m]		Z[m]
+0 		0 		15
+
+REF_COG_POS  //cog reference position, at which the mass matrix is evaluated
+X[m]		Y[m]		Z[m]
+0		0		-14.4
+
+REF_HYDRO_POS //reference point for the evaluation of linearized hydrodynamic stiffness, damping, quaddamping, addedmass matrices and the constant force vector
+X[m]		Y[m]		Z[m]
+0		0		0
+
+SUB_MASS //the floater mass matrix is defined at the REF_COG_POS
+1.7839E+07	0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00
+0.0000E+00	1.7839E+07	0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00
+0.0000E+00	0.0000E+00	1.7839E+07	0.0000E+00	0.0000E+00	0.0000E+00
+0.0000E+00	0.0000E+00	0.0000E+00	1.2510E+10	0.0000E+00	0.0000E+00
+0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00	1.2510E+10	0.0000E+00
+0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00	2.3670E+10
+
+SUB_HYDROQUADDAMPING
+9.2300E+05	0.0000E+00	0.0000E+00	0.0000E+00	-8.9200E+06	0.0000E+00
+0.0000E+00	9.2300E+05	0.0000E+00	8.9200E+06	0.0000E+00	0.0000E+00
+0.0000E+00	0.0000E+00	2.3000E+06	0.0000E+00	0.0000E+00	0.0000E+00
+0.0000E+00	8.9200E+06	0.0000E+00	1.6800E+10	0.0000E+00	0.0000E+00
+-8.9200E+06	0.0000E+00	0.0000E+00	0.0000E+00	1.6800E+10	0.0000E+00
+0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00	4.8000E+10
+
+SUB_HYDROSTIFFNESS
+0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00
+0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00
+0.0000E+00	0.0000E+00	4.4305E+06	0.0000E+00	-4.0123E+03	0.0000E+00
+0.0000E+00	0.0000E+00	0.0000E+00	2.1824E+09	0.0000E+00	-9.0830E+04
+0.0000E+00	0.0000E+00	-4.0123E+03	0.0000E+00	2.1822E+09	0.0000E+00
+0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00	0.0000E+00
+
+20206.34889	SUB_DISPLACEDVOLUME
+
+1.0093		BUOYANCYTUNER
+1.00		STIFFTUNER
+1.00		MASSTUNER
+
+SUBJOINTS //defined either from MSL (if isFLoating) or from seabed using the designDepth variable (if !isFLoating)	
+JointID	JointX		JointY	JointZ
+1	0.000	0.000	15.000
+2	0.000	0.000	0.000
+3	0.000	0.000	-20.000
+4	-51.750	0.000	15.000
+5	-51.750	0.000	0.000
+6	-51.750	0.000	-20.000
+7	0.000	0.000	14.545
+8	-45.500	0.000	14.545
+9	0.000	0.000	-16.500
+10	-51.750	0.000	-16.500
+11	25.875	-44.817	15.000
+12	25.875	-44.817	0.000
+13	25.875	-44.817	-20.000
+14	0.000	0.000	14.545
+15	22.750	-39.404	14.545
+16	0.000	0.000	-16.500
+17	25.875	-44.817	-16.500
+18	25.875	44.817	15.000
+19	25.875	44.817	0.000
+20	25.875	44.817	-20.000
+21	0.000	0.000	14.545
+22	22.750	39.404	14.545
+23	0.000	0.000	-16.500
+24	25.875	44.817	-16.500
+
+SUBELEMENTSRIGID
+ElemID 	BMASSD	DIAMETER
+1	0	12.5
+2	0	10
+3	0 	0.91
+
+SUBELEMENTSRIGID_RECT
+ElemID 	BMASSD	XDIM	YDIM	DIAMETER
+4	0	7	12.5	12.5
+
+
+HYDROMEMBERCOEFF //hydrodynamic coefficients to be assigned to rigid or elastic cylindrical members, defined for the normal-to-axis direction of the cylinders
+CoeffID	CdN	CaN	CpN	MCFC
+1	1.11 	0.82	1.0	0	// Mooring_Lines
+
+SUBCONSTRAINTS //in this version of the OC4 the member nodes are connected directly through the constraints
+ID	JntID	Jnt2ID	TrP	Fixed	Spring	DoF_X	DoF_Y	DoF_Z	DoF_rX	DoF_rY	DoF_rZ
+1	1	0	1	0	0	1	1	1	1	1	1
+2	2	0	1	0	0	1	1	1	1	1	1
+3	3	0	1	0	0	1	1	1	1	1	1
+4	4	0	1	0	0	1	1	1	1	1	1
+5	5	0	1	0	0	1	1	1	1	1	1
+6	6	0	1	0	0	1	1	1	1	1	1
+7	7	0	1	0	0	1	1	1	1	1	1
+8	8	0	1	0	0	1	1	1	1	1	1
+9	9	0	1	0	0	1	1	1	1	1	1
+10	10	0	1	0	0	1	1	1	1	1	1
+11	11	0	1	0	0	1	1	1	1	1	1
+12	12	0	1	0	0	1	1	1	1	1	1
+13	13	0	1	0	0	1	1	1	1	1	1
+14	14	0	1	0	0	1	1	1	1	1	1
+15	15	0	1	0	0	1	1	1	1	1	1
+16	16	0	1	0	0	1	1	1	1	1	1
+17	17	0	1	0	0	1	1	1	1	1	1
+18	18	0	1	0	0	1	1	1	1	1	1
+19	19	0	1	0	0	1	1	1	1	1	1
+20	20	0	1	0	0	1	1	1	1	1	1
+21	21	0	1	0	0	1	1	1	1	1	1
+22	22	0	1	0	0	1	1	1	1	1	1
+23	23	0	1	0	0	1	1	1	1	1	1
+24	24	0	1	0	0	1	1	1	1	1	1
+
+SUBMEMBERS
+MemID	Jnt1ID	Jnt2ID	ElmID	ElmRot	HyCoID	IsBuoy 	MaGrID	FldArea	ElmDsc	Name (optional)
+1	1	2	2	0	0	0	0	0	100	Mid_Col_Top	255	200	15
+2	2	3	2	0	0	0	0	0	100	Mid_Col_Sub	250	10	10
+3	4	5	1	0	0	0	0	0	100	Col_1_Top	255	200	15
+4	5	6	1	0	0	0	0	0	100	Col_1_Bot	250	10	10
+5	7	8	3	0	0	0	0	0	100	Cross_1_Top	255	200	15
+6	9	10	4	0	0	0	0	0	100	Cross_1_Bot	250	10	10
+7	11	12	1	0	0	0	0	0	100	Col_2_Top	255	200	15
+8	12	13	1	0	0	0	0	0	100	Col_2_Bot	250	10	10
+9	14	15	3	0	0	0	0	0	100	Cross_2_Top	255	200	15
+10	16	17	4	0	0	0	0	0	100	Cross_2_Bot	250	10	10
+11	18	19	1	0	0	0	0	0	100	Col_2_Top	255	200	15
+12	19	20	1	0	0	0	0	0	100	Col_2_Bot	250	10	10
+13	21	22	3	0	0	0	0	0	100	Cross_2_Top	255	200	15
+14	23	24	4	0	0	0	0	0	100	Cross_2_Bot	250	10	10
+
+
+MOORELEMENTS
+MooID	MASS_[kg/m]	EIy_[N.m^2]	EA_[N]		DAMP_[-]	DIA_[m]
+1	6.8500E+02	6.0000E+04	3.2700E+09	0.000		0.333
+
+MOORMEMBERS
+ID	CONN_1				CONN_2			Len.[m]	MoorID 	HyCoID	IsBuoy	MaGrID	ElmDsc	Name
+1	FLT_-58_0.0_-14.0		GRD_-837.6_0		850	1	1	1	0	30	Mooring1
+2	FLT_29_-50.23_-14.0		GRD_418.8_-725.4	850	1	1	1	0	30	Mooring2
+3	FLT_29_50.23_-14.0		GRD_418.8_725.4		850	1	1	1	0	30	Mooring3
+
+TRANSITIONBLOCK // just for visualization
+WIDTH	LENGTH	HEIGHT
+0	0	0
+
+TRANSITIONCYLINDER // just for visualization
+HEIGHT	DIAMETER	
+0.5	6.5
+
+RGBCOLOR
+R	G	B
+255	200	15
+
+MOO_1_0.0
+MOO_1_1.0
+MOO_2_0.0
+MOO_2_1.0
+MOO_3_0.0
+MOO_3_1.0

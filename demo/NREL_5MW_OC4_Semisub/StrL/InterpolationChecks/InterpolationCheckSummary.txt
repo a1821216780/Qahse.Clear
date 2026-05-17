@@ -1,0 +1,38 @@
+﻿Qahse blade aero-structure interpolation check
+Method: original structure rows are plotted at physical radius r = BladeRootRad + SpanFrac*(TipRad-BladeRootRad).
+New rows use aerodynamic RadialPos_[m]. Structural columns are checked against clamped linear interpolation from original SpanFrac.
+
+NREL_5MW_OC4_Semisub_Blade
+  original: NREL_5MW_OC4_Semisub_Blade.str
+  new:      NREL_5MW_OC4_Semisub_Blade_new.str
+  BladeRootRad=1.50000 m, TipRad=63.00000 m, BladeLength=61.50000 m
+  original SpanFrac range: 0.00000000 to 1.00000000; original rows=49; new aero rows=19
+  max_abs_error=4.034640E+03; max_rel_error=4.328354E-07; worst_column=EIy
+
+IEA_22_280_RWT_Blade_FPM
+  original: IEA_22_280_RWT_Blade_FPM.str
+  new:      IEA_22_280_RWT_Blade_FPM_new.str
+  BladeRootRad=4.20000 m, TipRad=142.00000 m, BladeLength=137.80000 m
+  original SpanFrac range: 0.00000000 to 1.00000000; original rows=102; new aero rows=102
+  max_abs_error=4.577637E-05; max_rel_error=2.035090E-13; worst_column=K55
+
+IEA15MW_Blade
+  original: IEA15MW_Blade.str
+  new:      IEA15MW_Blade_new.str
+  BladeRootRad=3.97000 m, TipRad=120.96993 m, BladeLength=116.99993 m
+  original SpanFrac range: 0.00000000 to 1.00000000; original rows=26; new aero rows=50
+  max_abs_error=4.153849E+04; max_rel_error=4.696569E-07; worst_column=EIx
+
+NREL_5MW_OC4_Jacket_Blade
+  original: NREL_5MW_OC4_Jacket_Blade.str
+  new:      NREL_5MW_OC4_Jacket_Blade_new.str
+  BladeRootRad=1.50000 m, TipRad=63.00000 m, BladeLength=61.50000 m
+  original SpanFrac range: 0.00000000 to 1.00000000; original rows=49; new aero rows=19
+  max_abs_error=4.034640E+03; max_rel_error=4.328354E-07; worst_column=EIy
+
+NREL_5MW_OC3_Spar_Blade
+  original: NREL_5MW_OC3_Spar_Blade.str
+  new:      NREL_5MW_OC3_Spar_Blade_new.str
+  BladeRootRad=1.50000 m, TipRad=63.00000 m, BladeLength=61.50000 m
+  original SpanFrac range: 0.00000000 to 1.00000000; original rows=49; new aero rows=19
+  max_abs_error=4.034640E+03; max_rel_error=4.328354E-07; worst_column=EIy

@@ -1,0 +1,125 @@
+------- OpenWECD.HydroL  主文件   v1.0.* This software design and writen By 赵子祯 ------------------------------------------------
+NREL 5.MW OC4 DeepCWind semi-submersible HydroL input, redesigned from 5MW_Spar and QBlade files.
+
+================================  计算选项  ==============================================
+3                 HydroMod               - 水动力模型类型 {0=still water; 1=Morison; 2=potential flow; 3=Morison + potential flow;}
+1                 MooringMod             - 系泊模型类型 {0=none; 1=QBlade lumped mooring; 2=OpenMoor; 3=MoorDyn/MoorL;}
+true              IsFloating             - 是否为漂浮式基础 [bool]
+
+======  水环境参数  ======================================================
+1025              WaterDens              - 海水密度 [kg/m^3]
+200               WaterDepth             - 水深 [m]
+0                 Msl2Swl                - 静水面相对平均海平面的偏移，向上为正 [m]
+9.80665           Gravity                - 重力加速度 [m/s^2]
+
+======  波浪运动学设置  ======================================================
+0                 MorisonWaveKinEval     - Morison 构件波浪运动学评估方式 {0=local position; 1=fixed reference position; 2=lagged position;}
+1                 PotentialWaveKinEval   - 势流载荷波浪运动学评估方式 {0=local position; 1=fixed reference position; 2=lagged position;}
+30                WaveKinLagTau          - 滞后位置波浪运动学评估的时间常数 [s]
+100               AdvancedBuoyancy       - 部分浸没构件浮力积分离散数；应取平方数，适合横向/倾斜圆柱浮力计算 [-]
+true              StaticBuoyancy         - 使用基于静水面的静浮力；用于 Morison 浮力和势流绕射力组合 [bool]
+
+======  入射波生成参数  ===================================== [used when external wave kinematics are generated]
+2                 WaveMod                - 入射波模型 {0=still water; 1=regular; 2=JONSWAP; 3=Pierson-Moskowitz;}
+660               WaveTMax               - 入射波时域序列长度 [s]
+0.01              WaveDT                 - 入射波时间步长 [s]
+15                WaveHs                 - 有义波高 [m]
+10                WaveTp                 - 峰值谱周期 [s]
+3.3               WavePeakShape          - JONSWAP 峰形因子；设为0时由程序自动给定 [used only when WaveMod=2]
+0.00001           WaveLowCutOff          - 波谱低截止圆频率 [rad/s]
+5                 WaveHighCutOff         - 波谱高截止圆频率 [rad/s]
+480               WaveFreqCount          - 波谱离散频率数量 [-]
+0                 WaveDir                - 入射波传播方向 [deg]
+11111             WaveSeed               - 随机相位种子 [-2147483648 to 2147483647]
+true              WaveNormalAmp          - 是否使用正态分布波幅 [used only when WaveMod=2 or 3]
+"DEFAULT"         WaveKinematicsFile     - 外部波浪运动学文件；DEFAULT 表示由上方参数生成
+
+======  势流文件与频域载荷  ======================================================
+2                 PotentialMod           - 势流模型类型 {0=none; 1=time-domain wave force; 2=WAMIT/QBlade potential-flow files;}
+"./radiation.1"   RadiationFile          - 辐射问题水动力系数文件，包含频率相关附加质量和辐射阻尼
+true              UseRadiation           - 是否启用辐射记忆效应 [bool]
+0.05              RadiationFreqStep      - 辐射核频率步长 [rad/s]
+60.0              RadiationTruncTime     - 辐射卷积核截断时间 [s]
+"./excitation.3"  ExcitationFile         - 一阶波浪激励力文件
+true              UseExcitation          - 是否启用一阶波浪激励力 [bool]
+0.05              ExcitationFreqStep     - 激励力频率步长 [rad/s]
+2.00              ExcitationDirStep      - 激励力方向步长 [deg]
+60.0              ExcitationTruncTime    - 激励力时域核截断时间 [s]
+"./difference.12d" DifferenceFile        - 二阶差频载荷文件
+2                 DifferenceEvalType     - 差频载荷评估方式 {0=none; 1=explicit; 2=Newman approximation; 3=mean drift;}
+"./sum.12s"       SumFrequencyFile       - 二阶和频载荷文件
+false             UseSumFrequencies      - 是否启用和频载荷 [bool]
+
+======  浮体参考点与质量矩阵  ======================================================
+0,0,0             JointOffset            - 仅作用于浮体节点坐标的整体偏移 [m]
+0,0,10            TpInterfacePos         - 塔架/RNA 与浮体的接口位置 [m]
+0,0,-13.46        CogRefPos              - 浮体质量矩阵参考点，即浮体质心参考位置 [m]
+0,0,0             HydroRefPos            - 线性水动力刚度、阻尼、附加质量和常值力的参考点 [m]
+SUB_MASS          SubMassMatrix          - 浮体质量矩阵，完整矩阵保存在 QBladeHydroSubFile 中
+SUB_HYDROADDEDMASS HydroAddedMassMatrix  - 水动力附加质量矩阵，完整矩阵保存在 QBladeHydroSubFile 中
+1.00              StiffTuner             - 结构/水动力刚度调谐系数 [-]
+1.00              MassTuner              - 质量调谐系数 [-]
+1.00              BuoyancyTuner          - 浮力调谐系数 [-]
+
+======  浮体几何和水动力系数表  ======================================================
+"./OC4_DeepCWindSemi_Sub_LPMD.str"    QBladeHydroSubFile - QBlade 浮体/水动力/系泊综合源文件
+1                 MarineGrowthCount      - 海生物附着定义数量，完整表见 QBladeHydroSubFile
+50                SubJointCount          - 浮体节点数量，完整 SUBJOINTS 表见 QBladeHydroSubFile
+4                 RigidElementTypeCount  - 刚性浮体构件截面类型数量，完整 SUBELEMENTSRIGID 表见 QBladeHydroSubFile
+7                 HydroJointCoeffCount   - 轴向水动力系数数量，完整 HYDROJOINTCOEFF 表见 QBladeHydroSubFile
+5                 HydroMemberCoeffCount  - 法向 Morison 水动力系数数量，完整 HYDROMEMBERCOEFF 表见 QBladeHydroSubFile
+19                SubConstraintCount     - 浮体约束数量，完整 SUBCONSTRAINTS 表见 QBladeHydroSubFile
+31                SubMemberCount         - 浮体构件数量，完整 SUBMEMBERS 表见 QBladeHydroSubFile
+
+======  系泊系统  ====================================================== [used when MooringMod!=0]
+0.001             MooringDT              - 系泊模块调用时间步长 [s]
+1                 MoorElementTypeCount   - 系泊单元类型数量，完整 MOORELEMENTS 表见 QBladeHydroSubFile
+3                 MoorLineCount          - 系泊缆数量，完整 MOORMEMBERS 表见 QBladeHydroSubFile
+6                 MoorOutputPointCount   - 系泊输出点数量，完整 MOO_* 输出点见 QBladeHydroSubFile
+"./OC4_DeepCWindSemi_Sub_LPMD.str"    MooringSource - 系泊线定义源文件，MOORELEMENTS 与 MOORMEMBERS 表见该文件
+
+======  Outputs  ====================================================================================
+true              SumPrint               - 是否生成 HydroL 输出文件 "<rootname>.HL.out" [bool]
+"./Result1/"      SumPath                - 输出文件夹路径
+4                 NumPlatformOutNodes    - 平台输出节点数量 [0 - PlatformOutNode - 1]
+0,1,2,3           PlatformOutNodes       - 输出的平台节点编号，从0开始
+                  OutList                - 以下为输出通道列表
+HydroFxi
+HydroFyi
+HydroFzi
+HydroMxi
+HydroMyi
+HydroMzi
+PRPSurge
+PRPSway
+PRPHeave
+PRPRoll
+PRPPitch
+PRPYaw
+PRPTVxi
+PRPTVyi
+PRPTVzi
+PRPRVxi
+PRPRVyi
+PRPRVzi
+PRPTAxi
+PRPTAyi
+PRPTAzi
+PRPRAxi
+PRPRAyi
+PRPRAzi
+SpnSpaFxi
+SpnSpaFyi
+SpnSpaFzi
+SpnSpaMxi
+SpnSpaMyi
+SpnSpaMzi
+MoorFxi
+MoorFyi
+MoorFzi
+MoorMxi
+MoorMyi
+MoorMzi
+
+END 不允许删除！
+---------------------------------------------------------------------------------------

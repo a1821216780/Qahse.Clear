@@ -1,0 +1,20 @@
+----------------------------------------QBlade Multi RE Polar File--------------------------------------------------
+Generated with : QBlade CE v2.0.9.7b_beta windows
+Archive Format: 310043
+Time : 16:40:51
+Date : 15.05.2026
+
+----------------------------------------Object Names----------------------------------------------------------------
+Cylinder1.dat                                                          POLARNAME          - the polar name
+../Airfoils/Cylinder1_coords.afl                                       FOILNAME           - the airfoil name to which the polar(s) belong OR path to airfoil file
+
+----------------------------------------Parameters------------------------------------------------------------------
+100.0                                              THICKNESS          - the thickness of the airfoil in % of chord
+false                                              ISDECOMPOSED       - is the polar decomposed (imports Cl_Sep, Cl_att and f_st columns) [bool]
+REYNOLDS            7.5000E-01          - the list of Reynolds numbers for the imported polars
+
+----------------------------------------Polar Data------------------------------------------------------------------
+AOA                 CL                  CD                  CM                  
+-180.000000         0.000000            0.500000            0.000000            
+0.000000            0.000000            0.500000            0.000000            
+180.000000          0.000000            0.500000            0.000000            

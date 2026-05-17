@@ -1,0 +1,157 @@
+------- OpenWECD.Qahse(HawtC3) StrL   主文件   By 赵子祯 ------------------------------------------------
+NREL_5MW_OC4_Semisub 模型
+
+============    多机头风轮定义 ============    
+1                     TowerNum    - 塔架数量(支持1或者2,2以上没有经过测试)
+90                   TowerYdeg   - 塔架之间的夹角（deg）
+
+======  风轮模型参数  ======================================================
+3                     NumBld    - 每一个塔架上面的叶片数量(请保证3以上，且两个塔架上的叶片完全一致)(-)+
+1.5                  HubRad         -  轮毂半径(m)
+2.5               PreCone               - 风轮预锥角 [deg] [HAWT only]
+5                 ShaftTilt             - 主轴仰角 [deg] [HAWT only]
+5.0191            OverHang              - 轮毂中心相对塔顶的下风向水平偏距 [m] [HAWT only]
+1.96256           Twr2Shft          - 塔顶到主轴中心线的垂向距离 [m] [HAWT only]
+56780             HubMass               - 轮毂质量 [kg]
+115926            HubIner               - 轮毂绕转子轴的转动惯量 [kg*m^2]
+
+====== 初始化模型参数 ====== 
+ 9.81                   Gravity     -重力加速度 (m/s^2)
+0                       Azimuth     - 叶片1初始方位角，叶片3在叶片2前，叶片2在叶片1前（deg)
+0.0                    AzimB1Up    -所有输入和输出方位角都是针对于这个值测量的(deg)
+12.1                  RotSpeed    - 初始风轮转速(RPM)
+0.0                    NacYaw      - 初始或安装机舱偏航角，俯视风机时，逆时针为正（deg)
+
+======  机舱、轮毂质量和惯量  ======================================================
+11                     NACCAX    - 机舱长度（m）
+6                     NACCAY    - 机舱宽度（m） 
+6                     NACCAZ    - 机舱高度（m）
+0.6                       NACCDX    - 机舱下风阻力系数(用于计算机舱的气动力)(-)
+0.6                       NACCDY    - 机舱横向阻力系数(用于计算机舱的气动力)(-)
+0.6                       NACCDZ     - 机舱垂直阻力系数(用于计算机舱的气动力)(-)
+0.0               YawBrMass             - 偏航轴承质量 [kg] [HAWT only]
+240000            NacMass               - 机舱质量 [kg] [HAWT only]
+1.9               NacCmX                - 机舱质心相对塔顶的下风向距离 [m] [HAWT only]
+0.0               NacCmY                - 机舱质心相对塔顶的横向距离 [m] [HAWT only]
+1.75              NacCmZ                - 机舱质心相对塔顶的垂向距离 [m] [HAWT only]
+2607890           NacYawIner            - 机舱绕偏航轴的转动惯量 [kg*m^2] [HAWT only]
+
+
+======  传动链模型  ======================================================
+97                GearboxRatio          - 齿轮箱传动比 [-]
+1.0               GearboxEff            - 齿轮箱效率 [0-1]
+true              DrivetrainDof         - 是否启用传动链扭转动力学自由度 [bool]
+534.116           GenIner               - 发电机高速轴侧转动惯量 [kg*m^2]
+867637000         DTTorSpr - 传动链等效扭转刚度 [N*m/rad]
+6215000            DTTorDmp - 传动链等效扭转阻尼 [N*m*s/rad]
+
+======  叶片结构文件  ======================================================
+3                 BladeNum              - 叶片数量 [-]
+"NREL5MW_Blade.str"    BladeFile1       - 叶片1结构属性文件
+"NREL5MW_Blade.str"    BladeFile2       - 叶片2结构属性文件
+"NREL5MW_Blade.str"    BladeFile3       - 叶片3结构属性文件
+
+======  塔架和浮体结构文件  ======================================================
+77.6              TowerHeight           - 塔架结构高度 [m]
+"OC4_DeepCWindSemi_Tower.str"    TowerFile - 塔架结构属性文件
+"../HydroL/OC4_DeepCWindSemi_Sub_LPMD.str"    SubFile - 浮体/水动力/系泊结构文件
+
+---------------------- OUTPUT --------------------------------------------------
+true                                        SumPrint  - 是否生成Str输出文件 "<rootname>.EL.out"?  (flag)
+true                                        AfSpanput - 输出模式选择是节点·还是变量。如果是节点将生成下面节点数量的文件，否则生成输出变量个数的文件。当前先支持输出节点。
+0,2                                         BldOutSig - 输出的叶片编号，默认只有0
+0                                            TwrOutSig - 输出的塔架编号，默认只有0
+"./Result1/"                            SumPath   - 生成的文件夹名称，注意是文件夹！
+18                                            NBlOuts   - Number of blade node outputs [0 - BlOutNd-1] (-)
+0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18               BlOutNd   - Blade nodes whose values will be output  (-)（从0开确实算）
+10                                               NTwOuts   - Number of tower node outputs [0 - BlOutNd-1]  (-)
+0,1,2,3,4,5,,7,8,9,10              TwOutNd   - Tower nodes whose values will be output  (-)（从0开确实算）
+              OutList     - The next line(s) contains a list of output parameters.  See OutListParameters.xlsx for a listing of available output channels, (-)
+!以下变量是输出的自由度
+                                  "QD2_B1E1 ","QD2_B1F1 ","QD2_B1F2 ","QD2_B2E1 ","QD2_B2F1 ","QD2_B2F2 ","QD2_B3E1 ","QD2_B3F1 ", 
+                                  "QD2_B3F2 ","QD2_DRTR ","QD2_GEAZ ","QD2_HV   ","QD2_P    ","QD2_R    ","QD2_RFRL ","QD2_SG   ", 
+                                  "QD2_SW   ","QD2_TFA1 ","QD2_TFA2 ","QD2_TFRL ","QD2_TSS1 ","QD2_TSS2 ","QD2_Y    ", 
+                                  "QD2_YAW  ","QD_B1E1  ","QD_B1F1  ","QD_B1F2  ","QD_B2E1  ","QD_B2F1  ","QD_B2F2  ","QD_B3E1  ", 
+                                  "QD_B3F1  ","QD_B3F2  ","QD_DRTR  ","QD_GEAZ  ","QD_HV    ","QD_P     ","QD_R     ","QD_RFRL  ", 
+                                  "QD_SG    ","QD_SW    ","QD_TFA1  ","QD_TFA2  ","QD_TFRL  ","QD_TSS1  ","QD_TSS2  ", 
+                                  "QD_Y     ","QD_YAW   ","Q_B1E1   ","Q_B1F1   ","Q_B1F2   ","Q_B2E1   ","Q_B2F1   ","Q_B2F2   ", 
+                                  "Q_B3E1   ","Q_B3F1   ","Q_B3F2   ","Q_DRTR   ","Q_GEAZ   ","Q_HV     ","Q_P      ","Q_R      ", 
+                                  "Q_RFRL   ","Q_SG     ","Q_SW     ","Q_TFA1   ","Q_TFA2   ","Q_TFRL   ","Q_TSS1   ", 
+                                  "Q_TSS2   ","Q_Y      ","Q_YAW    ","Q_TTMD","QD_TTMD","QD2_TTMD"
+!以下变量是输出的位移
+                                   "OoPDefl","IPDefl","TipDzb","TipDxb","TipDyb","Tip2Twr"
+                                   "SpnTDxb","SpnTDyb","SpnTDzb","SpnRDxb","SpnRDyb","SpnRDzb","BlPitch","Azimuth",
+                                   "RotSpeed","RotAccel","GenSpeed","GenAccel","NcIMUTVxs","NcIMUTVys","NcIMUTVzs","NacYaw"
+                                   "YawRate","YawAccel","TTDspFA","TTDspSS","TTDspAx","TwHtALxt","TwHtALyt","TwHtALzt","TwHtTDxt"
+                                   "TwHtTDyt","TwHtTDzt","PtfmTDxt","PtfmTDyt","PtfmTDzt","PtfmSurge","PtfmSway","PtfmHeave",
+                                   "PtfmRoll","PtfmPitch","PtfmYaw",
+!以下变量是输出的力
+"RootFxc",
+"RootFyc",
+"RootFzc",
+"RootFxb",
+"RootFyb",
+"RootMxc",
+"RootMyc",
+"RootMzc",
+"RootMxb",
+"RootMyb",
+"SpnMLxb",
+"SpnMLyb",
+"SpnMLzb",
+"SpnFLxb",
+"SpnFLyb",
+"SpnFLzb",
+"RotThrust",
+"LSShftFya",
+"LSShftFza",
+"LSShftFys",
+"LSShftFzs",
+"LSShftTq",
+"RotPwr",
+"LSSGagMya",
+"LSSGagMza",
+"LSSGagMys",
+"LSSGagMzs",
+"HSShftTq",
+"HSSBrTq",
+"HSShftPwr",
+"HSSGenPwr",
+"YawBrFxn",
+"YawBrFyn",
+"YawBrFzn",
+"YawBrFxp",
+"YawBrFyp",
+"YawBrMxn",
+"YawBrMyn",
+"YawBrMzn",
+"YawBrMxp",
+"YawBrMyp",
+"TwrBsFxt",
+"TwrBsFyt",
+"TwrBsFzt",
+"TwrBsMxt
+"TwrBsMyt",
+"TwrBsMzt",
+"TwHtMLxt",
+"TwHtMLyt",
+"TwHtMLzt",
+"TwHtFLxt",
+"TwHtFLyt",
+"TwHtFLzt",
+"PtfmFxt",
+"PtfmFyt",
+"PtfmFzt",
+"PtfmFxi",
+"PtfmFyi",
+"PtfmFzi",
+"PtfmMxt",
+"PtfmMyt",
+"PtfmMzt",
+"PtfmMxi",
+"PtfmMyi",
+"PtfmMzi"
+
+
+END 不允许删除！
+---------------------------------------------------------------------------------------
