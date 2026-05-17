@@ -1,0 +1,48 @@
+------- OpenWECD.Qahse(HawtC3) WindL  主文件   By 赵子祯 ------------------------------------------------
+NREL_5MW_OC4_Semisub 模型
+
+==================  外部风文件类型 ================== 
+3      WindType       - 风文件类型和功能选择 (1=steady; 2=user define; 3=binary TurbSim FF(.wnd); 4=binary Bladed(.wnd);5=TurbSim bts(.bts))
+true   CreadW        -  是否循环读取风文件，如果仿真时间大于风文件的时长，将会从头读取风文件        
+
+================== 风参数 [used only for WindType = 1 and 2,4] =========================
+11.4  HWindSpeed     - Horizontal windspeed                            (m/s)(Bladed模式下可能需要)
+87   RefHt          - Reference height for horizontal wind speed(equal Zhub)      (m)[if WindType=4,will using]
+0.0   PLexp          - Power law exponent                              (-)
+
+================== 自定义风参数 [used only for WindType = 1 and 2] =========================
+-120   gridY_min  - 网格横向的最小值
+120   gridY_max  - 网格横向的最大值
+5    gridY_step - 网格横向的步长
+0   gridZ_min  - 网格纵向的最小值
+180  gridZ_max  - 网格纵向的最大
+5    gridZ_step - 网格纵向的步长
+5            WindSpeedNum  - Wind Speed Num(fomart is "t windspeed")[used only for WindType = 2]
+0 10                         - WindSpeedList
+30 10
+100 15
+600 50
+1200 200
+
+================== Parameters for binary TurbSim FF Conditions [used only for WindType = 3] =========================
+"../SinmWind/result/NREL_5MW_OC4_Semisub_Demo_wind.ts.wnd"    - TurWindFilePath   - Rootname of the full-field wind file to use (.wnd, .sum)
+
+================== Parameters for Binary Bladed-style Full-Field files   [used only for WindType = 4] =========
+"../SinmWind/result/NREL_5MW_OC4_Semisub_Demo_wind.wnd"    - BldWindFilePath   - Rootname of the full-field wind file to use (.wnd)
+
+================== Parameters for Bts WIND files   [used only for WindType = 5] =========
+"../SinmWind/result/NREL_5MW_OC4_Semisub_Demo_wind.bts"    - IECWindFilePath   - Rootname of the full-field wind file to use (.wnd)
+
+================== Generate IEC windfile   [used only for WindType = 6] =========
+"E:\data/WindL_IECWind_5MW.dat"    - IECFileRootPath   - 用来生成IEC风文件的文件路径，后缀dat
+"G:\2026\Openhast\demo\WindL\result\GenIECWind"                  - IECFileSavePath   - 用来保存IEC风文件的文件夹路径(必须为绝对路径)
+
+================== Parameters for binary SimWind bts file [used only for WindType = 8]  =========
+"G:\2026\OpenhastV7\demo\WindL\SimWind湍流风生成模块案例\5MWspar.bts"    -  SimWindFilePath   - Rootname of the full-field wind file to use (.bts)
+
+
+====================== OUTPUT ==================================================
+
+
+END of input file (the word "END" must appear in the first 3 columns of this last OutList line)
+---------------------------------------------------------------------------------------

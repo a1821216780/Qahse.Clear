@@ -84,7 +84,7 @@ POSITIVE	EventSign
 0	EcdVcog
 ""	TurWindFile
 BLADED_WND	WndFormat
-"f:\Qahse.Clear\demo\SimWind\batch_output\IEC61400-3-1_NREL5MW\DLC1p1_NTM_U4_S05"	WrWndPath
+"F:\Qahse.Clear\demo\SimWind\batch_output\IEC61400-3-1_NREL5MW\DLC1p1_NTM_U4_S05"	WrWndPath
 NREL5MW_DLC1p1_NTM_U4_S05	WrWndName
 True	SumPrint
 ""	BatchExcel

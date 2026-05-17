@@ -173,7 +173,8 @@ def sigma_targets(case: Case, cfg: CampaignConfig) -> list[float]:
         v_ave = 0.2 * (cfg.v_ref if cfg.v_ref > 0.0 else default_vref(cfg.turbine_class))
         sigma_u = c * iref * (0.072 * (v_ave / c + 3.0) * (u_hub / c - 4.0) + 10.0)
     elif case.wind_model in {"EWM1", "EWM50"}:
-        sigma_u = 0.11 * extreme_wind_speed_50(cfg)
+        v_extreme = extreme_wind_speed_1(cfg) if case.wind_model == "EWM1" else extreme_wind_speed_50(cfg)
+        sigma_u = 0.11 * v_extreme
     else:
         sigma_u = iref * (0.75 * u_hub + 5.6)
 

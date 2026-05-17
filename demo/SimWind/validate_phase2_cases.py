@@ -646,10 +646,13 @@ def validate_api_rejection(exe: Path, template_qwd: Path, output_dir: Path) -> d
     bad_qwd.write_text(text, encoding="utf-8")
     proc = run_qwd(exe, bad_qwd)
     combined = (proc.stdout or "") + "\n" + (proc.stderr or "")
-    message = "API coherence model is valid only for the u component"
+    expected_messages = (
+        "API coherence model is valid only for the u component",
+        "API 相干模型仅对 u 分量",
+    )
     return {
         "name": "api_invalid_v_component_rejected",
-        "passed": proc.returncode != 0 and message in combined,
+        "passed": proc.returncode != 0 and any(message in combined for message in expected_messages),
         "returncode": proc.returncode,
         "stdout": proc.stdout,
         "stderr": proc.stderr,

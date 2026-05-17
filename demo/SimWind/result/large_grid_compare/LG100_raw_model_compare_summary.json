@@ -1,0 +1,199 @@
+{
+  "case_set": "raw",
+  "cases": [
+    {
+      "name": "BladedVK",
+      "base": "F:\\Qahse.Clear\\demo\\SimWind\\result\\large_grid_compare\\raw\\LG100_BladedVK",
+      "header": {
+        "file_id": 7,
+        "nz": 100,
+        "ny": 100,
+        "ntwr": 0,
+        "nt": 13200,
+        "dz": 1.5151515007019043,
+        "dy": 1.5151515007019043,
+        "dt": 0.05000000074505806,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": -15.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "hub_stats": [
+        {
+          "mean": 11.991497956172706,
+          "sigma": 2.2736475874052733,
+          "ti_percent": 18.947063228377278
+        },
+        {
+          "mean": -9.504322522440651e-07,
+          "sigma": 1.7920037597009333,
+          "ti_percent": 14.933364664174443
+        },
+        {
+          "mean": -7.383694057497533e-07,
+          "sigma": 0.9226884813333953,
+          "ti_percent": 7.689070677778294
+        }
+      ],
+      "target_sigma": [
+        2.044,
+        1.6352,
+        1.022
+      ],
+      "scale_iec": 0.0,
+      "sigma_relative_error": [
+        0.11235204863271685,
+        0.09589271018892692,
+        0.09717369732544491
+      ],
+      "psd_peaks": [
+        {
+          "component": "u",
+          "peak_frequency_hz": 0.014648437281721275,
+          "peak_psd": 81.99493724703788
+        },
+        {
+          "component": "v",
+          "peak_frequency_hz": 0.00976562485448085,
+          "peak_psd": 206.27353177144178
+        },
+        {
+          "component": "w",
+          "peak_frequency_hz": 0.017089843495341487,
+          "peak_psd": 22.995581241704112
+        }
+      ]
+    },
+    {
+      "name": "BladedIVK",
+      "base": "F:\\Qahse.Clear\\demo\\SimWind\\result\\large_grid_compare\\raw\\LG100_BladedIVK",
+      "header": {
+        "file_id": 7,
+        "nz": 100,
+        "ny": 100,
+        "ntwr": 0,
+        "nt": 13200,
+        "dz": 1.5151515007019043,
+        "dy": 1.5151515007019043,
+        "dt": 0.05000000074505806,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": -15.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "hub_stats": [
+        {
+          "mean": 11.991496736768037,
+          "sigma": 1.2048866571638648,
+          "ti_percent": 10.040722143032207
+        },
+        {
+          "mean": 4.0542663114706557e-07,
+          "sigma": 0.971414036816801,
+          "ti_percent": 8.095116973473342
+        },
+        {
+          "mean": 2.694846965484334e-07,
+          "sigma": 0.664717190566068,
+          "ti_percent": 5.5393099213839
+        }
+      ],
+      "target_sigma": [
+        1.182762112,
+        0.9329157852,
+        0.671712807
+      ],
+      "scale_iec": 0.0,
+      "sigma_relative_error": [
+        0.018705828449689762,
+        0.041266588289689814,
+        0.01041459439366024
+      ],
+      "psd_peaks": [
+        {
+          "component": "u",
+          "peak_frequency_hz": 0.024414062136202123,
+          "peak_psd": 27.834166986998646
+        },
+        {
+          "component": "v",
+          "peak_frequency_hz": 0.1391601541763521,
+          "peak_psd": 11.700850280464945
+        },
+        {
+          "component": "w",
+          "peak_frequency_hz": 0.024414062136202123,
+          "peak_psd": 2.351116542726105
+        }
+      ]
+    },
+    {
+      "name": "Mann",
+      "base": "F:\\Qahse.Clear\\demo\\SimWind\\result\\large_grid_compare\\raw\\LG100_Mann",
+      "header": {
+        "file_id": 7,
+        "nz": 100,
+        "ny": 100,
+        "ntwr": 0,
+        "nt": 13200,
+        "dz": 1.5151515007019043,
+        "dy": 1.5151515007019043,
+        "dt": 0.05000000074505806,
+        "uhub": 12.0,
+        "hub_height": 90.0,
+        "zbottom": -15.0,
+        "description": "Qahse WindL SimWind"
+      },
+      "hub_stats": [
+        {
+          "mean": 11.991496443166879,
+          "sigma": 9.557303306173132,
+          "ti_percent": 79.64419421810943
+        },
+        {
+          "mean": 7.546598926362067e-07,
+          "sigma": 2.436528780847268,
+          "ti_percent": 20.304406507060566
+        },
+        {
+          "mean": 2.4230981805120873e-07,
+          "sigma": 2.3865580326337783,
+          "ti_percent": 19.887983605281487
+        }
+      ],
+      "target_sigma": [
+        2.044,
+        1.6352,
+        1.022
+      ],
+      "scale_iec": 0.0,
+      "sigma_relative_error": [
+        3.675784396366503,
+        0.490049401203075,
+        1.335183984964558
+      ],
+      "psd_peaks": [
+        {
+          "component": "u",
+          "peak_frequency_hz": 0.024414062136202123,
+          "peak_psd": 1892.8324589266294
+        },
+        {
+          "component": "v",
+          "peak_frequency_hz": 0.03173828077706276,
+          "peak_psd": 81.48235404196487
+        },
+        {
+          "component": "w",
+          "peak_frequency_hz": 0.046386718058784034,
+          "peak_psd": 115.56241168279848
+        }
+      ]
+    }
+  ],
+  "plots": [
+    "F:\\Qahse.Clear\\demo\\SimWind\\result\\large_grid_compare\\LG100_raw_hub_timeseries_overlay.png",
+    "F:\\Qahse.Clear\\demo\\SimWind\\result\\large_grid_compare\\LG100_raw_hub_psd_overlay.png",
+    "F:\\Qahse.Clear\\demo\\SimWind\\result\\large_grid_compare\\LG100_raw_hub_sigma_ti_comparison.png"
+  ]
+}

@@ -1,0 +1,37 @@
+SimWind batch generation summary
+Total cases: 29
+Succeeded: 29
+Validated: 0
+Failed: 0
+Invalid: 0
+Skipped: 0
+
+[success] NREL5MW_IEC_KAIMAL_NTM_U11p4 - 风场生成成功
+[success] NREL5MW_IEC_VKAIMAL_NTM_U11p4 - 风场生成成功
+[success] NREL5MW_B_KAL_NTM_U11p4 - 风场生成成功
+[success] NREL5MW_B_VKAL_NTM_U11p4 - 风场生成成功
+[success] NREL5MW_B_IVKAL_NTM_U11p4 - 风场生成成功
+[success] NREL5MW_B_MANN_NTM_U11p4 - 风场生成成功
+[success] NREL5MW_NTM_U8 - 风场生成成功
+[success] NREL5MW_ETM_U8 - 风场生成成功
+[success] NREL5MW_EOG_U8 - 风场生成成功
+[success] NREL5MW_NTM_U11p4 - 风场生成成功
+[success] NREL5MW_ETM_U11p4 - 风场生成成功
+[success] NREL5MW_EOG_U11p4 - 风场生成成功
+[success] NREL5MW_NTM_U16 - 风场生成成功
+[success] NREL5MW_ETM_U16 - 风场生成成功
+[success] NREL5MW_EOG_U16 - 风场生成成功
+[success] NREL5MW_NTM_U22 - 风场生成成功
+[success] NREL5MW_ETM_U22 - 风场生成成功
+[success] NREL5MW_EOG_U22 - 风场生成成功
+[success] NREL5MW_EDC_Pos_U11p4 - 风场生成成功
+[success] NREL5MW_EDC_Neg_U11p4 - 风场生成成功
+[success] NREL5MW_ECD_Pos_U11p4 - 风场生成成功
+[success] NREL5MW_ECD_Neg_U11p4 - 风场生成成功
+[success] NREL5MW_EWS_Pos_U11p4 - 风场生成成功
+[success] NREL5MW_EWS_Neg_U11p4 - 风场生成成功
+[success] NREL5MW_EWM1_Steady - 风场生成成功
+[success] NREL5MW_EWM1_Turbulent - 风场生成成功
+[success] NREL5MW_EWM50_Steady - 风场生成成功
+[success] NREL5MW_EWM50_Turbulent - 风场生成成功
+[success] NREL5MW_UNIFORM_U11p4 - 风场生成成功

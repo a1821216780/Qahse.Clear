@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import struct
 from pathlib import Path
 from typing import Any
 
@@ -23,7 +24,7 @@ except Exception as exc:  # pragma: no cover
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
-from validate_simwind_output import hub_series, parse_sum, read_bts, theoretical_psd_for_plot  # noqa: E402
+from validate_simwind_output import hub_indices, parse_sum, theoretical_psd_for_plot  # noqa: E402
 
 
 COMPONENTS = ("u", "v", "w")
@@ -49,6 +50,71 @@ CASE_COLORS = {
     "BladedIVK": "#d62728",
     "Mann": "#2ca02c",
 }
+
+
+def read_scalar(fh, fmt: str):
+    size = struct.calcsize("<" + fmt)
+    data = fh.read(size)
+    if len(data) != size:
+        raise EOFError("Unexpected end of BTS header")
+    return struct.unpack("<" + fmt, data)[0]
+
+
+def read_bts_hub(path: Path) -> dict[str, Any]:
+    """Read only the hub-point time series from a BTS file.
+
+    A 100x100x13200 field is several GiB when expanded to float64.  The
+    comparison plots only use hub-point statistics/PSD, so keep the full field
+    on disk via memmap and materialize just nt x 3 values.
+    """
+    with path.open("rb") as fh:
+        file_id = read_scalar(fh, "h")
+        nz = read_scalar(fh, "i")
+        ny = read_scalar(fh, "i")
+        ntwr = read_scalar(fh, "i")
+        nt = read_scalar(fh, "i")
+        dz = read_scalar(fh, "f")
+        dy = read_scalar(fh, "f")
+        dt = read_scalar(fh, "f")
+        uhub = read_scalar(fh, "f")
+        hub_height = read_scalar(fh, "f")
+        zbottom = read_scalar(fh, "f")
+        u_scale = read_scalar(fh, "f")
+        u_offset = read_scalar(fh, "f")
+        v_scale = read_scalar(fh, "f")
+        v_offset = read_scalar(fh, "f")
+        w_scale = read_scalar(fh, "f")
+        w_offset = read_scalar(fh, "f")
+        desc_len = read_scalar(fh, "i")
+        description = fh.read(desc_len).decode("utf-8", errors="ignore")
+        data_offset = fh.tell()
+
+    header = {
+        "file_id": int(file_id),
+        "nz": int(nz),
+        "ny": int(ny),
+        "ntwr": int(ntwr),
+        "nt": int(nt),
+        "dz": float(dz),
+        "dy": float(dy),
+        "dt": float(dt),
+        "uhub": float(uhub),
+        "hub_height": float(hub_height),
+        "zbottom": float(zbottom),
+        "description": description,
+    }
+    expected_values = int(nt) * int(nz) * int(ny) * 3
+    expected_bytes = data_offset + expected_values * np.dtype("<i2").itemsize
+    if path.stat().st_size < expected_bytes:
+        raise ValueError(f"{path} does not contain the expected BTS data size")
+
+    mid_z, mid_y = hub_indices(header)
+    raw = np.memmap(path, dtype="<i2", mode="r", offset=data_offset, shape=(int(nt), int(nz), int(ny), 3))
+    series = raw[:, mid_z, mid_y, :].astype(np.float64)
+    scales = np.asarray([u_scale, v_scale, w_scale], dtype=np.float64)
+    offsets = np.asarray([u_offset, v_offset, w_offset], dtype=np.float64)
+    series = (series - offsets) / scales
+    return {"header": header, "hub_series": np.asarray(series, dtype=np.float64)}
 
 
 def hub_stats(series: np.ndarray, uhub: float) -> list[dict[str, float]]:
@@ -92,9 +158,9 @@ def psd_report(series: np.ndarray, dt: float) -> list[dict[str, Any]]:
 
 
 def load_case(name: str, base: Path) -> dict[str, Any]:
-    bts = read_bts(base.with_suffix(".bts"))
+    bts = read_bts_hub(base.with_suffix(".bts"))
     sum_info = parse_sum(base.with_suffix(".sum"))
-    series = hub_series(bts["data"], bts["header"])
+    series = bts["hub_series"]
     stats = hub_stats(series, bts["header"]["uhub"])
     target_sigma = sum_info.get("target_sigma") or [0.0, 0.0, 0.0]
     sigma_rel_error = []

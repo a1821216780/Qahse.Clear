@@ -44,11 +44,10 @@ default CohMod1
 default CohMod2
 default CohMod3
 1 EWMType
-0 EWMReturn
 10.5 GustPeriod
 300.0 EventStart
 0 EventSign
 15.0 EcdVcog
-"../certification_result" WrWndPath
+"F:\\Qahse.Clear\\demo\\SimWind\\IEC61400_3\\certification_result" WrWndPath
 "IEC3_EWM50_Steady_30x30_660s" WrWndName
 true SumPrint
