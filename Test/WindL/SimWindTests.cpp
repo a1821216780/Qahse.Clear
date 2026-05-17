@@ -59,6 +59,12 @@ T ReadScalar(std::ifstream &in)
 	return value;
 }
 
+template <typename T>
+void WriteScalar(std::ofstream &out, T value)
+{
+	out.write(reinterpret_cast<const char *>(&value), sizeof(T));
+}
+
 struct BtsHeader
 {
 	std::int16_t format = 0;
@@ -989,6 +995,60 @@ TEST(WindL_Import, ImportsBladedWndUsingCompanionSummary)
 		EXPECT_NEAR(field.At(1, step, field.nz / 2, field.ny / 2), series[static_cast<std::size_t>(step)][1], 0.02);
 		EXPECT_NEAR(field.At(2, step, field.nz / 2, field.ny / 2), series[static_cast<std::size_t>(step)][2], 0.02);
 	}
+}
+
+TEST(WindL_Import, BladedWndWithoutSummaryUsesInputMeanForTiSigma)
+{
+	const auto path = SimWindOutputDir() / "bladed_no_summary_metadata_mean.wnd";
+	const auto summaryPath = std::filesystem::path(path).replace_extension(".sum");
+	std::filesystem::remove(path);
+	std::filesystem::remove(summaryPath);
+
+	std::ofstream out(path, std::ios::binary);
+	ASSERT_TRUE(out.good());
+
+	WriteScalar<std::int16_t>(out, -99);
+	WriteScalar<std::int16_t>(out, 4);
+	WriteScalar<std::int32_t>(out, 3);
+	WriteScalar<float>(out, 0.0f);
+	WriteScalar<float>(out, 0.0f);
+	WriteScalar<float>(out, 0.0f);
+	WriteScalar<float>(out, 10.0f);
+	WriteScalar<float>(out, 20.0f);
+	WriteScalar<float>(out, 30.0f);
+	WriteScalar<float>(out, 1.0f);
+	WriteScalar<float>(out, 1.0f);
+	WriteScalar<float>(out, 10.0f);
+	WriteScalar<std::int32_t>(out, 1);
+	WriteScalar<float>(out, 10.0f);
+	for (int i = 0; i < 3; ++i)
+		WriteScalar<float>(out, 0.0f);
+	WriteScalar<float>(out, 0.0f);
+	WriteScalar<std::int32_t>(out, 0);
+	WriteScalar<std::int32_t>(out, 1);
+	WriteScalar<std::int32_t>(out, 1);
+	for (int i = 0; i < 6; ++i)
+		WriteScalar<float>(out, 0.0f);
+	for (int step = 0; step < 2; ++step)
+	{
+		WriteScalar<std::int16_t>(out, 1000);
+		WriteScalar<std::int16_t>(out, 1000);
+		WriteScalar<std::int16_t>(out, 1000);
+	}
+	out.close();
+
+	WindImportMetadata importInput;
+	importInput.filePath = path.string();
+	importInput.format = WndFormat::BLADED_WND;
+	importInput.hubHeight = 80.0;
+	importInput.meanWindSpeed = 20.0;
+
+	const auto field = WindL::Import(importInput);
+	EXPECT_FALSE(field.usedCompanionSummary);
+	EXPECT_NEAR(field.At(0, 0, 0, 0), 22.0, 1.0e-12);
+	EXPECT_NEAR(field.At(1, 0, 0, 0), 4.0, 1.0e-12);
+	EXPECT_NEAR(field.At(2, 0, 0, 0), 6.0, 1.0e-12);
+	EXPECT_NEAR(field.sigma[0], 0.0, 1.0e-12);
 }
 
 TEST(WindL_SimWind, ImportedFieldSamplingMirrorsAndSupportsCubic)

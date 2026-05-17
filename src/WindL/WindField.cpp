@@ -827,8 +827,9 @@ WindField WindField::ReadBladedWnd(const std::string &path, const WindImportMeta
 	field.Resize(field.nSteps, field.ny, field.nz);
 	field.BuildCoordinates();
 
+	const double reconstructionMeanWind = metadata.meanWindSpeed > 0.0 ? metadata.meanWindSpeed : field.meanWindSpeed;
 	const std::array<double, 3> means = companion && companion->hasStats ? companion->mean : MeansFromMetadata(metadata, field.meanWindSpeed);
-	const std::array<double, 3> sigmas = ResolveBladedSigma(record2, field.meanWindSpeed, tiPercent, metadata, companion);
+	const std::array<double, 3> sigmas = ResolveBladedSigma(record2, reconstructionMeanWind, tiPercent, metadata, companion);
 
 	for (int step = 0; step < field.nSteps; ++step)
 	{

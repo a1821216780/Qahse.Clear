@@ -163,8 +163,10 @@
     <ClInclude Include="..\src\WindL\WindL.hpp" />
     <ClInclude Include="..\src\WindL\WindL_Type.hpp" />
     <ClInclude Include="..\src\WindL\WindField.hpp" />
+    <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp" />
     <ClInclude Include="..\src\SiMwind\Batch\SimWindBatch.hpp" />
     <ClInclude Include="..\src\SiMwind\IO\SimWind_IO_Subs.hpp" />
+    <ClInclude Include="..\src\SiMwind\IO\SimWind_UserData_IO.hpp" />
     <ClInclude Include="..\src\Params.h" />
     <ClInclude Include="..\src\Math\IntegrationHelper.h" />
     <ClInclude Include="..\src\Math\Vec3.h" />

@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "../../src/IO/OtherHelper.hpp"
+#include "../../src/IO/Serializer.hpp"
 
 namespace
 {
@@ -58,6 +59,33 @@ TEST(OtherHelperTest, FormortPathAndFileDirectoryExistence)
 
     const std::string nonAbs = OtherHelper::FormortPath(".");
     EXPECT_FALSE(nonAbs.empty());
+}
+
+TEST(SerializerTest, CSharpStyleKeywordParsingWithDefaultsAndMatrix)
+{
+    Serializer reader;
+    reader.SetValueFirst(true);
+    reader.ReadTextLines({
+        "default     PLExp        - keep the provided default",
+        "not_an_int  NumPointY    - conversion failure should use default",
+        "\"../SimWind/a wind.wnd\" - TurWindFilePath - quoted path with separator dash",
+        "2           WindSpeedNum - matrix row count",
+        "0           10           - WindSpeedList",
+        "30          20"
+    });
+
+    EXPECT_DOUBLE_EQ(reader.ParseLine<double>(" PLExp ", 0.2), 0.2);
+    EXPECT_EQ(reader.ParseLine<int>("NumPointY", 36), 36);
+    EXPECT_EQ(reader.ParseLine<std::string>("TurWindFilePath", ""), "../SimWind/a wind.wnd");
+    EXPECT_THROW(reader.ParseRequiredLine<int>("MissingRequired"), std::runtime_error);
+
+    const auto matrix = reader.ParseMatrixAt(reader.FindLine("WindSpeedNum").Add(1), 2, 2);
+    ASSERT_EQ(matrix.rows(), 2);
+    ASSERT_EQ(matrix.cols(), 2);
+    EXPECT_DOUBLE_EQ(matrix(0, 0), 0.0);
+    EXPECT_DOUBLE_EQ(matrix(0, 1), 10.0);
+    EXPECT_DOUBLE_EQ(matrix(1, 0), 30.0);
+    EXPECT_DOUBLE_EQ(matrix(1, 1), 20.0);
 }
 
 TEST(OtherHelperTest, FindBestMatchAndLevenshtein)

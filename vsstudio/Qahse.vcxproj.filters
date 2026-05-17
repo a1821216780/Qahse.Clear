@@ -149,7 +149,13 @@
     <ClInclude Include="..\src\WindL\WindField.hpp">
       <Filter>Header Files\WindL</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp">
+      <Filter>Header Files\WindL</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\SiMwind\IO\SimWind_IO_Subs.hpp">
+      <Filter>Header Files\SiMwind</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\SiMwind\IO\SimWind_UserData_IO.hpp">
       <Filter>Header Files\SiMwind</Filter>
     </ClInclude>
     <ClInclude Include="..\src\WaveL\WaveL_Type.hpp">

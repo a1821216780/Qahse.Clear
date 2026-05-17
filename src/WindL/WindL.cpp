@@ -11,153 +11,16 @@
 #include <utility>
 
 #include "SiMwind/IO/LocaleString_SimWind.hpp"
+#include "WindL/IO/WindL_IO_Subs.hpp"
 
 namespace
 {
 constexpr double kTiny = 1.0e-12;
 
-std::string Trim(const std::string &text)
-{
-	const auto first = std::find_if_not(text.begin(), text.end(), [](unsigned char ch) { return std::isspace(ch) != 0; });
-	if (first == text.end())
-		return {};
-	const auto last = std::find_if_not(text.rbegin(), text.rend(), [](unsigned char ch) { return std::isspace(ch) != 0; }).base();
-	return std::string(first, last);
-}
-
-std::string StripBom(std::string text)
-{
-	if (text.size() >= 3 &&
-	    static_cast<unsigned char>(text[0]) == 0xEF &&
-	    static_cast<unsigned char>(text[1]) == 0xBB &&
-	    static_cast<unsigned char>(text[2]) == 0xBF)
-	{
-		text.erase(0, 3);
-	}
-	return text;
-}
-
 std::string ToLower(std::string text)
 {
 	std::transform(text.begin(), text.end(), text.begin(), [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
 	return text;
-}
-
-bool IsWordChar(char ch)
-{
-	const auto uch = static_cast<unsigned char>(ch);
-	return std::isalnum(uch) != 0 || ch == '_';
-}
-
-bool ContainsKey(const std::string &line, const std::string &key)
-{
-	const std::string lower = ToLower(line);
-	const std::string lowerKey = ToLower(key);
-	std::size_t pos = lower.find(lowerKey);
-	while (pos != std::string::npos)
-	{
-		const bool leftOk = pos == 0 || !IsWordChar(lower[pos - 1]);
-		const std::size_t end = pos + lowerKey.size();
-		const bool rightOk = end >= lower.size() || !IsWordChar(lower[end]);
-		std::size_t after = end;
-		while (after < lower.size() && std::isspace(static_cast<unsigned char>(lower[after])) != 0)
-			++after;
-		const bool notAssignmentComment = after >= lower.size() || lower[after] != '=';
-		if (leftOk && rightOk && notAssignmentComment)
-			return true;
-		pos = lower.find(lowerKey, pos + 1);
-	}
-	return false;
-}
-
-bool StartsWithValue(const std::string &line)
-{
-	if (line.empty())
-		return false;
-	const char ch = line.front();
-	const auto uch = static_cast<unsigned char>(ch);
-	return ch == '"' || ch == '+' || ch == '-' || ch == '.' || std::isdigit(uch) != 0 || std::isalpha(uch) != 0;
-}
-
-std::string FirstValue(const std::string &line)
-{
-	const std::string trimmed = Trim(line);
-	if (trimmed.empty())
-		return {};
-
-	if (trimmed.front() == '"')
-	{
-		const auto end = trimmed.find('"', 1);
-		if (end == std::string::npos)
-			throw std::runtime_error("Unterminated quoted WindL value: " + line);
-		return trimmed.substr(1, end - 1);
-	}
-
-	std::istringstream in(trimmed);
-	std::string value;
-	in >> value;
-	return value;
-}
-
-int ParseIntValue(const std::string &line, const std::string &key)
-{
-	try
-	{
-		return std::stoi(FirstValue(line));
-	}
-	catch (const std::exception &)
-	{
-		throw std::runtime_error("Invalid integer value for WindL key " + key + ": " + line);
-	}
-}
-
-double ParseDoubleValue(const std::string &line, const std::string &key)
-{
-	try
-	{
-		return std::stod(FirstValue(line));
-	}
-	catch (const std::exception &)
-	{
-		throw std::runtime_error("Invalid numeric value for WindL key " + key + ": " + line);
-	}
-}
-
-bool ParseBoolValue(const std::string &line, const std::string &key)
-{
-	std::string value = ToLower(FirstValue(line));
-	if (value == "true" || value == "1" || value == "yes")
-		return true;
-	if (value == "false" || value == "0" || value == "no")
-		return false;
-	throw std::runtime_error("Invalid boolean value for WindL key " + key + ": " + line);
-}
-
-std::filesystem::path ResolvePath(const std::filesystem::path &baseFile, const std::string &value)
-{
-	if (value.empty())
-		return {};
-	std::filesystem::path path(value);
-	if (path.is_relative())
-		path = baseFile.parent_path() / path;
-	return std::filesystem::absolute(path).lexically_normal();
-}
-
-WindLWindType ParseWindType(int value)
-{
-	switch (value)
-	{
-	case 1: return WindLWindType::STEADY;
-	case 2: return WindLWindType::USER_DEFINED;
-	case 3: return WindLWindType::TURBSIM_WND;
-	case 4: return WindLWindType::BLADED_WND;
-	case 5: return WindLWindType::TURBSIM_BTS;
-	case 6:
-	case 8:
-		throw std::runtime_error("WindL no longer supports WindType=" + std::to_string(value) + "; use SimWind for wind-file generation.");
-	default:
-		throw std::runtime_error("Unsupported WindL WindType=" + std::to_string(value));
-	}
 }
 
 bool IsImportedType(WindLWindType type)
@@ -288,13 +151,6 @@ void WriteImportSummary(const WindImportMetadata &metadata, const ::WindField &f
 	}
 }
 
-bool ParseTwoDoubles(const std::string &line, double &a, double &b)
-{
-	std::istringstream in(line);
-	in >> a >> b;
-	return static_cast<bool>(in);
-}
-
 double NormalizeUserTime(double time, double duration, bool cycle)
 {
 	if (time < 0.0)
@@ -349,109 +205,7 @@ WindLInput ReadWindLInput(const std::string &path)
 
 WindLInput WindL::ReadInputFile(const std::string &path)
 {
-	std::ifstream in(path);
-	if (!in)
-		throw std::runtime_error("Cannot open WindL input file: " + path);
-
-	WindLInput input;
-	input.inputPath = std::filesystem::absolute(path).lexically_normal();
-
-	std::vector<std::string> lines;
-	std::string line;
-	while (std::getline(in, line))
-		lines.push_back(StripBom(line));
-
-	for (std::size_t i = 0; i < lines.size(); ++i)
-	{
-		const std::string current = Trim(lines[i]);
-		if (current.empty())
-			continue;
-		if (current.rfind("END", 0) == 0)
-			break;
-		if (!StartsWithValue(current))
-			continue;
-
-		if (ContainsKey(current, "WindType"))
-		{
-			input.windType = ParseWindType(ParseIntValue(current, "WindType"));
-		}
-		else if (ContainsKey(current, "CreadW") || ContainsKey(current, "CycleWind"))
-		{
-			input.cycleWind = ParseBoolValue(current, "CreadW");
-		}
-		else if (ContainsKey(current, "HWindSpeed"))
-		{
-			input.hWindSpeed = ParseDoubleValue(current, "HWindSpeed");
-		}
-		else if (ContainsKey(current, "RefHt"))
-		{
-			input.refHeight = ParseDoubleValue(current, "RefHt");
-		}
-		else if (ContainsKey(current, "PLexp") || ContainsKey(current, "PLExp"))
-		{
-			input.plExp = ParseDoubleValue(current, "PLexp");
-		}
-		else if (ContainsKey(current, "gridY_min"))
-		{
-			input.gridYMin = ParseDoubleValue(current, "gridY_min");
-		}
-		else if (ContainsKey(current, "gridY_max"))
-		{
-			input.gridYMax = ParseDoubleValue(current, "gridY_max");
-		}
-		else if (ContainsKey(current, "gridY_step"))
-		{
-			input.gridYStep = ParseDoubleValue(current, "gridY_step");
-		}
-		else if (ContainsKey(current, "gridZ_min"))
-		{
-			input.gridZMin = ParseDoubleValue(current, "gridZ_min");
-		}
-		else if (ContainsKey(current, "gridZ_max"))
-		{
-			input.gridZMax = ParseDoubleValue(current, "gridZ_max");
-		}
-		else if (ContainsKey(current, "gridZ_step"))
-		{
-			input.gridZStep = ParseDoubleValue(current, "gridZ_step");
-		}
-		else if (ContainsKey(current, "WindSpeedNum"))
-		{
-			const int count = ParseIntValue(current, "WindSpeedNum");
-			if (count < 0)
-				throw std::runtime_error("WindSpeedNum cannot be negative");
-			input.windSpeedList.clear();
-			for (int row = 0; row < count;)
-			{
-				++i;
-				if (i >= lines.size())
-					throw std::runtime_error("WindSpeedNum exceeds available WindSpeedList rows");
-				const std::string dataLine = Trim(lines[i]);
-				if (dataLine.empty())
-					continue;
-				double t = 0.0;
-				double speed = 0.0;
-				if (!ParseTwoDoubles(dataLine, t, speed))
-					throw std::runtime_error("Invalid WindSpeedList row: " + dataLine);
-				input.windSpeedList.push_back({t, speed});
-				++row;
-			}
-		}
-		else if (ContainsKey(current, "TurWindFilePath"))
-		{
-			input.turWindFilePath = ResolvePath(input.inputPath, FirstValue(current)).string();
-		}
-		else if (ContainsKey(current, "BldWindFilePath"))
-		{
-			input.bldWindFilePath = ResolvePath(input.inputPath, FirstValue(current)).string();
-		}
-		else if (ContainsKey(current, "IECWindFilePath"))
-		{
-			input.iecWindFilePath = ResolvePath(input.inputPath, FirstValue(current)).string();
-		}
-	}
-
-	return input;
+	return windl_io_detail::ReadWindLInputFile(path);
 }
 
 void WindL::ValidateInputOnly(const WindLInput &input)

@@ -9,6 +9,8 @@
 #include "IO/Yaml.hpp"
 #include "SiMwind/IO/SimWind_IO_Subs.hpp"
 #include "SiMwind/SimWind_Type.hpp"
+#include "WindL/IO/WindL_IO_Subs.hpp"
+#include "WindL/WindL_Type.hpp"
 
 // ============================================================================
 // 测试辅助
@@ -367,6 +369,64 @@ TEST(WindLIO_YAML, ConvertTextToYaml)
 	EXPECT_EQ(fromYaml.mode, Mode::GENERATE);
 	EXPECT_EQ(fromYaml.gridPtsY, 36);
 	EXPECT_EQ(fromYaml.saveName, "Test_Demo_wind");
+}
+
+TEST(WindLIO_YAML, WindLTextToYamlUsesSerializerDirectKeys)
+{
+	const auto dir = TestOutputDir();
+	const auto textPath = dir / "windl_direct_keys.dat";
+	const auto yamlPath = dir / "windl_direct_keys.yml";
+
+	std::ofstream out(textPath);
+	out << "2 WindType - user defined wind\n";
+	out << "True CreadW - cycle wind\n";
+	out << "11.4 HWindSpeed - horizontal wind speed\n";
+	out << "90 RefHt - reference height\n";
+	out << "0.2 PLExp - power law exponent\n";
+	out << "2 WindSpeedNum - rows\n";
+	out << "0 10\n";
+	out << "30 12\n";
+	out << "\"../SimWind/result/demo.bts\" IECWindFilePath - imported file\n";
+	out.close();
+
+	const auto fromText = windl_io_detail::ReadWindLInputFile(textPath.string());
+	ASSERT_EQ(fromText.windSpeedList.size(), 2u);
+	EXPECT_EQ(fromText.windType, WindLWindType::USER_DEFINED);
+	EXPECT_TRUE(fromText.cycleWind);
+	EXPECT_DOUBLE_EQ(fromText.windSpeedList[0].time, 0.0);
+	EXPECT_DOUBLE_EQ(fromText.windSpeedList[0].speed, 10.0);
+	EXPECT_DOUBLE_EQ(fromText.windSpeedList[1].time, 30.0);
+	EXPECT_DOUBLE_EQ(fromText.windSpeedList[1].speed, 12.0);
+
+	windl_io_detail::WriteWindLInputYaml(fromText, yamlPath.string());
+	YML yaml(yamlPath.string(), false);
+	EXPECT_TRUE(yaml.ChickfindNodeByKey("Qahse.WindL.WindType"));
+	EXPECT_TRUE(yaml.ChickfindNodeByKey("Qahse.WindL.WindSpeedList"));
+
+	const auto fromYaml = windl_io_detail::ReadWindLInputFile(yamlPath.string());
+	ASSERT_EQ(fromYaml.windSpeedList.size(), 2u);
+	EXPECT_EQ(fromYaml.windType, WindLWindType::USER_DEFINED);
+	EXPECT_TRUE(fromYaml.cycleWind);
+	EXPECT_DOUBLE_EQ(fromYaml.hWindSpeed, 11.4);
+	EXPECT_DOUBLE_EQ(fromYaml.windSpeedList[1].speed, 12.0);
+}
+
+TEST(WindLIO_QWD, ReadDesignedWindLInputMatrixRows)
+{
+	const auto path = RepoRoot() / "demo" / "NREL_5MW_OC4_Semisub" / "WindL" /
+	                  "Qahse_WindL_Main_NREL_5MW_OC4_Semisub.dat";
+	if (!std::filesystem::is_regular_file(path))
+		GTEST_SKIP() << "WindL designed demo input is not available";
+
+	const auto input = windl_io_detail::ReadWindLInputFile(path.string());
+	ASSERT_EQ(input.windSpeedList.size(), 5u);
+	EXPECT_EQ(input.windType, WindLWindType::TURBSIM_WND);
+	EXPECT_TRUE(input.cycleWind);
+	EXPECT_DOUBLE_EQ(input.windSpeedList.front().time, 0.0);
+	EXPECT_DOUBLE_EQ(input.windSpeedList.front().speed, 10.0);
+	EXPECT_DOUBLE_EQ(input.windSpeedList.back().time, 1200.0);
+	EXPECT_DOUBLE_EQ(input.windSpeedList.back().speed, 200.0);
+	EXPECT_TRUE(input.turWindFilePath.find("NREL_5MW_OC4_Semisub_Demo_wind.ts.wnd") != std::string::npos);
 }
 
 TEST(WindLIO_YAML, RoundTripExplicitCoherenceModesAndApproxFlag)
