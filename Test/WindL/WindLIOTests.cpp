@@ -345,10 +345,10 @@ TEST(WindLIO_YAML, ExportAndLoadYaml)
 	WriteSimWindInput(input, yamlPath.string());
 
 	YML yaml(yamlPath.string(), false);
-	EXPECT_TRUE(yaml.ChickfindNodeByKey("Qahse.WindL"));
-	EXPECT_EQ(yaml.read("Qahse.WindL.WrWndName"), "Test_Demo_wind");
-	EXPECT_EQ(yaml.read("Qahse.WindL.TurbModel"), "B_KAL");
-	EXPECT_EQ(YML::YmlToInt(yaml.read("Qahse.WindL.NumPointY")), 36);
+	EXPECT_TRUE(yaml.ChickfindNodeByKey("Qahse.SimWind"));
+	EXPECT_EQ(yaml.read("Qahse.SimWind.WrWndName"), "Test_Demo_wind");
+	EXPECT_EQ(yaml.read("Qahse.SimWind.TurbModel"), "B_KAL");
+	EXPECT_EQ(YML::YmlToInt(yaml.read("Qahse.SimWind.NumPointY")), 36);
 
 	const auto fromYaml = ReadSimWindInput(yamlPath.string());
 	EXPECT_TRUE(fromYaml.wrTrwnd);
@@ -431,7 +431,7 @@ TEST(WindLIO_YAML, ConvertAllInputTextFilesToYamlAndMatchText)
 	const auto mainYamlPath = dir / "all_main_from_text.yml";
 	const auto mainFromText = ReadSimWindInput(mainTextPath);
 	ConvertSimWindInput(mainTextPath, mainYamlPath.string());
-	EXPECT_TRUE(YML(mainYamlPath.string(), false).ChickfindNodeByKey("Qahse.WindL.Mode"));
+	EXPECT_TRUE(YML(mainYamlPath.string(), false).ChickfindNodeByKey("Qahse.SimWind.Mode"));
 	const auto mainFromYaml = ReadSimWindInput(mainYamlPath.string());
 	ExpectSimWindInputEqual(mainFromText, mainFromYaml);
 
@@ -439,7 +439,7 @@ TEST(WindLIO_YAML, ConvertAllInputTextFilesToYamlAndMatchText)
 	const auto shearYamlPath = dir / "all_shear_from_text.yml";
 	const auto shearFromText = ReadUserShear(shearTextPath);
 	ConvertUserShear(shearTextPath, shearYamlPath.string());
-	EXPECT_TRUE(YML(shearYamlPath.string(), false).ChickfindNodeByKey("Qahse.WindL.NumUSRz"));
+	EXPECT_TRUE(YML(shearYamlPath.string(), false).ChickfindNodeByKey("Qahse.SimWind.NumUSRz"));
 	const auto shearFromYaml = ReadUserShear(shearYamlPath.string());
 	ExpectUserShearEqual(shearFromText, shearFromYaml);
 
@@ -447,7 +447,7 @@ TEST(WindLIO_YAML, ConvertAllInputTextFilesToYamlAndMatchText)
 	const auto spectraYamlPath = dir / "all_spectra_from_text.yml";
 	const auto spectraFromText = ReadUserSpectra(spectraTextPath);
 	ConvertUserSpectra(spectraTextPath, spectraYamlPath.string());
-	EXPECT_TRUE(YML(spectraYamlPath.string(), false).ChickfindNodeByKey("Qahse.WindL.NumUSRf"));
+	EXPECT_TRUE(YML(spectraYamlPath.string(), false).ChickfindNodeByKey("Qahse.SimWind.NumUSRf"));
 	const auto spectraFromYaml = ReadUserSpectra(spectraYamlPath.string());
 	ExpectUserSpectraEqual(spectraFromText, spectraFromYaml);
 
@@ -455,7 +455,7 @@ TEST(WindLIO_YAML, ConvertAllInputTextFilesToYamlAndMatchText)
 	const auto windSpeedYamlPath = dir / "all_wind_speed_from_text.yml";
 	const auto windSpeedFromText = ReadUserWindSpeed(windSpeedTextPath);
 	ConvertUserWindSpeed(windSpeedTextPath, windSpeedYamlPath.string());
-	EXPECT_TRUE(YML(windSpeedYamlPath.string(), false).ChickfindNodeByKey("Qahse.WindL.nComp"));
+	EXPECT_TRUE(YML(windSpeedYamlPath.string(), false).ChickfindNodeByKey("Qahse.SimWind.nComp"));
 	const auto windSpeedFromYaml = ReadUserWindSpeed(windSpeedYamlPath.string());
 	ExpectUserWindSpeedEqual(windSpeedFromText, windSpeedFromYaml);
 }

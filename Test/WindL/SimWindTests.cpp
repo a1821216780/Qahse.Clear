@@ -918,9 +918,9 @@ TEST(WindL_Import, ImportsBtsRoundTripAndWritesSummary)
 	const auto generated = SimWind::Generate(input);
 	ASSERT_TRUE(std::filesystem::is_regular_file(generated.btsPath));
 
-	SimWindInput importInput;
-	importInput.wndFilePath = generated.btsPath;
-	importInput.wndFormat = WndFormat::TURBSIM_BTS;
+	WindImportMetadata importInput;
+	importInput.filePath = generated.btsPath;
+	importInput.format = WndFormat::TURBSIM_BTS;
 	importInput.sumPrint = true;
 	importInput.savePath = SimWindOutputDir().string();
 	importInput.saveName = "import_bts_roundtrip";
@@ -948,9 +948,9 @@ TEST(WindL_Import, ImportsTurbSimWndRoundTripAgainstBtsReference)
 	ASSERT_TRUE(std::filesystem::is_regular_file(generated.btsPath));
 	ASSERT_TRUE(std::filesystem::is_regular_file(generated.turbsimWndPath));
 
-	SimWindInput importInput;
-	importInput.wndFilePath = generated.turbsimWndPath;
-	importInput.wndFormat = WndFormat::TURBSIM_WND;
+	WindImportMetadata importInput;
+	importInput.filePath = generated.turbsimWndPath;
+	importInput.format = WndFormat::TURBSIM_WND;
 
 	const auto field = WindL::Import(importInput);
 	const auto series = ReadBtsPointSeries(generated.btsPath);
@@ -972,9 +972,9 @@ TEST(WindL_Import, ImportsBladedWndUsingCompanionSummary)
 	ASSERT_TRUE(std::filesystem::is_regular_file(generated.bladedWndPath));
 	ASSERT_TRUE(std::filesystem::is_regular_file(generated.sumPath));
 
-	SimWindInput importInput;
-	importInput.wndFilePath = generated.bladedWndPath;
-	importInput.wndFormat = WndFormat::BLADED_WND;
+	WindImportMetadata importInput;
+	importInput.filePath = generated.bladedWndPath;
+	importInput.format = WndFormat::BLADED_WND;
 	importInput.hubHeight = input.hubHeight;
 	importInput.meanWindSpeed = input.meanWindSpeed;
 
@@ -1035,4 +1035,81 @@ TEST(WindL_SimWind, ImportedFieldSamplingMirrorsAndSupportsCubic)
 	{
 		EXPECT_NE(std::string(error.what()).find("CycleWind=false"), std::string::npos);
 	}
+}
+
+TEST(WindL_Runtime, ParsesNrelWindLCaseAndResolvesSimWindPaths)
+{
+	const auto path = RepoRoot() / "demo" / "NREL_5MW_OC4_Semisub" / "WindL" / "Qahse_WindL_Main_NREL_5MW_OC4_Semisub.dat";
+	const auto input = ReadWindLInput(path.string());
+
+	EXPECT_EQ(input.windType, WindLWindType::TURBSIM_WND);
+	EXPECT_TRUE(input.cycleWind);
+	EXPECT_DOUBLE_EQ(input.hWindSpeed, 11.4);
+	EXPECT_DOUBLE_EQ(input.refHeight, 87.0);
+	EXPECT_NE(input.turWindFilePath.find("SimWind"), std::string::npos);
+	EXPECT_EQ(input.turWindFilePath.find("SinmWind"), std::string::npos);
+	EXPECT_TRUE(std::filesystem::is_regular_file(input.turWindFilePath));
+	EXPECT_TRUE(std::filesystem::is_regular_file(input.bldWindFilePath));
+	EXPECT_TRUE(std::filesystem::is_regular_file(input.iecWindFilePath));
+}
+
+TEST(WindL_Runtime, SteadyWindUsesPowerLawProfile)
+{
+	WindLInput input;
+	input.windType = WindLWindType::STEADY;
+	input.hWindSpeed = 10.0;
+	input.refHeight = 100.0;
+	input.plExp = 0.2;
+
+	const auto wind = WindL::Load(input);
+	const auto velocity = wind.VelocityAt(0.0, 0.0, 50.0, 25.0);
+	EXPECT_NEAR(velocity[0], 10.0 * std::pow(0.5, 0.2), 1.0e-12);
+	EXPECT_DOUBLE_EQ(velocity[1], 0.0);
+	EXPECT_DOUBLE_EQ(velocity[2], 0.0);
+}
+
+TEST(WindL_Runtime, UserWindSpeedInterpolatesAndCycles)
+{
+	WindLInput input;
+	input.windType = WindLWindType::USER_DEFINED;
+	input.cycleWind = true;
+	input.hWindSpeed = 10.0;
+	input.refHeight = 100.0;
+	input.windSpeedList = {{0.0, 10.0}, {10.0, 20.0}};
+
+	const auto wind = WindL::Load(input);
+	EXPECT_NEAR(wind.VelocityAt(0.0, 0.0, 100.0, 5.0)[0], 15.0, 1.0e-12);
+	EXPECT_NEAR(wind.VelocityAt(0.0, 0.0, 100.0, 12.0)[0], 12.0, 1.0e-12);
+}
+
+TEST(WindL_Runtime, ImportedFieldSampleAtAppliesQBladeStyleXShift)
+{
+	::WindField field;
+	field.Resize(4, 2, 2);
+	field.dy = 10.0;
+	field.dz = 10.0;
+	field.dt = 1.0;
+	field.zBottom = 0.0;
+	field.hubHeight = 5.0;
+	field.meanWindSpeed = 10.0;
+	field.BuildCoordinates();
+	for (int step = 0; step < field.nSteps; ++step)
+	{
+		for (int iz = 0; iz < field.nz; ++iz)
+		{
+			for (int iy = 0; iy < field.ny; ++iy)
+			{
+				field.At(0, step, iz, iy) = static_cast<double>(step);
+				field.At(1, step, iz, iy) = 0.0;
+				field.At(2, step, iz, iy) = 0.0;
+			}
+		}
+	}
+
+	WindVelocityOptions options;
+	options.cycleWind = false;
+	options.autoFieldShift = true;
+
+	EXPECT_NEAR(field.SampleAt(5.0, 0.0, 5.0, 1.0, options)[0], 1.0, 1.0e-12);
+	EXPECT_NEAR(field.SampleAt(-5.0, 0.0, 5.0, 0.0, options)[0], 1.0, 1.0e-12);
 }

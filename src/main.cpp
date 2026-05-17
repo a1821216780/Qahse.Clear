@@ -28,10 +28,13 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <array>
 #include <csignal>
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <filesystem>
+#include <iomanip>
 
 #include "io/ZConsole.hpp"
 #include "io/LogHelper.h"
@@ -39,6 +42,7 @@
 #include "SiMwind/SimWind.hpp"
 #include "SiMwind/Batch/SimWindBatch.hpp"
 #include "SiMwind/IO/SimWind_IO_Subs.hpp"
+#include "WindL/WindL.hpp"
 #include "IO/LocaleString.hpp"
 
 #ifdef _WIN32
@@ -79,6 +83,9 @@ int main(int argc, char *argv[])
         LogHelper::WriteLogO(TL("  --linearize <文件.lin>    从 .lin 文件运行线性化，无 GUI", "  --linearize <file.lin> Run linearization from .lin file, no GUI"));
         LogHelper::WriteLogO(L_CLI_OptionQWD);
         LogHelper::WriteLogO(TL("                         (Mode=0: SimWind 生成, Mode=1: SimWind 批量 Excel)", "                         (Mode=0: SimWind generate, Mode=1: SimWind batch from Excel)"));
+        LogHelper::WriteLogO(TL("  --windl <文件.dat>    读取 WindL 风场输入并输出摘要", "  --windl <file.dat>   Load WindL wind input and print a summary"));
+        LogHelper::WriteLogO(TL("                         可选: --check-series [--point-index iz iy] [--max-steps n]", "                         Optional: --check-series [--point-index iz iy] [--max-steps n]"));
+        LogHelper::WriteLogO(TL("                         可选: --check-format-series [--format-tolerance tol]", "                         Optional: --check-format-series [--format-tolerance tol]"));
         LogHelper::WriteLogO(TL("  --mbdl <文件.qmd>      从 .qmd 文件运行独立 MBDL 结构动力学", "  --mbdl <file.qmd>     Run standalone MBDL structural dynamics from .qmd file"));
         LogHelper::WriteLogO(TL("  --windl-models        显示 WindL OOP 模型目录和路由 ID", "  --windl-models        Print WindL OOP model catalogs and route IDs"));
         LogHelper::WriteLogO(TL("  --qod <文件.qoe>       从 .qoe 文件运行独立海洋模式", "  --qod <file.qoe>      Run standalone ocean mode from .qoe file"));
@@ -104,6 +111,241 @@ int main(int argc, char *argv[])
     for (int i = 1; i < argc; ++i)
     {
         const std::string arg = argv[i] ? argv[i] : "";
+        if (arg == "--windl")
+        {
+            if (i + 1 >= argc)
+            {
+                std::cerr << "Missing WindL input path.\n";
+                return 2;
+            }
+
+            try
+            {
+                const std::string windlPath = std::filesystem::absolute(argv[i + 1]).string();
+                bool checkSeries = false;
+                bool checkFormatSeries = false;
+                int checkIz = -1;
+                int checkIy = -1;
+                int maxSteps = 0;
+                double formatTolerance = 5.0e-2;
+                for (int j = i + 2; j < argc; ++j)
+                {
+                    const std::string option = argv[j] ? argv[j] : "";
+                    if (option == "--check-series")
+                    {
+                        checkSeries = true;
+                    }
+                    else if (option == "--check-format-series")
+                    {
+                        checkFormatSeries = true;
+                    }
+                    else if (option == "--point-index")
+                    {
+                        if (j + 2 >= argc)
+                        {
+                            std::cerr << "--point-index requires iz and iy.\n";
+                            return 2;
+                        }
+                        checkIz = std::stoi(argv[++j]);
+                        checkIy = std::stoi(argv[++j]);
+                    }
+                    else if (option == "--max-steps")
+                    {
+                        if (j + 1 >= argc)
+                        {
+                            std::cerr << "--max-steps requires a positive integer.\n";
+                            return 2;
+                        }
+                        maxSteps = std::stoi(argv[++j]);
+                    }
+                    else if (option == "--format-tolerance")
+                    {
+                        if (j + 1 >= argc)
+                        {
+                            std::cerr << "--format-tolerance requires a numeric value.\n";
+                            return 2;
+                        }
+                        formatTolerance = std::stod(argv[++j]);
+                    }
+                }
+
+                const auto progress = [](const std::string &message) {
+                    std::cout << message << std::endl;
+                };
+                const auto wind = WindL::LoadFromFile(windlPath, progress);
+                const auto &input = wind.Input();
+                std::cout << "WindL input: " << windlPath << "\n";
+                std::cout << "WindType: " << static_cast<int>(input.windType) << "\n";
+                std::cout << "CycleWind: " << (input.cycleWind ? "true" : "false") << "\n";
+                if (wind.HasImportedField())
+                {
+                    const auto *field = wind.ImportedField();
+                    std::cout << "Imported grid: " << field->ny << " x " << field->nz
+                              << ", steps=" << field->nSteps << ", dt=" << field->dt << "\n";
+                }
+                else
+                {
+                    std::cout << "Runtime source: analytic wind\n";
+                }
+                if (checkSeries)
+                {
+                    if (!wind.HasImportedField())
+                    {
+                        std::cerr << "Series check requires an imported WindL wind file.\n";
+                        return 2;
+                    }
+
+                    const auto *field = wind.ImportedField();
+                    const int iz = checkIz >= 0 ? checkIz : field->nz / 2;
+                    const int iy = checkIy >= 0 ? checkIy : field->ny / 2;
+                    if (iz < 0 || iz >= field->nz || iy < 0 || iy >= field->ny)
+                    {
+                        std::cerr << "Point index is out of range: iz=" << iz << ", iy=" << iy << ".\n";
+                        return 2;
+                    }
+
+                    const int stepsToCheck = maxSteps > 0 ? std::min(maxSteps, field->nSteps) : field->nSteps;
+                    const double y = field->yCoords[static_cast<std::size_t>(iy)];
+                    const double z = field->zCoords[static_cast<std::size_t>(iz)];
+                    WindVelocityOptions options;
+                    options.cycleWind = false;
+                    options.autoFieldShift = false;
+                    options.interpMethod = InterpMethod::TRILINEAR;
+
+                    std::array<double, 3> maxAbsDiff{0.0, 0.0, 0.0};
+                    std::array<double, 3> rawFirst{0.0, 0.0, 0.0};
+                    std::array<double, 3> rawLast{0.0, 0.0, 0.0};
+                    for (int step = 0; step < stepsToCheck; ++step)
+                    {
+                        const double time = field->timeCoords[static_cast<std::size_t>(step)];
+                        const auto sampled = wind.VelocityAt(0.0, y, z, time, options);
+                        for (int comp = 0; comp < 3; ++comp)
+                        {
+                            const double raw = field->At(comp, step, iz, iy);
+                            if (step == 0)
+                                rawFirst[static_cast<std::size_t>(comp)] = raw;
+                            if (step == stepsToCheck - 1)
+                                rawLast[static_cast<std::size_t>(comp)] = raw;
+                            maxAbsDiff[static_cast<std::size_t>(comp)] =
+                                std::max(maxAbsDiff[static_cast<std::size_t>(comp)], std::fabs(raw - sampled[static_cast<std::size_t>(comp)]));
+                        }
+                    }
+
+                    const double tolerance = 1.0e-9;
+                    const bool pass = maxAbsDiff[0] <= tolerance && maxAbsDiff[1] <= tolerance && maxAbsDiff[2] <= tolerance;
+                    std::cout << std::setprecision(12);
+                    std::cout << "SeriesCheck: " << (pass ? "PASS" : "FAIL") << "\n";
+                    std::cout << "  PointIndex: iz=" << iz << ", iy=" << iy << "\n";
+                    std::cout << "  PointCoord: y=" << y << ", z=" << z << "\n";
+                    std::cout << "  ComparedSteps: " << stepsToCheck << " / " << field->nSteps << "\n";
+                    std::cout << "  FirstUVW: " << rawFirst[0] << ", " << rawFirst[1] << ", " << rawFirst[2] << "\n";
+                    std::cout << "  LastUVW: " << rawLast[0] << ", " << rawLast[1] << ", " << rawLast[2] << "\n";
+                    std::cout << "  MaxAbsDiffUVW: " << maxAbsDiff[0] << ", " << maxAbsDiff[1] << ", " << maxAbsDiff[2] << "\n";
+                    return pass ? 0 : 1;
+                }
+                if (checkFormatSeries)
+                {
+                    const std::array<std::string, 3> labels{"TURBSIM_WND", "BLADED_WND", "TURBSIM_BTS"};
+                    std::array<WindImportMetadata, 3> metadata{};
+                    metadata[0].filePath = input.turWindFilePath;
+                    metadata[0].format = WndFormat::TURBSIM_WND;
+                    metadata[1].filePath = input.bldWindFilePath;
+                    metadata[1].format = WndFormat::BLADED_WND;
+                    metadata[2].filePath = input.iecWindFilePath;
+                    metadata[2].format = WndFormat::TURBSIM_BTS;
+                    for (auto &item : metadata)
+                    {
+                        item.hubHeight = input.refHeight;
+                        item.refHeight = input.refHeight;
+                        item.meanWindSpeed = input.hWindSpeed;
+                    }
+
+                    std::array<WindField, 3> fields{};
+                    for (std::size_t idx = 0; idx < metadata.size(); ++idx)
+                    {
+                        if (metadata[idx].filePath.empty())
+                        {
+                            std::cerr << "Missing WindL path for " << labels[idx] << ".\n";
+                            return 2;
+                        }
+                        fields[idx] = WindField::ReadAny(metadata[idx].filePath, metadata[idx].format, metadata[idx]);
+                    }
+
+                    const WindField &reference = fields[0];
+                    const int iz = checkIz >= 0 ? checkIz : reference.nz / 2;
+                    const int iy = checkIy >= 0 ? checkIy : reference.ny / 2;
+                    if (iz < 0 || iz >= reference.nz || iy < 0 || iy >= reference.ny)
+                    {
+                        std::cerr << "Point index is out of range: iz=" << iz << ", iy=" << iy << ".\n";
+                        return 2;
+                    }
+
+                    int commonSteps = reference.nSteps;
+                    bool sameGrid = true;
+                    for (std::size_t idx = 1; idx < fields.size(); ++idx)
+                    {
+                        commonSteps = std::min(commonSteps, fields[idx].nSteps);
+                        sameGrid = sameGrid &&
+                                   fields[idx].ny == reference.ny &&
+                                   fields[idx].nz == reference.nz &&
+                                   std::fabs(fields[idx].dt - reference.dt) <= 1.0e-9;
+                    }
+                    const int stepsToCheck = maxSteps > 0 ? std::min(maxSteps, commonSteps) : commonSteps;
+                    if (stepsToCheck <= 0)
+                    {
+                        std::cerr << "No common time steps available for format comparison.\n";
+                        return 2;
+                    }
+
+                    std::array<std::array<double, 3>, 3> maxAbsDiff{};
+                    for (int step = 0; step < stepsToCheck; ++step)
+                    {
+                        for (int pair = 0; pair < 3; ++pair)
+                        {
+                            const int a = pair == 0 ? 0 : (pair == 1 ? 0 : 1);
+                            const int b = pair == 0 ? 1 : (pair == 1 ? 2 : 2);
+                            for (int comp = 0; comp < 3; ++comp)
+                            {
+                                const double lhs = fields[static_cast<std::size_t>(a)].At(comp, step, iz, iy);
+                                const double rhs = fields[static_cast<std::size_t>(b)].At(comp, step, iz, iy);
+                                maxAbsDiff[static_cast<std::size_t>(pair)][static_cast<std::size_t>(comp)] =
+                                    std::max(maxAbsDiff[static_cast<std::size_t>(pair)][static_cast<std::size_t>(comp)], std::fabs(lhs - rhs));
+                            }
+                        }
+                    }
+
+                    double maxOverall = 0.0;
+                    for (const auto &pairDiff : maxAbsDiff)
+                    {
+                        for (double value : pairDiff)
+                            maxOverall = std::max(maxOverall, value);
+                    }
+                    const bool pass = sameGrid && maxOverall <= formatTolerance;
+                    std::cout << std::setprecision(12);
+                    std::cout << "FormatSeriesCheck: " << (pass ? "PASS" : "FAIL") << "\n";
+                    std::cout << "  PointIndex: iz=" << iz << ", iy=" << iy << "\n";
+                    std::cout << "  PointCoord: y=" << reference.yCoords[static_cast<std::size_t>(iy)]
+                              << ", z=" << reference.zCoords[static_cast<std::size_t>(iz)] << "\n";
+                    std::cout << "  CommonGrid: " << (sameGrid ? "true" : "false") << "\n";
+                    std::cout << "  ComparedSteps: " << stepsToCheck << " / " << commonSteps << "\n";
+                    std::cout << "  Tolerance: " << formatTolerance << "\n";
+                    std::cout << "  MaxAbsDiff " << labels[0] << " vs " << labels[1] << ": "
+                              << maxAbsDiff[0][0] << ", " << maxAbsDiff[0][1] << ", " << maxAbsDiff[0][2] << "\n";
+                    std::cout << "  MaxAbsDiff " << labels[0] << " vs " << labels[2] << ": "
+                              << maxAbsDiff[1][0] << ", " << maxAbsDiff[1][1] << ", " << maxAbsDiff[1][2] << "\n";
+                    std::cout << "  MaxAbsDiff " << labels[1] << " vs " << labels[2] << ": "
+                              << maxAbsDiff[2][0] << ", " << maxAbsDiff[2][1] << ", " << maxAbsDiff[2][2] << "\n";
+                    return pass ? 0 : 1;
+                }
+                return 0;
+            }
+            catch (const std::exception &ex)
+            {
+                std::cerr << "WindL failed: " << ex.what() << "\n";
+                return 1;
+            }
+        }
+
         if (arg == "--qwd")
         {
             if (i + 1 >= argc)

@@ -25,20 +25,13 @@ true   CreadW        -  是否循环读取风文件，如果仿真时间大于�
 1200 200
 
 ================== Parameters for binary TurbSim FF Conditions [used only for WindType = 3] =========================
-"../SinmWind/result/NREL_5MW_OC4_Semisub_Demo_wind.ts.wnd"    - TurWindFilePath   - Rootname of the full-field wind file to use (.wnd, .sum)
+"../SimWind/result/NREL_5MW_OC4_Semisub_Demo_wind.ts.wnd"    - TurWindFilePath   - Rootname of the full-field wind file to use (.wnd, .sum)
 
 ================== Parameters for Binary Bladed-style Full-Field files   [used only for WindType = 4] =========
-"../SinmWind/result/NREL_5MW_OC4_Semisub_Demo_wind.wnd"    - BldWindFilePath   - Rootname of the full-field wind file to use (.wnd)
+"../SimWind/result/NREL_5MW_OC4_Semisub_Demo_wind.wnd"    - BldWindFilePath   - Rootname of the full-field wind file to use (.wnd)
 
 ================== Parameters for Bts WIND files   [used only for WindType = 5] =========
-"../SinmWind/result/NREL_5MW_OC4_Semisub_Demo_wind.bts"    - IECWindFilePath   - Rootname of the full-field wind file to use (.wnd)
-
-================== Generate IEC windfile   [used only for WindType = 6] =========
-"E:\data/WindL_IECWind_5MW.dat"    - IECFileRootPath   - 用来生成IEC风文件的文件路径，后缀dat
-"G:\2026\Openhast\demo\WindL\result\GenIECWind"                  - IECFileSavePath   - 用来保存IEC风文件的文件夹路径(必须为绝对路径)
-
-================== Parameters for binary SimWind bts file [used only for WindType = 8]  =========
-"G:\2026\OpenhastV7\demo\WindL\SimWind湍流风生成模块案例\5MWspar.bts"    -  SimWindFilePath   - Rootname of the full-field wind file to use (.bts)
+"../SimWind/result/NREL_5MW_OC4_Semisub_Demo_wind.bts"    - IECWindFilePath   - Rootname of the full-field wind file to use (.wnd)
 
 
 ====================== OUTPUT ==================================================

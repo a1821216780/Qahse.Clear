@@ -176,6 +176,9 @@
     <ClInclude Include="..\src\WindL\WindL.hpp">
       <Filter>Header Files\WindL</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\WindL\WindL_Type.hpp">
+      <Filter>Header Files\WindL</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\WindL\WindField.hpp">
       <Filter>Header Files\WindL</Filter>
     </ClInclude>

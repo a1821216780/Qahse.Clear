@@ -303,8 +303,6 @@ struct SimWindInput
 	bool batchValidateOnly = false;   ///< 仅验证批量参数不执行生成，对应 .qwd 关键字 BatchValidateOnly
 };
 
-using WindLInput = SimWindInput; // Temporary compatibility until WindL gets its own input model.
-
 // ============================================================================
 // 用户自定义剪切廓线 — 对应 User_Defined_Shear .dat
 // ============================================================================

@@ -161,6 +161,7 @@
     <ClInclude Include="..\src\SiMwind\SimWind_Type.hpp" />
     <ClInclude Include="..\src\SiMwind\SimWind.hpp" />
     <ClInclude Include="..\src\WindL\WindL.hpp" />
+    <ClInclude Include="..\src\WindL\WindL_Type.hpp" />
     <ClInclude Include="..\src\WindL\WindField.hpp" />
     <ClInclude Include="..\src\SiMwind\Batch\SimWindBatch.hpp" />
     <ClInclude Include="..\src\SiMwind\IO\SimWind_IO_Subs.hpp" />

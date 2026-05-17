@@ -192,11 +192,11 @@ std::tuple<int, int, double> Bracket(const std::vector<double> &coords, double v
  * auto means = MeansFromInput(input, 10.0);
  * @endcode
  */
-std::array<double, 3> MeansFromInput(const SimWindInput &input, double fallbackMeanWind)
+std::array<double, 3> MeansFromMetadata(const WindImportMetadata &metadata, double fallbackMeanWind)
 {
-	const double speed = input.meanWindSpeed > 0.0 ? input.meanWindSpeed : fallbackMeanWind;
-	const double h = input.horAngle * kPi / 180.0;
-	const double v = input.vertAngle * kPi / 180.0;
+	const double speed = metadata.meanWindSpeed > 0.0 ? metadata.meanWindSpeed : fallbackMeanWind;
+	const double h = metadata.horAngle * kPi / 180.0;
+	const double v = metadata.vertAngle * kPi / 180.0;
 	const double cosV = std::cos(v);
 	return {
 	    speed * cosV * std::cos(h),
@@ -311,7 +311,7 @@ std::array<double, 3> ResolveBladedSigma(
 	int record2,
 	double meanWind,
 	const std::array<float, 3> &tiPercent,
-	const SimWindInput &input,
+	const WindImportMetadata &metadata,
 	const std::optional<CompanionSummary> &companion)
 {
 	if (companion && companion->hasStats)
@@ -326,9 +326,9 @@ std::array<double, 3> ResolveBladedSigma(
 	}
 
 	const std::array<double, 3> explicitTi{
-	    NormalizeTiValue(input.tiU),
-	    NormalizeTiValue(input.tiV),
-	    NormalizeTiValue(input.tiW)};
+	    NormalizeTiValue(metadata.tiU),
+	    NormalizeTiValue(metadata.tiV),
+	    NormalizeTiValue(metadata.tiW)};
 
 	if (explicitTi[0] > 0.0 && explicitTi[1] > 0.0 && explicitTi[2] > 0.0)
 	{
@@ -437,17 +437,17 @@ double SamplePlaneCubic(const WindField &field, int comp, int step, double y, do
  *       Checks include: ny, nz, dt, hubHeight, meanWindSpeed.
  *       Threshold tolerances are used to avoid false positives from floating-point rounding.
  */
-void WarnOnMismatch(WindField &field, const SimWindInput &input)
+void WarnOnMismatch(WindField &field, const WindImportMetadata &metadata)
 {
-	if (input.gridPtsY > 0 && input.gridPtsY != field.ny)
+	if (metadata.expectedNy > 0 && metadata.expectedNy != field.ny)
 		field.warnings.push_back("Imported file ny does not match NumPointY; using file header value.");
-	if (input.gridPtsZ > 0 && input.gridPtsZ != field.nz)
+	if (metadata.expectedNz > 0 && metadata.expectedNz != field.nz)
 		field.warnings.push_back("Imported file nz does not match NumPointZ; using file header value.");
-	if (input.timeStep > 0.0 && std::abs(input.timeStep - field.dt) > 1.0e-9)
+	if (metadata.expectedDt > 0.0 && std::abs(metadata.expectedDt - field.dt) > 1.0e-9)
 		field.warnings.push_back("Imported file dt does not match TimeStep; using file header value.");
-	if (input.hubHeight > 0.0 && field.hubHeight > 0.0 && std::abs(input.hubHeight - field.hubHeight) > 1.0e-6)
+	if (metadata.hubHeight > 0.0 && field.hubHeight > 0.0 && std::abs(metadata.hubHeight - field.hubHeight) > 1.0e-6)
 		field.warnings.push_back("Imported file hub height does not match HubHt; using imported metadata.");
-	if (input.meanWindSpeed > 0.0 && field.meanWindSpeed > 0.0 && std::abs(input.meanWindSpeed - field.meanWindSpeed) > 1.0e-6)
+	if (metadata.meanWindSpeed > 0.0 && field.meanWindSpeed > 0.0 && std::abs(metadata.meanWindSpeed - field.meanWindSpeed) > 1.0e-6)
 		field.warnings.push_back("Imported file mean wind does not match MeanWindSpeed; using imported metadata.");
 }
 } // namespace
@@ -561,6 +561,44 @@ std::array<double, 3> WindField::Sample(double y, double z, double t, InterpMeth
 		result[static_cast<std::size_t>(comp)] = v0 * (1.0 - at) + v1 * at;
 	}
 	return result;
+}
+
+std::array<double, 3> WindField::SampleAt(double x, double y, double z, double t, const WindVelocityOptions &options) const
+{
+	if (nSteps <= 0 || ny <= 0 || nz <= 0)
+		throw std::runtime_error("Imported wind field is empty");
+
+	double sampleT = t;
+	if (options.autoFieldShift && meanWindSpeed > kTiny)
+		sampleT += (0.5 * fieldDimY - x) / meanWindSpeed;
+	sampleT += options.shiftTime;
+	if (sampleT < 0.0)
+		sampleT = 0.0;
+
+	const double maxTime = timeCoords.empty() ? 0.0 : timeCoords.back();
+	if (options.mirrorTime)
+	{
+		sampleT = NormalizeTime(sampleT, maxTime, true);
+	}
+	else if (options.cycleWind)
+	{
+		if (maxTime > 0.0)
+		{
+			sampleT = std::fmod(sampleT, maxTime);
+			if (sampleT < 0.0)
+				sampleT += maxTime;
+		}
+		else
+		{
+			sampleT = 0.0;
+		}
+	}
+	else
+	{
+		sampleT = NormalizeTime(sampleT, maxTime, false);
+	}
+
+	return Sample(y, z, sampleT, options.interpMethod, false);
 }
 
 WindField WindField::ReadBts(const std::string &path)
@@ -696,7 +734,7 @@ WindField WindField::ReadTurbSimWnd(const std::string &path)
 	return field;
 }
 
-WindField WindField::ReadBladedWnd(const std::string &path, const SimWindInput &input)
+WindField WindField::ReadBladedWnd(const std::string &path, const WindImportMetadata &metadata)
 {
 	std::ifstream in(path, std::ios::binary);
 	if (!in)
@@ -779,7 +817,7 @@ WindField WindField::ReadBladedWnd(const std::string &path, const SimWindInput &
 		field.usedCompanionSummary = true;
 
 	field.hubHeight = companion && companion->hasHubHeight ? companion->hubHeight
-	                                                       : (input.hubHeight > 0.0 ? input.hubHeight : input.refHeight);
+	                                                       : (metadata.hubHeight > 0.0 ? metadata.hubHeight : metadata.refHeight);
 	if (field.hubHeight <= 0.0)
 		field.hubHeight = 0.5 * field.dz * static_cast<double>(std::max(field.nz - 1, 0));
 
@@ -789,8 +827,8 @@ WindField WindField::ReadBladedWnd(const std::string &path, const SimWindInput &
 	field.Resize(field.nSteps, field.ny, field.nz);
 	field.BuildCoordinates();
 
-	const std::array<double, 3> means = companion && companion->hasStats ? companion->mean : MeansFromInput(input, field.meanWindSpeed);
-	const std::array<double, 3> sigmas = ResolveBladedSigma(record2, field.meanWindSpeed, tiPercent, input, companion);
+	const std::array<double, 3> means = companion && companion->hasStats ? companion->mean : MeansFromMetadata(metadata, field.meanWindSpeed);
+	const std::array<double, 3> sigmas = ResolveBladedSigma(record2, field.meanWindSpeed, tiPercent, metadata, companion);
 
 	for (int step = 0; step < field.nSteps; ++step)
 	{
@@ -816,7 +854,7 @@ WindField WindField::ReadBladedWnd(const std::string &path, const SimWindInput &
 	return field;
 }
 
-WindField WindField::ReadAny(const std::string &path, WndFormat format, const SimWindInput &input)
+WindField WindField::ReadAny(const std::string &path, WndFormat format, const WindImportMetadata &metadata)
 {
 	const std::filesystem::path source(path);
 	auto ext = source.extension().string();
@@ -828,7 +866,7 @@ WindField WindField::ReadAny(const std::string &path, WndFormat format, const Si
 	else if (ext == ".wnd")
 	{
 		if (format == WndFormat::BLADED_WND)
-			field = ReadBladedWnd(path, input);
+			field = ReadBladedWnd(path, metadata);
 		else if (format == WndFormat::TURBSIM_WND)
 			field = ReadTurbSimWnd(path);
 		else
@@ -839,6 +877,6 @@ WindField WindField::ReadAny(const std::string &path, WndFormat format, const Si
 		throw std::runtime_error("Unsupported import wind-file extension");
 	}
 
-	WarnOnMismatch(field, input);
+	WarnOnMismatch(field, metadata);
 	return field;
 }

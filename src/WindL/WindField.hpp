@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-#include "SiMwind/SimWind_Type.hpp"
+#include "WindL/WindL_Type.hpp"
 
 /**
  * @brief 三维湍流风场容器，管理风场数据的存储、坐标构建、统计计算与文件导入。
@@ -181,6 +181,7 @@ struct WindField
 	 * @endcode
 	 */
 	std::array<double, 3> Sample(double y, double z, double t, InterpMethod method, bool cycleWind) const;
+	std::array<double, 3> SampleAt(double x, double y, double z, double t, const WindVelocityOptions &options = {}) const;
 
 	/**
 	 * @brief 从 .bts 二进制格式文件导入风场。
@@ -213,7 +214,7 @@ struct WindField
 	 * @note 优先从伴随 .sum 文件获取统计量，其次使用 input 参数计算。
 	 *       Statistics are preferentially obtained from companion .sum file, then computed from input parameters.
 	 */
-	static WindField ReadBladedWnd(const std::string &path, const SimWindInput &input);
+	static WindField ReadBladedWnd(const std::string &path, const WindImportMetadata &metadata);
 
 	/**
 	 * @brief 根据文件扩展名和指定格式自动选择导入方法。
@@ -227,5 +228,5 @@ struct WindField
 	 * @note .bts 扩展名使用 ReadBts；.wnd 扩展名根据 WndFormat 分派到 ReadBladedWnd 或 ReadTurbSimWnd。
 	 *       .bts extension uses ReadBts; .wnd extension dispatches to ReadBladedWnd or ReadTurbSimWnd based on WndFormat.
 	 */
-	static WindField ReadAny(const std::string &path, WndFormat format, const SimWindInput &input);
+	static WindField ReadAny(const std::string &path, WndFormat format, const WindImportMetadata &metadata = {});
 };
