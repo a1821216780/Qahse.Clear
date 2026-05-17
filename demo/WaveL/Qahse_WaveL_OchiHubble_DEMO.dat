@@ -1,0 +1,52 @@
+-- =============================================================================
+-- Qahse.WaveL v1.0.0 .dat 波浪定义文件: Ochi-Hubble 双峰谱
+-- =============================================================================
+
+---------------------- WaveL 波浪类型与水深定义 ------------------------------
+5      WaveType        - 波浪类型: 0 无波; 1 规则波; 2 JONSWAP; 3 ISSC; 4 Torsethaugen; 5 Ochi-Hubble; 6 用户谱; 7 分量文件; 8 波面时序
+87     WaterDepth      - 水深(m)
+9.81   Gravity         - 重力加速度(m/s^2)
+1      WaveStretching  - 波浪拉伸: 0 垂直拉伸; 1 Wheeler; 2 外推; 3 不拉伸
+0.0    TimeOffset      - 波浪时间偏移(s)
+
+---------------------- 基础波浪参数 ------------------------------------------
+6.0    Hs              - 有义波高(m); AutoOchi=true 时用于自动推导 Ochi-Hubble 参数
+10.0   Tp              - 谱峰周期(s); Ochi-Hubble 自动参数不使用，保留用于统一输入格式
+0.0    WaveDirMean     - 平均波向(deg)
+30.0   WaveDirMax      - 方向扩展半范围(deg)
+1.0    WaveDirSpread   - 方向扩展指数(-)
+64     WaveFreqNum     - 频率分量目标数量
+3      WaveDirNum      - 方向分量数量
+1      FreqDisc        - 频率离散方式: 0 等频率; 1 等能量
+0.03   DFMax           - 等能量离散时允许的最大频率间隔(Hz); 超过则细分
+true   AutoFreqRange   - 是否自动确定频率范围
+0.0    FreqStart       - 起始频率(Hz); AutoFreqRange=false 时使用
+0.0    FreqEnd         - 终止频率(Hz); AutoFreqRange=false 时使用
+34567  Seed            - 随机相位种子
+
+---------------------- Ochi-Hubble 谱参数 ------------------------------------
+true   AutoOchi        - 是否按 QBlade 默认关系自动推导 Ochi-Hubble 参数
+0.0    OchiHs1         - 第一峰有义波高(m); AutoOchi=false 时使用
+0.0    OchiHs2         - 第二峰有义波高(m); AutoOchi=false 时使用
+0.0    OchiF1          - 第一峰频率(Hz); AutoOchi=false 时使用
+0.0    OchiF2          - 第二峰频率(Hz); AutoOchi=false 时使用
+0.0    OchiLambda1     - 第一峰形状参数(-); AutoOchi=false 时使用
+0.0    OchiLambda2     - 第二峰形状参数(-); AutoOchi=false 时使用
+
+---------------------- 海流参数 ----------------------------------------------
+0.0    ConstCurrent            - 常值海流速度(m/s)
+0.0    ConstCurrentDir         - 常值海流方向(deg)
+0.0    ShearCurrent            - 线性剪切海流表面速度(m/s)
+0.0    ShearCurrentDir         - 线性剪切海流方向(deg)
+20.0   ShearCurrentDepth       - 线性剪切海流作用深度(m)
+0.0    ProfileCurrent          - 幂律剖面海流参考速度(m/s)
+0.0    ProfileCurrentDir       - 幂律剖面海流方向(deg)
+1.0    ProfileCurrentExponent  - 幂律剖面指数(-)
+
+---------------------- 输出控制 ----------------------------------------------
+true   SumPrint        - 是否写出 WaveL 摘要文件(.sum)
+true   SaveComponents  - 是否写出离散后的波浪分量文件
+"./result" SavePath    - 输出目录
+"Qahse_WaveL_OchiHubble_DEMO" SaveName - 输出文件名前缀
+
+END

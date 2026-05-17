@@ -1,0 +1,10 @@
+WaveL literature-formula benchmark
+Reference formulas: Airy finite-depth linear wave kinematics, omega^2=g*k*tanh(k*h), Hm0=4*sqrt(m0).
+Sample point: x=0.0, y=0.0, z=-10.0, t=12.0
+
+Component: components=4, Hs_components=4.58257569496, dispersion_residual=3.076e-15, state_error=2.701e-12
+JONSWAP: components=165, Hs_components=6, dispersion_residual=6.529e-15, state_error=4.589e-12
+OchiHubble: components=103, Hs_components=5.99159411175, dispersion_residual=7.235e-15, state_error=2.538e-13
+TimeSeries: components=10, Hs_components=3.48721114796, dispersion_residual=1.440e-15, state_error=4.326e-13
+Torsethaugen: components=88, Hs_components=6, dispersion_residual=6.217e-15, state_error=4.344e-13
+UserSpectrum: components=37, Hs_components=6, dispersion_residual=6.434e-15, state_error=2.572e-12

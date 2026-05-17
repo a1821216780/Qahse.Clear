@@ -102,6 +102,9 @@
     <ClCompile Include="..\src\WaveL\WaveField.cpp">
       <Filter>Source Files\WaveL</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\WaveL\WaveL.cpp">
+      <Filter>Source Files\WaveL</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\HydroL\IO\HydroL_IO_Subs.cpp">
       <Filter>Source Files\HydroL</Filter>
     </ClCompile>
@@ -159,6 +162,9 @@
       <Filter>Header Files\SiMwind</Filter>
     </ClInclude>
     <ClInclude Include="..\src\WaveL\WaveL_Type.hpp">
+      <Filter>Header Files\WaveL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WaveL\WaveL.hpp">
       <Filter>Header Files\WaveL</Filter>
     </ClInclude>
     <ClInclude Include="..\src\WaveL\WaveSpectrum.hpp">

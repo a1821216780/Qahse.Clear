@@ -133,6 +133,10 @@
     <ClCompile Include="..\src\Math\Vec3.cpp" />
     <ClCompile Include="..\src\Math\Vec3f.cpp" />
     <ClCompile Include="..\src\SiMwind\SimWind.cpp" />
+    <ClCompile Include="..\src\WaveL\WaveKinematics.cpp" />
+    <ClCompile Include="..\src\WaveL\WaveSpectrum.cpp" />
+    <ClCompile Include="..\src\WaveL\WaveField.cpp" />
+    <ClCompile Include="..\src\WaveL\WaveL.cpp" />
     <ClCompile Include="..\src\WindL\WindL.cpp" />
     <ClCompile Include="..\src\WindL\WindField.cpp" />
     <ClCompile Include="..\src\SiMwind\Batch\SimWindBatch.cpp" />
@@ -160,6 +164,13 @@
     <ClInclude Include="..\src\SiMwind\IO\LocaleString_SimWind.hpp" />
     <ClInclude Include="..\src\SiMwind\SimWind_Type.hpp" />
     <ClInclude Include="..\src\SiMwind\SimWind.hpp" />
+    <ClInclude Include="..\src\WaveL\WaveL.hpp" />
+    <ClInclude Include="..\src\WaveL\WaveL_Type.hpp" />
+    <ClInclude Include="..\src\WaveL\WaveSpectrum.hpp" />
+    <ClInclude Include="..\src\WaveL\WaveKinematics.hpp" />
+    <ClInclude Include="..\src\WaveL\WaveField.hpp" />
+    <ClInclude Include="..\src\WaveL\IO\WaveL_IO_Subs.hpp" />
+    <ClInclude Include="..\src\WaveL\IO\LocaleString_WaveL.hpp" />
     <ClInclude Include="..\src\WindL\WindL.hpp" />
     <ClInclude Include="..\src\WindL\WindL_Type.hpp" />
     <ClInclude Include="..\src\WindL\WindField.hpp" />

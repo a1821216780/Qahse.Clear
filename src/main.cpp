@@ -43,6 +43,7 @@
 #include "SiMwind/Batch/SimWindBatch.hpp"
 #include "SiMwind/IO/SimWind_IO_Subs.hpp"
 #include "WindL/WindL.hpp"
+#include "WaveL/WaveL.hpp"
 #include "IO/LocaleString.hpp"
 
 #ifdef _WIN32
@@ -89,6 +90,8 @@ int main(int argc, char *argv[])
         LogHelper::WriteLogO(TL("  --mbdl <文件.qmd>      从 .qmd 文件运行独立 MBDL 结构动力学", "  --mbdl <file.qmd>     Run standalone MBDL structural dynamics from .qmd file"));
         LogHelper::WriteLogO(TL("  --windl-models        显示 WindL OOP 模型目录和路由 ID", "  --windl-models        Print WindL OOP model catalogs and route IDs"));
         LogHelper::WriteLogO(TL("  --qod <文件.qoe>       从 .qoe 文件运行独立海洋模式", "  --qod <file.qoe>      Run standalone ocean mode from .qoe file"));
+        LogHelper::WriteLogO("  --wavel <file.dat>   Load WaveL wave input and print a summary");
+        LogHelper::WriteLogO("                         Optional: --sample x y z t");
         LogHelper::WriteLogO("  --qhd <file.qhd>      Run standalone HydroL hydrodynamics from .qhd file");
         LogHelper::WriteLogO(TL("  --pcsl <输入文件>     从输入文件运行 PCSL 截面分析", "  --pcsl <input_file>   Run PCSL cross-section analysis from input file"));
         LogHelper::WriteLogO(TL("  --run <文件.trb|文件.sim> [选项]  从定义文件运行仿真，无 GUI", "  --run <file.trb|file.sim> [options]  Run simulation from definition file, no GUI"));
@@ -111,6 +114,75 @@ int main(int argc, char *argv[])
     for (int i = 1; i < argc; ++i)
     {
         const std::string arg = argv[i] ? argv[i] : "";
+        if (arg == "--wavel")
+        {
+            if (i + 1 >= argc)
+            {
+                std::cerr << "Missing WaveL input path.\n";
+                return 2;
+            }
+
+            try
+            {
+                const std::string wavelPath = std::filesystem::absolute(argv[i + 1]).string();
+                bool sample = false;
+                std::array<double, 4> sampleArgs{0.0, 0.0, 0.0, 0.0};
+                for (int j = i + 2; j < argc; ++j)
+                {
+                    const std::string option = argv[j] ? argv[j] : "";
+                    if (option == "--sample")
+                    {
+                        if (j + 4 >= argc)
+                        {
+                            std::cerr << "--sample requires x y z t.\n";
+                            return 2;
+                        }
+                        sample = true;
+                        sampleArgs[0] = std::stod(argv[++j]);
+                        sampleArgs[1] = std::stod(argv[++j]);
+                        sampleArgs[2] = std::stod(argv[++j]);
+                        sampleArgs[3] = std::stod(argv[++j]);
+                    }
+                }
+
+                const auto progress = [](const std::string &message) {
+                    std::cout << message << std::endl;
+                };
+                const auto wave = WaveL::LoadFromFile(wavelPath, progress);
+                const auto &input = wave.Input();
+                const auto &result = wave.Result();
+                std::cout << "WaveL input: " << wavelPath << "\n";
+                std::cout << "WaveType: " << static_cast<int>(input.waveType) << "\n";
+                std::cout << "WaterDepth: " << input.waterDepth << "\n";
+                std::cout << "Hs: " << input.hs << "\n";
+                std::cout << "Tp: " << input.tp << "\n";
+                std::cout << "Components: " << result.components.size() << "\n";
+                if (!result.componentPath.empty())
+                    std::cout << "ComponentFile: " << result.componentPath << "\n";
+                if (!result.summaryPath.empty())
+                    std::cout << "SummaryFile: " << result.summaryPath << "\n";
+                if (sample)
+                {
+                    const auto state = wave.StateAt(sampleArgs[0], sampleArgs[1], sampleArgs[2], sampleArgs[3]);
+                    std::cout << std::setprecision(12);
+                    std::cout << "Sample: x=" << sampleArgs[0] << ", y=" << sampleArgs[1]
+                              << ", z=" << sampleArgs[2] << ", t=" << sampleArgs[3] << "\n";
+                    std::cout << "  Elevation: " << state.elevation << "\n";
+                    std::cout << "  WaveVelocity: " << state.waveVelocity[0] << ", " << state.waveVelocity[1] << ", " << state.waveVelocity[2] << "\n";
+                    std::cout << "  WaveAcceleration: " << state.waveAcceleration[0] << ", " << state.waveAcceleration[1] << ", " << state.waveAcceleration[2] << "\n";
+                    std::cout << "  CurrentVelocity: " << state.currentVelocity[0] << ", " << state.currentVelocity[1] << ", " << state.currentVelocity[2] << "\n";
+                    std::cout << "  WaterVelocity: " << state.waterVelocity[0] << ", " << state.waterVelocity[1] << ", " << state.waterVelocity[2] << "\n";
+                    std::cout << "  DynamicPressureHead: " << state.dynamicPressure << "\n";
+                }
+                return 0;
+            }
+            catch (const std::exception &ex)
+            {
+                std::cerr << "WaveL failed: " << ex.what() << "\n";
+                return 1;
+            }
+        }
+
         if (arg == "--windl")
         {
             if (i + 1 >= argc)

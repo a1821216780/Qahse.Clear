@@ -119,6 +119,9 @@
     <ClCompile Include="..\Test\WindL\SimWindBatchTests.cpp">
       <Filter>Source Files\SiMwind</Filter>
     </ClCompile>
+    <ClCompile Include="..\Test\WaveL\WaveLTests.cpp">
+      <Filter>Source Files\WaveL</Filter>
+    </ClCompile>
     <ClCompile Include="..\Test\Math\MathHelperTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -139,6 +142,18 @@
     </ClCompile>
     <ClCompile Include="..\src\SiMwind\Batch\SimWindBatch.cpp">
       <Filter>Source Files\SiMwind</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\WaveL\WaveKinematics.cpp">
+      <Filter>Source Files\WaveL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\WaveL\WaveSpectrum.cpp">
+      <Filter>Source Files\WaveL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\WaveL\WaveField.cpp">
+      <Filter>Source Files\WaveL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\WaveL\WaveL.cpp">
+      <Filter>Source Files\WaveL</Filter>
     </ClCompile>
    
   </ItemGroup>
@@ -195,6 +210,9 @@
       <Filter>Header Files\SiMwind</Filter>
     </ClInclude>
     <ClInclude Include="..\src\WaveL\WaveL_Type.hpp">
+      <Filter>Header Files\WaveL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WaveL\WaveL.hpp">
       <Filter>Header Files\WaveL</Filter>
     </ClInclude>
     <ClInclude Include="..\src\WaveL\WaveSpectrum.hpp">

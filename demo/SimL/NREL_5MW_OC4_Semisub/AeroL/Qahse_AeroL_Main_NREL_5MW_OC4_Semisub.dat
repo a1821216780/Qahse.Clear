@@ -32,12 +32,7 @@ HAWT              RotorType              - 风轮类型 {HAWT=水平轴风力机
 "./Airfoils/NACA64_A17.dat"
 
 ======  叶片/风轮气动参数  =====================================================================
-"../MBD2/HawtC2_MBD_blade_AMM.str"    BladeAeroStructFile - 叶片气动-结构耦合文件路径
-
-======  转子气动离散参数  ======================================================
-2                 DiscType               - 风轮气动展向离散方式 {0=from BladeTable; 1=linear; 2=cosine;}
-0                 IntpType               - 风轮气动插值方式 {0=linear; 1=Akima splines;}
-30                NumPanels              - 每片叶片的气动面元数量 [unused if DiscType=0]
+"../StrL/NREL_5MW_OC4_Semisub_Blade_new.str"    BladeAeroStructFile - 叶片气动-结构耦合文件路径
 
 ======  气动力模型参数  ======================================================
 false             UnsteadyAero           - 是否考虑非定常非环量气动力 [bool]

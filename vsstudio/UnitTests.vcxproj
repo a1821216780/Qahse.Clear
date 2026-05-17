@@ -83,6 +83,10 @@
     <ClCompile Include="..\src\Math\LinearAlgebraHelper.cpp" />
     <ClCompile Include="..\src\Math\FrequenceHelper.cpp" />
     <ClCompile Include="..\src\SiMwind\SimWind.cpp" />
+    <ClCompile Include="..\src\WaveL\WaveKinematics.cpp" />
+    <ClCompile Include="..\src\WaveL\WaveSpectrum.cpp" />
+    <ClCompile Include="..\src\WaveL\WaveField.cpp" />
+    <ClCompile Include="..\src\WaveL\WaveL.cpp" />
     <ClCompile Include="..\src\WindL\WindL.cpp" />
     <ClCompile Include="..\src\WindL\WindField.cpp" />
     <ClCompile Include="..\src\SiMwind\Batch\SimWindBatch.cpp" />
@@ -90,6 +94,7 @@
     <ClCompile Include="..\Test\Math\Vec3QuaternionTests.cpp" />
     <ClCompile Include="..\Test\Math\LinearAlgebraHelperTests.cpp" />
     <ClCompile Include="..\Test\WindL\SimWindBatchTests.cpp" />
+    <ClCompile Include="..\Test\WaveL\WaveLTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\IO\Outfile.h" />
@@ -102,6 +107,7 @@
     <ClInclude Include="..\src\IO\Yaml.hpp" />
     <ClInclude Include="..\src\SiMwind\SimWind_Type.hpp" />
     <ClInclude Include="..\src\SiMwind\SimWind.hpp" />
+    <ClInclude Include="..\src\WaveL\WaveL.hpp" />
     <ClInclude Include="..\src\WindL\WindL.hpp" />
     <ClInclude Include="..\src\WindL\WindL_Type.hpp" />
     <ClInclude Include="..\src\WindL\WindField.hpp" />
