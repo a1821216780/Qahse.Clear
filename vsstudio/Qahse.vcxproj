@@ -132,9 +132,10 @@
     <ClCompile Include="..\src\Math\LinearAlgebraHelper.cpp" />
     <ClCompile Include="..\src\Math\Vec3.cpp" />
     <ClCompile Include="..\src\Math\Vec3f.cpp" />
-    <ClCompile Include="..\src\WindL\SimWind.cpp" />
+    <ClCompile Include="..\src\SiMwind\SimWind.cpp" />
+    <ClCompile Include="..\src\WindL\WindL.cpp" />
     <ClCompile Include="..\src\WindL\WindField.cpp" />
-    <ClCompile Include="..\src\WindL\Batch\WindLBatch.cpp" />
+    <ClCompile Include="..\src\SiMwind\Batch\SimWindBatch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\HawtC3\src\IO\IO\BinaryFileHandler.h" />
@@ -156,12 +157,13 @@
     <ClInclude Include="..\src\IO\LogHelper.h" />
     <ClInclude Include="..\src\IO\Serializer.hpp" />
     <ClInclude Include="..\src\IO\Yaml.hpp" />
-    <ClInclude Include="..\src\WindL\IO\LocaleString_WindL.hpp" />
-    <ClInclude Include="..\src\WindL\WindL_Type.hpp" />
-    <ClInclude Include="..\src\WindL\SimWind.hpp" />
+    <ClInclude Include="..\src\SiMwind\IO\LocaleString_SimWind.hpp" />
+    <ClInclude Include="..\src\SiMwind\SimWind_Type.hpp" />
+    <ClInclude Include="..\src\SiMwind\SimWind.hpp" />
+    <ClInclude Include="..\src\WindL\WindL.hpp" />
     <ClInclude Include="..\src\WindL\WindField.hpp" />
-    <ClInclude Include="..\src\WindL\Batch\WindLBatch.hpp" />
-    <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp" />
+    <ClInclude Include="..\src\SiMwind\Batch\SimWindBatch.hpp" />
+    <ClInclude Include="..\src\SiMwind\IO\SimWind_IO_Subs.hpp" />
     <ClInclude Include="..\src\Params.h" />
     <ClInclude Include="..\src\Math\IntegrationHelper.h" />
     <ClInclude Include="..\src\Math\Vec3.h" />

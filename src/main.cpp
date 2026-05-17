@@ -36,9 +36,9 @@
 #include "io/ZConsole.hpp"
 #include "io/LogHelper.h"
 #include "io/ZString.hpp"
-#include "WindL/SimWind.hpp"
-#include "WindL/Batch/WindLBatch.hpp"
-#include "WindL/IO/WindL_IO_Subs.hpp"
+#include "SiMwind/SimWind.hpp"
+#include "SiMwind/Batch/SimWindBatch.hpp"
+#include "SiMwind/IO/SimWind_IO_Subs.hpp"
 #include "IO/LocaleString.hpp"
 
 #ifdef _WIN32
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
         LogHelper::WriteLogO(L_CLI_OptionTest);
         LogHelper::WriteLogO(TL("  --linearize <文件.lin>    从 .lin 文件运行线性化，无 GUI", "  --linearize <file.lin> Run linearization from .lin file, no GUI"));
         LogHelper::WriteLogO(L_CLI_OptionQWD);
-        LogHelper::WriteLogO(TL("                         (Mode=0: 生成, Mode=1: 导入, Mode=2: 批量 Excel)", "                         (Mode=0: generate, Mode=1: import, Mode=2: batch from Excel)"));
+        LogHelper::WriteLogO(TL("                         (Mode=0: SimWind 生成, Mode=1: SimWind 批量 Excel)", "                         (Mode=0: SimWind generate, Mode=1: SimWind batch from Excel)"));
         LogHelper::WriteLogO(TL("  --mbdl <文件.qmd>      从 .qmd 文件运行独立 MBDL 结构动力学", "  --mbdl <file.qmd>     Run standalone MBDL structural dynamics from .qmd file"));
         LogHelper::WriteLogO(TL("  --windl-models        显示 WindL OOP 模型目录和路由 ID", "  --windl-models        Print WindL OOP model catalogs and route IDs"));
         LogHelper::WriteLogO(TL("  --qod <文件.qoe>       从 .qoe 文件运行独立海洋模式", "  --qod <file.qoe>      Run standalone ocean mode from .qoe file"));
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
             try
             {
                 const std::string qwdPath = std::filesystem::absolute(argv[i + 1]).string();
-                const auto input = ReadWindLInput(qwdPath);
+                const auto input = ReadSimWindInput(qwdPath);
                 const auto progress = [](const std::string &message) {
                     std::cout << message << std::endl;
                 };
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
                 if (input.mode == Mode::BATCH)
                 {
                     std::cout << std::string(L_CLI_RunningBatch) + " with template \"" << qwdPath << "\".\n" << std::flush;
-                    const auto batch = WindLBatch::RunFromFile(qwdPath, std::filesystem::absolute(argv[0]).string(), progress);
+                    const auto batch = SimWindBatch::RunFromFile(qwdPath, std::filesystem::absolute(argv[0]).string(), progress);
                     std::cout << L_CLI_BatchSummary << "\n";
                     std::cout << L_CLI_BatchManifest << batch.manifestPath << "\n";
                     std::cout << TL("  CSV：", "  CSV: ") << batch.csvPath << "\n";
@@ -150,41 +150,6 @@ int main(int argc, char *argv[])
                     std::cout << TL("  跳过：", "  Skipped: ") << batch.skipped << "\n";
                     std::cout << TL("  已验证：", "  Validated: ") << batch.validated << "\n";
                     return (batch.failed == 0 && batch.invalid == 0) ? 0 : 1;
-                }
-
-                if (input.mode == Mode::IMPORT)
-                {
-                    std::cout << std::string(L_CLI_RunningImport) + qwdPath + "\".\n" << std::flush;
-                    const auto field = SimWind::Import(input, progress);
-                    std::cout << L_CLI_ImportedField << "\n";
-                    std::cout << L_CLI_Source << field.sourcePath.string() << "\n";
-                    std::cout << L_CLI_Format;
-                    switch (field.wndFormat)
-                    {
-                    case WndFormat::TURBSIM_BTS: std::cout << "TURBSIM_BTS"; break;
-                    case WndFormat::TURBSIM_WND: std::cout << "TURBSIM_WND"; break;
-                    case WndFormat::BLADED_WND: std::cout << "BLADED_WND"; break;
-                    }
-                    std::cout << "\n";
-                    std::cout << L_CLI_Grid << field.ny << " x " << field.nz << "\n";
-                    std::cout << L_CLI_TimeStep << field.dt << "\n";
-                    std::cout << L_CLI_NumSteps << field.nSteps << "\n";
-                    std::cout << L_CLI_HubHt << field.hubHeight << "\n";
-                    std::cout << L_CLI_MeanWindSpeed << field.meanWindSpeed << "\n";
-                    std::cout << L_CLI_UsedCompSum << (field.usedCompanionSummary ? "true" : "false") << "\n";
-                    for (int comp = 0; comp < 3; ++comp)
-                    {
-                        static const char *names[3] = {"u", "v", "w"};
-                        std::cout << "  " << names[comp]
-                                  << ": mean=" << field.mean[static_cast<std::size_t>(comp)]
-                                  << " sigma=" << field.sigma[static_cast<std::size_t>(comp)]
-                                  << " TI=" << 100.0 * field.turbulenceIntensity[static_cast<std::size_t>(comp)] << "%\n";
-                    }
-                    if (!field.summaryPath.empty())
-                        std::cout << L_CLI_Summary << field.summaryPath << "\n";
-                    for (const auto &warning : field.warnings)
-                        std::cout << L_CLI_Warning << warning << "\n";
-                    return 0;
                 }
 
                 std::cerr << "Unsupported qwd Mode for SimWind.\n";

@@ -82,20 +82,14 @@
     <ClCompile Include="..\src\Math\IntegrationHelper.cpp" />
     <ClCompile Include="..\src\Math\LinearAlgebraHelper.cpp" />
     <ClCompile Include="..\src\Math\FrequenceHelper.cpp" />
-    <ClCompile Include="..\src\WindL\SimWind.cpp" />
+    <ClCompile Include="..\src\SiMwind\SimWind.cpp" />
+    <ClCompile Include="..\src\WindL\WindL.cpp" />
     <ClCompile Include="..\src\WindL\WindField.cpp" />
-    <ClCompile Include="..\src\WindL\Batch\WindLBatch.cpp" />
-    <ClCompile Include="..\src\WaveL\WaveSpectrum.cpp" />
-    <ClCompile Include="..\src\WaveL\WaveKinematics.cpp" />
-    <ClCompile Include="..\src\WaveL\WaveField.cpp" />
-    <ClCompile Include="..\src\HydroL\IO\HydroL_IO_Subs.cpp" />
-    <ClCompile Include="..\src\HydroL\HydroL.cpp" />
+    <ClCompile Include="..\src\SiMwind\Batch\SimWindBatch.cpp" />
     <ClCompile Include="..\Test\Math\MathHelperTests.cpp" />
     <ClCompile Include="..\Test\Math\Vec3QuaternionTests.cpp" />
     <ClCompile Include="..\Test\Math\LinearAlgebraHelperTests.cpp" />
-    <ClCompile Include="..\Test\WindL\WindLBatchTests.cpp" />
-    <ClCompile Include="..\Test\WaveL\WaveSpectrumTests.cpp" />
-    <ClCompile Include="..\Test\HydroL\HydroLTests.cpp" />
+    <ClCompile Include="..\Test\WindL\SimWindBatchTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\IO\Outfile.h" />
@@ -106,11 +100,12 @@
     <ClInclude Include="..\src\IO\LogHelper.h" />
     <ClInclude Include="..\src\IO\Serializer.hpp" />
     <ClInclude Include="..\src\IO\Yaml.hpp" />
-    <ClInclude Include="..\src\WindL\WindL_Type.hpp" />
-    <ClInclude Include="..\src\WindL\SimWind.hpp" />
+    <ClInclude Include="..\src\SiMwind\SimWind_Type.hpp" />
+    <ClInclude Include="..\src\SiMwind\SimWind.hpp" />
+    <ClInclude Include="..\src\WindL\WindL.hpp" />
     <ClInclude Include="..\src\WindL\WindField.hpp" />
-    <ClInclude Include="..\src\WindL\Batch\WindLBatch.hpp" />
-    <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp" />
+    <ClInclude Include="..\src\SiMwind\Batch\SimWindBatch.hpp" />
+    <ClInclude Include="..\src\SiMwind\IO\SimWind_IO_Subs.hpp" />
     <ClInclude Include="..\src\WaveL\WaveL_Type.hpp" />
     <ClInclude Include="..\src\WaveL\WaveSpectrum.hpp" />
     <ClInclude Include="..\src\WaveL\WaveKinematics.hpp" />

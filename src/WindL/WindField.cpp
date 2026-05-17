@@ -192,7 +192,7 @@ std::tuple<int, int, double> Bracket(const std::vector<double> &coords, double v
  * auto means = MeansFromInput(input, 10.0);
  * @endcode
  */
-std::array<double, 3> MeansFromInput(const WindLInput &input, double fallbackMeanWind)
+std::array<double, 3> MeansFromInput(const SimWindInput &input, double fallbackMeanWind)
 {
 	const double speed = input.meanWindSpeed > 0.0 ? input.meanWindSpeed : fallbackMeanWind;
 	const double h = input.horAngle * kPi / 180.0;
@@ -311,7 +311,7 @@ std::array<double, 3> ResolveBladedSigma(
 	int record2,
 	double meanWind,
 	const std::array<float, 3> &tiPercent,
-	const WindLInput &input,
+	const SimWindInput &input,
 	const std::optional<CompanionSummary> &companion)
 {
 	if (companion && companion->hasStats)
@@ -437,7 +437,7 @@ double SamplePlaneCubic(const WindField &field, int comp, int step, double y, do
  *       Checks include: ny, nz, dt, hubHeight, meanWindSpeed.
  *       Threshold tolerances are used to avoid false positives from floating-point rounding.
  */
-void WarnOnMismatch(WindField &field, const WindLInput &input)
+void WarnOnMismatch(WindField &field, const SimWindInput &input)
 {
 	if (input.gridPtsY > 0 && input.gridPtsY != field.ny)
 		field.warnings.push_back("Imported file ny does not match NumPointY; using file header value.");
@@ -696,7 +696,7 @@ WindField WindField::ReadTurbSimWnd(const std::string &path)
 	return field;
 }
 
-WindField WindField::ReadBladedWnd(const std::string &path, const WindLInput &input)
+WindField WindField::ReadBladedWnd(const std::string &path, const SimWindInput &input)
 {
 	std::ifstream in(path, std::ios::binary);
 	if (!in)
@@ -816,7 +816,7 @@ WindField WindField::ReadBladedWnd(const std::string &path, const WindLInput &in
 	return field;
 }
 
-WindField WindField::ReadAny(const std::string &path, WndFormat format, const WindLInput &input)
+WindField WindField::ReadAny(const std::string &path, WndFormat format, const SimWindInput &input)
 {
 	const std::filesystem::path source(path);
 	auto ext = source.extension().string();

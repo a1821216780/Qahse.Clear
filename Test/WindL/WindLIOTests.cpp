@@ -7,8 +7,8 @@
 #include <gtest/gtest.h>
 
 #include "IO/Yaml.hpp"
-#include "WindL/IO/WindL_IO_Subs.hpp"
-#include "WindL/WindL_Type.hpp"
+#include "SiMwind/IO/SimWind_IO_Subs.hpp"
+#include "SiMwind/SimWind_Type.hpp"
 
 // ============================================================================
 // 测试辅助
@@ -92,7 +92,7 @@ void ExpectDoubleVectorEqual(const std::vector<double> &expected,
 		EXPECT_DOUBLE_EQ(actual[i], expected[i]) << fieldName << "[" << i << "]";
 }
 
-void ExpectWindLInputEqual(const WindLInput &expected, const WindLInput &actual)
+void ExpectSimWindInputEqual(const SimWindInput &expected, const SimWindInput &actual)
 {
 #define EXPECT_FIELD_EQ(field) EXPECT_EQ(actual.field, expected.field) << #field
 #define EXPECT_FIELD_DOUBLE_EQ(field) EXPECT_DOUBLE_EQ(actual.field, expected.field) << #field
@@ -251,7 +251,7 @@ void ExpectUserWindSpeedEqual(const UserWindSpeedData &expected, const UserWindS
 TEST(WindLIO_QWD, ReadMainFile_BasicFields)
 {
 	auto path = FindTestFile("Qahse_WindL_Main_DEMO.qwd");
-	WindLInput in = ReadWindLInput(path);
+	SimWindInput in = ReadSimWindInput(path);
 
 	// 模式
 	EXPECT_EQ(in.mode, Mode::GENERATE);
@@ -286,7 +286,7 @@ TEST(WindLIO_QWD, ReadMainFile_BasicFields)
 TEST(WindLIO_QWD, ReadMainFile_IECParams)
 {
 	auto path = FindTestFile("Qahse_WindL_Main_DEMO.qwd");
-	WindLInput in = ReadWindLInput(path);
+	SimWindInput in = ReadSimWindInput(path);
 
 	EXPECT_EQ(in.iecEdition, IecStandard::ED3);
 	EXPECT_EQ(in.turbineClass, TurbineClass::Class_II);
@@ -296,7 +296,7 @@ TEST(WindLIO_QWD, ReadMainFile_IECParams)
 TEST(WindLIO_QWD, ReadMainFile_DefaultKeyword)
 {
 	auto path = FindTestFile("Qahse_WindL_Main_DEMO.qwd");
-	WindLInput in = ReadWindLInput(path);
+	SimWindInput in = ReadSimWindInput(path);
 
 	// PLExp 值为 "default"，应保持 C++ 默认值 0.2
 	EXPECT_DOUBLE_EQ(in.shearExp, 0.2);
@@ -313,7 +313,7 @@ TEST(WindLIO_QWD, ReadMainFile_DefaultKeyword)
 TEST(WindLIO_QWD, ReadMainFile_CoherenceModels)
 {
 	auto path = FindTestFile("Qahse_WindL_Main_DEMO.qwd");
-	WindLInput in = ReadWindLInput(path);
+	SimWindInput in = ReadSimWindInput(path);
 
 	// 所有相干模型都是 "default"，应返回 DEFAULT_COH
 	EXPECT_EQ(in.cohMod1, CohModel::DEFAULT_COH);
@@ -325,7 +325,7 @@ TEST(WindLIO_QWD, ReadMainFile_CoherenceModels)
 TEST(WindLIO_QWD, ReadMainFile_Paths)
 {
 	auto path = FindTestFile("Qahse_WindL_Main_DEMO.qwd");
-	WindLInput in = ReadWindLInput(path);
+	SimWindInput in = ReadSimWindInput(path);
 
 	// 输出路径
 	EXPECT_NE(in.savePath.find("result"), std::string::npos);
@@ -341,8 +341,8 @@ TEST(WindLIO_YAML, ExportAndLoadYaml)
 	const auto dir = TestOutputDir();
 	const auto yamlPath = dir / "Qahse_WindL_Main_DEMO.yml";
 
-	const auto input = ReadWindLInput(FindTestFile("Qahse_WindL_Main_DEMO.qwd"));
-	WriteWindLInput(input, yamlPath.string());
+	const auto input = ReadSimWindInput(FindTestFile("Qahse_WindL_Main_DEMO.qwd"));
+	WriteSimWindInput(input, yamlPath.string());
 
 	YML yaml(yamlPath.string(), false);
 	EXPECT_TRUE(yaml.ChickfindNodeByKey("Qahse.WindL"));
@@ -350,7 +350,7 @@ TEST(WindLIO_YAML, ExportAndLoadYaml)
 	EXPECT_EQ(yaml.read("Qahse.WindL.TurbModel"), "B_KAL");
 	EXPECT_EQ(YML::YmlToInt(yaml.read("Qahse.WindL.NumPointY")), 36);
 
-	const auto fromYaml = ReadWindLInput(yamlPath.string());
+	const auto fromYaml = ReadSimWindInput(yamlPath.string());
 	EXPECT_TRUE(fromYaml.wrTrwnd);
 	EXPECT_EQ(fromYaml.saveName, "Test_Demo_wind");
 	EXPECT_DOUBLE_EQ(fromYaml.timeStep, 0.05);
@@ -361,9 +361,9 @@ TEST(WindLIO_YAML, ConvertTextToYaml)
 	const auto dir = TestOutputDir();
 	const auto yamlPath = dir / "converted_from_text.yml";
 
-	ConvertWindLInput(FindTestFile("Qahse_WindL_Main_DEMO.qwd"), yamlPath.string());
+	ConvertSimWindInput(FindTestFile("Qahse_WindL_Main_DEMO.qwd"), yamlPath.string());
 
-	const auto fromYaml = ReadWindLInput(yamlPath.string());
+	const auto fromYaml = ReadSimWindInput(yamlPath.string());
 	EXPECT_EQ(fromYaml.mode, Mode::GENERATE);
 	EXPECT_EQ(fromYaml.gridPtsY, 36);
 	EXPECT_EQ(fromYaml.saveName, "Test_Demo_wind");
@@ -374,20 +374,20 @@ TEST(WindLIO_YAML, RoundTripExplicitCoherenceModesAndApproxFlag)
 	const auto dir = TestOutputDir();
 	const auto yamlPath = dir / "coherence_modes_roundtrip.yml";
 
-	auto input = ReadWindLInput(FindTestFile("Qahse_WindL_Main_DEMO.qwd"));
+	auto input = ReadSimWindInput(FindTestFile("Qahse_WindL_Main_DEMO.qwd"));
 	input.cohMod1 = CohModel::NONE;
 	input.cohMod2 = CohModel::API;
 	input.cohMod3 = CohModel::GENERAL;
 	input.allowCohApprox = false;
 
-	WriteWindLInput(input, yamlPath.string());
-	const auto fromYaml = ReadWindLInput(yamlPath.string());
+	WriteSimWindInput(input, yamlPath.string());
+	const auto fromYaml = ReadSimWindInput(yamlPath.string());
 
 	EXPECT_EQ(fromYaml.cohMod1, CohModel::NONE);
 	EXPECT_EQ(fromYaml.cohMod2, CohModel::API);
 	EXPECT_EQ(fromYaml.cohMod3, CohModel::GENERAL);
 	EXPECT_FALSE(fromYaml.allowCohApprox);
-	ExpectWindLInputEqual(input, fromYaml);
+	ExpectSimWindInputEqual(input, fromYaml);
 }
 
 TEST(WindLIO_YAML, RoundTripUsrVkmEnum)
@@ -395,16 +395,16 @@ TEST(WindLIO_YAML, RoundTripUsrVkmEnum)
 	const auto dir = TestOutputDir();
 	const auto yamlPath = dir / "usrvkm_roundtrip.yml";
 
-	auto input = ReadWindLInput(FindTestFile("Qahse_WindL_Main_DEMO.qwd"));
+	auto input = ReadSimWindInput(FindTestFile("Qahse_WindL_Main_DEMO.qwd"));
 	input.turbModel = TurbModel::USRVKM;
 	input.userShearFile = FindTestFile("Qahse_WindL_User_Defined_Shear_DEMO.dat");
 
-	WriteWindLInput(input, yamlPath.string());
-	const auto fromYaml = ReadWindLInput(yamlPath.string());
+	WriteSimWindInput(input, yamlPath.string());
+	const auto fromYaml = ReadSimWindInput(yamlPath.string());
 
 	EXPECT_EQ(fromYaml.turbModel, TurbModel::USRVKM);
 	EXPECT_EQ(fromYaml.userShearFile, input.userShearFile);
-	ExpectWindLInputEqual(input, fromYaml);
+	ExpectSimWindInputEqual(input, fromYaml);
 }
 
 TEST(WindLIO_YAML, ConvertYamlToText)
@@ -413,10 +413,10 @@ TEST(WindLIO_YAML, ConvertYamlToText)
 	const auto yamlPath = dir / "converted_to_text.yml";
 	const auto textPath = dir / "converted_to_text.qwd";
 
-	ConvertWindLInput(FindTestFile("Qahse_WindL_Main_DEMO.qwd"), yamlPath.string());
-	ConvertWindLInput(yamlPath.string(), textPath.string(), FindTestFile("Qahse_WindL_Main_DEMO.qwd"));
+	ConvertSimWindInput(FindTestFile("Qahse_WindL_Main_DEMO.qwd"), yamlPath.string());
+	ConvertSimWindInput(yamlPath.string(), textPath.string(), FindTestFile("Qahse_WindL_Main_DEMO.qwd"));
 
-	const auto fromText = ReadWindLInput(textPath.string());
+	const auto fromText = ReadSimWindInput(textPath.string());
 
 	EXPECT_TRUE(fromText.wrTrwnd);
 	EXPECT_EQ(fromText.saveName, "Test_Demo_wind");
@@ -429,11 +429,11 @@ TEST(WindLIO_YAML, ConvertAllInputTextFilesToYamlAndMatchText)
 
 	const auto mainTextPath = FindTestFile("Qahse_WindL_Main_DEMO.qwd");
 	const auto mainYamlPath = dir / "all_main_from_text.yml";
-	const auto mainFromText = ReadWindLInput(mainTextPath);
-	ConvertWindLInput(mainTextPath, mainYamlPath.string());
+	const auto mainFromText = ReadSimWindInput(mainTextPath);
+	ConvertSimWindInput(mainTextPath, mainYamlPath.string());
 	EXPECT_TRUE(YML(mainYamlPath.string(), false).ChickfindNodeByKey("Qahse.WindL.Mode"));
-	const auto mainFromYaml = ReadWindLInput(mainYamlPath.string());
-	ExpectWindLInputEqual(mainFromText, mainFromYaml);
+	const auto mainFromYaml = ReadSimWindInput(mainYamlPath.string());
+	ExpectSimWindInputEqual(mainFromText, mainFromYaml);
 
 	const auto shearTextPath = FindTestFile("Qahse_WindL_User_Defined_Shear_DEMO.dat");
 	const auto shearYamlPath = dir / "all_shear_from_text.yml";
@@ -467,10 +467,10 @@ TEST(WindLIO_YAML, RoundTripAllInputYamlFilesToTextAndMatchOriginal)
 	const auto mainTextPath = FindTestFile("Qahse_WindL_Main_DEMO.qwd");
 	const auto mainYamlPath = dir / "all_main_roundtrip.yml";
 	const auto mainRoundTripPath = dir / "all_main_roundtrip.qwd";
-	const auto mainOriginal = ReadWindLInput(mainTextPath);
-	ConvertWindLInput(mainTextPath, mainYamlPath.string());
-	ConvertWindLInput(mainYamlPath.string(), mainRoundTripPath.string(), mainTextPath);
-	ExpectWindLInputEqual(mainOriginal, ReadWindLInput(mainRoundTripPath.string()));
+	const auto mainOriginal = ReadSimWindInput(mainTextPath);
+	ConvertSimWindInput(mainTextPath, mainYamlPath.string());
+	ConvertSimWindInput(mainYamlPath.string(), mainRoundTripPath.string(), mainTextPath);
+	ExpectSimWindInputEqual(mainOriginal, ReadSimWindInput(mainRoundTripPath.string()));
 
 	const auto shearTextPath = FindTestFile("Qahse_WindL_User_Defined_Shear_DEMO.dat");
 	const auto shearYamlPath = dir / "all_shear_roundtrip.yml";
@@ -662,11 +662,11 @@ TEST(WindLIO_Regression, TextRoundTrip)
 	const auto roundTripPath = dir / "Qahse_WindL_Main_DEMO_roundtrip.qwd";
 
 	const auto originalPath = FindTestFile("Qahse_WindL_Main_DEMO.qwd");
-	const auto input = ReadWindLInput(originalPath);
-	WriteWindLInput(input, roundTripPath.string(), originalPath);
+	const auto input = ReadSimWindInput(originalPath);
+	WriteSimWindInput(input, roundTripPath.string(), originalPath);
 
 	// 重新读取往返文件
-	const auto roundTrip = ReadWindLInput(roundTripPath.string());
+	const auto roundTrip = ReadSimWindInput(roundTripPath.string());
 
 	// 关键值应该一致
 	EXPECT_EQ(roundTrip.mode, input.mode);
@@ -686,14 +686,14 @@ TEST(WindLIO_Regression, YAMLTextRoundTrip)
 	auto path = FindTestFile("Qahse_WindL_Main_DEMO.qwd");
 
 	// .qwd → YAML
-	const auto original = ReadWindLInput(path);
-	WriteWindLInput(original, yamlPath.string());
+	const auto original = ReadSimWindInput(path);
+	WriteSimWindInput(original, yamlPath.string());
 
 	// YAML → .qwd
-	ConvertWindLInput(yamlPath.string(), textPath.string(), path);
+	ConvertSimWindInput(yamlPath.string(), textPath.string(), path);
 
 	// 再读取 → 应与 fromYaml 一致
-	const auto final = ReadWindLInput(textPath.string());
+	const auto final = ReadSimWindInput(textPath.string());
 
 	EXPECT_EQ(final.saveName, original.saveName);
 	EXPECT_DOUBLE_EQ(final.timeStep, original.timeStep);
@@ -705,7 +705,7 @@ TEST(WindLIO_Regression, YAMLTextRoundTrip)
 
 TEST(WindLIO_Boundary, NonExistentFile)
 {
-	EXPECT_THROW(ReadWindLInput("nonexistent_file.qwd"),
+	EXPECT_THROW(ReadSimWindInput("nonexistent_file.qwd"),
 	             std::runtime_error);
 	EXPECT_THROW(ReadUserShear("nonexistent_file.dat"),
 	             std::runtime_error);
@@ -725,9 +725,9 @@ TEST(WindLIO_Boundary, EmptyShearFile)
 	EXPECT_DOUBLE_EQ(empty.stdScale3, 1.0);
 }
 
-TEST(WindLIO_Boundary, DefaultWindLInputValues)
+TEST(WindLIO_Boundary, DefaultSimWindInputValues)
 {
-	WindLInput in;
+	SimWindInput in;
 	// 枚举默认值
 	EXPECT_EQ(in.mode, Mode::GENERATE);
 	EXPECT_EQ(in.turbModel, TurbModel::IEC_KAIMAL);

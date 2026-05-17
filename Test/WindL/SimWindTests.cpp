@@ -11,8 +11,9 @@
 
 #include <gtest/gtest.h>
 
-#include "WindL/IO/WindL_IO_Subs.hpp"
-#include "WindL/SimWind.hpp"
+#include "SiMwind/IO/SimWind_IO_Subs.hpp"
+#include "SiMwind/SimWind.hpp"
+#include "WindL/WindL.hpp"
 
 namespace
 {
@@ -187,9 +188,9 @@ bool ContainsWarning(const SimWindResult &result, const std::string &needle)
 	});
 }
 
-WindLInput SmallInput(const std::string &name)
+SimWindInput SmallInput(const std::string &name)
 {
-	WindLInput input;
+	SimWindInput input;
 	input.mode = Mode::GENERATE;
 	input.turbModel = TurbModel::IEC_KAIMAL;
 	input.windModel = WindModel::NTM;
@@ -302,7 +303,7 @@ TEST(WindL_SimWind, MannNxTooSmallProducesExplicitRepeatWarning)
 TEST(WindL_SimWind, GenerateFromFileHonorsExistingQwdInputs)
 {
 	const auto source = RepoRoot() / "Test" / "WindL" / "Qahse_WindL_Main_DEMO.qwd";
-	auto input = ReadWindLInput(source.string());
+	auto input = ReadSimWindInput(source.string());
 	input.gridPtsY = 2;
 	input.gridPtsZ = 2;
 	input.fieldDimY = 12.0;
@@ -316,7 +317,7 @@ TEST(WindL_SimWind, GenerateFromFileHonorsExistingQwdInputs)
 	input.wrTrbts = true;
 
 	const auto qwd = SimWindOutputDir() / "from_qwd_small.qwd";
-	WriteWindLInput(input, qwd.string());
+	WriteSimWindInput(input, qwd.string());
 
 	const auto result = SimWind::GenerateFromFile(qwd.string());
 	EXPECT_TRUE(std::filesystem::is_regular_file(result.btsPath));
@@ -908,7 +909,7 @@ TEST(WindL_SimWind, LogProfileUsesZL)
 	EXPECT_GT(std::abs(stableLower[0][0] - unstableLower[0][0]), 1.0e-3);
 }
 
-TEST(WindL_SimWind, ImportsBtsRoundTripAndWritesSummary)
+TEST(WindL_Import, ImportsBtsRoundTripAndWritesSummary)
 {
 	auto input = SmallInput("import_bts_source");
 	input.wrBlwnd = false;
@@ -917,15 +918,14 @@ TEST(WindL_SimWind, ImportsBtsRoundTripAndWritesSummary)
 	const auto generated = SimWind::Generate(input);
 	ASSERT_TRUE(std::filesystem::is_regular_file(generated.btsPath));
 
-	WindLInput importInput;
-	importInput.mode = Mode::IMPORT;
+	SimWindInput importInput;
 	importInput.wndFilePath = generated.btsPath;
 	importInput.wndFormat = WndFormat::TURBSIM_BTS;
 	importInput.sumPrint = true;
 	importInput.savePath = SimWindOutputDir().string();
 	importInput.saveName = "import_bts_roundtrip";
 
-	const auto field = SimWind::Import(importInput);
+	const auto field = WindL::Import(importInput);
 	EXPECT_TRUE(std::filesystem::is_regular_file(field.summaryPath));
 	EXPECT_EQ(field.ny, input.gridPtsY);
 	EXPECT_EQ(field.nz, input.gridPtsZ);
@@ -939,7 +939,7 @@ TEST(WindL_SimWind, ImportsBtsRoundTripAndWritesSummary)
 	EXPECT_NEAR(field.sigma[0], generated.stats[0].sigma, 1.0e-6);
 }
 
-TEST(WindL_SimWind, ImportsTurbSimWndRoundTripAgainstBtsReference)
+TEST(WindL_Import, ImportsTurbSimWndRoundTripAgainstBtsReference)
 {
 	auto input = SmallInput("import_tswnd_source");
 	input.wrBlwnd = false;
@@ -948,12 +948,11 @@ TEST(WindL_SimWind, ImportsTurbSimWndRoundTripAgainstBtsReference)
 	ASSERT_TRUE(std::filesystem::is_regular_file(generated.btsPath));
 	ASSERT_TRUE(std::filesystem::is_regular_file(generated.turbsimWndPath));
 
-	WindLInput importInput;
-	importInput.mode = Mode::IMPORT;
+	SimWindInput importInput;
 	importInput.wndFilePath = generated.turbsimWndPath;
 	importInput.wndFormat = WndFormat::TURBSIM_WND;
 
-	const auto field = SimWind::Import(importInput);
+	const auto field = WindL::Import(importInput);
 	const auto series = ReadBtsPointSeries(generated.btsPath);
 	ASSERT_GE(series.size(), 3U);
 
@@ -965,7 +964,7 @@ TEST(WindL_SimWind, ImportsTurbSimWndRoundTripAgainstBtsReference)
 	}
 }
 
-TEST(WindL_SimWind, ImportsBladedWndUsingCompanionSummary)
+TEST(WindL_Import, ImportsBladedWndUsingCompanionSummary)
 {
 	auto input = SmallInput("import_bladed_source");
 	const auto generated = SimWind::Generate(input);
@@ -973,14 +972,13 @@ TEST(WindL_SimWind, ImportsBladedWndUsingCompanionSummary)
 	ASSERT_TRUE(std::filesystem::is_regular_file(generated.bladedWndPath));
 	ASSERT_TRUE(std::filesystem::is_regular_file(generated.sumPath));
 
-	WindLInput importInput;
-	importInput.mode = Mode::IMPORT;
+	SimWindInput importInput;
 	importInput.wndFilePath = generated.bladedWndPath;
 	importInput.wndFormat = WndFormat::BLADED_WND;
 	importInput.hubHeight = input.hubHeight;
 	importInput.meanWindSpeed = input.meanWindSpeed;
 
-	const auto field = SimWind::Import(importInput);
+	const auto field = WindL::Import(importInput);
 	EXPECT_TRUE(field.usedCompanionSummary);
 	const auto series = ReadBtsPointSeries(generated.btsPath);
 	ASSERT_GE(series.size(), 3U);

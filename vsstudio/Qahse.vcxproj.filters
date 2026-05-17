@@ -31,6 +31,12 @@
     <Filter Include="Source Files\WindL">
       <UniqueIdentifier>{A1B2C3D4-0001-0001-0001-000000000008}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\SiMwind">
+      <UniqueIdentifier>{C1D2E3F4-0001-0001-0001-000000000013}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SiMwind">
+      <UniqueIdentifier>{C1D2E3F4-0001-0001-0001-000000000014}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Header Files\WaveL">
       <UniqueIdentifier>{A1B2C3D4-0001-0001-0001-000000000009}</UniqueIdentifier>
     </Filter>
@@ -75,14 +81,17 @@
     <ClCompile Include="..\src\Math\Vec3f.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\WindL\SimWind.cpp">
+    <ClCompile Include="..\src\SiMwind\SimWind.cpp">
+      <Filter>Source Files\SiMwind</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\WindL\WindL.cpp">
       <Filter>Source Files\WindL</Filter>
     </ClCompile>
     <ClCompile Include="..\src\WindL\WindField.cpp">
       <Filter>Source Files\WindL</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\WindL\Batch\WindLBatch.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\src\SiMwind\Batch\SimWindBatch.cpp">
+      <Filter>Source Files\SiMwind</Filter>
     </ClCompile>
     <ClCompile Include="..\src\WaveL\WaveSpectrum.cpp">
       <Filter>Source Files\WaveL</Filter>
@@ -125,17 +134,20 @@
     <ClInclude Include="..\src\IO\Yaml.hpp">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\WindL\WindL_Type.hpp">
-      <Filter>Header Files\WindL</Filter>
+    <ClInclude Include="..\src\SiMwind\SimWind_Type.hpp">
+      <Filter>Header Files\SiMwind</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\WindL\SimWind.hpp">
+    <ClInclude Include="..\src\SiMwind\SimWind.hpp">
+      <Filter>Header Files\SiMwind</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WindL\WindL.hpp">
       <Filter>Header Files\WindL</Filter>
     </ClInclude>
     <ClInclude Include="..\src\WindL\WindField.hpp">
       <Filter>Header Files\WindL</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp">
-      <Filter>Header Files\WindL</Filter>
+    <ClInclude Include="..\src\SiMwind\IO\SimWind_IO_Subs.hpp">
+      <Filter>Header Files\SiMwind</Filter>
     </ClInclude>
     <ClInclude Include="..\src\WaveL\WaveL_Type.hpp">
       <Filter>Header Files\WaveL</Filter>
@@ -221,11 +233,11 @@
     <ClInclude Include="..\..\HawtC3\src\IO\IO\TimesHelper.h">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\WindL\Batch\WindLBatch.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\src\SiMwind\Batch\SimWindBatch.hpp">
+      <Filter>Header Files\SiMwind</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\WindL\IO\LocaleString_WindL.hpp">
-      <Filter>Header Files\WindL</Filter>
+    <ClInclude Include="..\src\SiMwind\IO\LocaleString_SimWind.hpp">
+      <Filter>Header Files\SiMwind</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

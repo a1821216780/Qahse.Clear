@@ -30,6 +30,12 @@
     <Filter Include="Source Files\WaveL">
       <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000009}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\SiMwind">
+      <UniqueIdentifier>{C1D2E3F4-0001-0001-0001-000000000013}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SiMwind">
+      <UniqueIdentifier>{C1D2E3F4-0001-0001-0001-000000000014}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Header Files\WaveL">
       <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000010}</UniqueIdentifier>
     </Filter>
@@ -108,7 +114,10 @@
       <Filter>Source Files\WindL</Filter>
     </ClCompile>
     <ClCompile Include="..\Test\WindL\SimWindTests.cpp">
-      <Filter>Source Files\WindL</Filter>
+      <Filter>Source Files\SiMwind</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Test\WindL\SimWindBatchTests.cpp">
+      <Filter>Source Files\SiMwind</Filter>
     </ClCompile>
     <ClCompile Include="..\Test\Math\MathHelperTests.cpp">
       <Filter>Source Files</Filter>
@@ -119,33 +128,19 @@
     <ClCompile Include="..\Test\Math\LinearAlgebraHelperTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\WindL\SimWind.cpp">
+    <ClCompile Include="..\src\SiMwind\SimWind.cpp">
+      <Filter>Source Files\SiMwind</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\WindL\WindL.cpp">
       <Filter>Source Files\WindL</Filter>
     </ClCompile>
     <ClCompile Include="..\src\WindL\WindField.cpp">
       <Filter>Source Files\WindL</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\WaveL\WaveSpectrum.cpp">
-      <Filter>Source Files\WaveL</Filter>
+    <ClCompile Include="..\src\SiMwind\Batch\SimWindBatch.cpp">
+      <Filter>Source Files\SiMwind</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\WaveL\WaveKinematics.cpp">
-      <Filter>Source Files\WaveL</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\WaveL\WaveField.cpp">
-      <Filter>Source Files\WaveL</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Test\WaveL\WaveSpectrumTests.cpp">
-      <Filter>Source Files\WaveL</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\HydroL\IO\HydroL_IO_Subs.cpp">
-      <Filter>Source Files\HydroL</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\HydroL\HydroL.cpp">
-      <Filter>Source Files\HydroL</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Test\HydroL\HydroLTests.cpp">
-      <Filter>Source Files\HydroL</Filter>
-    </ClCompile>
+   
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\IO\Outfile.h">
@@ -172,17 +167,23 @@
     <ClInclude Include="..\src\IO\Yaml.hpp">
       <Filter>Header Files\IO</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\WindL\WindL_Type.hpp">
-      <Filter>Header Files\WindL</Filter>
+    <ClInclude Include="..\src\SiMwind\SimWind_Type.hpp">
+      <Filter>Header Files\SiMwind</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\WindL\SimWind.hpp">
+    <ClInclude Include="..\src\SiMwind\SimWind.hpp">
+      <Filter>Header Files\SiMwind</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\WindL\WindL.hpp">
       <Filter>Header Files\WindL</Filter>
     </ClInclude>
     <ClInclude Include="..\src\WindL\WindField.hpp">
       <Filter>Header Files\WindL</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\WindL\IO\WindL_IO_Subs.hpp">
-      <Filter>Header Files\WindL</Filter>
+    <ClInclude Include="..\src\SiMwind\IO\SimWind_IO_Subs.hpp">
+      <Filter>Header Files\SiMwind</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\SiMwind\Batch\SimWindBatch.hpp">
+      <Filter>Header Files\SiMwind</Filter>
     </ClInclude>
     <ClInclude Include="..\src\WaveL\WaveL_Type.hpp">
       <Filter>Header Files\WaveL</Filter>
