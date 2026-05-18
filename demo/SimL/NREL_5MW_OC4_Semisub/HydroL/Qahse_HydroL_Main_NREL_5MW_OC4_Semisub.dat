@@ -9,6 +9,8 @@ true              IsFloating            - 是否为漂浮式基础；固定式�
 0                 WaveKinEvalMorison    - Morison 构件波浪运动学评估方式 {0=构件局部位置; 1=固定参考位置; 2=滞后位置;}
 1                 WaveKinEvalPotential  - 势流载荷波浪运动学评估方式 {0=构件局部位置; 1=固定参考位置; 2=滞后位置;}
 30                WaveKinTau            - 滞后位置波浪运动学评估的时间常数 [s]
+"./Qahse_WaveL_JONSWAP_DEMO.dat"  WaveLFile    -外部波浪场的输入文件
+
 
 ======  势流模型文件和频域载荷  ======================================================
 true              StaticBuoyancy        - 是否采用基于平均海平面的静浮力；用于 Morison 构件浮力与势流绕射力组合 [bool]
@@ -24,7 +26,7 @@ true              UseExcitation         - 是否启用一阶波浪激励力 [boo
 "difference.12d"  PotentialDiffFile     - 二阶差频波浪载荷文件
 2                 DiffEvalType          - 二阶差频载荷评估方式 {0=none; 1=explicit; 2=Newman approximation; 3=mean drift;}
 "sum.12s"         PotentialSumFile      - 二阶和频波浪载荷文件
-false             UseSumFreqs           - 是否启用二阶和频载荷 [bool]
+true             UseSumFreqs           - 是否启用二阶和频载荷 [bool]
 
 ======  节点坐标整体偏移  ======================================================
                   JointOffset           - 以下整体偏移仅作用于基础/浮体节点坐标，不作用于塔架接口点或质心参考点 [m]
@@ -34,8 +36,9 @@ XPOS	YPOS	ZPOS
                   MarineGrowth          - 海生物附着层定义表
 ID	Thickn	Density
 1	0.1	1100
-======  坐标参考说明  ======================================================
-                  PositionConvention    - 以下位置均采用 (x,y,z) 坐标 [m]；漂浮式结构以平均海平面中性点为原点，固定式结构以海床为原点
+
+以下位置均采用 (x,y,z) 坐标 [m]；漂浮式结构以平均海平面中性点为原点，固定式结构以海床为原点！！！！！！！！！
+
 ======  塔架/上部结构接口点  ======================================================
                   TpInterfacePos        - 基础或浮体与塔架/转子-机舱组件的接口位置 [m]
 X[m]		Y[m]		Z[m]

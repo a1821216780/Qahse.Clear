@@ -1,0 +1,59 @@
+-- =============================================================================
+-- Qahse.WaveL v1.0.0 .dat 波浪定义文件: JONSWAP 不规则波
+-- =============================================================================
+
+---------------------- WaveL 波浪类型与水深定义 ------------------------------
+2      WaveType        - 波浪类型: 0 无波; 1 规则波; 2 JONSWAP; 3 ISSC; 4 Torsethaugen; 5 Ochi-Hubble; 6 用户谱; 7 分量文件; 8 波面时序
+87     WaterDepth      - 水深(m)
+9.81   Gravity         - 重力加速度(m/s^2)
+1      WaveStretching  - 波浪拉伸: 0 垂直拉伸; 1 Wheeler; 2 外推; 3 不拉伸
+0.0    TimeOffset      - 波浪时间偏移(s)
+
+---------------------- 基础波浪参数 ------------------------------------------
+6.0    Hs              - 有义波高(m)
+10.0   Tp              - 谱峰周期(s)
+0.0    WaveDirMean     - 平均波向(deg)
+0.0    WaveDirMax      - 方向扩展半范围(deg); 为 0 表示单向波
+1.0    WaveDirSpread   - 方向扩展指数(-)
+128    WaveFreqNum     - 频率分量目标数量
+1      WaveDirNum      - 方向分量数量
+1      FreqDisc        - 频率离散方式: 0 等频率; 1 等能量
+0.02   DFMax           - 等能量离散时允许的最大频率间隔(Hz); 超过则细分
+true   AutoFreqRange   - 是否自动确定频率范围
+0.0    FreqStart       - 起始频率(Hz); AutoFreqRange=false 时使用
+0.0    FreqEnd         - 终止频率(Hz); AutoFreqRange=false 时使用
+12345  Seed            - 随机相位种子
+
+---------------------- JONSWAP / 谱参数 --------------------------------------
+true   AutoGamma       - 是否自动计算 JONSWAP 峰值增强因子 Gamma
+3.3    Gamma           - JONSWAP 峰值增强因子; AutoGamma=false 时使用
+true   AutoSigma       - 是否自动使用谱宽参数 Sigma1/Sigma2
+0.07   Sigma1          - 峰值频率左侧谱宽参数; AutoSigma=false 时使用
+0.09   Sigma2          - 峰值频率右侧谱宽参数; AutoSigma=false 时使用
+
+---------------------- 外部波浪数据 ------------------------------------------
+"./data/wave_spectrum.dat"     SpectrumFilePath    - 用户谱文件路径，列格式: f S
+"./data/wave_components.dat"   ComponentFilePath   - 波浪分量文件路径，列格式: f amp phaseDeg dirDeg [k]
+"./data/wave_timeseries.dat"   TimeSeriesFilePath  - 波面时序文件路径，列格式: time elevation
+0.03   DFTCutIn        - 从波面时序反推分量时的低频截止(Hz)
+0.5    DFTCutOut       - 从波面时序反推分量时的高频截止(Hz)
+2.0    DFTSample       - DFT 重采样频率(Hz)
+0.001  DFTThreshold    - DFT 分量幅值保留阈值(m)
+
+---------------------- 海流参数 ----------------------------------------------
+0.0    ConstCurrent            - 常值海流速度(m/s)
+0.0    ConstCurrentDir         - 常值海流方向(deg)
+0.0    ShearCurrent            - 线性剪切海流表面速度(m/s)
+0.0    ShearCurrentDir         - 线性剪切海流方向(deg)
+20.0   ShearCurrentDepth       - 线性剪切海流作用深度(m)
+0.0    ProfileCurrent          - 幂律剖面海流参考速度(m/s)
+0.0    ProfileCurrentDir       - 幂律剖面海流方向(deg)
+1.0    ProfileCurrentExponent  - 幂律剖面指数(-)
+
+---------------------- 输出控制 ----------------------------------------------
+true   SumPrint        - 是否写出 WaveL 摘要文件(.sum)
+true   SaveComponents  - 是否写出离散后的波浪分量文件
+"./result" SavePath    - 输出目录
+"Qahse_WaveL_JONSWAP_DEMO" SaveName - 输出文件名前缀
+
+END
