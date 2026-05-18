@@ -46,10 +46,8 @@ true              DrivetrainDof         - 是否启用传动链扭转动力学�
 6215000            DTTorDmp - 传动链等效扭转阻尼 [N*m*s/rad]
 
 ======  叶片结构文件  ======================================================
-3                 BladeNum              - 叶片数量 [-]
-"NREL5MW_Blade.str"    BladeFile1       - 叶片1结构属性文件
-"NREL5MW_Blade.str"    BladeFile2       - 叶片2结构属性文件
-"NREL5MW_Blade.str"    BladeFile3       - 叶片3结构属性文件
+"NREL_5MW_OC4_Semisub_Blade_new.str"    BladeFile       - 叶片结构属性文件
+
 
 ======  塔架和浮体结构文件  ======================================================
 77.6              TowerHeight           - 塔架结构高度 [m]
