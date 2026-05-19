@@ -48,6 +48,18 @@ public:
 	SeaState StateAt(double x, double y, double z, double time) const;
 
 private:
+	struct WaveComponentCache
+	{
+		double cosDir = 1.0;
+		double sinDir = 0.0;
+		double aOmega = 0.0;
+		double aOmega2 = 0.0;
+		double directionDeg360 = 0.0;
+	};
+
+	void RebuildComponentCache();
+
 	WaveLInput input_;
 	std::vector<WaveComponent> components_;
+	std::vector<WaveComponentCache> componentCache_;
 };

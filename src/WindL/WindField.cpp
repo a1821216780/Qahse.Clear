@@ -178,6 +178,70 @@ std::tuple<int, int, double> Bracket(const std::vector<double> &coords, double v
 	return {i0, i1, alpha};
 }
 
+struct LinearAxisBracket
+{
+	int i0 = 0;
+	int i1 = 0;
+	double alpha = 0.0;
+};
+
+LinearAxisBracket UniformBracket(double value, double lower, double spacing, int count)
+{
+	if (count <= 1 || spacing <= kTiny)
+		return {};
+
+	const double upper = lower + spacing * static_cast<double>(count - 1);
+	if (value <= lower)
+		return {0, 1, 0.0};
+	if (value >= upper)
+		return {count - 2, count - 1, 1.0};
+
+	const double raw = (value - lower) / spacing;
+	int i0 = static_cast<int>(std::floor(raw));
+	i0 = std::max(0, std::min(i0, count - 2));
+	return {i0, i0 + 1, raw - static_cast<double>(i0)};
+}
+
+LinearAxisBracket AxisBracket(const std::vector<double> &coords, double value, double spacing)
+{
+	if (coords.size() <= 1)
+		return {};
+	if (spacing > kTiny)
+		return UniformBracket(value, coords.front(), spacing, static_cast<int>(coords.size()));
+
+	const auto [i0, i1, alpha] = Bracket(coords, value);
+	return {i0, i1, alpha};
+}
+
+double Lerp(double lhs, double rhs, double alpha)
+{
+	return lhs * (1.0 - alpha) + rhs * alpha;
+}
+
+double SampleLinearCell(const WindField &field,
+                        int comp,
+                        int step,
+                        const LinearAxisBracket &yb,
+                        const LinearAxisBracket &zb)
+{
+	if (field.ny <= 1 && field.nz <= 1)
+		return field.At(comp, step, 0, 0);
+	if (field.ny <= 1)
+		return Lerp(field.At(comp, step, zb.i0, 0),
+		            field.At(comp, step, zb.i1, 0),
+		            zb.alpha);
+	if (field.nz <= 1)
+		return Lerp(field.At(comp, step, 0, yb.i0),
+		            field.At(comp, step, 0, yb.i1),
+		            yb.alpha);
+
+	const double v00 = field.At(comp, step, zb.i0, yb.i0);
+	const double v01 = field.At(comp, step, zb.i0, yb.i1);
+	const double v10 = field.At(comp, step, zb.i1, yb.i0);
+	const double v11 = field.At(comp, step, zb.i1, yb.i1);
+	return Lerp(Lerp(v00, v01, yb.alpha), Lerp(v10, v11, yb.alpha), zb.alpha);
+}
+
 /**
  * @brief 根据风场输入参数与回退平均风速计算三个速度分量的均值向量。
  *        Compute the mean velocity vector for three components from wind input parameters
@@ -539,6 +603,8 @@ std::array<double, 3> WindField::Sample(double y, double z, double t, InterpMeth
 {
 	if (nSteps <= 0 || ny <= 0 || nz <= 0)
 		throw std::runtime_error("Imported wind field is empty");
+	if (method == InterpMethod::TRILINEAR)
+		return SampleLinearFast(y, z, t, cycleWind);
 
 	const double sampleY = MirrorCoordinate(y, yCoords.front(), yCoords.back());
 	const double sampleZ = Clamp(z, zCoords.front(), zCoords.back());
@@ -559,6 +625,35 @@ std::array<double, 3> WindField::Sample(double y, double z, double t, InterpMeth
 		const double v1 = method == InterpMethod::CUBIC ? SamplePlaneCubic(*this, comp, t1, sampleY, sampleZ)
 		                                                : SamplePlaneLinear(*this, comp, t1, sampleY, sampleZ);
 		result[static_cast<std::size_t>(comp)] = v0 * (1.0 - at) + v1 * at;
+	}
+	return result;
+}
+
+std::array<double, 3> WindField::SampleLinearFast(double y, double z, double t, bool cycleWind) const
+{
+	if (nSteps <= 0 || ny <= 0 || nz <= 0)
+		throw std::runtime_error("Imported wind field is empty");
+
+	const double sampleY = MirrorCoordinate(y, yCoords.front(), yCoords.back());
+	const double sampleZ = Clamp(z, zCoords.front(), zCoords.back());
+	const double maxTime = timeCoords.empty() ? 0.0 : timeCoords.back();
+	const double sampleT = NormalizeTime(t, maxTime, cycleWind);
+
+	const auto yb = AxisBracket(yCoords, sampleY, dy);
+	const auto zb = AxisBracket(zCoords, sampleZ, dz);
+	const auto tb = nSteps <= 1 ? LinearAxisBracket{} : UniformBracket(sampleT, 0.0, dt, nSteps);
+
+	std::array<double, 3> result{};
+	for (int comp = 0; comp < 3; ++comp)
+	{
+		const double v0 = SampleLinearCell(*this, comp, tb.i0, yb, zb);
+		if (tb.i0 == tb.i1)
+		{
+			result[static_cast<std::size_t>(comp)] = v0;
+			continue;
+		}
+		const double v1 = SampleLinearCell(*this, comp, tb.i1, yb, zb);
+		result[static_cast<std::size_t>(comp)] = Lerp(v0, v1, tb.alpha);
 	}
 	return result;
 }
@@ -599,6 +694,19 @@ std::array<double, 3> WindField::SampleAt(double x, double y, double z, double t
 	}
 
 	return Sample(y, z, sampleT, options.interpMethod, false);
+}
+
+Vec3 WindField::getWindspeed(Vec3 vec, double time, bool mirror, bool isAutoFielShift, double shiftTime) const
+{
+	WindVelocityOptions options;
+	options.interpMethod = InterpMethod::TRILINEAR;
+	options.mirrorTime = mirror;
+	options.cycleWind = !mirror;
+	options.autoFieldShift = isAutoFielShift;
+	options.shiftTime = isAutoFielShift ? 0.0 : shiftTime;
+
+	const auto velocity = SampleAt(vec.x, vec.y, vec.z, time, options);
+	return Vec3(velocity[0], velocity[1], velocity[2]);
 }
 
 WindField WindField::ReadBts(const std::string &path)

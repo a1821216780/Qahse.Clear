@@ -306,6 +306,20 @@ std::array<double, 3> WindL::VelocityAt(double x, double y, double z, double tim
 	return {speed, 0.0, 0.0};
 }
 
+Vec3 WindL::getWindspeed(Vec3 vec, double time, bool mirror, bool isAutoFielShift, double shiftTime) const
+{
+	if (hasImportedField_)
+		return importedField_.getWindspeed(vec, time, mirror, isAutoFielShift, shiftTime);
+
+	WindVelocityOptions options;
+	options.mirrorTime = mirror;
+	options.cycleWind = !mirror;
+	options.autoFieldShift = isAutoFielShift;
+	options.shiftTime = isAutoFielShift ? 0.0 : shiftTime;
+	const auto velocity = VelocityAt(vec.x, vec.y, vec.z, time, options);
+	return Vec3(velocity[0], velocity[1], velocity[2]);
+}
+
 const WindLInput &WindL::Input() const
 {
 	return input_;

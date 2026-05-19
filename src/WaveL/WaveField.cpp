@@ -58,6 +58,7 @@ WaveField::WaveField(const WaveLInput &input, std::vector<WaveComponent> compone
 	: input_(input),
 	  components_(std::move(components))
 {
+	RebuildComponentCache();
 }
 
 void WaveField::SetInput(const WaveLInput &input)
@@ -68,6 +69,7 @@ void WaveField::SetInput(const WaveLInput &input)
 void WaveField::SetComponents(std::vector<WaveComponent> components)
 {
 	components_ = std::move(components);
+	RebuildComponentCache();
 }
 
 const WaveLInput &WaveField::Input() const
@@ -85,12 +87,34 @@ bool WaveField::Empty() const
 	return components_.empty();
 }
 
+void WaveField::RebuildComponentCache()
+{
+	componentCache_.clear();
+	componentCache_.reserve(components_.size());
+	for (const auto &component : components_)
+	{
+		WaveComponentCache cache;
+		cache.cosDir = std::cos(component.direction);
+		cache.sinDir = std::sin(component.direction);
+		cache.aOmega = component.amplitude * component.omega;
+		cache.aOmega2 = cache.aOmega * component.omega;
+		cache.directionDeg360 = component.direction * 180.0 / kPi;
+		while (cache.directionDeg360 < 0.0)
+			cache.directionDeg360 += 360.0;
+		while (cache.directionDeg360 >= 360.0)
+			cache.directionDeg360 -= 360.0;
+		componentCache_.push_back(cache);
+	}
+}
+
 double WaveField::GetElevation(Vec3 pos, double time) const
 {
 	double elevation = 0.0;
-	for (const auto &component : components_)
+	for (std::size_t i = 0; i < components_.size(); ++i)
 	{
-		const double projected = pos.x * std::cos(component.direction) + pos.y * std::sin(component.direction);
+		const auto &component = components_[i];
+		const auto &cache = componentCache_[i];
+		const double projected = pos.x * cache.cosDir + pos.y * cache.sinDir;
 		const double phase = component.wavenumber * projected -
 		                     component.omega * (time + input_.timeOffset) +
 		                     component.phase;
@@ -105,16 +129,16 @@ std::vector<double> WaveField::GetElevationPerDirection(Vec3 pos,
                                                         double deltaDir) const
 {
 	std::vector<double> elevation(waveDir.size(), 0.0);
-	for (const auto &component : components_)
+	for (std::size_t c = 0; c < components_.size(); ++c)
 	{
-		const double projected = pos.x * std::cos(component.direction) + pos.y * std::sin(component.direction);
-		double direction = component.direction * 180.0 / kPi;
-		while (direction < 0.0)
-			direction += 360.0;
+		const auto &component = components_[c];
+		const auto &cache = componentCache_[c];
+		const double projected = pos.x * cache.cosDir + pos.y * cache.sinDir;
 
 		for (std::size_t i = 0; i < waveDir.size(); ++i)
 		{
-			if (direction >= waveDir[i] - deltaDir / 2.0 && direction < waveDir[i] + deltaDir / 2.0)
+			if (cache.directionDeg360 >= waveDir[i] - deltaDir / 2.0 &&
+			    cache.directionDeg360 < waveDir[i] + deltaDir / 2.0)
 			{
 				const double phase = component.wavenumber * projected -
 				                     component.omega * (time + input_.timeOffset) +
@@ -171,17 +195,17 @@ void WaveField::GetVelocityAndAcceleration(Vec3 pos,
 	if (evalZ + depth < 0.0)
 		return;
 
-	for (const auto &component : components_)
+	for (std::size_t i = 0; i < components_.size(); ++i)
 	{
+		const auto &component = components_[i];
+		const auto &cache = componentCache_[i];
 		const double k = component.wavenumber;
-		const double projected = pos.x * std::cos(component.direction) + pos.y * std::sin(component.direction);
+		const double projected = pos.x * cache.cosDir + pos.y * cache.sinDir;
 		const double phase = k * projected - component.omega * (time + input_.timeOffset) + component.phase;
 		const double sinPhase = std::sin(phase);
 		const double cosPhase = std::cos(phase);
-		const double aOmega = component.amplitude * component.omega;
-		const double aOmega2 = aOmega * component.omega;
-		const double dirX = std::cos(component.direction);
-		const double dirY = std::sin(component.direction);
+		const double dirX = cache.cosDir;
+		const double dirY = cache.sinDir;
 
 		double depthVarXY = 0.0;
 		double depthVarZ = 0.0;
@@ -211,9 +235,9 @@ void WaveField::GetVelocityAndAcceleration(Vec3 pos,
 
 		if (vel)
 		{
-			vel->x += aOmega * dirX * depthVarXY * sinPhase;
-			vel->y += aOmega * dirY * depthVarXY * sinPhase;
-			vel->z += -aOmega * depthVarZ * cosPhase;
+			vel->x += cache.aOmega * dirX * depthVarXY * sinPhase;
+			vel->y += cache.aOmega * dirY * depthVarXY * sinPhase;
+			vel->z += -cache.aOmega * depthVarZ * cosPhase;
 		}
 
 		if (acc)
@@ -231,9 +255,9 @@ void WaveField::GetVelocityAndAcceleration(Vec3 pos,
 				accCosPhase = std::cos(phase + phaseShift);
 				accSinPhase = std::sin(phase + phaseShift);
 			}
-			acc->x += -aOmega2 * dirX * depthVarXY * accCosPhase * accFactor;
-			acc->y += -aOmega2 * dirY * depthVarXY * accCosPhase * accFactor;
-			acc->z += -aOmega2 * depthVarZ * accSinPhase * accFactor;
+			acc->x += -cache.aOmega2 * dirX * depthVarXY * accCosPhase * accFactor;
+			acc->y += -cache.aOmega2 * dirY * depthVarXY * accCosPhase * accFactor;
+			acc->z += -cache.aOmega2 * depthVarZ * accSinPhase * accFactor;
 		}
 
 		if (dynP)

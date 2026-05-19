@@ -29,6 +29,11 @@ public:
 	                                 double z,
 	                                 double time,
 	                                 const WindVelocityOptions &options = {}) const;
+	Vec3 getWindspeed(Vec3 vec,
+	                  double time,
+	                  bool mirror = false,
+	                  bool isAutoFielShift = true,
+	                  double shiftTime = 0.0) const;
 
 	const WindLInput &Input() const;
 	const WindField *ImportedField() const;

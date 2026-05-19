@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 
+#include "Math/Vec3.h"
 #include "WindL/WindL_Type.hpp"
 
 /**
@@ -177,11 +178,17 @@ struct WindField
 	 * @note Y 坐标使用镜像边界条件，Z 坐标使用钳制边界条件。
 	 *       Y-coordinate uses mirroring boundary condition; Z-coordinate uses clamping boundary condition.
 	 * @code
-	 * auto vel = field.Sample(5.0, 90.0, 10.0, InterpMethod::LINEAR, true);
+	 * auto vel = field.Sample(5.0, 90.0, 10.0, InterpMethod::TRILINEAR, true);
 	 * @endcode
 	 */
 	std::array<double, 3> Sample(double y, double z, double t, InterpMethod method, bool cycleWind) const;
 	std::array<double, 3> SampleAt(double x, double y, double z, double t, const WindVelocityOptions &options = {}) const;
+	std::array<double, 3> SampleLinearFast(double y, double z, double t, bool cycleWind) const;
+	Vec3 getWindspeed(Vec3 vec,
+	                  double time,
+	                  bool mirror = false,
+	                  bool isAutoFielShift = true,
+	                  double shiftTime = 0.0) const;
 
 	/**
 	 * @brief 从 .bts 二进制格式文件导入风场。

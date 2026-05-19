@@ -1181,4 +1181,27 @@ TEST(WindL_Runtime, ImportedFieldSampleAtAppliesQBladeStyleXShift)
 
 	EXPECT_NEAR(field.SampleAt(5.0, 0.0, 5.0, 1.0, options)[0], 1.0, 1.0e-12);
 	EXPECT_NEAR(field.SampleAt(-5.0, 0.0, 5.0, 0.0, options)[0], 1.0, 1.0e-12);
+
+	const Vec3 velocity = field.getWindspeed(Vec3(-5.0, 0.0, 5.0), 0.0, false, true, 0.0);
+	EXPECT_NEAR(velocity.x, 1.0, 1.0e-12);
+	EXPECT_NEAR(velocity.y, 0.0, 1.0e-12);
+	EXPECT_NEAR(velocity.z, 0.0, 1.0e-12);
+}
+
+TEST(WindL_Runtime, QBladeNamedGetWindspeedMatchesVelocityAt)
+{
+	WindLInput input;
+	input.windType = WindLWindType::STEADY;
+	input.hWindSpeed = 10.0;
+	input.refHeight = 100.0;
+	input.plExp = 0.2;
+
+	const auto wind = WindL::Load(input);
+	const Vec3 pos(0.0, 0.0, 50.0);
+	const auto velocity = wind.VelocityAt(pos.x, pos.y, pos.z, 12.0);
+	const Vec3 qbladeVelocity = wind.getWindspeed(pos, 12.0, false, true, 0.0);
+
+	EXPECT_NEAR(qbladeVelocity.x, velocity[0], 1.0e-12);
+	EXPECT_NEAR(qbladeVelocity.y, velocity[1], 1.0e-12);
+	EXPECT_NEAR(qbladeVelocity.z, velocity[2], 1.0e-12);
 }
