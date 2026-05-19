@@ -1,72 +1,69 @@
-------- OpenWECD.Qahse(HawtC3) StrL   主文件   By 赵子祯 ------------------------------------------------
-NREL_5MW_OC4_Semisub 模型
+------- OpenWECD.Qahse(HawtC3) StrL   涓绘枃浠?  By 璧靛瓙绁?------------------------------------------------
+NREL_5MW_OC4_Semisub 妯″瀷
 
-============    多机头风轮定义 ============    
-1                     TowerNum    - 塔架数量(支持1或者2,2以上没有经过测试)
-90                   TowerYdeg   - 塔架之间的夹角（deg）
+============    澶氭満澶撮杞畾涔?============    
+1                     TowerNum    - 濉旀灦鏁伴噺(鏀寔1鎴栬€?,2浠ヤ笂娌℃湁缁忚繃娴嬭瘯)
+90                   TowerYdeg   - 濉旀灦涔嬮棿鐨勫す瑙掞紙deg锛?
+======  椋庤疆妯″瀷鍙傛暟  ======================================================
+3                     NumBld    - 姣忎竴涓鏋朵笂闈㈢殑鍙剁墖鏁伴噺(璇蜂繚璇?浠ヤ笂锛屼笖涓や釜濉旀灦涓婄殑鍙剁墖瀹屽叏涓€鑷?(-)+
+1.5                  HubRad         -  杞瘋鍗婂緞(m)
+2.5               PreCone               - 椋庤疆棰勯敟瑙?[deg] [HAWT only]
+5                 ShaftTilt             - 涓昏酱浠拌 [deg] [HAWT only]
+5.0191            OverHang              - 杞瘋涓績鐩稿濉旈《鐨勪笅椋庡悜姘村钩鍋忚窛 [m] [HAWT only]
+1.96256           Twr2Shft          - 濉旈《鍒颁富杞翠腑蹇冪嚎鐨勫瀭鍚戣窛绂?[m] [HAWT only]
+56780             HubMass               - 杞瘋璐ㄩ噺 [kg]
+115926            HubIner               - 杞瘋缁曡浆瀛愯酱鐨勮浆鍔ㄦ儻閲?[kg*m^2]
 
-======  风轮模型参数  ======================================================
-3                     NumBld    - 每一个塔架上面的叶片数量(请保证3以上，且两个塔架上的叶片完全一致)(-)+
-1.5                  HubRad         -  轮毂半径(m)
-2.5               PreCone               - 风轮预锥角 [deg] [HAWT only]
-5                 ShaftTilt             - 主轴仰角 [deg] [HAWT only]
-5.0191            OverHang              - 轮毂中心相对塔顶的下风向水平偏距 [m] [HAWT only]
-1.96256           Twr2Shft          - 塔顶到主轴中心线的垂向距离 [m] [HAWT only]
-56780             HubMass               - 轮毂质量 [kg]
-115926            HubIner               - 轮毂绕转子轴的转动惯量 [kg*m^2]
+====== 鍒濆鍖栨ā鍨嬪弬鏁?====== 
+ 9.81                   Gravity     -閲嶅姏鍔犻€熷害 (m/s^2)
+0                       Azimuth     - 鍙剁墖1鍒濆鏂逛綅瑙掞紝鍙剁墖3鍦ㄥ彾鐗?鍓嶏紝鍙剁墖2鍦ㄥ彾鐗?鍓嶏紙deg)
+0.0                    AzimB1Up    -鎵€鏈夎緭鍏ュ拰杈撳嚭鏂逛綅瑙掗兘鏄拡瀵逛簬杩欎釜鍊兼祴閲忕殑(deg)
+12.1                  RotSpeed    - 鍒濆椋庤疆杞€?RPM)
+0.0                    NacYaw      - 鍒濆鎴栧畨瑁呮満鑸卞亸鑸锛屼刊瑙嗛鏈烘椂锛岄€嗘椂閽堜负姝ｏ紙deg)
 
-====== 初始化模型参数 ====== 
- 9.81                   Gravity     -重力加速度 (m/s^2)
-0                       Azimuth     - 叶片1初始方位角，叶片3在叶片2前，叶片2在叶片1前（deg)
-0.0                    AzimB1Up    -所有输入和输出方位角都是针对于这个值测量的(deg)
-12.1                  RotSpeed    - 初始风轮转速(RPM)
-0.0                    NacYaw      - 初始或安装机舱偏航角，俯视风机时，逆时针为正（deg)
-
-======  机舱、轮毂质量和惯量  ======================================================
+======  鏈鸿埍銆佽疆姣傝川閲忓拰鎯噺  ======================================================
 11                     NACCAX    - 机舱长度（m）
-6                     NACCAY    - 机舱宽度（m） 
+6                     NACCAY    - 机舱宽度（m）
 6                     NACCAZ    - 机舱高度（m）
 0.6                       NACCDX    - 机舱下风阻力系数(用于计算机舱的气动力)(-)
-0.6                       NACCDY    - 机舱横向阻力系数(用于计算机舱的气动力)(-)
-0.6                       NACCDZ     - 机舱垂直阻力系数(用于计算机舱的气动力)(-)
-0.0               YawBrMass             - 偏航轴承质量 [kg] [HAWT only]
-240000            NacMass               - 机舱质量 [kg] [HAWT only]
-1.9               NacCmX                - 机舱质心相对塔顶的下风向距离 [m] [HAWT only]
-0.0               NacCmY                - 机舱质心相对塔顶的横向距离 [m] [HAWT only]
-1.75              NacCmZ                - 机舱质心相对塔顶的垂向距离 [m] [HAWT only]
-2607890           NacYawIner            - 机舱绕偏航轴的转动惯量 [kg*m^2] [HAWT only]
+0.6                       NACCDY    - 鏈鸿埍妯悜闃诲姏绯绘暟(鐢ㄤ簬璁＄畻鏈鸿埍鐨勬皵鍔ㄥ姏)(-)
+0.6                       NACCDZ     - 鏈鸿埍鍨傜洿闃诲姏绯绘暟(鐢ㄤ簬璁＄畻鏈鸿埍鐨勬皵鍔ㄥ姏)(-)
+0.0               YawBrMass             - 鍋忚埅杞存壙璐ㄩ噺 [kg] [HAWT only]
+240000            NacMass               - 鏈鸿埍璐ㄩ噺 [kg] [HAWT only]
+1.9               NacCmX                - 鏈鸿埍璐ㄥ績鐩稿濉旈《鐨勪笅椋庡悜璺濈 [m] [HAWT only]
+0.0               NacCmY                - 鏈鸿埍璐ㄥ績鐩稿濉旈《鐨勬í鍚戣窛绂?[m] [HAWT only]
+1.75              NacCmZ                - 鏈鸿埍璐ㄥ績鐩稿濉旈《鐨勫瀭鍚戣窛绂?[m] [HAWT only]
+2607890           NacYawIner            - 鏈鸿埍缁曞亸鑸酱鐨勮浆鍔ㄦ儻閲?[kg*m^2] [HAWT only]
 
 
-======  传动链模型  ======================================================
-97                GearboxRatio          - 齿轮箱传动比 [-]
-1.0               GearboxEff            - 齿轮箱效率 [0-1]
-true              DrivetrainDof         - 是否启用传动链扭转动力学自由度 [bool]
-534.116           GenIner               - 发电机高速轴侧转动惯量 [kg*m^2]
-867637000         DTTorSpr - 传动链等效扭转刚度 [N*m/rad]
-6215000            DTTorDmp - 传动链等效扭转阻尼 [N*m*s/rad]
+======  浼犲姩閾炬ā鍨? ======================================================
+97                GearboxRatio          - 榻胯疆绠变紶鍔ㄦ瘮 [-]
+1.0               GearboxEff            - 榻胯疆绠辨晥鐜?[0-1]
+true              DrivetrainDof         - 鏄惁鍚敤浼犲姩閾炬壄杞姩鍔涘鑷敱搴?[bool]
+534.116           GenIner               - 鍙戠數鏈洪珮閫熻酱渚ц浆鍔ㄦ儻閲?[kg*m^2]
+867637000         DTTorSpr - 浼犲姩閾剧瓑鏁堟壄杞垰搴?[N*m/rad]
+6215000            DTTorDmp - 浼犲姩閾剧瓑鏁堟壄杞樆灏?[N*m*s/rad]
 
-======  叶片结构文件  ======================================================
-"NREL_5MW_OC4_Semisub_Blade_new.str"    BladeAeroStructFile       - 叶片气动-结构一体化属性文件
+======  鍙剁墖缁撴瀯鏂囦欢  ======================================================
+"NREL_5MW_OC4_Semisub_Blade_new.str"    BladeAeroStructFile       - 鍙剁墖姘斿姩-缁撴瀯涓€浣撳寲灞炴€ф枃浠?
 
-
-======  塔架和浮体结构文件  ======================================================
-77.6              TowerHeight           - 塔架结构高度 [m]
+======  濉旀灦鍜屾诞浣撶粨鏋勬枃浠? ======================================================
+77.6              TowerHeight           - 濉旀灦缁撴瀯楂樺害 [m]
 "NREL_5MW_OC4_Semisub_Tower.str"    TowerFile - 塔架结构属性文件
 ""    SubFile - 兼容旧字段；浮体/水动力/系泊结构由 HydroL 管理
 
 ---------------------- OUTPUT --------------------------------------------------
-true                                        SumPrint  - 是否生成Str输出文件 "<rootname>.EL.out"?  (flag)
+true                                        SumPrint  - 鏄惁鐢熸垚Str杈撳嚭鏂囦欢 "<rootname>.EL.out"?  (flag)
 true                                        AfSpanput - 输出模式选择是节点·还是变量。如果是节点将生成下面节点数量的文件，否则生成输出变量个数的文件。当前先支持输出节点。
 0,2                                         BldOutSig - 输出的叶片编号，默认只有0
-0                                            TwrOutSig - 输出的塔架编号，默认只有0
-"./Result1/"                            SumPath   - 生成的文件夹名称，注意是文件夹！
+0                                            TwrOutSig - 杈撳嚭鐨勫鏋剁紪鍙凤紝榛樿鍙湁0
+"./Result1/"                            SumPath   - 鐢熸垚鐨勬枃浠跺す鍚嶇О锛屾敞鎰忔槸鏂囦欢澶癸紒
 18                                            NBlOuts   - Number of blade node outputs [0 - BlOutNd-1] (-)
-0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18               BlOutNd   - Blade nodes whose values will be output  (-)（从0开确实算）
+0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18               BlOutNd   - Blade nodes whose values will be output  (-)锛堜粠0寮€纭疄绠楋級
 10                                               NTwOuts   - Number of tower node outputs [0 - BlOutNd-1]  (-)
-0,1,2,3,4,5,7,8,9,10              TwOutNd   - Tower nodes whose values will be output  (-)（从0开确实算）
+0,1,2,3,4,5,7,8,9,10              TwOutNd   - Tower nodes whose values will be output  (-)锛堜粠0寮€纭疄绠楋級
               OutList     - The next line(s) contains a list of output parameters.  See OutListParameters.xlsx for a listing of available output channels, (-)
-!以下变量是输出的自由度
-                                  "QD2_B1E1 ","QD2_B1F1 ","QD2_B1F2 ","QD2_B2E1 ","QD2_B2F1 ","QD2_B2F2 ","QD2_B3E1 ","QD2_B3F1 ", 
+!浠ヤ笅鍙橀噺鏄緭鍑虹殑鑷敱搴?                                  "QD2_B1E1 ","QD2_B1F1 ","QD2_B1F2 ","QD2_B2E1 ","QD2_B2F1 ","QD2_B2F2 ","QD2_B3E1 ","QD2_B3F1 ", 
                                   "QD2_B3F2 ","QD2_DRTR ","QD2_GEAZ ","QD2_HV   ","QD2_P    ","QD2_R    ","QD2_RFRL ","QD2_SG   ", 
                                   "QD2_SW   ","QD2_TFA1 ","QD2_TFA2 ","QD2_TFRL ","QD2_TSS1 ","QD2_TSS2 ","QD2_Y    ", 
                                   "QD2_YAW  ","QD_B1E1  ","QD_B1F1  ","QD_B1F2  ","QD_B2E1  ","QD_B2F1  ","QD_B2F2  ","QD_B3E1  ", 
@@ -76,15 +73,14 @@ true                                        AfSpanput - 输出模式选择是节
                                   "Q_B3E1   ","Q_B3F1   ","Q_B3F2   ","Q_DRTR   ","Q_GEAZ   ","Q_HV     ","Q_P      ","Q_R      ", 
                                   "Q_RFRL   ","Q_SG     ","Q_SW     ","Q_TFA1   ","Q_TFA2   ","Q_TFRL   ","Q_TSS1   ", 
                                   "Q_TSS2   ","Q_Y      ","Q_YAW    ","Q_TTMD","QD_TTMD","QD2_TTMD"
-!以下变量是输出的位移
+!浠ヤ笅鍙橀噺鏄緭鍑虹殑浣嶇Щ
                                    "OoPDefl","IPDefl","TipDzb","TipDxb","TipDyb","Tip2Twr"
                                    "SpnTDxb","SpnTDyb","SpnTDzb","SpnRDxb","SpnRDyb","SpnRDzb","BlPitch","Azimuth",
                                    "RotSpeed","RotAccel","GenSpeed","GenAccel","NcIMUTVxs","NcIMUTVys","NcIMUTVzs","NacYaw"
                                    "YawRate","YawAccel","TTDspFA","TTDspSS","TTDspAx","TwHtALxt","TwHtALyt","TwHtALzt","TwHtTDxt"
                                    "TwHtTDyt","TwHtTDzt","PtfmTDxt","PtfmTDyt","PtfmTDzt","PtfmSurge","PtfmSway","PtfmHeave",
                                    "PtfmRoll","PtfmPitch","PtfmYaw",
-!以下变量是输出的力
-"RootFxc",
+!浠ヤ笅鍙橀噺鏄緭鍑虹殑鍔?"RootFxc",
 "RootFyc",
 "RootFzc",
 "RootFxb",
@@ -151,5 +147,5 @@ true                                        AfSpanput - 输出模式选择是节
 "PtfmMzi"
 
 
-END 不允许删除！
+END 涓嶅厑璁稿垹闄わ紒
 ---------------------------------------------------------------------------------------

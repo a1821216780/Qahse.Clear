@@ -1,27 +1,26 @@
-------- OpenWECD.Qahse(HawtC3) AeroL  主文件   By 赵子祯 ------------------------------------------------
-IEA_22MW_Monopile 模型
+------- OpenWECD.Qahse(HawtC3) AeroL  涓绘枃浠?  By 璧靛瓙绁?------------------------------------------------
+IEA_22MW_Monopile 妯″瀷
 
-================================  计算选项   ==============================================
-2                 ApOfMb                 - 计算选项 {0=读取结构/塔架/叶片等模型参数; 1=计算叶片Cp; 2=计算叶片功率、推力和变桨曲线表;}
+================================  璁＄畻閫夐」   ==============================================
+2                 ApOfMb                 - 璁＄畻閫夐」 {0=璇诲彇缁撴瀯/濉旀灦/鍙剁墖绛夋ā鍨嬪弬鏁? 1=璁＄畻鍙剁墖Cp; 2=璁＄畻鍙剁墖鍔熺巼銆佹帹鍔涘拰鍙樻〃鏇茬嚎琛?}
 
-======  风力机风轮和塔基信息  ===================================== [used only when ApOfMb=0, 1 and 2]
-HAWT              RotorType              - 风轮类型 {HAWT=水平轴风力机; VAWT=垂直轴风力机;}
-1.5               HubRad                 - 轮毂半径 [m]，如果与叶片文件定义不同会报错
-3                 BladeNum               - 叶片数量
-3                 CutInWindSpeed         - 切入风速 [m/s]
-25                CutOutWindSpeed        - 切出风速 [m/s]
-5000              RatedPower             - 额定功率 [kW]
-13                RatedRotorSpeed        - 额定转速 [rpm]
+======  椋庡姏鏈洪杞拰濉斿熀淇℃伅  ===================================== [used only when ApOfMb=0, 1 and 2]
+HAWT              RotorType              - 椋庤疆绫诲瀷 {HAWT=姘村钩杞撮鍔涙満; VAWT=鍨傜洿杞撮鍔涙満;}
+1.5               HubRad                 - 杞瘋鍗婂緞 [m]锛屽鏋滀笌鍙剁墖鏂囦欢瀹氫箟涓嶅悓浼氭姤閿?3                 BladeNum               - 鍙剁墖鏁伴噺
+3                 CutInWindSpeed         - 鍒囧叆椋庨€?[m/s]
+25                CutOutWindSpeed        - 鍒囧嚭椋庨€?[m/s]
+5000              RatedPower             - 棰濆畾鍔熺巼 [kW]
+13                RatedRotorSpeed        - 棰濆畾杞€?[rpm]
 
-================================  环境参数  ==================== [used only when ApOfMb=0, 1 and 2]
-1.225             AirDens                - 空气密度 [kg/m^3]
-1.464E-05         KinVisc                - 空气运动黏度 [m^2/s]
-335               SpdSound               - 声速 [m/s]
+================================  鐜鍙傛暟  ==================== [used only when ApOfMb=0, 1 and 2]
+1.225             AirDens                - 绌烘皵瀵嗗害 [kg/m^3]
+1.464E-05         KinVisc                - 绌烘皵杩愬姩榛忓害 [m^2/s]
+335               SpdSound               - 澹伴€?[m/s]
 
-================================  翼型信息  ==============================================
-97               NumAFfiles             - 翼型气动数据文件数量 [-]
-1                 InterpOrd              - 用于准稳态表查找的翼型插值顺序 {1=linear; 2=cubic spline;}
-                  AFNames - 翼型气动数据文件路径，以下共 NumAFfiles 行
+================================  缈煎瀷淇℃伅  ==============================================
+97               NumAFfiles             - 缈煎瀷姘斿姩鏁版嵁鏂囦欢鏁伴噺 [-]
+1                 InterpOrd              - 鐢ㄤ簬鍑嗙ǔ鎬佽〃鏌ユ壘鐨勭考鍨嬫彃鍊奸『搴?{1=linear; 2=cubic spline;}
+                  AFNames - 缈煎瀷姘斿姩鏁版嵁鏂囦欢璺緞锛屼互涓嬪叡 NumAFfiles 琛?
 "./Airfoils/Default_RE3.00E+06.dat"
 "./Airfoils/circular_FB90_blend_t96.5_RE5.44E+06.dat"
 "./Airfoils/circular_FB90_blend_t93.0_RE7.88E+06.dat"
@@ -120,100 +119,96 @@ HAWT              RotorType              - 风轮类型 {HAWT=水平轴风力机
 "./Airfoils/FFA-W3-241_FFA-W3-211_blend_t21.2_RE1.02E+07.dat"
 "./Airfoils/70% free transition, 30% fully turbulent_RE1.00E+07.dat"
 
-======  叶片/风轮气动参数  =====================================================================
-"../StrL/IEA_22_280_RWT_Blade_FPM_new.str"    BladeAeroStructFile - 叶片气动-结构耦合文件路径
+======  鍙剁墖/椋庤疆姘斿姩鍙傛暟  =====================================================================
+"../StrL/IEA_22_280_RWT_Blade_FPM_new.str"    BladeAeroStructFile - 鍙剁墖姘斿姩-缁撴瀯鑰﹀悎鏂囦欢璺緞
 
-======  气动力模型参数  ======================================================
-false             UnsteadyAero           - 是否考虑非定常非环量气动力 [bool]
-true              TwoPointLiftDrag       - 是否考虑两点升阻力修正模型 [bool]
-false             Himmelskamp            - 是否考虑 Himmelskamp 旋转失速延迟修正 [bool] [HAWT only]
-false             TowerShadow            - 是否考虑塔影效应 [bool]
-0.50              TowerDrag              - 塔架阻力系数 [-]
+======  姘斿姩鍔涙ā鍨嬪弬鏁? ======================================================
+false             UnsteadyAero           - 鏄惁鑰冭檻闈炲畾甯搁潪鐜噺姘斿姩鍔?[bool]
+true              TwoPointLiftDrag       - 鏄惁鑰冭檻涓ょ偣鍗囬樆鍔涗慨姝ｆā鍨?[bool]
+false             Himmelskamp            - 鏄惁鑰冭檻 Himmelskamp 鏃嬭浆澶遍€熷欢杩熶慨姝?[bool] [HAWT only]
+false             TowerShadow            - 鏄惁鑰冭檻濉斿奖鏁堝簲 [bool]
+0.50              TowerDrag              - 濉旀灦闃诲姏绯绘暟 [-]
 
-======  动态失速模型参数  ======================================================
-1                 DynStallType           - 动态失速模型类型 {0=none; 1=OYE; 2=IAG; 3=GORMONT-BERG; 4=ATEFLAP;}
-8                 TfOye                  - OYE 动态失速模型的 Tf 时间常数 [used only when DynStallType=1]
-6                 AmGb                   - GORMONT-BERG 动态失速模型的 Am 经验常数 [used only when DynStallType=3]
-3                 TfAte                  - ATEFLAP 动态失速模型的 Tf 时间常数 [used only when DynStallType=4]
-2                 TpAte                  - ATEFLAP 动态失速模型的 Tp 时间常数 [used only when DynStallType=4]
-0.30 0.70 0.70 0.53 0.75 1.70 3.00 6.00 6.00 0.20 0.10 1.50 1.50 0.00    IagParams    - IAG 动态失速模型参数，参数顺序按 QBlade/HawtC 文档或界面定义 [used only when DynStallType=2]
+======  鍔ㄦ€佸け閫熸ā鍨嬪弬鏁? ======================================================
+1                 DynStallType           - 鍔ㄦ€佸け閫熸ā鍨嬬被鍨?{0=none; 1=OYE; 2=IAG; 3=GORMONT-BERG; 4=ATEFLAP;}
+8                 TfOye                  - OYE 鍔ㄦ€佸け閫熸ā鍨嬬殑 Tf 鏃堕棿甯告暟 [used only when DynStallType=1]
+6                 AmGb                   - GORMONT-BERG 鍔ㄦ€佸け閫熸ā鍨嬬殑 Am 缁忛獙甯告暟 [used only when DynStallType=3]
+3                 TfAte                  - ATEFLAP 鍔ㄦ€佸け閫熸ā鍨嬬殑 Tf 鏃堕棿甯告暟 [used only when DynStallType=4]
+2                 TpAte                  - ATEFLAP 鍔ㄦ€佸け閫熸ā鍨嬬殑 Tp 鏃堕棿甯告暟 [used only when DynStallType=4]
+0.30 0.70 0.70 0.53 0.75 1.70 3.00 6.00 6.00 0.20 0.10 1.50 1.50 0.00    IagParams    - IAG 鍔ㄦ€佸け閫熸ā鍨嬪弬鏁帮紝鍙傛暟椤哄簭鎸?QBlade/HawtC 鏂囨。鎴栫晫闈㈠畾涔?[used only when DynStallType=2]
 
-======  尾流类型  ======================================================
-1                 WakeType               - 尾流模型类型 {0=free vortex wake; 1=unsteady BEM;} [unsteady BEM only for HAWT]
+======  灏炬祦绫诲瀷  ======================================================
+1                 WakeType               - 灏炬祦妯″瀷绫诲瀷 {0=free vortex wake; 1=unsteady BEM;} [unsteady BEM only for HAWT]
 
-======  自由涡尾流参数  ====================================================== [used only when WakeType=0]
-0                 WakeIntType            - 尾流涡元时间推进/积分格式 {0=EF; 1=ET; 2=PC; 3=PC2B;}
-true              WakeRollup             - 是否计算尾流自诱导卷起 [bool]
-true              TrailingVort           - 是否包含尾随涡元 [bool]
-true              ShedVort               - 是否包含脱落涡元 [bool]
-0                 ConvectionType         - 尾流对流速度模型类型 {0=BL; 1=HH; 2=LOC;}
-1.00              WakeRelaxation         - 尾流松弛因子 [0-1]
-1.00              FirstWakeRow           - 第一排尾流涡元长度 [-]
-200000            MaxWakeSize            - 最大尾流涡元数量 [-]
-100               MaxWakeDist            - 尾流从转子平面向下游传播的最大距离，按转子直径归一化 [-]
-0.00100           WakeReduction          - 尾流缩减因子 [-]
-0                 WakeLengthType         - 尾流长度计算方式 {0=counted in rotor revolutions; 1=counted in time steps;}
-1000000.00        ConversionLength       - 线涡尾流转换为粒子尾流的距离阈值 [-]
-0.50              NearWakeLength         - 近尾流区长度 [-]
-2.00              Zone1Length            - 尾流区域1长度 [-]
-4.00              Zone2Length            - 尾流区域2长度 [-]
-6.00              Zone3Length            - 尾流区域3长度 [-]
-2                 Zone1Factor            - 尾流区域1流向细分因子，整数 [-]
-2                 Zone2Factor            - 尾流区域2流向细分因子，整数 [-]
-2                 Zone3Factor            - 尾流区域3流向细分因子，整数 [-]
-1                 Zone1FactorS           - 尾流区域1展向细分因子，整数 [-]
-1                 Zone2FactorS           - 尾流区域2展向细分因子，整数 [-]
-1                 Zone3FactorS           - 尾流区域3展向细分因子，整数 [-]
+======  鑷敱娑″熬娴佸弬鏁? ====================================================== [used only when WakeType=0]
+0                 WakeIntType            - 灏炬祦娑″厓鏃堕棿鎺ㄨ繘/绉垎鏍煎紡 {0=EF; 1=ET; 2=PC; 3=PC2B;}
+true              WakeRollup             - 鏄惁璁＄畻灏炬祦鑷瀵煎嵎璧?[bool]
+true              TrailingVort           - 鏄惁鍖呭惈灏鹃殢娑″厓 [bool]
+true              ShedVort               - 鏄惁鍖呭惈鑴辫惤娑″厓 [bool]
+0                 ConvectionType         - 灏炬祦瀵规祦閫熷害妯″瀷绫诲瀷 {0=BL; 1=HH; 2=LOC;}
+1.00              WakeRelaxation         - 灏炬祦鏉惧紱鍥犲瓙 [0-1]
+1.00              FirstWakeRow           - 绗竴鎺掑熬娴佹丁鍏冮暱搴?[-]
+200000            MaxWakeSize            - 鏈€澶у熬娴佹丁鍏冩暟閲?[-]
+100               MaxWakeDist            - 灏炬祦浠庤浆瀛愬钩闈㈠悜涓嬫父浼犳挱鐨勬渶澶ц窛绂伙紝鎸夎浆瀛愮洿寰勫綊涓€鍖?[-]
+0.00100           WakeReduction          - 灏炬祦缂╁噺鍥犲瓙 [-]
+0                 WakeLengthType         - 灏炬祦闀垮害璁＄畻鏂瑰紡 {0=counted in rotor revolutions; 1=counted in time steps;}
+1000000.00        ConversionLength       - 绾挎丁灏炬祦杞崲涓虹矑瀛愬熬娴佺殑璺濈闃堝€?[-]
+0.50              NearWakeLength         - 杩戝熬娴佸尯闀垮害 [-]
+2.00              Zone1Length            - 灏炬祦鍖哄煙1闀垮害 [-]
+4.00              Zone2Length            - 灏炬祦鍖哄煙2闀垮害 [-]
+6.00              Zone3Length            - 灏炬祦鍖哄煙3闀垮害 [-]
+2                 Zone1Factor            - 灏炬祦鍖哄煙1娴佸悜缁嗗垎鍥犲瓙锛屾暣鏁?[-]
+2                 Zone2Factor            - 灏炬祦鍖哄煙2娴佸悜缁嗗垎鍥犲瓙锛屾暣鏁?[-]
+2                 Zone3Factor            - 灏炬祦鍖哄煙3娴佸悜缁嗗垎鍥犲瓙锛屾暣鏁?[-]
+1                 Zone1FactorS           - 灏炬祦鍖哄煙1灞曞悜缁嗗垎鍥犲瓙锛屾暣鏁?[-]
+1                 Zone2FactorS           - 灏炬祦鍖哄煙2灞曞悜缁嗗垎鍥犲瓙锛屾暣鏁?[-]
+1                 Zone3FactorS           - 灏炬祦鍖哄煙3灞曞悜缁嗗垎鍥犲瓙锛屾暣鏁?[-]
 
-======  涡核参数  ====================================================== [used only when WakeType=0]
-0.05              BoundCoreRadius        - 叶片附着涡的固定涡核半径，按局部弦长归一化 [0-1]
-0.05              WakeCoreRadius         - 自由尾流涡元的初始涡核半径，按局部弦长归一化 [0-1]
-800.00            VortexViscosity        - 湍流涡黏性系数
-false             VortexStrain           - 是否计算自由尾流涡元的拉伸变形 [bool]
-50                MaxStrain              - 自由尾流涡元的最大拉伸变形阈值，超过该阈值后从尾流中移除该涡元 [-]
+======  娑℃牳鍙傛暟  ====================================================== [used only when WakeType=0]
+0.05              BoundCoreRadius        - 鍙剁墖闄勭潃娑＄殑鍥哄畾娑℃牳鍗婂緞锛屾寜灞€閮ㄥ鸡闀垮綊涓€鍖?[0-1]
+0.05              WakeCoreRadius         - 鑷敱灏炬祦娑″厓鐨勫垵濮嬫丁鏍稿崐寰勶紝鎸夊眬閮ㄥ鸡闀垮綊涓€鍖?[0-1]
+800.00            VortexViscosity        - 婀嶆祦娑￠粡鎬х郴鏁?
+false             VortexStrain           - 鏄惁璁＄畻鑷敱灏炬祦娑″厓鐨勬媺浼稿彉褰?[bool]
+50                MaxStrain              - 鑷敱灏炬祦娑″厓鐨勬渶澶ф媺浼稿彉褰㈤槇鍊硷紝瓒呰繃璇ラ槇鍊煎悗浠庡熬娴佷腑绉婚櫎璇ユ丁鍏?[-]
 
-======  Gamma 环量迭代参数  ====================================================== [used only when WakeType=0]
-0.00050           GammaEpsilon           - Gamma 环量相对收敛判据
-100               GammaIterations        - Gamma 环量最大迭代次数，整数 [-]
+======  Gamma 鐜噺杩唬鍙傛暟  ====================================================== [used only when WakeType=0]
+0.00050           GammaEpsilon           - Gamma 鐜噺鐩稿鏀舵暃鍒ゆ嵁
+100               GammaIterations        - Gamma 鐜噺鏈€澶ц凯浠ｆ鏁帮紝鏁存暟 [-]
 
-======  非定常 BEM 参数  ====================================================== [used only when WakeType=1]
-12                PolarDisc              - 非定常 BEM 中极坐标网格离散数量，整数 [-]
-true              BemTipLoss             - 是否使用 BEM 叶尖损失修正 [bool]
-0.00              BemSpeedUp             - BEM 初始收敛加速时间 [s]
+======  闈炲畾甯?BEM 鍙傛暟  ====================================================== [used only when WakeType=1]
+12                PolarDisc              - 闈炲畾甯?BEM 涓瀬鍧愭爣缃戞牸绂绘暎鏁伴噺锛屾暣鏁?[-]
+true              BemTipLoss             - 鏄惁浣跨敤 BEM 鍙跺皷鎹熷け淇 [bool]
+0.00              BemSpeedUp             - BEM 鍒濆鏀舵暃鍔犻€熸椂闂?[s]
 
-======  计算Cp曲线  ===================================== [used only when ApOfMb=1]
-3                 MinLambda              - 最小叶尖速比
-25                MaxLambda              - 最大叶尖速比
-0.1               LambdaStep             - 叶尖速比间隔
--0.1              MinPitch               - 最小变桨角 [rad]
-1.57              MaxPitch               - 最大变桨角 [rad]
-0.005             PitchStep              - 变桨角间隔 [rad]
-"./Result/test_AeroL_cp.out"                 CpResultFilePath - 计算Cp曲线的结果文件
-
-======  计算功率曲线  ===================================== [used only when ApOfMb=2]
-3                 MinWindSpeed           - 最小风速 [m/s]
-25                MaxWindSpeed           - 最大风速 [m/s]
-0.01              WindSpeedStep          - 风速间隔 [m/s]
-0.0               OrigPitch              - 初始桨距角 [rad]
-3                 OmegaMin               - 切入转速 [rpm]
-96                GenEfficiency          - 发电机效率 [%]
-1.57              PitchUp                - 最大桨距角 [rad]
-0.0               PitchDown              - 最小桨距角 [rad]
-true              IfPitch                - 是否启用变桨
-0.0               FixedPitch             - 固定桨距角 [rad] [used only when IfPitch=false]
-0.0               FixedRotationalSpeed   - 固定转速 [rpm] [used only when IfPitch=false]
-"./Result/test_AeroL_PowerCurve.out"         PowerCurveResultFilePath - 计算功率曲线的结果文件目录
-
+======  璁＄畻Cp鏇茬嚎  ===================================== [used only when ApOfMb=1]
+3                 MinLambda              - 鏈€灏忓彾灏栭€熸瘮
+25                MaxLambda              - 鏈€澶у彾灏栭€熸瘮
+0.1               LambdaStep             - 鍙跺皷閫熸瘮闂撮殧
+-0.1              MinPitch               - 鏈€灏忓彉妗ㄨ [rad]
+1.57              MaxPitch               - 鏈€澶у彉妗ㄨ [rad]
+0.005             PitchStep              - 鍙樻〃瑙掗棿闅?[rad]
+"./Result/test_AeroL_cp.out"                 CpResultFilePath - 璁＄畻Cp鏇茬嚎鐨勭粨鏋滄枃浠?
+======  璁＄畻鍔熺巼鏇茬嚎  ===================================== [used only when ApOfMb=2]
+3                 MinWindSpeed           - 鏈€灏忛閫?[m/s]
+25                MaxWindSpeed           - 鏈€澶ч閫?[m/s]
+0.01              WindSpeedStep          - 椋庨€熼棿闅?[m/s]
+0.0               OrigPitch              - 鍒濆妗ㄨ窛瑙?[rad]
+3                 OmegaMin               - 鍒囧叆杞€?[rpm]
+96                GenEfficiency          - 鍙戠數鏈烘晥鐜?[%]
+1.57              PitchUp                - 鏈€澶ф〃璺濊 [rad]
+0.0               PitchDown              - 鏈€灏忔〃璺濊 [rad]
+true              IfPitch                - 鏄惁鍚敤鍙樻〃
+0.0               FixedPitch             - 鍥哄畾妗ㄨ窛瑙?[rad] [used only when IfPitch=false]
+0.0               FixedRotationalSpeed   - 鍥哄畾杞€?[rpm] [used only when IfPitch=false]
+"./Result/test_AeroL_PowerCurve.out"         PowerCurveResultFilePath - 璁＄畻鍔熺巼鏇茬嚎鐨勭粨鏋滄枃浠剁洰褰?
 ======  Outputs  ====================================================================================
-true              SumPrint               - 是否生成 AeroL 输出文件 "<rootname>.AL.out" [bool]
-false             AfSpanput              - 输出模式选择：false=按输出变量输出; true=按叶片/塔架节点输出
-0                 BldOutSig              - 输出的叶片编号，默认只有0
-"./Result1/"      SumPath                - 输出文件夹路径
-7                 NumBladeOutNodes       - 叶片输出节点数量 [0 - BladeOutNode - 1]
-0,4,5,9,13,16,18  BladeOutNodes          - 输出的叶片节点编号，从0开始
-3                 NumTowerOutNodes       - 塔架输出节点数量 [0 - TowerOutNode - 1]
-1,1,5             TowerOutNodes          - 输出的塔架节点编号，从0开始；当前包含重复节点1，需确认是否有意重复
-                  OutList                - 以下为输出通道列表
+true              SumPrint               - 鏄惁鐢熸垚 AeroL 杈撳嚭鏂囦欢 "<rootname>.AL.out" [bool]
+false             AfSpanput              - 杈撳嚭妯″紡閫夋嫨锛歠alse=鎸夎緭鍑哄彉閲忚緭鍑? true=鎸夊彾鐗?濉旀灦鑺傜偣杈撳嚭
+0                 BldOutSig              - 杈撳嚭鐨勫彾鐗囩紪鍙凤紝榛樿鍙湁0
+"./Result1/"      SumPath                - 杈撳嚭鏂囦欢澶硅矾寰?7                 NumBladeOutNodes       - 鍙剁墖杈撳嚭鑺傜偣鏁伴噺 [0 - BladeOutNode - 1]
+0,4,5,9,13,16,18  BladeOutNodes          - 杈撳嚭鐨勫彾鐗囪妭鐐圭紪鍙凤紝浠?寮€濮?3                 NumTowerOutNodes       - 濉旀灦杈撳嚭鑺傜偣鏁伴噺 [0 - TowerOutNode - 1]
+1,1,5             TowerOutNodes          - 杈撳嚭鐨勫鏋惰妭鐐圭紪鍙凤紝浠?寮€濮嬶紱褰撳墠鍖呭惈閲嶅鑺傜偣1锛岄渶纭鏄惁鏈夋剰閲嶅
+                  OutList                - 浠ヤ笅涓鸿緭鍑洪€氶亾鍒楄〃
 BkNjPhi
 BkNjFl
 BkNjFd
@@ -238,5 +233,5 @@ BkNjAxInd
 BkNjTnInd
 BAzimuth
 
-END 不允许删除！
+END 涓嶅厑璁稿垹闄わ紒
 ---------------------------------------------------------------------------------------

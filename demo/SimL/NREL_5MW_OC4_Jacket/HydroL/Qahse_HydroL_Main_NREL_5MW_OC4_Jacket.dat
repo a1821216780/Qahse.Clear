@@ -4,7 +4,9 @@ NREL 5MW OC4 固定式导管架基础；由 QBladeCE Sub 输入文件转换
 ================================  基础类型与水环境  ==============================================
 50                WaterDepth            - 设计水深 [m]
 1025              WaterDensity          - 设计海水密度；用于浸水/进水构件质量和水动力计算 [kg/m^3]
-false             IsFloating            - 是否为漂浮式基础；固定式节点坐标以海床为原点，漂浮式节点坐标以平均海平面中性点为原点 [bool]
+false             IsFloating            - 是否为漂浮式基础；固定式节点坐标以海床为原点，漂浮式节点坐标以平均海平面中性点为原点 [bool]
+
+
 100               AdvancedBuoyancy      - 部分浸没构件高级浮力积分离散数 [-]
 0                 WaveKinEvalMorison    - Morison 构件波浪运动学评估方式
 1                 WaveKinEvalPotential  - 势流载荷波浪运动学评估方式
@@ -140,7 +142,7 @@ ConstraintId      JointId               Joint2Id              TpConstraint      
 12	56	0	1	0	0	1	1	1	1	1	1
 ======  基础/浮体构件表  ======================================================
                   SubMembers            - 构件连接、截面、水动力系数、浮力、海生物附着、进水面积和离散设置表
-MemberId          Joint1Id              Joint2Id              ElementId             ElementRot            HydroCoeffId          IsBuoyant             MarineGrowthId        FloodedArea           ElementDisc           Name                  RgbR                  RgbG                  RgbB
+MemberId          Joint1Id              Joint2Id              ElementId             ElementRot            HydroCoeffId          IsBuoyant             MarineGrowthId        FloodedArea           ElementDisc           Name
 1	1	2	2	0	1	1	0	0.95	5
 2	2	3	2	0	1	1	0	0.95	5
 3	3	4	2	0	1	1	0	0.95	5
@@ -253,22 +255,11 @@ MemberId          Joint1Id              Joint2Id              ElementId         
 110	61	57	6	0	1	1	0	3.023	5
 111	64	60	6	0	1	1	0	3.023	5
 112	63	59	6	0	1	1	0	3.023	5
-======  过渡块可视化参数  ======================================================
-                  TransitionBlock       - 仅用于几何可视化的过渡块尺寸 [m]
-WIDTH	LENGTH	HEIGHT
-9.6	9.6	4
-======  过渡圆柱可视化参数  ======================================================
-                  TransitionCylinder    - 仅用于几何可视化的过渡圆柱尺寸 [m]
-HEIGHT	DIAMETER
-0	0
-======  可视化颜色  ======================================================
-                  RgbColor              - 基础/浮体显示颜色，按 R G B 给定 [0-255]
-R	G	B
-255	200	15
+======  输出点  ======================================================
+                  OutputPoint           - 基础/系泊输出点定义
 SUB_1_0.2         OutputPoint           - 基础/系泊输出点定义
 SUB_1_0.5         OutputPoint           - 基础/系泊输出点定义
 SUB_5_1.0         OutputPoint           - 基础/系泊输出点定义
-
 
 ---------------------- OUTPUT --------------------------------------------------
 true              SumPrint       - 是否生成 HydroL 输出摘要 [bool]

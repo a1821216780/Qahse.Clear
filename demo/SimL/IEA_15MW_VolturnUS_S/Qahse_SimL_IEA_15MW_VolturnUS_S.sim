@@ -1,7 +1,7 @@
 Information: 
   YMLVersion: 2.0.016
   Author: YML module by Zhao Zizhen @copyright
-  LastModifiedTime: 2026-05-19 15:58:14
+  LastModifiedTime: 2026-05-19 16:42:17
 Qahse: 
   SimL: 
     TMax: 600
@@ -120,8 +120,8 @@ Qahse:
     SumPrint: True
     AfSpanput: False
     SumPath: F:\Qahse.Clear\demo\SimL\IEA_15MW_VolturnUS_S\AeroL\Result1\
-    NBlOuts: 7
-    NTwOuts: 3
+    NBlOuts: 0
+    NTwOuts: 0
     AFNames: [ "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_00.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_01.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_02.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_03.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_04.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_05.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_06.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_07.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_08.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_09.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_10.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_11.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_12.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_13.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_14.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_15.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_16.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_18.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_19.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_20.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_21.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_22.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_23.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_24.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_25.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_26.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_27.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_28.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_29.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_30.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_31.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_32.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_33.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_34.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_35.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_36.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_37.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_38.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_39.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_40.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_41.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_42.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_43.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_44.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_45.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_46.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_47.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_48.dat" , "F:\\Qahse.Clear\\demo\\SimL\\IEA_15MW_VolturnUS_S\\AeroL\\Airfoils\\IEA-15-240-RWT_AeroDyn15_Polar_49.dat" ]
     IagParams: [ 0.29999999999999999 , 0.69999999999999996 , 0.69999999999999996 , 0.53000000000000003 , 0.75 , 1.7 , 3 , 6 , 6 , 0.20000000000000001 , 0.10000000000000001 , 1.5 , 1.5 , 0 ]
     AirfoilDataCount: 50
@@ -31428,8 +31428,8 @@ Qahse:
             -  [ 1 , -0.00036999999999999999 ]
     BldOutSig: [ 0 ]
     TwrOutSig: [ 0 ]
-    BlOutNd: [ 0 , 4 , 5 , 9 , 13 , 16 , 18 ]
-    TwOutNd: [ 1 , 1 , 5 ]
+    BlOutNd: [  ]
+    TwOutNd: [  ]
     OutList: [ "BkNjPhi" , "BkNjFl" , "BkNjFd" , "BkNjMm" , "BkNjVRel" , "RtArea" , "RtAeroCp" , "RtAeroCq" , "RtAeroCt" , "BkNjVUndx" , "BkNjVUndy" , "BkNjVUndz" , "BkNjVDisx" , "BkNjVDisy" , "BkNjVDisz" , "BkNjSTVx" , "BkNjSTVy" , "BkNjSTVz" , "BkNjTheta" , "BPitch" , "BkNjAxInd" , "BkNjTnInd" , "BAzimuth" ]
   BladeAeroStruct: 
     BladeRayleighDamp: 0.0172
@@ -31658,10 +31658,6 @@ Qahse:
       -  [ 0 , 0 , 0 , 2182400000 , 0 , -90830 ]
       -  [ 0 , 0 , -4012.3000000000002 , 0 , 2182200000 , 0 ]
       -  [ 0 , 0 , 0 , 0 , 0 , 0 ]
-    RgbColorHeader: [ "R" , "G" , "B" ]
-    RgbColor: [ 255 , 200 , 15 ]
-    TransitionBlockHeader: [ "Width" , "Length" , "Height" ]
-    TransitionBlock: [ 0 , 0 , 0 ]
     TransitionMass: [  ]
     SubJointsHeader: [ "JointId" , "JointX" , "JointY" , "JointZ" ]
     SubJoints: 
@@ -31726,22 +31722,22 @@ Qahse:
       -  [ "22" , "22" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
       -  [ "23" , "23" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
       -  [ "24" , "24" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-    SubMembersHeader: [ "MemberId" , "Joint1Id" , "Joint2Id" , "ElementId" , "ElementRot" , "HydroCoeffId" , "IsBuoyant" , "MarineGrowthId" , "FloodedArea" , "ElementDisc" , "Name" , "RgbR" , "RgbG" , "RgbB" ]
+    SubMembersHeader: [ "MemberId" , "Joint1Id" , "Joint2Id" , "ElementId" , "ElementRot" , "HydroCoeffId" , "IsBuoyant" , "MarineGrowthId" , "FloodedArea" , "ElementDisc" , "Name" ]
     SubMembers: 
-      -  [ "1" , "1" , "2" , "2" , "0" , "0" , "0" , "0" , "0" , "100" , "Mid_Col_Top" , "255" , "200" , "15" ]
-      -  [ "2" , "2" , "3" , "2" , "0" , "0" , "0" , "0" , "0" , "100" , "Mid_Col_Sub" , "250" , "10" , "10" ]
-      -  [ "3" , "4" , "5" , "1" , "0" , "0" , "0" , "0" , "0" , "100" , "Col_1_Top" , "255" , "200" , "15" ]
-      -  [ "4" , "5" , "6" , "1" , "0" , "0" , "0" , "0" , "0" , "100" , "Col_1_Bot" , "250" , "10" , "10" ]
-      -  [ "5" , "7" , "8" , "3" , "0" , "0" , "0" , "0" , "0" , "100" , "Cross_1_Top" , "255" , "200" , "15" ]
-      -  [ "6" , "9" , "10" , "4" , "0" , "0" , "0" , "0" , "0" , "100" , "Cross_1_Bot" , "250" , "10" , "10" ]
-      -  [ "7" , "11" , "12" , "1" , "0" , "0" , "0" , "0" , "0" , "100" , "Col_2_Top" , "255" , "200" , "15" ]
-      -  [ "8" , "12" , "13" , "1" , "0" , "0" , "0" , "0" , "0" , "100" , "Col_2_Bot" , "250" , "10" , "10" ]
-      -  [ "9" , "14" , "15" , "3" , "0" , "0" , "0" , "0" , "0" , "100" , "Cross_2_Top" , "255" , "200" , "15" ]
-      -  [ "10" , "16" , "17" , "4" , "0" , "0" , "0" , "0" , "0" , "100" , "Cross_2_Bot" , "250" , "10" , "10" ]
-      -  [ "11" , "18" , "19" , "1" , "0" , "0" , "0" , "0" , "0" , "100" , "Col_2_Top" , "255" , "200" , "15" ]
-      -  [ "12" , "19" , "20" , "1" , "0" , "0" , "0" , "0" , "0" , "100" , "Col_2_Bot" , "250" , "10" , "10" ]
-      -  [ "13" , "21" , "22" , "3" , "0" , "0" , "0" , "0" , "0" , "100" , "Cross_2_Top" , "255" , "200" , "15" ]
-      -  [ "14" , "23" , "24" , "4" , "0" , "0" , "0" , "0" , "0" , "100" , "Cross_2_Bot" , "250" , "10" , "10" ]
+      -  [ "1" , "1" , "2" , "2" , "0" , "0" , "0" , "0" , "0" , "100" , "Mid_Col_Top" ]
+      -  [ "2" , "2" , "3" , "2" , "0" , "0" , "0" , "0" , "0" , "100" , "Mid_Col_Sub" ]
+      -  [ "3" , "4" , "5" , "1" , "0" , "0" , "0" , "0" , "0" , "100" , "Col_1_Top" ]
+      -  [ "4" , "5" , "6" , "1" , "0" , "0" , "0" , "0" , "0" , "100" , "Col_1_Bot" ]
+      -  [ "5" , "7" , "8" , "3" , "0" , "0" , "0" , "0" , "0" , "100" , "Cross_1_Top" ]
+      -  [ "6" , "9" , "10" , "4" , "0" , "0" , "0" , "0" , "0" , "100" , "Cross_1_Bot" ]
+      -  [ "7" , "11" , "12" , "1" , "0" , "0" , "0" , "0" , "0" , "100" , "Col_2_Top" ]
+      -  [ "8" , "12" , "13" , "1" , "0" , "0" , "0" , "0" , "0" , "100" , "Col_2_Bot" ]
+      -  [ "9" , "14" , "15" , "3" , "0" , "0" , "0" , "0" , "0" , "100" , "Cross_2_Top" ]
+      -  [ "10" , "16" , "17" , "4" , "0" , "0" , "0" , "0" , "0" , "100" , "Cross_2_Bot" ]
+      -  [ "11" , "18" , "19" , "1" , "0" , "0" , "0" , "0" , "0" , "100" , "Col_2_Top" ]
+      -  [ "12" , "19" , "20" , "1" , "0" , "0" , "0" , "0" , "0" , "100" , "Col_2_Bot" ]
+      -  [ "13" , "21" , "22" , "3" , "0" , "0" , "0" , "0" , "0" , "100" , "Cross_2_Top" ]
+      -  [ "14" , "23" , "24" , "4" , "0" , "0" , "0" , "0" , "0" , "100" , "Cross_2_Bot" ]
     MoorElementsHeader: [ "MoorId" , "MassPerLength" , "EIy" , "EA" , "Damping" , "Diameter" ]
     MoorElements: 
       -  [ "1" , "6.8500E+02" , "6.0000E+04" , "3.2700E+09" , "0.000" , "0.333" ]

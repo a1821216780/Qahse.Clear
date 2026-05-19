@@ -89,7 +89,6 @@ TEST(StrLIO, BladeAndTowerYamlRoundTripPreservesTables)
 	EXPECT_DOUBLE_EQ(tower2.massTuner, tower.massTuner);
 	EXPECT_EQ(tower2.beamType, tower.beamType);
 	EXPECT_EQ(tower2.discCount, tower.discCount);
-	ExpectMatrixNear(tower2.rgbColor, tower.rgbColor);
 	EXPECT_EQ(tower2.sectionRows, tower.sectionRows);
 }
 

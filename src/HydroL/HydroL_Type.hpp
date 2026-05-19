@@ -126,8 +126,6 @@ struct HydroLInput
 	Eigen::MatrixXd hydroDampingMatrix;
 	Eigen::MatrixXd hydroAddedMassMatrix;
 	Eigen::MatrixXd hydroConstForce;
-	Eigen::MatrixXd rgbColor;
-	Eigen::MatrixXd transitionBlock;
 
 	std::vector<std::vector<std::string>> subJoints;
 	std::vector<std::vector<std::string>> rigidSubElements;

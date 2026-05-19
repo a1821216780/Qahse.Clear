@@ -1,44 +1,44 @@
-------- Qahse.SimL  主文件 -------------------------------------------
+﻿------- Qahse.SimL  涓绘枃浠?-------------------------------------------
 NREL_5MW_OC4_Semisub
 
 ---------------------- SIMULATION CONTROL -------------------------------------- 
-600                    TMax         - 总的仿真时长
-0.05                   DT           - 仿真的时间间隔
-false                  AfShowlog    - 是否在仿真的过程当中输出叶片的转矩和转速以及变桨信息
-50                     Dtput        - 多少个DT_Out，输出一次时间（）
+600                    TMax         - 鎬荤殑浠跨湡鏃堕暱
+0.05                   DT           - 浠跨湡鐨勬椂闂撮棿闅?
+false                  AfShowlog    - 鏄惁鍦ㄤ豢鐪熺殑杩囩▼褰撲腑杈撳嚭鍙剁墖鐨勮浆鐭╁拰杞€熶互鍙婂彉妗ㄤ俊鎭?
+50                     Dtput        - 澶氬皯涓狣T_Out锛岃緭鍑轰竴娆℃椂闂达紙锛?
 4                      SimulateType -  {1=Power Production;2=Idirng;3=Parked;4=Start}
-0                      RamupTime   - 一般的，积分器的前几秒会因为刚刚进入仿真而不稳定，该时间为稳定时间
+0                      RamupTime   - 涓€鑸殑锛岀Н鍒嗗櫒鐨勫墠鍑犵浼氬洜涓哄垰鍒氳繘鍏ヤ豢鐪熻€屼笉绋冲畾锛岃鏃堕棿涓虹ǔ瀹氭椂闂?
 ---------------------- WINDTURBINE CONTROL -------------------------------------
-2                      WTType       - 风力机类型{0：陆上固定式，1：SubFEML(陆上风力机地震等模拟),2:HydroL 海上漂浮式}
-1                      Solver       - {0:RK4,1:HHT-α)
-false                  Linearization - {true:开启模型线性化的功能，否则关闭}
+2                      WTType       - 椋庡姏鏈虹被鍨媨0锛氶檰涓婂浐瀹氬紡锛?锛歋ubFEML(闄嗕笂椋庡姏鏈哄湴闇囩瓑妯℃嫙),2:HydroL 娴蜂笂婕傛诞寮弣
+1                      Solver       - {0:RK4,1:HHT-伪)
+false                  Linearization - {true:寮€鍚ā鍨嬬嚎鎬у寲鐨勫姛鑳斤紝鍚﹀垯鍏抽棴}
                  
 ---------------------- ENVIRONMENTAL CONDITIONS --------------------------------
-9.81                   Gravity     - 重力加速度 (m/s^2)
-1.225                  AirDens     - 空气密度 (kg/m^3)
-1025                   WtrDens     - 水密度 (kg/m^3)
-1.464e-05              KinVisc     - 流体的运动粘度 (m^2/s)
-335                    SpdSound    - 声速 (m/s)
+9.81                   Gravity     - 閲嶅姏鍔犻€熷害 (m/s^2)
+1.225                  AirDens     - 绌烘皵瀵嗗害 (kg/m^3)
+1025                   WtrDens     - 姘村瘑搴?(kg/m^3)
+1.464e-05              KinVisc     - 娴佷綋鐨勮繍鍔ㄧ矘搴?(m^2/s)
+335                    SpdSound    - 澹伴€?(m/s)
 
 
 ---------------------- INPUT FILES ---------------------------------------------
-"./StrL/Qahse_StrL_Main_NREL_5MW_OC4_Semisub.dat"        StrFile          - StrL 输入文件
-"./WindL/Qahse_WindL_Main_NREL_5MW_OC4_Semisub.dat"        WindFile         - windL 输入文件
-"./AeroL/Qahse_AeroL_Main_NREL_5MW_OC4_Semisub.dat"        AeroFile         - AeroL 输入文件
-"./ControL/Qahse_ControL_Main_NREL_5MW_OC4_Semisub.dat"  ControlFile      - ControL 输入文件
-"./HydroL/Qahse_HydroL_Main_NREL_5MW_OC4_Semisub.dat"      HydroLFile       - HydroL输入文件[used only WTType=2]
-""          SubFEMLFile      - SubFEML输入文件[used only WTType=1]
-""       MlinLFile        - MlinL 输入文件[used only Linearization=true]
+"./StrL/Qahse_StrL_Main_NREL_5MW_OC4_Semisub.dat"        StrFile          - StrL 杈撳叆鏂囦欢
+"./WindL/Qahse_WindL_Main_NREL_5MW_OC4_Semisub.dat"        WindFile         - windL 杈撳叆鏂囦欢
+"./AeroL/Qahse_AeroL_Main_NREL_5MW_OC4_Semisub.dat"        AeroFile         - AeroL 杈撳叆鏂囦欢
+"./ControL/Qahse_ControL_Main_NREL_5MW_OC4_Semisub.dat"  ControlFile      - ControL 杈撳叆鏂囦欢
+"./HydroL/Qahse_HydroL_Main_NREL_5MW_OC4_Semisub.dat"      HydroLFile       - HydroL杈撳叆鏂囦欢[used only WTType=2]
+""          SubFEMLFile      - SubFEML杈撳叆鏂囦欢[used only WTType=1]
+""       MlinLFile        - MlinL 杈撳叆鏂囦欢[used only Linearization=true]
 
 ----------------------  Qahse VTK  ---------------------------------
-false                           AfVTK                   - 是否开启 VTK 输出
-0.5                             DT_VTK                  - 每多少s输出一个VTK文件（最小为DT,越小的DT_VTK以为着越高的帧率）
-2                               VTK_type                - VTK 的输出类型 {1:表示输出体类型 2：表示输出点线类型，线类型支持更高的帧率}
-50                              VTK_SideNum             - VTK 描述模型柱体的侧面节点数量，越大越接近真实体的描述
+false                           AfVTK                   - 鏄惁寮€鍚?VTK 杈撳嚭
+0.5                             DT_VTK                  - 姣忓灏憇杈撳嚭涓€涓猇TK鏂囦欢锛堟渶灏忎负DT,瓒婂皬鐨凞T_VTK浠ヤ负鐫€瓒婇珮鐨勫抚鐜囷級
+2                               VTK_type                - VTK 鐨勮緭鍑虹被鍨?{1:琛ㄧず杈撳嚭浣撶被鍨?2锛氳〃绀鸿緭鍑虹偣绾跨被鍨嬶紝绾跨被鍨嬫敮鎸佹洿楂樼殑甯х巼}
+50                              VTK_SideNum             - VTK 鎻忚堪妯″瀷鏌变綋鐨勪晶闈㈣妭鐐规暟閲忥紝瓒婂ぇ瓒婃帴杩戠湡瀹炰綋鐨勬弿杩?
 
 
 ---------------------- OUTPUT --------------------------------------------------
-0.001                     DT_Out      - 每多少s输出一个数据（if DT_Out<0.0125 , DT_Out=DT）
-0                         TStart      - 什么时候开始输出数据
-0                         OutType     - 输出的文件类型{0：文本形式；1：二进制形式}
-"./NREL_5MW_OC4_Semisub"  SumPath     - 输出文件的路径
+0.001                     DT_Out      - 姣忓灏憇杈撳嚭涓€涓暟鎹紙if DT_Out<0.0125 , DT_Out=DT锛?
+0                         TStart      - 浠€涔堟椂鍊欏紑濮嬭緭鍑烘暟鎹?
+0                         OutType     - 杈撳嚭鐨勬枃浠剁被鍨媨0锛氭枃鏈舰寮忥紱1锛氫簩杩涘埗褰㈠紡}
+"./NREL_5MW_OC4_Semisub"  SumPath     - 杈撳嚭鏂囦欢鐨勮矾寰?

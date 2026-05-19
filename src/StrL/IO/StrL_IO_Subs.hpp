@@ -292,7 +292,6 @@ inline TowerStructInput ReadTowerStructInput(const std::string &path)
 	reader.ReadFile(path);
 	TowerStructInput input = reader.data;
 	input.inputPath = std::filesystem::absolute(path).lexically_normal();
-	input.rgbColor = module_io::ReadMatrixBlock(reader, path, kTowerYamlRoot, "RgbColor", 3);
 	input.sectionRows = module_io::ReadRows(reader, path, kTowerYamlRoot, "SectionRows", 5);
 	if (input.sectionRows.empty())
 		input.sectionRows = module_io::ReadRows(reader, path, kTowerYamlRoot, "SpanFrac", 5);
@@ -360,7 +359,6 @@ inline void WriteTowerStructInputYaml(const TowerStructInput &input, const std::
 {
 	TowerStructSerializer writer(input);
 	writer.WriteYamlFile(path);
-	module_io::AddMatrixYamlNodes(writer, "RgbColor", {"R", "G", "B"}, input.rgbColor, 3);
 	module_io::AddStringTableYamlNodes(writer, "SectionRows", TowerSectionHeaders(input.sectionRows), input.sectionRows, 3);
 	writer.SaveYamlFile(path);
 }

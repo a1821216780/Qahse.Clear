@@ -181,8 +181,6 @@ inline void ExpectHydroEqual(const HydroLInput &actual, const HydroLInput &expec
 	EXPECT_EQ(actual.beamType, expected.beamType);
 	EXPECT_EQ(actual.transitionMass, expected.transitionMass);
 	ExpectMatrixNear(actual.jointOffset, expected.jointOffset);
-	ExpectMatrixNear(actual.rgbColor, expected.rgbColor);
-	ExpectMatrixNear(actual.transitionBlock, expected.transitionBlock);
 	ExpectMatrixNear(actual.subMassMatrix, expected.subMassMatrix);
 	ExpectMatrixNear(actual.hydroAddedMassMatrix, expected.hydroAddedMassMatrix);
 	EXPECT_EQ(actual.subJoints, expected.subJoints);

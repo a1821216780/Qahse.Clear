@@ -45,7 +45,6 @@ struct TowerStructInput
 	int beamType = 1;
 	int discCount = 0;
 	std::vector<std::vector<std::string>> sectionRows;
-	Eigen::MatrixXd rgbColor;
 };
 
 struct StrLInput

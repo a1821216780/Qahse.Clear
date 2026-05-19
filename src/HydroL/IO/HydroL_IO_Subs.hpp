@@ -261,8 +261,6 @@ inline HydroLInput ReadHydroLInput(const std::string &path)
 	input.hydroDampingMatrix = module_io::ReadMatrixBlock(reader, path, kYamlRoot, "HydroDampingMatrix", 6);
 	input.hydroAddedMassMatrix = module_io::ReadMatrixBlock(reader, path, kYamlRoot, "HydroAddedMassMatrix", 6);
 	input.hydroConstForce = module_io::ReadMatrixBlock(reader, path, kYamlRoot, "HydroConstForce", 6);
-	input.rgbColor = module_io::ReadMatrixBlock(reader, path, kYamlRoot, "RgbColor", 3);
-	input.transitionBlock = module_io::ReadMatrixBlock(reader, path, kYamlRoot, "TransitionBlock", 3);
 	input.transitionMass = module_io::ReadStringList(reader, path, kYamlRoot, {"TransitionMass"});
 
 	input.subJoints = module_io::ReadRows(reader, path, kYamlRoot, "SubJoints", 4);
@@ -361,8 +359,6 @@ inline void WriteHydroLInputYaml(const HydroLInput &input, const std::string &pa
 	AddMatrix(writer, "HydroDampingMatrix", DofHeaders(), input.hydroDampingMatrix);
 	AddMatrix(writer, "HydroAddedMassMatrix", DofHeaders(), input.hydroAddedMassMatrix);
 	AddMatrix(writer, "HydroConstForce", DofHeaders(), input.hydroConstForce);
-	AddMatrix(writer, "RgbColor", {"R", "G", "B"}, input.rgbColor);
-	AddMatrix(writer, "TransitionBlock", {"Width", "Length", "Height"}, input.transitionBlock);
 	writer.AddNode("TransitionMass", input.transitionMass);
 	AddRows(writer, "SubJoints", {"JointId", "JointX", "JointY", "JointZ"}, input.subJoints);
 	AddRows(writer, "RigidSubElements", {"ElemId", "MassDensityFlag", "Diameter"}, input.rigidSubElements);
@@ -371,7 +367,7 @@ inline void WriteHydroLInputYaml(const HydroLInput &input, const std::string &pa
 	AddRows(writer, "HydroJointCoeff", {"CoeffId", "JointId", "CdAxial", "CaAxial", "CpAxial", "Name"}, input.hydroJointCoeff);
 	AddRows(writer, "HydroMemberCoeff", {"CoeffId", "CdNormal", "CaNormal", "CpNormal", "McFc", "Name"}, input.hydroMemberCoeff);
 	AddRows(writer, "SubConstraints", {"ConstraintId", "JointId", "Joint2Id", "TpConstraint", "GroundConstraint", "IsSpring", "DofX", "DofY", "DofZ", "DofRx", "DofRy", "DofRz"}, input.subConstraints);
-	AddRows(writer, "SubMembers", {"MemberId", "Joint1Id", "Joint2Id", "ElementId", "ElementRot", "HydroCoeffId", "IsBuoyant", "MarineGrowthId", "FloodedArea", "ElementDisc", "Name", "RgbR", "RgbG", "RgbB"}, input.subMembers);
+	AddRows(writer, "SubMembers", {"MemberId", "Joint1Id", "Joint2Id", "ElementId", "ElementRot", "HydroCoeffId", "IsBuoyant", "MarineGrowthId", "FloodedArea", "ElementDisc", "Name"}, input.subMembers);
 	AddRows(writer, "MoorElements", {"MoorId", "MassPerLength", "EIy", "EA", "Damping", "Diameter"}, input.moorElements);
 	AddRows(writer, "MoorMembers", {"Id", "Conn1", "Conn2", "Length", "MoorId", "HydroCoeffId", "IsBuoyant", "MarineGrowthId", "ElementDisc", "Name"}, input.moorMembers);
 	writer.AddNode("OutputPoints", input.outputPoints);

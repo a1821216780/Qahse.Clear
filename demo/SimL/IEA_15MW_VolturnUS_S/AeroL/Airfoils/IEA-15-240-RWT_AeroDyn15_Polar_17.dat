@@ -1,4 +1,4 @@
-! AeroL.Airfoil V2.0.0 Powered by Zhao Zizhen
+﻿! AeroL.Airfoil V2.0.0 Powered by Zhao Zizhen
 This file targets OpenWECD 1.0.2+ and stores the quasi-steady polar table used by AeroL.
 ===========  Airfoil information  (General data)  ===========
 32.5                Thickness      - airfoil thickness to chord ratio (%)

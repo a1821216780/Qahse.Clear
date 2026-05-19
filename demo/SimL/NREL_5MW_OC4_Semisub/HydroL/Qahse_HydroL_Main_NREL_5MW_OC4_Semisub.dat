@@ -172,7 +172,7 @@ ConstraintId      JointId               Joint2Id              TpConstraint      
 31	11	0	1	0	0	1	1	1	1	1	1
 ======  基础/浮体构件表  ======================================================
                   SubMembers            - 构件连接、截面、水动力系数、浮力、海生物附着、进水面积和离散设置表
-MemberId          Joint1Id              Joint2Id              ElementId             ElementRot            HydroCoeffId          IsBuoyant             MarineGrowthId        FloodedArea           ElementDisc           Name                  RgbR                  RgbG                  RgbB
+MemberId          Joint1Id              Joint2Id              ElementId             ElementRot            HydroCoeffId          IsBuoyant             MarineGrowthId        FloodedArea           ElementDisc           Name
  1	1	2	1	0	3	1	0	0	2	Main_Column
  2	45	4	2	0	4	1	0	0	2	Upper_Column_1
  3	46	6	2	0	4	1	0	0	2	Upper_Column_2

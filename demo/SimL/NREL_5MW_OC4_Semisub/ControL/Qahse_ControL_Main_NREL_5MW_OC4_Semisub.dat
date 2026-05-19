@@ -1,11 +1,11 @@
-------- Qahse.ControL 文件   v1.0.* ------------------------------------------------
-NREL 5MW OC4 DeepCWind 半潜式平台；
+﻿------- Qahse.ControL 鏂囦欢   v1.0.* ------------------------------------------------
+NREL 5MW OC4 DeepCWind 鍗婃綔寮忓钩鍙帮紱
 
 
-============================  基础类型与水环境  ========================================
-          1   PCMode       - 变桨模型 {0: 不采用控制器,  1: 外部Bladeddll控制器} 
+============================  鍩虹绫诲瀷涓庢按鐜  ========================================
+          1   PCMode       - 鍙樻〃妯″瀷 {0: 涓嶉噰鐢ㄦ帶鍒跺櫒,  1: 澶栭儴Bladeddll鎺у埗鍣▆ 
 "./TUBCon_1.3.9_64Bit.dll"     DLL_FileName   - Name/location of the dynamic library {.dll [Windows] or .so [Linux]} in the Bladed-DLL format (-) [used only with Bladed Interface]
-"./TUBCon_Params_V1.3.9_NREL5MW.xml"    DLL_InFile   - Name of input file sent to the DLL (-) [used only with Bladed Interface,可能是.in和xml文件]
+"./TUBCon_Params_V1.3.9_NREL5MW.xml"    DLL_InFile   - Name of input file sent to the DLL (-) [used only with Bladed Interface,鍙兘鏄?in鍜寈ml鏂囦欢]
 "DISCON"      DLL_ProcName - Name of procedure in DLL to be called (-) [case sensitive; used only with DLL Interface]
 
 

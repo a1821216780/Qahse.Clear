@@ -1,4 +1,4 @@
-Structural Data Table Generated with : QBlade QBlade EE v x.x.x 64bit-windows-release; on 09.01.2022; at 18:14:21
+﻿Structural Data Table Generated with : QBlade QBlade EE v x.x.x 64bit-windows-release; on 09.01.2022; at 18:14:21
 
 0.0024		RAYLEIGHDMP
 1.00		STIFFTUNER
@@ -63,6 +63,3 @@ LENFRACT_[-]  MASSD_[kg/m]  EIx_[N.m^2]   EIy_[N.m^2]   EA_[N]        GJ_[N.m^2]
 1.0000E+00    1.0867E+01    1.6996E+05    5.0106E+06    3.5294E+06    1.9000E+05    2.5210E+05    0.0000E+00    5.0000E-01    5.0000E-01    4.4641E-02    2.6025E-01    7.1103E-02    0.0000E+00    1.2487E-01    0.0000E+00    1.2487E-01    0.0000E+00   
 
 
-RGBCOLOR
-R	G	B
-220	220	220

@@ -135,7 +135,6 @@ void ExpectTowerStructEqual(const TowerStructInput &actual, const TowerStructInp
 	EXPECT_DOUBLE_EQ(actual.massTuner, expected.massTuner);
 	EXPECT_EQ(actual.beamType, expected.beamType);
 	EXPECT_EQ(actual.discCount, expected.discCount);
-	ExpectMatrixNear(actual.rgbColor, expected.rgbColor);
 	EXPECT_EQ(actual.sectionRows, expected.sectionRows);
 }
 

@@ -5,7 +5,9 @@ IEA 22MW 280m RWT 固定式单桩基础；由 QBladeCE Sub 输入文件转换
 IEA22MW MONOPILE
 34                WaterDepth            - 设计水深 [m]
 1025              WaterDensity          - 设计海水密度；用于浸水/进水构件质量和水动力计算 [kg/m^3]
-false             IsFloating            - 是否为漂浮式基础；固定式节点坐标以海床为原点，漂浮式节点坐标以平均海平面中性点为原点 [bool]
+false             IsFloating            - 是否为漂浮式基础；固定式节点坐标以海床为原点，漂浮式节点坐标以平均海平面中性点为原点 [bool]
+
+
 100               AdvancedBuoyancy      - 部分浸没构件高级浮力积分离散数 [-]
 0                 WaveKinEvalMorison    - Morison 构件波浪运动学评估方式
 1                 WaveKinEvalPotential  - 势流载荷波浪运动学评估方式
@@ -57,7 +59,7 @@ ElemId            MassDensity           EIx                   EIy               
 9	1.76350E+04	5.53580E+12	5.53580E+12	4.49290E+11	4.38990E+12	1.78140E+11	0.00000E+00	5.10800E-01	5.10800E-01	3.51020E-01	3.51020E-01	0.00000E+00	0.00000E+00	0.00000E+00	0.00000E+00	0.00000E+00	0.00000E+00	1.00000E+01	0.00045652
 ======  基础/浮体构件表  ======================================================
                   SubMembers            - 构件连接、截面、水动力系数、浮力、海生物附着、进水面积和离散设置表
-MemberId          Joint1Id              Joint2Id              ElementId             ElementRot            HydroCoeffId          IsBuoyant             MarineGrowthId        FloodedArea           ElementDisc           Name                  RgbR                  RgbG                  RgbB
+MemberId          Joint1Id              Joint2Id              ElementId             ElementRot            HydroCoeffId          IsBuoyant             MarineGrowthId        FloodedArea           ElementDisc           Name
 1	1	2	1	0	1	1	0	0	5
 2	2	3	2	0	1	1	0	0	5
 3	3	4	3	0	1	1	0	0	4
@@ -67,16 +69,6 @@ MemberId          Joint1Id              Joint2Id              ElementId         
 7	7	8	7	0	1	1	0	0	2
 8	8	9	8	0	1	1	0	0	2
 9	9	10	9	0	1	1	0	0	2
-======  可视化颜色  ======================================================
-                  RgbColor              - 基础/浮体显示颜色，按 R G B 给定 [0-255]
-R	G	B
-255	200	15
-======  过渡块可视化参数  ======================================================
-                  TransitionBlock       - 仅用于几何可视化的过渡块尺寸 [m]
-WIDTH	LENGTH	HEIGHT
-0	0	0
-
-
 ---------------------- OUTPUT --------------------------------------------------
 true              SumPrint       - 是否生成 HydroL 输出摘要 [bool]
 false             AfSpanput      - 输出模式选择

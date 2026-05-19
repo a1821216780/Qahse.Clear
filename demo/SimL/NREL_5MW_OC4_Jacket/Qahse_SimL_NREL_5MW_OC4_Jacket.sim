@@ -1,7 +1,7 @@
 Information: 
   YMLVersion: 2.0.016
   Author: YML module by Zhao Zizhen @copyright
-  LastModifiedTime: 2026-05-19 15:57:59
+  LastModifiedTime: 2026-05-19 16:42:03
 Qahse: 
   SimL: 
     TMax: 600
@@ -120,8 +120,8 @@ Qahse:
     SumPrint: True
     AfSpanput: False
     SumPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Jacket\AeroL\Result1\
-    NBlOuts: 7
-    NTwOuts: 3
+    NBlOuts: 0
+    NTwOuts: 0
     AFNames: [ "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Jacket\\AeroL\\Airfoils\\Cylinder1.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Jacket\\AeroL\\Airfoils\\Cylinder2.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Jacket\\AeroL\\Airfoils\\DU40_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Jacket\\AeroL\\Airfoils\\DU35_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Jacket\\AeroL\\Airfoils\\DU30_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Jacket\\AeroL\\Airfoils\\DU25_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Jacket\\AeroL\\Airfoils\\DU21_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Jacket\\AeroL\\Airfoils\\NACA64_A17.dat" ]
     IagParams: [ 0.29999999999999999 , 0.69999999999999996 , 0.69999999999999996 , 0.53000000000000003 , 0.75 , 1.7 , 3 , 6 , 6 , 0.20000000000000001 , 0.10000000000000001 , 1.5 , 1.5 , 0 ]
     AirfoilDataCount: 8
@@ -5178,8 +5178,8 @@ Qahse:
             -  [ 1 , 0 ]
     BldOutSig: [ 0 ]
     TwrOutSig: [ 0 ]
-    BlOutNd: [ 0 , 4 , 5 , 9 , 13 , 16 , 18 ]
-    TwOutNd: [ 1 , 1 , 5 ]
+    BlOutNd: [  ]
+    TwOutNd: [  ]
     OutList: [ "BkNjPhi" , "BkNjFl" , "BkNjFd" , "BkNjMm" , "BkNjVRel" , "RtArea" , "RtAeroCp" , "RtAeroCq" , "RtAeroCt" , "BkNjVUndx" , "BkNjVUndy" , "BkNjVUndz" , "BkNjVDisx" , "BkNjVDisy" , "BkNjVDisz" , "BkNjSTVx" , "BkNjSTVy" , "BkNjSTVz" , "BkNjTheta" , "BPitch" , "BkNjAxInd" , "BkNjTnInd" , "BAzimuth" ]
   BladeAeroStruct: 
     BladeRayleighDamp: 0.0023999999999999998
@@ -5296,8 +5296,6 @@ Qahse:
     TowerMassTuner: 1
     TowerBeamType: 1
     TowerDiscCount: 20
-    RgbColorHeader: [ "R" , "G" , "B" ]
-    RgbColor: [ 230 , 230 , 230 ]
     SectionRowsHeader: [ "SpanFrac" , "MassDensity" , "EIx" , "EIy" , "EA" , "GJ" , "GA" , "StructPitch" , "KsX" , "KsY" , "RgX" , "RgY" , "Xcm" , "Ycm" , "Xce" , "Yce" , "Xcs" , "Ycs" , "Diameter" ]
     SectionRows: 
       -  [ "0.0000E+00" , "4.3941E+03" , "4.5560E+11" , "4.5560E+11" , "1.1750E+11" , "3.5140E+11" , "0.0000E+00" , "0.0000E+00" , "5.0000E-01" , "5.0000E-01" , "3.5154E-01" , "3.5154E-01" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "5.6000E+00" ]
@@ -5361,10 +5359,6 @@ Qahse:
       -  [ 0 , 0 , 0 , 6002900 , 0 , 0 ]
       -  [ 0 , 0 , 0 , 0 , 6002900 , 0 ]
       -  [ 0 , 0 , 0 , 0 , 0 , 10230000 ]
-    RgbColorHeader: [ "R" , "G" , "B" ]
-    RgbColor: [ 255 , 200 , 15 ]
-    TransitionBlockHeader: [ "Width" , "Length" , "Height" ]
-    TransitionBlock: [ 9.5999999999999996 , 9.5999999999999996 , 4 ]
     TransitionMass: [  ]
     SubJointsHeader: [ "JointId" , "JointX" , "JointY" , "JointZ" ]
     SubJoints: 

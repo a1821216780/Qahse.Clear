@@ -3,13 +3,15 @@ NREL 5MW OC3 Spar 漂浮式立柱平台；由 QBladeCE Sub 输入文件转换
 
 ================================  基础类型与水环境  ==============================================
 320               WaterDepth            - 设计水深 [m]
-true              IsFloating            - 是否为漂浮式基础；固定式节点坐标以海床为原点，漂浮式节点坐标以平均海平面中性点为原点 [bool]
+true              IsFloating            - 是否为漂浮式基础；固定式节点坐标以海床为原点，漂浮式节点坐标以平均海平面中性点为原点 [bool]
+
 100               AdvancedBuoyancy      - 部分浸没构件高级浮力积分离散数 [-]
 1025              WaterDensity          - 设计海水密度；用于浸水/进水构件质量和水动力计算 [kg/m^3]
 true              StaticBuoyancy        - 是否采用基于平均海平面的静浮力；用于 Morison 构件浮力与势流绕射力组合 [bool]
 0                 WaveKinEvalMorison    - Morison 构件波浪运动学评估方式 {0=构件局部位置; 1=固定参考位置; 2=滞后位置;}
 1                 WaveKinEvalPotential  - 势流载荷波浪运动学评估方式 {0=构件局部位置; 1=固定参考位置; 2=滞后位置;}
-30                WaveKinTau            - 滞后位置波浪运动学评估的时间常数 [s]
+30                WaveKinTau            - 滞后位置波浪运动学评估的时间常数 [s]
+
 "./Qahse_WaveL_JONSWAP_DEMO.dat"  WaveLFile    - WaveL 输入文件
 ======  势流模型文件和频域载荷  ======================================================
 true              StaticBuoyancy        - 是否采用基于平均海平面的静浮力；用于 Morison 构件浮力与势流绕射力组合 [bool]
@@ -117,18 +119,6 @@ ElemId            MassDensity           EIx                   EIy               
 7		0.0001 	 7.225
 8		0.0001 	 6.8625
 9		0.0001 	 6.5
-======  过渡块可视化参数  ======================================================
-                  TransitionBlock       - 仅用于几何可视化的过渡块尺寸 [m]
-WIDTH	LENGTH	HEIGHT
-0	0	0
-======  过渡圆柱可视化参数  ======================================================
-                  TransitionCylinder    - 仅用于几何可视化的过渡圆柱尺寸 [m]
-HEIGHT	DIAMETER
-3	6.5
-======  可视化颜色  ======================================================
-                  RgbColor              - 基础/浮体显示颜色，按 R G B 给定 [0-255]
-R	G	B
-255	200	15
 ======  节点坐标整体偏移  ======================================================
                   JointOffset           - 以下整体偏移仅作用于基础/浮体节点坐标，不作用于塔架接口点或质心参考点 [m]
 0	0	0
@@ -153,7 +143,7 @@ ConstraintId      JointId               Joint2Id              TpConstraint      
 1	1	0	1	0	0	1	1	1	1	1	1
 ======  基础/浮体构件表  ======================================================
                   SubMembers            - 构件连接、截面、水动力系数、浮力、海生物附着、进水面积和离散设置表
-MemberId          Joint1Id              Joint2Id              ElementId             ElementRot            HydroCoeffId          IsBuoyant             MarineGrowthId        FloodedArea           ElementDisc           Name                  RgbR                  RgbG                  RgbB
+MemberId          Joint1Id              Joint2Id              ElementId             ElementRot            HydroCoeffId          IsBuoyant             MarineGrowthId        FloodedArea           ElementDisc           Name
 1	1	2	1	0	1	0	0	0	10	Balast
 2	2	3	1	0	1	0	0	0	10	LowerBuoy
 3	3	4	2	0	1	0	0	0	2	Taper1

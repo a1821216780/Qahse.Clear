@@ -145,21 +145,21 @@ ConstraintId      JointId               Joint2Id              TpConstraint      
 24	24	0	1	0	0	1	1	1	1	1	1
 ======  基础/浮体构件表  ======================================================
                   SubMembers            - 构件连接、截面、水动力系数、浮力、海生物附着、进水面积和离散设置表
-MemberId          Joint1Id              Joint2Id              ElementId             ElementRot            HydroCoeffId          IsBuoyant             MarineGrowthId        FloodedArea           ElementDisc           Name                  RgbR                  RgbG                  RgbB
-1	1	2	2	0	0	0	0	0	100	Mid_Col_Top	255	200	15
-2	2	3	2	0	0	0	0	0	100	Mid_Col_Sub	250	10	10
-3	4	5	1	0	0	0	0	0	100	Col_1_Top	255	200	15
-4	5	6	1	0	0	0	0	0	100	Col_1_Bot	250	10	10
-5	7	8	3	0	0	0	0	0	100	Cross_1_Top	255	200	15
-6	9	10	4	0	0	0	0	0	100	Cross_1_Bot	250	10	10
-7	11	12	1	0	0	0	0	0	100	Col_2_Top	255	200	15
-8	12	13	1	0	0	0	0	0	100	Col_2_Bot	250	10	10
-9	14	15	3	0	0	0	0	0	100	Cross_2_Top	255	200	15
-10	16	17	4	0	0	0	0	0	100	Cross_2_Bot	250	10	10
-11	18	19	1	0	0	0	0	0	100	Col_2_Top	255	200	15
-12	19	20	1	0	0	0	0	0	100	Col_2_Bot	250	10	10
-13	21	22	3	0	0	0	0	0	100	Cross_2_Top	255	200	15
-14	23	24	4	0	0	0	0	0	100	Cross_2_Bot	250	10	10
+MemberId          Joint1Id              Joint2Id              ElementId             ElementRot            HydroCoeffId          IsBuoyant             MarineGrowthId        FloodedArea           ElementDisc           Name
+1	1	2	2	0	0	0	0	0	100	Mid_Col_Top
+2	2	3	2	0	0	0	0	0	100	Mid_Col_Sub
+3	4	5	1	0	0	0	0	0	100	Col_1_Top
+4	5	6	1	0	0	0	0	0	100	Col_1_Bot
+5	7	8	3	0	0	0	0	0	100	Cross_1_Top
+6	9	10	4	0	0	0	0	0	100	Cross_1_Bot
+7	11	12	1	0	0	0	0	0	100	Col_2_Top
+8	12	13	1	0	0	0	0	0	100	Col_2_Bot
+9	14	15	3	0	0	0	0	0	100	Cross_2_Top
+10	16	17	4	0	0	0	0	0	100	Cross_2_Bot
+11	18	19	1	0	0	0	0	0	100	Col_2_Top
+12	19	20	1	0	0	0	0	0	100	Col_2_Bot
+13	21	22	3	0	0	0	0	0	100	Cross_2_Top
+14	23	24	4	0	0	0	0	0	100	Cross_2_Bot
 ======  系泊单元类型表  ======================================================
                   MoorElements          - 系泊线单元截面和材料参数表
 MoorId            MassPerLength         EIy                   EA                    Damping               Diameter
@@ -170,24 +170,4 @@ Id                Conn1                 Conn2                 Length            
 1	FLT_-58_0.0_-14.0		GRD_-837.6_0		850	1	1	1	0	30	Mooring1
 2	FLT_29_-50.23_-14.0		GRD_418.8_-725.4	850	1	1	1	0	30	Mooring2
 3	FLT_29_50.23_-14.0		GRD_418.8_725.4		850	1	1	1	0	30	Mooring3
-======  过渡块可视化参数  ======================================================
-                  TransitionBlock       - 仅用于几何可视化的过渡块尺寸 [m]
-WIDTH	LENGTH	HEIGHT
-0	0	0
-======  过渡圆柱可视化参数  ======================================================
-                  TransitionCylinder    - 仅用于几何可视化的过渡圆柱尺寸 [m]
-HEIGHT	DIAMETER
-0.5	6.5
-======  可视化颜色  ======================================================
-                  RgbColor              - 基础/浮体显示颜色，按 R G B 给定 [0-255]
-R	G	B
-255	200	15
-MOO_1_0.0         OutputPoint           - 基础/系泊输出点定义
-MOO_1_1.0         OutputPoint           - 基础/系泊输出点定义
-MOO_2_0.0         OutputPoint           - 基础/系泊输出点定义
-MOO_2_1.0         OutputPoint           - 基础/系泊输出点定义
-MOO_3_0.0         OutputPoint           - 基础/系泊输出点定义
-MOO_3_1.0         OutputPoint           - 基础/系泊输出点定义
-
-END 不允许删除！
 ---------------------------------------------------------------------------------------

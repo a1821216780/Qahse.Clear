@@ -115,18 +115,6 @@ ElemId            MassDensity           EIx                   EIy               
 7		0.0001 	 7.225
 8		0.0001 	 6.8625
 9		0.0001 	 6.5
-======  过渡块可视化参数  ======================================================
-                  TransitionBlock       - 仅用于几何可视化的过渡块尺寸 [m]
-WIDTH	LENGTH	HEIGHT
-0	0	0
-======  过渡圆柱可视化参数  ======================================================
-                  TransitionCylinder    - 仅用于几何可视化的过渡圆柱尺寸 [m]
-HEIGHT	DIAMETER
-3	6.5
-======  可视化颜色  ======================================================
-                  RgbColor              - 基础/浮体显示颜色，按 R G B 给定 [0-255]
-R	G	B
-255	200	15
 ======  节点坐标整体偏移  ======================================================
                   JointOffset           - 以下整体偏移仅作用于基础/浮体节点坐标，不作用于塔架接口点或质心参考点 [m]
 0	0	0
@@ -151,7 +139,7 @@ ConstraintId      JointId               Joint2Id              TpConstraint      
 1	1	0	1	0	0	1	1	1	1	1	1
 ======  基础/浮体构件表  ======================================================
                   SubMembers            - 构件连接、截面、水动力系数、浮力、海生物附着、进水面积和离散设置表
-MemberId          Joint1Id              Joint2Id              ElementId             ElementRot            HydroCoeffId          IsBuoyant             MarineGrowthId        FloodedArea           ElementDisc           Name                  RgbR                  RgbG                  RgbB
+MemberId          Joint1Id              Joint2Id              ElementId             ElementRot            HydroCoeffId          IsBuoyant             MarineGrowthId        FloodedArea           ElementDisc           Name
 1	1	2	1	0	1	0	0	0	10	Balast
 2	2	3	1	0	1	0	0	0	10	LowerBuoy
 3	3	4	2	0	1	0	0	0	2	Taper1
