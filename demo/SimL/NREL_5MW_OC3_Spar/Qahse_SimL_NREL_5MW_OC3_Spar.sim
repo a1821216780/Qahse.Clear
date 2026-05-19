@@ -1,7 +1,7 @@
 Information: 
   YMLVersion: 2.0.016
   Author: YML module by Zhao Zizhen @copyright
-  LastModifiedTime: 2026-05-19 16:41:54
+  LastModifiedTime: 2026-05-19 18:27:31
 Qahse: 
   SimL: 
     TMax: 600
@@ -120,8 +120,8 @@ Qahse:
     SumPrint: True
     AfSpanput: False
     SumPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Result1\
-    NBlOuts: 0
-    NTwOuts: 0
+    NBlOuts: 7
+    NTwOuts: 3
     AFNames: [ "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\AeroL\\Airfoils\\Cylinder1.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\AeroL\\Airfoils\\Cylinder2.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\AeroL\\Airfoils\\DU40_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\AeroL\\Airfoils\\DU35_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\AeroL\\Airfoils\\DU30_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\AeroL\\Airfoils\\DU25_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\AeroL\\Airfoils\\DU21_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\AeroL\\Airfoils\\NACA64_A17.dat" ]
     IagParams: [ 0.29999999999999999 , 0.69999999999999996 , 0.69999999999999996 , 0.53000000000000003 , 0.75 , 1.7 , 3 , 6 , 6 , 0.20000000000000001 , 0.10000000000000001 , 1.5 , 1.5 , 0 ]
     AirfoilDataCount: 8
@@ -5178,8 +5178,8 @@ Qahse:
             -  [ 1 , 0 ]
     BldOutSig: [ 0 ]
     TwrOutSig: [ 0 ]
-    BlOutNd: [  ]
-    TwOutNd: [  ]
+    BlOutNd: [ 0 , 4 , 5 , 9 , 13 , 16 , 18 ]
+    TwOutNd: [ 1 , 1 , 5 ]
     OutList: [ "BkNjPhi" , "BkNjFl" , "BkNjFd" , "BkNjMm" , "BkNjVRel" , "RtArea" , "RtAeroCp" , "RtAeroCq" , "RtAeroCt" , "BkNjVUndx" , "BkNjVUndy" , "BkNjVUndz" , "BkNjVDisx" , "BkNjVDisy" , "BkNjVDisz" , "BkNjSTVx" , "BkNjSTVy" , "BkNjSTVz" , "BkNjTheta" , "BPitch" , "BkNjAxInd" , "BkNjTnInd" , "BAzimuth" ]
   BladeAeroStruct: 
     BladeRayleighDamp: 0.0023999999999999998
@@ -5258,7 +5258,7 @@ Qahse:
     TwrOutSig: [ 0 ]
     BlOutNd: [ 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 ]
     TwOutNd: [ 0 , 1 , 2 , 3 , 4 , 5 , 7 , 8 , 9 , 10 ]
-    OutList: [ "QD2_B1E1" , "QD2_B1F1" , "QD2_B1F2" , "QD2_B2E1" , "QD2_B2F1" , "QD2_B2F2" , "QD2_B3E1" , "QD2_B3F1" , "QD2_B3F2" , "QD2_DRTR" , "QD2_GEAZ" , "QD2_HV" , "QD2_P" , "QD2_R" , "QD2_RFRL" , "QD2_SG" , "QD2_SW" , "QD2_TFA1" , "QD2_TFA2" , "QD2_TFRL" , "QD2_TSS1" , "QD2_TSS2" , "QD2_Y" , "QD2_YAW" , "QD_B1E1" , "QD_B1F1" , "QD_B1F2" , "QD_B2E1" , "QD_B2F1" , "QD_B2F2" , "QD_B3E1" , "QD_B3F1" , "QD_B3F2" , "QD_DRTR" , "QD_GEAZ" , "QD_HV" , "QD_P" , "QD_R" , "QD_RFRL" , "QD_SG" , "QD_SW" , "QD_TFA1" , "QD_TFA2" , "QD_TFRL" , "QD_TSS1" , "QD_TSS2" , "QD_Y" , "QD_YAW" , "Q_B1E1" , "Q_B1F1" , "Q_B1F2" , "Q_B2E1" , "Q_B2F1" , "Q_B2F2" , "Q_B3E1" , "Q_B3F1" , "Q_B3F2" , "Q_DRTR" , "Q_GEAZ" , "Q_HV" , "Q_P" , "Q_R" , "Q_RFRL" , "Q_SG" , "Q_SW" , "Q_TFA1" , "Q_TFA2" , "Q_TFRL" , "Q_TSS1" , "Q_TSS2" , "Q_Y" , "Q_YAW" , "Q_TTMD" , "QD_TTMD" , "QD2_TTMD" , "OoPDefl" , "IPDefl" , "TipDzb" , "TipDxb" , "TipDyb" , "Tip2Twr" , "SpnTDxb" , "SpnTDyb" , "SpnTDzb" , "SpnRDxb" , "SpnRDyb" , "SpnRDzb" , "BlPitch" , "Azimuth" , "RotSpeed" , "RotAccel" , "GenSpeed" , "GenAccel" , "NcIMUTVxs" , "NcIMUTVys" , "NcIMUTVzs" , "NacYaw" , "YawRate" , "YawAccel" , "TTDspFA" , "TTDspSS" , "TTDspAx" , "TwHtALxt" , "TwHtALyt" , "TwHtALzt" , "TwHtTDxt" , "TwHtTDyt" , "TwHtTDzt" , "PtfmTDxt" , "PtfmTDyt" , "PtfmTDzt" , "PtfmSurge" , "PtfmSway" , "PtfmHeave" , "PtfmRoll" , "PtfmPitch" , "PtfmYaw" , "RootFxc" , "RootFyc" , "RootFzc" , "RootFxb" , "RootFyb" , "RootMxc" , "RootMyc" , "RootMzc" , "RootMxb" , "RootMyb" , "SpnMLxb" , "SpnMLyb" , "SpnMLzb" , "SpnFLxb" , "SpnFLyb" , "SpnFLzb" , "RotThrust" , "LSShftFya" , "LSShftFza" , "LSShftFys" , "LSShftFzs" , "LSShftTq" , "RotPwr" , "LSSGagMya" , "LSSGagMza" , "LSSGagMys" , "LSSGagMzs" , "HSShftTq" , "HSSBrTq" , "HSShftPwr" , "HSSGenPwr" , "YawBrFxn" , "YawBrFyn" , "YawBrFzn" , "YawBrFxp" , "YawBrFyp" , "YawBrMxn" , "YawBrMyn" , "YawBrMzn" , "YawBrMxp" , "YawBrMyp" , "TwrBsFxt" , "TwrBsFyt" , "TwrBsFzt" , "TwrBsMxt" , "TwrBsMyt" , "TwrBsMzt" , "TwHtMLxt" , "TwHtMLyt" , "TwHtMLzt" , "TwHtFLxt" , "TwHtFLyt" , "TwHtFLzt" , "PtfmFxt" , "PtfmFyt" , "PtfmFzt" , "PtfmFxi" , "PtfmFyi" , "PtfmFzi" , "PtfmMxt" , "PtfmMyt" , "PtfmMzt" , "PtfmMxi" , "PtfmMyi" , "PtfmMzi" ]
+    OutList: [ "QD2_B1E1" , "QD2_B1F1" , "QD2_B1F2" , "QD2_B2E1" , "QD2_B2F1" , "QD2_B2F2" , "QD2_B3E1" , "QD2_B3F1" , "QD2_B3F2" , "QD2_DRTR" , "QD2_GEAZ" , "QD2_HV" , "QD2_P" , "QD2_R" , "QD2_RFRL" , "QD2_SG" , "QD2_SW" , "QD2_TFA1" , "QD2_TFA2" , "QD2_TFRL" , "QD2_TSS1" , "QD2_TSS2" , "QD2_Y" , "QD2_YAW" , "QD_B1E1" , "QD_B1F1" , "QD_B1F2" , "QD_B2E1" , "QD_B2F1" , "QD_B2F2" , "QD_B3E1" , "QD_B3F1" , "QD_B3F2" , "QD_DRTR" , "QD_GEAZ" , "QD_HV" , "QD_P" , "QD_R" , "QD_RFRL" , "QD_SG" , "QD_SW" , "QD_TFA1" , "QD_TFA2" , "QD_TFRL" , "QD_TSS1" , "QD_TSS2" , "QD_Y" , "QD_YAW" , "Q_B1E1" , "Q_B1F1" , "Q_B1F2" , "Q_B2E1" , "Q_B2F1" , "Q_B2F2" , "Q_B3E1" , "Q_B3F1" , "Q_B3F2" , "Q_DRTR" , "Q_GEAZ" , "Q_HV" , "Q_P" , "Q_R" , "Q_RFRL" , "Q_SG" , "Q_SW" , "Q_TFA1" , "Q_TFA2" , "Q_TFRL" , "Q_TSS1" , "Q_TSS2" , "Q_Y" , "Q_YAW" , "Q_TTMD" , "QD_TTMD" , "QD2_TTMD" , "OoPDefl" , "IPDefl" , "TipDzb" , "TipDxb" , "TipDyb" , "Tip2Twr" , "SpnTDxb" , "SpnTDyb" , "SpnTDzb" , "SpnRDxb" , "SpnRDyb" , "SpnRDzb" , "BlPitch" , "Azimuth - 叶片1初始方位角 (deg)" , "RotSpeed" , "RotAccel" , "GenSpeed" , "GenAccel" , "NcIMUTVxs" , "NcIMUTVys" , "NcIMUTVzs" , "NacYaw - 初始或安装机舱偏航角 (deg)" , "YawRate" , "YawAccel" , "TTDspFA" , "TTDspSS" , "TTDspAx" , "TwHtALxt" , "TwHtALyt" , "TwHtALzt" , "TwHtTDxt" , "TwHtTDyt" , "TwHtTDzt" , "PtfmTDxt" , "PtfmTDyt" , "PtfmTDzt" , "PtfmSurge" , "PtfmSway" , "PtfmHeave" , "PtfmRoll" , "PtfmPitch" , "PtfmYaw" , "RootFxc" , "RootFyc" , "RootFzc" , "RootFxb" , "RootFyb" , "RootMxc" , "RootMyc" , "RootMzc" , "RootMxb" , "RootMyb" , "SpnMLxb" , "SpnMLyb" , "SpnMLzb" , "SpnFLxb" , "SpnFLyb" , "SpnFLzb" , "RotThrust" , "LSShftFya" , "LSShftFza" , "LSShftFys" , "LSShftFzs" , "LSShftTq" , "RotPwr" , "LSSGagMya" , "LSSGagMza" , "LSSGagMys" , "LSSGagMzs" , "HSShftTq" , "HSSBrTq" , "HSShftPwr" , "HSSGenPwr" , "YawBrFxn" , "YawBrFyn" , "YawBrFzn" , "YawBrFxp" , "YawBrFyp" , "YawBrMxn" , "YawBrMyn" , "YawBrMzn" , "YawBrMxp" , "YawBrMyp" , "TwrBsFxt" , "TwrBsFyt" , "TwrBsFzt" , "TwrBsMxt" , "TwrBsMyt" , "TwrBsMzt" , "TwHtMLxt" , "TwHtMLyt" , "TwHtMLzt" , "TwHtFLxt" , "TwHtFLyt" , "TwHtFLzt" , "PtfmFxt" , "PtfmFyt" , "PtfmFzt" , "PtfmFxi" , "PtfmFyi" , "PtfmFzi" , "PtfmMxt" , "PtfmMyt" , "PtfmMzt" , "PtfmMxi" , "PtfmMyi" , "PtfmMzi" ]
   ControL: 
     PCMode: 1
     DLL_FileName: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\ControL\TUBCon_1.3.9_64Bit.dll
