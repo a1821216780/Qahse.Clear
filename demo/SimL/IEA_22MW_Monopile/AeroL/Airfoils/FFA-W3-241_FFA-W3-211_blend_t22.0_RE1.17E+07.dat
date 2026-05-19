@@ -1,12 +1,12 @@
-﻿! AeroL.Airfoil V2.0.0 Powered by Zhao Zizhen
-This file targets OpenWECD 1.0.2+ and stores the quasi-steady polar table used by AeroL.
+! AeroL.Airfoil V2.0.0 Powered by Zhao Zizhen
+IEA_22MW_Monopile 模型
 ===========  Airfoil information  (General data)  ===========
 22                Thickness      - airfoil thickness to chord ratio (%)
 11742000          ReyNum        - Reynolds number (-)
 25                PMCentre       - pitching moment reference position (%)
 "./FFA-W3-241_FFA-W3-211_blend_t22.0.txt"                Geometry       - airfoil geometry coordinate file
 ===========  Airfoil data  (Aerofoil Database) ===========
- 1    InterpOrd  - Interpolation order to use for quasi-steady table lookup {1=linear; 2=cubic spline; default=1}
+ 1    InterpOrd - 准稳态翼型表插值阶数 {1=linear; 2=cubic spline}
         121   NumAlf            ! Number of data lines in the following table
     Alpha      Cl      Cd        Cm
     (deg)      (-)     (-)       (-)
