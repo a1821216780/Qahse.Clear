@@ -90,11 +90,16 @@ inline void RequirePath(const std::string &path, const std::string &key)
 
 inline void Validate(const SimLInput &input)
 {
-	RequirePath(input.strFile, "StrFile");
-	RequirePath(input.windFile, "WindFile");
-	RequirePath(input.aeroFile, "AeroFile");
-	RequirePath(input.controlFile, "ControlFile");
-	if (input.wtType == 2)
+	const std::string source = input.inputPath.string();
+	if (!module_io::YamlHasKey(source, "Qahse.StrL"))
+		RequirePath(input.strFile, "StrFile");
+	if (!module_io::YamlHasKey(source, "Qahse.WindL"))
+		RequirePath(input.windFile, "WindFile");
+	if (!module_io::YamlHasKey(source, "Qahse.AeroL"))
+		RequirePath(input.aeroFile, "AeroFile");
+	if (!module_io::YamlHasKey(source, "Qahse.ControL"))
+		RequirePath(input.controlFile, "ControlFile");
+	if (input.wtType == 2 && !module_io::YamlHasKey(source, "Qahse.HydroL"))
 		RequirePath(input.hydroLFile, "HydroLFile");
 	if (input.wtType == 1)
 		RequirePath(input.subFEMLFile, "SubFEMLFile");

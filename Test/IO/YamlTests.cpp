@@ -128,7 +128,12 @@ TEST(YamlTest, FormatsCppAndEigenValuesAsYamlStrings)
 {
 	EXPECT_EQ(YML::ToYmlValueString("  hello  "), "hello");
 	EXPECT_EQ(YML::ToYmlValueString(std::vector<int>{1, 2, 3}), "[ 1 , 2 , 3 ]");
-	EXPECT_EQ(YML::ToYmlValueString(std::vector<std::string>{"a", "b"}), "[ a , b ]");
+	EXPECT_EQ(YML::ToYmlValueString(std::vector<std::string>{"a", "b"}), "[ \"a\" , \"b\" ]");
+	const auto stringsWithCommas = YML::YmlToStringArray(
+		YML::ToYmlValueString(std::vector<std::string>{"a,b.dat", "path with spaces.dat"}));
+	ASSERT_EQ(stringsWithCommas.size(), 2u);
+	EXPECT_EQ(stringsWithCommas[0], "a,b.dat");
+	EXPECT_EQ(stringsWithCommas[1], "path with spaces.dat");
 	EXPECT_EQ(YML::ToYmlValueString(true), "True");
 	EXPECT_EQ(YML::ToYmlValueString(SampleMode::Alpha), "Alpha");
 

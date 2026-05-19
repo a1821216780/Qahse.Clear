@@ -103,16 +103,133 @@ inline void Validate(const HydroLInput &input)
 {
 	if (!module_io::FileExistsOrEmpty(input.waveLFile))
 		throw std::runtime_error("HydroL WaveLFile does not exist: " + input.waveLFile);
-	if (input.useRadiation && !module_io::FileExistsOrEmpty(input.potentialRadFile))
+	const bool hasEmbeddedRadiation = input.wamit && !input.wamit->radiation.radiation.empty();
+	const bool hasEmbeddedExcitation = input.wamit && !input.wamit->excitation.excitation.empty();
+	const bool hasEmbeddedDifference = input.wamit && !input.wamit->difference.qtf.empty();
+	const bool hasEmbeddedSum = input.wamit && !input.wamit->sum.qtf.empty();
+	if (input.useRadiation && !hasEmbeddedRadiation && !module_io::FileExistsOrEmpty(input.potentialRadFile))
 		throw std::runtime_error("HydroL UseRadiation=true but PotentialRadFile is missing: " + input.potentialRadFile);
-	if (input.useExcitation && !module_io::FileExistsOrEmpty(input.potentialExcFile))
+	if (input.useExcitation && !hasEmbeddedExcitation && !module_io::FileExistsOrEmpty(input.potentialExcFile))
 		throw std::runtime_error("HydroL UseExcitation=true but PotentialExcFile is missing: " + input.potentialExcFile);
-	if (input.diffEvalType != HydroLDiffEvalType::NONE && !module_io::FileExistsOrEmpty(input.potentialDiffFile))
+	if (input.diffEvalType != HydroLDiffEvalType::NONE && !hasEmbeddedDifference && !module_io::FileExistsOrEmpty(input.potentialDiffFile))
 		throw std::runtime_error("HydroL DiffEvalType requires PotentialDiffFile: " + input.potentialDiffFile);
-	if (input.useSumFreqs && !module_io::FileExistsOrEmpty(input.potentialSumFile))
+	if (input.useSumFreqs && !hasEmbeddedSum && !module_io::FileExistsOrEmpty(input.potentialSumFile))
 		throw std::runtime_error("HydroL UseSumFreqs=true but PotentialSumFile is missing: " + input.potentialSumFile);
 	if (!input.subMembers.empty() && input.hydroMemberCoeff.empty())
 		throw std::runtime_error("HydroL SubMembers are defined but HydroMemberCoeff is empty");
+}
+
+inline std::vector<std::vector<double>> RadiationRows(const std::vector<WamitRadiationEntry> &entries)
+{
+	std::vector<std::vector<double>> rows;
+	rows.reserve(entries.size());
+	for (const auto &entry : entries)
+		rows.push_back({entry.period, static_cast<double>(entry.row), static_cast<double>(entry.column),
+		                entry.addedMass, entry.damping, entry.hasDamping ? 1.0 : 0.0});
+	return rows;
+}
+
+inline std::vector<std::vector<double>> ExcitationRows(const std::vector<WamitExcitationEntry> &entries)
+{
+	std::vector<std::vector<double>> rows;
+	rows.reserve(entries.size());
+	for (const auto &entry : entries)
+		rows.push_back({entry.period, entry.headingDeg, static_cast<double>(entry.dof), entry.magnitude,
+		                entry.phaseDeg, entry.real, entry.imaginary});
+	return rows;
+}
+
+inline std::vector<std::vector<double>> QtfRows(const std::vector<WamitQtfEntry> &entries)
+{
+	std::vector<std::vector<double>> rows;
+	rows.reserve(entries.size());
+	for (const auto &entry : entries)
+		rows.push_back({entry.period1, entry.period2, entry.heading1Deg, entry.heading2Deg,
+		                static_cast<double>(entry.dof), entry.magnitude, entry.phaseDeg,
+		                entry.real, entry.imaginary});
+	return rows;
+}
+
+inline std::vector<WamitRadiationEntry> RadiationFromMatrix(const Eigen::MatrixXd &matrix)
+{
+	std::vector<WamitRadiationEntry> entries;
+	entries.reserve(static_cast<std::size_t>(matrix.rows()));
+	for (Eigen::Index r = 0; r < matrix.rows(); ++r)
+	{
+		if (matrix.cols() >= 6)
+			entries.push_back({matrix(r, 0), static_cast<int>(matrix(r, 1)), static_cast<int>(matrix(r, 2)),
+			                   matrix(r, 3), matrix(r, 4), matrix(r, 5) != 0.0});
+	}
+	return entries;
+}
+
+inline std::vector<WamitExcitationEntry> ExcitationFromMatrix(const Eigen::MatrixXd &matrix)
+{
+	std::vector<WamitExcitationEntry> entries;
+	entries.reserve(static_cast<std::size_t>(matrix.rows()));
+	for (Eigen::Index r = 0; r < matrix.rows(); ++r)
+	{
+		if (matrix.cols() >= 7)
+			entries.push_back({matrix(r, 0), matrix(r, 1), static_cast<int>(matrix(r, 2)),
+			                   matrix(r, 3), matrix(r, 4), matrix(r, 5), matrix(r, 6)});
+	}
+	return entries;
+}
+
+inline std::vector<WamitQtfEntry> QtfFromMatrix(const Eigen::MatrixXd &matrix)
+{
+	std::vector<WamitQtfEntry> entries;
+	entries.reserve(static_cast<std::size_t>(matrix.rows()));
+	for (Eigen::Index r = 0; r < matrix.rows(); ++r)
+	{
+		if (matrix.cols() >= 9)
+			entries.push_back({matrix(r, 0), matrix(r, 1), matrix(r, 2), matrix(r, 3),
+			                   static_cast<int>(matrix(r, 4)), matrix(r, 5), matrix(r, 6),
+			                   matrix(r, 7), matrix(r, 8)});
+	}
+	return entries;
+}
+
+inline bool HasWamitRows(const HydroLWamitData &data)
+{
+	return !data.radiation.radiation.empty() ||
+	       !data.excitation.excitation.empty() ||
+	       !data.difference.qtf.empty() ||
+	       !data.sum.qtf.empty();
+}
+
+inline std::optional<HydroLWamitData> ReadEmbeddedWamitData(Serializer &reader)
+{
+	HydroLWamitData data;
+	data.radiation.inputPath = reader.Read<std::string>("Wamit.RadiationInputPath", "");
+	data.radiation.type = WamitFileType::RADIATION;
+	data.radiation.radiation = RadiationFromMatrix(reader.ReadMatrix("Wamit.RadiationRows"));
+	data.excitation.inputPath = reader.Read<std::string>("Wamit.ExcitationInputPath", "");
+	data.excitation.type = WamitFileType::EXCITATION;
+	data.excitation.excitation = ExcitationFromMatrix(reader.ReadMatrix("Wamit.ExcitationRows"));
+	data.difference.inputPath = reader.Read<std::string>("Wamit.DifferenceInputPath", "");
+	data.difference.type = WamitFileType::DIFFERENCE_QTF;
+	data.difference.qtf = QtfFromMatrix(reader.ReadMatrix("Wamit.DifferenceRows"));
+	data.sum.inputPath = reader.Read<std::string>("Wamit.SumInputPath", "");
+	data.sum.type = WamitFileType::SUM_QTF;
+	data.sum.qtf = QtfFromMatrix(reader.ReadMatrix("Wamit.SumRows"));
+	if (!HasWamitRows(data))
+		return std::nullopt;
+	return data;
+}
+
+inline void AddEmbeddedWamitData(Serializer &writer, const std::optional<HydroLWamitData> &wamit)
+{
+	if (!wamit || !HasWamitRows(*wamit))
+		return;
+	writer.AddNode("Wamit.RadiationInputPath", wamit->radiation.inputPath.string());
+	writer.AddNode("Wamit.RadiationRows", RadiationRows(wamit->radiation.radiation), 8);
+	writer.AddNode("Wamit.ExcitationInputPath", wamit->excitation.inputPath.string());
+	writer.AddNode("Wamit.ExcitationRows", ExcitationRows(wamit->excitation.excitation), 8);
+	writer.AddNode("Wamit.DifferenceInputPath", wamit->difference.inputPath.string());
+	writer.AddNode("Wamit.DifferenceRows", QtfRows(wamit->difference.qtf), 8);
+	writer.AddNode("Wamit.SumInputPath", wamit->sum.inputPath.string());
+	writer.AddNode("Wamit.SumRows", QtfRows(wamit->sum.qtf), 8);
 }
 
 inline HydroLInput ReadHydroLInput(const std::string &path)
@@ -174,6 +291,8 @@ inline HydroLInput ReadHydroLInput(const std::string &path)
 	input.moorMembers = module_io::ReadRows(reader, path, kYamlRoot, "MoorMembers", 9);
 
 	module_io::ReadOutputConfig(reader, path, kYamlRoot, input.output);
+	if (reader.IsYaml())
+		input.wamit = ReadEmbeddedWamitData(reader);
 	ResolvePaths(input);
 	Validate(input);
 	return input;

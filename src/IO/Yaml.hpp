@@ -32,6 +32,7 @@
 #include <ctime>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <initializer_list>
 #include <limits>
@@ -203,39 +204,120 @@ namespace yml_detail
 	 *  @return 各标量值的字符串向量。
 	 *  @note 自动去除方括号，支持空格和制表符分隔。
 	 */
+	inline std::string unquoteScalar(const std::string &value)
+	{
+		const std::string text = trim(value);
+		if (text.size() < 2)
+			return text;
+		const char quote = text.front();
+		if ((quote != '"' && quote != '\'') || text.back() != quote)
+			return text;
+
+		std::string out;
+		out.reserve(text.size() - 2);
+		for (size_t i = 1; i + 1 < text.size(); ++i)
+		{
+			const char ch = text[i];
+			if (quote == '"' && ch == '\\' && i + 1 < text.size() - 1)
+			{
+				const char next = text[i + 1];
+				if (next == '"' || next == '\\')
+				{
+					out.push_back(next);
+					++i;
+					continue;
+				}
+			}
+			if (quote == '\'' && ch == '\'' && i + 1 < text.size() - 1 && text[i + 1] == '\'')
+			{
+				out.push_back('\'');
+				++i;
+				continue;
+			}
+			out.push_back(ch);
+		}
+		return out;
+	}
+
 	inline std::vector<std::string> splitScalarList(const std::string &value)
 	{
-		std::string normalized;
-		normalized.reserve(value.size());
-		for (char ch : value)
-		{
-			if (ch == '[' || ch == ']')
-				continue;
-			normalized.push_back(ch == '\t' ? ' ' : ch);
-		}
-
 		std::vector<std::string> result;
-		for (const auto &part : split(normalized, ',', true))
+		std::string token;
+		bool inQuote = false;
+		char quote = '"';
+		bool bracketed = false;
+		bool hasComma = false;
+
+		for (size_t i = 0; i < value.size(); ++i)
 		{
-			std::string token = trim(part);
-			if (token.empty())
+			const char ch = value[i];
+			if (inQuote)
+			{
+				if (ch == '\\' && quote == '"' && i + 1 < value.size())
+					++i;
+				else if (ch == quote)
+					inQuote = false;
 				continue;
-
-			std::istringstream whitespaceStream(token);
-			std::vector<std::string> whitespaceTokens;
-			std::string whitespaceToken;
-			while (whitespaceStream >> whitespaceToken)
-				whitespaceTokens.push_back(whitespaceToken);
-
-			if (whitespaceTokens.size() > 1)
-			{
-				result.insert(result.end(), whitespaceTokens.begin(), whitespaceTokens.end());
 			}
-			else
+			if (ch == '"' || ch == '\'')
 			{
-				result.push_back(token);
+				inQuote = true;
+				quote = ch;
+				continue;
+			}
+			if (ch == ',')
+			{
+				hasComma = true;
+				break;
 			}
 		}
+
+		inQuote = false;
+		quote = '"';
+
+		auto flush = [&]() {
+			std::string text = trim(token);
+			if (!text.empty())
+				result.push_back(unquoteScalar(text));
+			token.clear();
+		};
+
+		for (size_t i = 0; i < value.size(); ++i)
+		{
+			const char ch = value[i];
+			if (ch == '[' || ch == ']')
+			{
+				bracketed = true;
+				if (!inQuote)
+					continue;
+			}
+
+			if (inQuote)
+			{
+				token.push_back(ch);
+				if (ch == '\\' && quote == '"' && i + 1 < value.size())
+					token.push_back(value[++i]);
+				else if (ch == quote)
+					inQuote = false;
+				continue;
+			}
+
+			if (ch == '"' || ch == '\'')
+			{
+				inQuote = true;
+				quote = ch;
+				token.push_back(ch);
+				continue;
+			}
+
+			if (ch == ',' || ((!bracketed || !hasComma) && std::isspace(static_cast<unsigned char>(ch))))
+			{
+				flush();
+				continue;
+			}
+			token.push_back(ch == '\t' ? ' ' : ch);
+		}
+		flush();
 		return result;
 	}
 
@@ -321,10 +403,28 @@ namespace yml_detail
 	 *  @return 格式化后的字符串。
 	 *  @note 枚举类型使用 magic_enum 获取名称，浮点数使用最大精度输出。
 	 */
+	inline std::string quoteScalarString(const std::string &value)
+	{
+		std::ostringstream stream;
+		stream << '"';
+		for (const char ch : value)
+		{
+			if (ch == '"' || ch == '\\')
+				stream << '\\';
+			stream << ch;
+		}
+		stream << '"';
+		return stream.str();
+	}
+
 	template <typename T>
 	inline std::string scalarToString(T value)
 	{
-		if constexpr (std::is_same_v<std::decay_t<T>, bool>)
+		if constexpr (std::is_same_v<std::decay_t<T>, std::string>)
+		{
+			return quoteScalarString(value);
+		}
+		else if constexpr (std::is_same_v<std::decay_t<T>, bool>)
 		{
 			return value ? "True" : "False";
 		}
@@ -1516,6 +1616,7 @@ private:
 	void parseLines(const std::vector<std::string> &sourceLines)
 	{
 		nodeList.clear();
+		std::vector<NodePtr> parentStack;
 		for (size_t i = 0; i < sourceLines.size(); ++i)
 		{
 			const std::string &line = sourceLines[i];
@@ -1557,9 +1658,12 @@ private:
 				node->value = afterColon;
 			}
 
-			node->parent = findParent(node->space);
+			while (!parentStack.empty() && parentStack.back()->space >= node->space)
+				parentStack.pop_back();
+			node->parent = parentStack.empty() ? nullptr : parentStack.back();
 			if (node->parent)
 				node->tier = node->parent->tier + 1;
+			parentStack.push_back(node);
 			nodeList.push_back(std::move(node));
 		}
 	}
@@ -1652,21 +1756,34 @@ private:
 	 */
 	void formatting()
 	{
+		std::unordered_map<Node *, std::vector<NodePtr>> children;
 		std::vector<NodePtr> roots;
 		for (const auto &node : nodeList)
 		{
 			if (!node->parent)
 				roots.push_back(node);
+			else
+				children[node->parent.get()].push_back(node);
 		}
 
 		std::vector<NodePtr> formatted;
 		formatted.reserve(nodeList.size());
+		std::function<void(const NodePtr &)> append = [&](const NodePtr &node)
+		{
+			formatted.push_back(node);
+			for (const auto &child : children[node.get()])
+			{
+				child->tier = node->tier + 1;
+				child->space = node->space + 2;
+				append(child);
+			}
+		};
+
 		for (const auto &root : roots)
 		{
 			root->tier = 0;
 			root->space = 0;
-			formatted.push_back(root);
-			appendChildren(root, formatted);
+			append(root);
 		}
 		nodeList = std::move(formatted);
 	}

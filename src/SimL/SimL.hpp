@@ -7,6 +7,8 @@
 SimLInput ReadSimLInputFile(const std::string &path);
 SimLModuleInputs ResolveSimLModuleInputs(const SimLInput &input);
 SimLResolvedInput ReadSimLResolvedInputFile(const std::string &path);
+void WriteSimLResolvedInputFile(const SimLResolvedInput &input, const std::string &path);
+void ConvertSimLInputToSimFile(const std::string &inputPath, const std::string &outputPath);
 
 class SimL
 {

@@ -475,6 +475,11 @@ std::vector<AirfoilData> ReadAeroLAirfoilFiles(const AeroLInput &input)
 	return airfoils;
 }
 
+void BuildAirfoilLookupTables(AirfoilData &airfoil)
+{
+	BuildLookupTables(airfoil);
+}
+
 AirfoilCoefficients EvaluateAirfoilCoefficients(const AirfoilData &airfoil,
                                                 double alphaDeg,
                                                 std::size_t polarSetIndex)

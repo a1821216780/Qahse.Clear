@@ -537,6 +537,14 @@ inline std::string QualifyYamlKey(const std::string &root, const std::string &ke
 	return root + "." + key;
 }
 
+inline bool YamlHasKey(const std::string &path, const std::string &root, const std::string &key = {})
+{
+	if (!Serializer::IsYamlPath(path) || !ZFile::Exists(path))
+		return false;
+	YML yaml(path, false);
+	return yaml.ChickfindNodeByKey(key.empty() ? root : QualifyYamlKey(root, key));
+}
+
 inline std::vector<std::string> ReadYamlStringArray(const std::string &path,
                                                     const std::string &root,
                                                     const std::string &key)

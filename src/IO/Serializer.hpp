@@ -95,7 +95,7 @@ public:
 	static bool IsYamlPath(const std::string &path)
 	{
 		const auto ext = ZString::ToUpper(std::filesystem::path(path).extension().string());
-		return ext == ".YML" || ext == ".YAML";
+		return ext == ".YML" || ext == ".YAML" || ext == ".SIM";
 	}
 
 	void ReadFile(const std::string &path)
