@@ -1,8 +1,8 @@
-﻿------- Qahse.HydroL  Sub 文件   v1.0.* ------------------------------------------------
-NREL 5MW OC4 固定式导管架基础；由 QBladeCE Sub 输入文件转换
+------- Qahse.HydroL  Sub 文件   v1.0.* ------------------------------------------------
+NREL_5MW_OC4_Jacket 模型
 
 ================================  基础类型与水环境  ==============================================
-50                WaterDepth            - 设计水深 [m]
+50                WaterDepth - 水深(m)
 1025              WaterDensity          - 设计海水密度；用于浸水/进水构件质量和水动力计算 [kg/m^3]
 false             IsFloating            - 是否为漂浮式基础；固定式节点坐标以海床为原点，漂浮式节点坐标以平均海平面中性点为原点 [bool]
 
@@ -262,14 +262,14 @@ SUB_1_0.5         OutputPoint           - 基础/系泊输出点定义
 SUB_5_1.0         OutputPoint           - 基础/系泊输出点定义
 
 ---------------------- OUTPUT --------------------------------------------------
-true              SumPrint       - 是否生成 HydroL 输出摘要 [bool]
-false             AfSpanput      - 输出模式选择
-"./Result1/"      SumPath        - 输出文件夹
+true              SumPrint - 是否生成输出文件
+false             AfSpanput - 输出模式选择：false=按输出变量输出; true=按叶片/塔架节点输出
+"./Result1/"      SumPath - 输出文件夹路径
 0                 NBlOuts        - 叶片节点输出数量
-0                 BlOutNd        - 叶片节点列表
+0                 BlOutNd - Blade nodes whose values will be output (-)（从0开始计算）
 0                 NTwOuts        - 塔架节点输出数量
-0                 TwOutNd        - 塔架节点列表
-                  OutList        - 输出通道列表
+0                 TwOutNd - Tower nodes whose values will be output (-)（从0开始计算）
+                  OutList - 以下为输出通道列表
 HydroFxt
 HydroFyt
 HydroFzt

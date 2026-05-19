@@ -112,6 +112,39 @@ TEST(StrLIO, ReadsAllDemoTowerMetadataAndFpmBladeDamping)
 	}
 }
 
+TEST(StrLIO, AllDemoBladeAeroStructTablesHaveConsistentRowColumnCounts)
+{
+	std::size_t checked = 0;
+	const auto root = RepoRoot() / "demo" / "SimL";
+	for (const auto &entry : std::filesystem::recursive_directory_iterator(root))
+	{
+		if (!entry.is_regular_file())
+			continue;
+		const auto path = entry.path();
+		const auto filename = path.filename().string();
+		if (filename.find("Blade") == std::string::npos ||
+		    filename.find("_new.str") == std::string::npos)
+			continue;
+
+		SCOPED_TRACE(path.string());
+		const auto blade = ReadBladeAeroStructInput(path.string());
+		ASSERT_FALSE(blade.sectionRows.empty());
+		ASSERT_EQ(blade.sections.size(), blade.sectionRows.size());
+
+		const std::size_t expectedColumns = blade.beamType == 2 ? 54u : 26u;
+		for (const auto &row : blade.sectionRows)
+			EXPECT_EQ(row.size(), expectedColumns);
+		for (const auto &section : blade.sections)
+		{
+			EXPECT_GT(section.radialPos, 0.0);
+			EXPECT_GT(section.chord, 0.0);
+			EXPECT_GE(section.polarFileId, 1);
+		}
+		++checked;
+	}
+	EXPECT_GT(checked, 0u);
+}
+
 TEST(StrLIO, TextTemplateWriteUpdatesBoundFields)
 {
 	const auto dir = TestOutputDir() / "StrL" / "text_template";
@@ -217,7 +250,6 @@ TEST(StrLIO, BladePolarFileIdRejectsQBladePathToken)
 		"1 BladeBeamType",
 		"1 BladeDiscCount",
 		"RadialPos Chord Twist OffsetY OffsetX PitchAxisY PitchAxisX PolarFileID RelThickness",
-		"BladeAeroStructTable",
 		"1.5 3.0 10.0 0.0 0.0 0.5 0.0 Polars/example.plr 100.0",
 		"END",
 	});

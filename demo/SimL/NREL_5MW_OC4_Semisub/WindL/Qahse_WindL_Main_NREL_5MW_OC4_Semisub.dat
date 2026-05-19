@@ -1,22 +1,22 @@
-﻿------- OpenWECD.Qahse(HawtC3) WindL  涓绘枃浠?  By 璧靛瓙绁?------------------------------------------------
-NREL_5MW_OC4_Semisub 妯″瀷
+------- OpenWECD.Qahse(HawtC3) WindL  主文件  By 赵子祯 ------------------------------------------------
+NREL_5MW_OC4_Semisub 模型
 
-==================  澶栭儴椋庢枃浠剁被鍨?================== 
-3      WindType       - 椋庢枃浠剁被鍨嬪拰鍔熻兘閫夋嫨 (1=steady; 2=user define; 3=binary TurbSim FF(.wnd); 4=binary Bladed(.wnd);5=TurbSim bts(.bts))
-true   CreadW        -  鏄惁寰幆璇诲彇椋庢枃浠讹紝濡傛灉浠跨湡鏃堕棿澶т簬椋庢枃浠剁殑鏃堕暱锛屽皢浼氫粠澶磋鍙栭鏂囦欢        
+==================  外部风文件类型 ==================
+3      WindType - 风文件类型和功能选择 (1=steady; 2=user define; 3=binary TurbSim FF(.wnd); 4=binary Bladed(.wnd); 5=TurbSim bts(.bts))
+true   CreadW - 是否循环读取风文件
 
-================== 椋庡弬鏁?[used only for WindType = 1 and 2,4] =========================
-11.4  HWindSpeed     - Horizontal windspeed                            (m/s)(Bladed妯″紡涓嬪彲鑳介渶瑕?
-87   RefHt          - Reference height for horizontal wind speed(equal Zhub)      (m)[if WindType=4,will using]
+================== 风参数 [used only for WindType = 1 and 2,4] =========================
+11.4  HWindSpeed - Horizontal windspeed (m/s) (Bladed模式下可能需要)
+87   RefHt - 参考高度(m)
 0.0   PLexp          - Power law exponent                              (-)
 
-================== 鑷畾涔夐鍙傛暟 [used only for WindType = 1 and 2] =========================
--120   gridY_min  - 缃戞牸妯悜鐨勬渶灏忓€?
-120   gridY_max  - 缃戞牸妯悜鐨勬渶澶у€?
-5    gridY_step - 缃戞牸妯悜鐨勬闀?
-0   gridZ_min  - 缃戞牸绾靛悜鐨勬渶灏忓€?
-180  gridZ_max  - 缃戞牸绾靛悜鐨勬渶澶?
-5    gridZ_step - 缃戞牸绾靛悜鐨勬闀?
+================== 用户定义风参数 [used only for WindType = 2] ==================
+-120   gridY_min  - 网格的最小
+120   gridY_max - 网格横向最大值
+5    gridY_step - 网格横向步长
+0   gridZ_min - 网格纵向最小值
+180  gridZ_max - 网格纵向最大值
+5    gridZ_step - 网格纵向步长
 5            WindSpeedNum  - Wind Speed Num(fomart is "t windspeed")[used only for WindType = 2]
 0 10                         - WindSpeedList
 30 10
@@ -24,18 +24,18 @@ true   CreadW        -  鏄惁寰幆璇诲彇椋庢枃浠讹紝濡傛灉�
 600 50
 1200 200
 
-================== Parameters for binary TurbSim FF Conditions [used only for WindType = 3] =========================
+================== TurbSim .wnd 风文件参数 [used only for WindType = 3] ==================
 "../SimWind/result/NREL_5MW_OC4_Semisub_Demo_wind.ts.wnd"    - TurWindFilePath   - Rootname of the full-field wind file to use (.wnd, .sum)
 
-================== Parameters for Binary Bladed-style Full-Field files   [used only for WindType = 4] =========
+================== Bladed .wnd 风文件参数 [used only for WindType = 4] ==================
 "../SimWind/result/NREL_5MW_OC4_Semisub_Demo_wind.wnd"    - BldWindFilePath   - Rootname of the full-field wind file to use (.wnd)
 
-================== Parameters for Bts WIND files   [used only for WindType = 5] =========
+================== TurbSim .bts 风文件参数 [used only for WindType = 5] ==================
 "../SimWind/result/NREL_5MW_OC4_Semisub_Demo_wind.bts"    - IECWindFilePath   - Rootname of the full-field wind file to use (.wnd)
 
 
 ====================== OUTPUT ==================================================
 
 
-END of input file (the word "END" must appear in the first 3 columns of this last OutList line)
+END of input file (the word "END" must appear in the first 3 columns of this last OutList - 以下为输出通道列表
 ---------------------------------------------------------------------------------------

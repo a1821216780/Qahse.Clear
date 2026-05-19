@@ -1,23 +1,23 @@
-﻿------- Qahse.WindL main file ------------------------------------------------
-IEA_22MW_Monopile
+==================  外部风文件类型 ==================
+IEA_22MW_Monopile 模型
 
-1      WindType       - 风文件类型 (1=steady; 2=user define; 3=TurbSim wnd; 4=Bladed wnd; 5=TurbSim bts)
-true   CreadW         - 是否循环读取风文件
+1      WindType - 风文件类型和功能选择 (1=steady; 2=user define; 3=binary TurbSim FF(.wnd); 4=binary Bladed(.wnd); 5=TurbSim bts(.bts))
+true   CreadW - 是否循环读取风文件
 
-11.4   HWindSpeed     - Horizontal windspeed (m/s)
-87     RefHt          - Reference height (m)
+11.4   HWindSpeed - Horizontal windspeed (m/s) (Bladed模式下可能需要)
+87     RefHt - 参考高度(m)
 0.2    PLexp          - Power law exponent (-)
-
+================== 用户定义风参数 [used only for WindType = 2] ==================
 -120   gridY_min
-120    gridY_max
-5      gridY_step
-0      gridZ_min
-180    gridZ_max
-5      gridZ_step
+120    gridY_max - 网格横向最大值
+5      gridY_step - 网格横向步长
+0      gridZ_min - 网格纵向最小值
+180    gridZ_max - 网格纵向最大值
+5      gridZ_step - 网格纵向步长
 0      WindSpeedNum   - Wind Speed Num(format is "t windspeed")
-
-""     TurWindFilePath
-""     BldWindFilePath
+================== TurbSim .wnd 风文件参数 [used only for WindType = 3] ==================
+================== Bladed .wnd 风文件参数 [used only for WindType = 4] ==================
+================== TurbSim .bts 风文件参数 [used only for WindType = 5] ==================
 ""     IECWindFilePath
 
 END of input file
