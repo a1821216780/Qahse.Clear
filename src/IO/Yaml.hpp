@@ -1261,6 +1261,7 @@ public:
 		if (target.empty())
 			throw std::runtime_error(L_YAML_CannotSaveEmpty);
 
+		ensureMetadata();
 		if (format)
 			formatting();
 
@@ -1551,7 +1552,7 @@ public:
 	{
 		std::ostringstream stream;
 		stream << '\n';
-		const std::string indent(static_cast<size_t>(level) * 2 + 1, ' ');
+		const std::string indent(static_cast<size_t>(std::max(level, 0)) * 2, ' ');
 		for (size_t r = 0; r < data.size(); ++r)
 		{
 			stream << indent << "-  [ ";
@@ -1588,7 +1589,7 @@ public:
 
 		std::ostringstream stream;
 		stream << '\n';
-		const std::string indent(static_cast<size_t>(level) * 2 + 1, ' ');
+		const std::string indent(static_cast<size_t>(std::max(level, 0)) * 2, ' ');
 		for (Eigen::Index r = 0; r < data.rows(); ++r)
 		{
 			stream << indent << "-  [ ";
@@ -1765,6 +1766,18 @@ private:
 			else
 				children[node->parent.get()].push_back(node);
 		}
+		auto rootRank = [](const NodePtr &node)
+		{
+			if (node->name == "Information")
+				return 0;
+			if (node->name == "Qahse")
+				return 1;
+			return 2;
+		};
+		std::stable_sort(roots.begin(), roots.end(), [&](const NodePtr &lhs, const NodePtr &rhs)
+		{
+			return rootRank(lhs) < rootRank(rhs);
+		});
 
 		std::vector<NodePtr> formatted;
 		formatted.reserve(nodeList.size());
@@ -1807,14 +1820,13 @@ private:
 	}
 
 	/** @brief 确保元数据节点存在（版本号、作者、最后修改时间）。
-	 *  @note 若 "OpenWECD.Information.YMLVersion" 不存在则创建，每次调用更新作者和时间。
+	 *  @note 每次保存 YAML 时都会更新最后修改时间。
 	 */
 	void ensureMetadata()
 	{
-		if (!ChickfindNodeByKey("OpenWECD.Information.YMLVersion"))
-			AddNode("OpenWECD.Information.YMLVersion", ymlversion);
-		AddNode("OpenWECD.Information.Auther", "YML module by Zhao Zizhen @copyright");
-		AddNode("OpenWECD.Information.LastModifiedTime", yml_detail::nowString());
+		AddNode("Information.YMLVersion", ymlversion);
+		AddNode("Information.Author", "YML module by Zhao Zizhen @copyright");
+		AddNode("Information.LastModifiedTime", yml_detail::nowString());
 	}
 };
 

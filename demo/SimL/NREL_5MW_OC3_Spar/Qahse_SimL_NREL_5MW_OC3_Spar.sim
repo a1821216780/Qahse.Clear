@@ -1,7 +1,7 @@
 Information: 
   YMLVersion: 2.0.016
   Author: YML module by Zhao Zizhen @copyright
-  LastModifiedTime: 2026-05-19 14:38:33
+  LastModifiedTime: 2026-05-19 14:38:42
 Qahse: 
   SimL: 
     TMax: 600
@@ -18,11 +18,11 @@ Qahse:
     WtrDens: 1025
     KinVisc: 1.464e-05
     SpdSound: 335
-    StrFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\Qahse_SimL_NREL_5MW_OC4_Semisub.sim
-    WindFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\Qahse_SimL_NREL_5MW_OC4_Semisub.sim
-    AeroFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\Qahse_SimL_NREL_5MW_OC4_Semisub.sim
-    ControlFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\Qahse_SimL_NREL_5MW_OC4_Semisub.sim
-    HydroLFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\Qahse_SimL_NREL_5MW_OC4_Semisub.sim
+    StrFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\Qahse_SimL_NREL_5MW_OC3_Spar.sim
+    WindFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\Qahse_SimL_NREL_5MW_OC3_Spar.sim
+    AeroFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\Qahse_SimL_NREL_5MW_OC3_Spar.sim
+    ControlFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\Qahse_SimL_NREL_5MW_OC3_Spar.sim
+    HydroLFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\Qahse_SimL_NREL_5MW_OC3_Spar.sim
     SubFEMLFile: 
     MlinLFile: 
     AfVTK: False
@@ -32,7 +32,7 @@ Qahse:
     DT_Out: 0.001
     TStart: 0
     OutType: 0
-    SumPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\NREL_5MW_OC4_Semisub
+    SumPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\NREL_5MW_OC3_Spar
     BldOutSig: [ 0 ]
     NBlOuts: 0
     BlOutNd: [  ]
@@ -53,7 +53,7 @@ Qahse:
     SpdSound: 335
     NumAFfiles: 8
     InterpOrd: 1
-    BladeAeroStructFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\Qahse_SimL_NREL_5MW_OC4_Semisub.sim
+    BladeAeroStructFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\Qahse_SimL_NREL_5MW_OC3_Spar.sim
     UnsteadyAero: False
     TwoPointLiftDrag: True
     Himmelskamp: False
@@ -103,7 +103,7 @@ Qahse:
     MinPitch: -0.10000000000000001
     MaxPitch: 1.5700000000000001
     PitchStep: 0.0050000000000000001
-    CpResultFilePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Result\test_AeroL_cp.out
+    CpResultFilePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Result\test_AeroL_cp.out
     MinWindSpeed: 3
     MaxWindSpeed: 25
     WindSpeedStep: 0.01
@@ -115,25 +115,25 @@ Qahse:
     IfPitch: True
     FixedPitch: 0
     FixedRotationalSpeed: 0
-    PowerCurveResultFilePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Result\test_AeroL_PowerCurve.out
+    PowerCurveResultFilePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Result\test_AeroL_PowerCurve.out
     SumPrint: True
     AfSpanput: False
-    SumPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Result1\
+    SumPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Result1\
     NBlOuts: 7
     NTwOuts: 3
-    AFNames: [ "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\AeroL\\Airfoils\\Cylinder1.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\AeroL\\Airfoils\\Cylinder2.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\AeroL\\Airfoils\\DU40_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\AeroL\\Airfoils\\DU35_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\AeroL\\Airfoils\\DU30_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\AeroL\\Airfoils\\DU25_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\AeroL\\Airfoils\\DU21_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\AeroL\\Airfoils\\NACA64_A17.dat" ]
+    AFNames: [ "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\AeroL\\Airfoils\\Cylinder1.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\AeroL\\Airfoils\\Cylinder2.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\AeroL\\Airfoils\\DU40_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\AeroL\\Airfoils\\DU35_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\AeroL\\Airfoils\\DU30_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\AeroL\\Airfoils\\DU25_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\AeroL\\Airfoils\\DU21_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\AeroL\\Airfoils\\NACA64_A17.dat" ]
     IagParams: [  ]
     AirfoilDataCount: 8
     AirfoilData: 
       0: 
-        InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\Cylinder1.dat
+        InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\Cylinder1.dat
         PolarName: 
         AirfoilName: 
         Thickness: 100
         ReynoldsNumber: 0.75
         ReynoldsNumbers: [ 0.75 ]
         PitchMomentCenter: 50
-        GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\Cylinder1_coords.txt
+        GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\Cylinder1_coords.txt
         InterpolationOrder: 1
         DeclaredPolarCount: 3
         PolarRows: 
@@ -147,7 +147,7 @@ Qahse:
             -  [ 0 , 0 , 0.5 , 0 ]
             -  [ 180 , 0 , 0.5 , 0 ]
         Geometry: 
-          InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\Cylinder1_coords.txt
+          InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\Cylinder1_coords.txt
           Name: Cylinder1_coords
           DeclaredCoordinateCount: 400
           HasExplicitReference: True
@@ -553,14 +553,14 @@ Qahse:
             -  [ 0.99660000000000004 , -0.058209999999999998 ]
             -  [ 1 , 0 ]
       1: 
-        InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\Cylinder2.dat
+        InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\Cylinder2.dat
         PolarName: 
         AirfoilName: 
         Thickness: 100
         ReynoldsNumber: 0.75
         ReynoldsNumbers: [ 0.75 ]
         PitchMomentCenter: 50
-        GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\Cylinder2_coords.txt
+        GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\Cylinder2_coords.txt
         InterpolationOrder: 1
         DeclaredPolarCount: 3
         PolarRows: 
@@ -574,7 +574,7 @@ Qahse:
             -  [ 0 , 0 , 0.34999999999999998 , 0 ]
             -  [ 180 , 0 , 0.34999999999999998 , 0 ]
         Geometry: 
-          InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\Cylinder2_coords.txt
+          InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\Cylinder2_coords.txt
           Name: Cylinder2_coords
           DeclaredCoordinateCount: 400
           HasExplicitReference: True
@@ -980,14 +980,14 @@ Qahse:
             -  [ 0.99660000000000004 , -0.058209999999999998 ]
             -  [ 1 , 0 ]
       2: 
-        InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU40_A17.dat
+        InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\DU40_A17.dat
         PolarName: 
         AirfoilName: 
         Thickness: 40.5
         ReynoldsNumber: 0.75
         ReynoldsNumbers: [ 0.75 ]
         PitchMomentCenter: 25
-        GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU40_A17_coords.txt
+        GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\DU40_A17_coords.txt
         InterpolationOrder: 1
         DeclaredPolarCount: 136
         PolarRows: 
@@ -1267,7 +1267,7 @@ Qahse:
             -  [ 175 , -0.22600000000000001 , 0.070199999999999999 , -0.1022 ]
             -  [ 180 , 0 , 0.060199999999999997 , 0 ]
         Geometry: 
-          InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU40_A17_coords.txt
+          InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\DU40_A17_coords.txt
           Name: DU40_A17_coords
           DeclaredCoordinateCount: 400
           HasExplicitReference: True
@@ -1673,14 +1673,14 @@ Qahse:
             -  [ 0.99660000000000004 , -0.0026099999999999999 ]
             -  [ 1 , -0.00347 ]
       3: 
-        InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU35_A17.dat
+        InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\DU35_A17.dat
         PolarName: 
         AirfoilName: 
         Thickness: 35.100000000000001
         ReynoldsNumber: 0.75
         ReynoldsNumbers: [ 0.75 ]
         PitchMomentCenter: 25
-        GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU35_A17_coords.txt
+        GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\DU35_A17_coords.txt
         InterpolationOrder: 1
         DeclaredPolarCount: 135
         PolarRows: 
@@ -1958,7 +1958,7 @@ Qahse:
             -  [ 175 , -0.22900000000000001 , 0.050999999999999997 , -0.1013 ]
             -  [ 180 , 0 , 0.0407 , 0 ]
         Geometry: 
-          InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU35_A17_coords.txt
+          InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\DU35_A17_coords.txt
           Name: DU35_A17_coords
           DeclaredCoordinateCount: 400
           HasExplicitReference: True
@@ -2364,14 +2364,14 @@ Qahse:
             -  [ 0.99660000000000004 , -0.0019 ]
             -  [ 1 , -0.0028300000000000001 ]
       4: 
-        InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU30_A17.dat
+        InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\DU30_A17.dat
         PolarName: 
         AirfoilName: 
         Thickness: 30
         ReynoldsNumber: 0.75
         ReynoldsNumbers: [ 0.75 ]
         PitchMomentCenter: 25
-        GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU30_A17_coords.txt
+        GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\DU30_A17_coords.txt
         InterpolationOrder: 1
         DeclaredPolarCount: 143
         PolarRows: 
@@ -2665,7 +2665,7 @@ Qahse:
             -  [ 175 , -0.27400000000000002 , 0.038800000000000001 , -0.13800000000000001 ]
             -  [ 180 , 0 , 0.026700000000000002 , 0 ]
         Geometry: 
-          InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU30_A17_coords.txt
+          InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\DU30_A17_coords.txt
           Name: DU30_A17_coords
           DeclaredCoordinateCount: 400
           HasExplicitReference: True
@@ -3071,14 +3071,14 @@ Qahse:
             -  [ 0.99660000000000004 , -0.00158 ]
             -  [ 1 , -0.0024599999999999999 ]
       5: 
-        InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU25_A17.dat
+        InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\DU25_A17.dat
         PolarName: 
         AirfoilName: 
         Thickness: 25
         ReynoldsNumber: 0.75
         ReynoldsNumbers: [ 0.75 ]
         PitchMomentCenter: 25
-        GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU25_A17_coords.txt
+        GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\DU25_A17_coords.txt
         InterpolationOrder: 1
         DeclaredPolarCount: 140
         PolarRows: 
@@ -3366,7 +3366,7 @@ Qahse:
             -  [ 175 , -0.36799999999999999 , 0.0356 , -0.18459999999999999 ]
             -  [ 180 , 0 , 0.020199999999999999 , 0 ]
         Geometry: 
-          InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU25_A17_coords.txt
+          InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\DU25_A17_coords.txt
           Name: DU25_A17_coords
           DeclaredCoordinateCount: 400
           HasExplicitReference: True
@@ -3772,14 +3772,14 @@ Qahse:
             -  [ 0.99660000000000004 , -0.00149 ]
             -  [ 1 , -0.0021299999999999999 ]
       6: 
-        InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU21_A17.dat
+        InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\DU21_A17.dat
         PolarName: 
         AirfoilName: 
         Thickness: 21
         ReynoldsNumber: 0.75
         ReynoldsNumbers: [ 0.75 ]
         PitchMomentCenter: 25
-        GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU21_A17_coords.txt
+        GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\DU21_A17_coords.txt
         InterpolationOrder: 1
         DeclaredPolarCount: 142
         PolarRows: 
@@ -4071,7 +4071,7 @@ Qahse:
             -  [ 175 , -0.39400000000000002 , 0.033399999999999999 , -0.1978 ]
             -  [ 180 , 0 , 0.018499999999999999 , 0 ]
         Geometry: 
-          InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU21_A17_coords.txt
+          InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\DU21_A17_coords.txt
           Name: DU21_A17_coords
           DeclaredCoordinateCount: 400
           HasExplicitReference: True
@@ -4477,14 +4477,14 @@ Qahse:
             -  [ 0.99660000000000004 , -0.0014300000000000001 ]
             -  [ 1 , -0.0019400000000000001 ]
       7: 
-        InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\NACA64_A17.dat
+        InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\NACA64_A17.dat
         PolarName: 
         AirfoilName: 
         Thickness: 18
         ReynoldsNumber: 0.75
         ReynoldsNumbers: [ 0.75 ]
         PitchMomentCenter: 25
-        GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\NACA64_A17_coords.txt
+        GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\NACA64_A17_coords.txt
         InterpolationOrder: 1
         DeclaredPolarCount: 127
         PolarRows: 
@@ -4746,7 +4746,7 @@ Qahse:
             -  [ 175 , -0.374 , 0.033399999999999999 , -0.18790000000000001 ]
             -  [ 180 , 0 , 0.019800000000000002 , 0 ]
         Geometry: 
-          InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\NACA64_A17_coords.txt
+          InputPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\AeroL\Airfoils\NACA64_A17_coords.txt
           Name: NACA64_A17_coords
           DeclaredCoordinateCount: 400
           HasExplicitReference: True
@@ -5162,25 +5162,25 @@ Qahse:
     BladeBeamType: 1
     BladeDiscCount: 30
     SectionRows: 
-      -  [ "1.5000000E+00" , "3.5420000E+00" , "1.3310000E+01" , "0.0000000E+00" , "0.0000000E+00" , "5.0000000E-01" , "0.0000000E+00" , "1.0000000E+00" , "1.0000000E+02" , "7.1502000E+02" , "1.8116000E+10" , "1.8116000E+10" , "9.7300000E+09" , "5.5600000E+09" , "6.9500000E+08" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "3.2931000E-01" , "3.2936000E-01" , "-4.7995000E-05" , "0.0000000E+00" , "0.0000000E+00" , "0.0000000E+00" , "0.0000000E+00" , "0.0000000E+00" ]
-      -  [ "2.8667000E+00" , "3.5420000E+00" , "1.3310000E+01" , "-3.4500000E-03" , "-8.2000000E-04" , "5.0000000E-01" , "0.0000000E+00" , "1.0000000E+00" , "1.0000000E+02" , "8.0870000E+02" , "1.9091240E+10" , "1.9548660E+10" , "1.0669470E+10" , "5.3566460E+09" , "7.6209760E+08" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "3.2337570E-01" , "3.2232650E-01" , "6.4905530E-03" , "0.0000000E+00" , "9.1674180E-04" , "0.0000000E+00" , "9.1674180E-04" , "0.0000000E+00" ]
-      -  [ "5.6000000E+00" , "3.8540000E+00" , "1.3310000E+01" , "-1.0501000E-01" , "-2.4840000E-02" , "5.0000000E-01" , "0.0000000E+00" , "1.0000000E+00" , "1.0000000E+02" , "6.3953120E+02" , "1.1233590E+10" , "1.5346900E+10" , "7.8336060E+09" , "3.5900250E+09" , "5.5954330E+08" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "2.6560340E-01" , "3.0705820E-01" , "1.3294700E-02" , "0.0000000E+00" , "2.7210540E-02" , "0.0000000E+00" , "2.7210540E-02" , "0.0000000E+00" ]
-      -  [ "8.3333000E+00" , "4.1670000E+00" , "1.3310000E+01" , "9.5820000E-02" , "2.0460000E-02" , "5.0000000E-01" , "0.0000000E+00" , "2.0000000E+00" , "1.0000000E+02" , "4.3096810E+02" , "5.8149170E+09" , "8.4592360E+09" , "4.6689710E+09" , "1.6946130E+09" , "3.3349790E+08" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "2.2217410E-01" , "2.7461260E-01" , "4.2170540E-02" , "0.0000000E+00" , "5.9435970E-02" , "0.0000000E+00" , "5.9435970E-02" , "0.0000000E+00" ]
-      -  [ "1.1750000E+01" , "4.5570000E+00" , "1.3310000E+01" , "3.0952000E-01" , "6.8320000E-02" , "5.0000000E-01" , "0.0000000E+00" , "3.0000000E+00" , "4.0500000E+01" , "4.4847720E+02" , "4.6541330E+09" , "7.1732030E+09" , "4.1648400E+09" , "8.4675850E+08" , "2.9748860E+08" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "1.7571360E-01" , "2.4236200E-01" , "6.8177510E-02" , "0.0000000E+00" , "1.0169730E-01" , "0.0000000E+00" , "1.0169730E-01" , "0.0000000E+00" ]
-      -  [ "1.5850000E+01" , "4.6520000E+00" , "1.1480000E+01" , "5.9313000E-01" , "1.1573000E-01" , "5.0000000E-01" , "0.0000000E+00" , "4.0000000E+00" , "3.5100000E+01" , "3.7104110E+02" , "2.5418620E+09" , "5.0334640E+09" , "3.1267940E+09" , "3.3224330E+08" , "2.2334240E+08" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "1.4096350E-01" , "2.4147230E-01" , "6.8251520E-02" , "0.0000000E+00" , "1.2276730E-01" , "0.0000000E+00" , "1.2276730E-01" , "0.0000000E+00" ]
-      -  [ "1.9950000E+01" , "4.4580000E+00" , "1.0160000E+01" , "5.6599000E-01" , "9.8320000E-02" , "5.0000000E-01" , "0.0000000E+00" , "4.0000000E+00" , "3.5100000E+01" , "3.5614010E+02" , "2.0219250E+09" , "4.4687700E+09" , "2.5817450E+09" , "2.5699630E+08" , "1.8441040E+08" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "1.3164960E-01" , "2.3584350E-01" , "7.3877220E-02" , "0.0000000E+00" , "1.2311880E-01" , "0.0000000E+00" , "1.2311880E-01" , "0.0000000E+00" ]
-      -  [ "2.4050000E+01" , "4.2490000E+00" , "9.0100000E+00" , "5.3768000E-01" , "8.3190000E-02" , "5.0000000E-01" , "0.0000000E+00" , "5.0000000E+00" , "3.0000000E+01" , "3.3759610E+02" , "1.5492880E+09" , "3.9527580E+09" , "2.1109470E+09" , "1.9627860E+08" , "1.5078190E+08" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "1.2276440E-01" , "2.3292330E-01" , "7.8358140E-02" , "0.0000000E+00" , "1.2397040E-01" , "0.0000000E+00" , "1.2397040E-01" , "0.0000000E+00" ]
-      -  [ "2.8150000E+01" , "4.0070000E+00" , "7.7900000E+00" , "5.0550000E-01" , "6.7930000E-02" , "5.0000000E-01" , "0.0000000E+00" , "6.0000000E+00" , "2.5000000E+01" , "3.0859640E+02" , "1.0514500E+09" , "3.3775350E+09" , "1.5873780E+09" , "1.3860270E+08" , "1.1338410E+08" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "1.0959990E-01" , "2.2811220E-01" , "8.7341580E-02" , "0.0000000E+00" , "1.2369690E-01" , "0.0000000E+00" , "1.2369690E-01" , "0.0000000E+00" ]
-      -  [ "3.2250000E+01" , "3.7480000E+00" , "6.5400000E+00" , "4.7155000E-01" , "5.3390000E-02" , "5.0000000E-01" , "0.0000000E+00" , "6.0000000E+00" , "2.5000000E+01" , "2.7440400E+02" , "6.4094400E+08" , "2.6849370E+09" , "1.1353810E+09" , "7.7873620E+07" , "8.1099300E+07" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "9.5153870E-02" , "2.2305930E-01" , "8.9580700E-02" , "0.0000000E+00" , "1.2388440E-01" , "0.0000000E+00" , "1.2388440E-01" , "0.0000000E+00" ]
-      -  [ "3.6350000E+01" , "3.5020000E+00" , "5.3600000E+00" , "4.3966000E-01" , "4.0900000E-02" , "5.0000000E-01" , "0.0000000E+00" , "7.0000000E+00" , "2.1000000E+01" , "2.4731280E+02" , "3.7827980E+08" , "2.1695810E+09" , "8.7029710E+08" , "5.3730830E+07" , "6.2164080E+07" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "8.2198150E-02" , "2.2465800E-01" , "8.4990880E-02" , "0.0000000E+00" , "1.2472460E-01" , "0.0000000E+00" , "1.2472460E-01" , "0.0000000E+00" ]
-      -  [ "4.0450000E+01" , "3.2560000E+00" , "4.1900000E+00" , "4.0809000E-01" , "2.9720000E-02" , "5.0000000E-01" , "0.0000000E+00" , "7.0000000E+00" , "2.1000000E+01" , "2.0269110E+02" , "2.1513070E+08" , "1.4867880E+09" , "6.0743060E+08" , "3.2775440E+07" , "4.3387900E+07" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "7.4609820E-02" , "2.2547370E-01" , "7.5814210E-02" , "0.0000000E+00" , "1.2478120E-01" , "0.0000000E+00" , "1.2478120E-01" , "0.0000000E+00" ]
-      -  [ "4.4550000E+01" , "3.0100000E+00" , "3.1300000E+00" , "3.7681000E-01" , "2.0510000E-02" , "5.0000000E-01" , "0.0000000E+00" , "8.0000000E+00" , "1.8000000E+01" , "1.6908910E+02" , "1.1803760E+08" , "1.1142180E+09" , "5.0093620E+08" , "1.9880070E+07" , "3.5781160E+07" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "6.6755840E-02" , "2.4664950E-01" , "4.0582870E-02" , "0.0000000E+00" , "1.2484970E-01" , "0.0000000E+00" , "1.2484970E-01" , "0.0000000E+00" ]
-      -  [ "4.8650000E+01" , "2.7640000E+00" , "2.3200000E+00" , "3.4578000E-01" , "1.3980000E-02" , "5.0000000E-01" , "0.0000000E+00" , "8.0000000E+00" , "1.8000000E+01" , "1.4162710E+02" , "8.3958150E+07" , "7.5596590E+08" , "3.5348300E+08" , "1.5445020E+07" , "2.5248780E+07" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "6.6487280E-02" , "2.4667850E-01" , "4.2938250E-02" , "0.0000000E+00" , "1.2492970E-01" , "0.0000000E+00" , "1.2492970E-01" , "0.0000000E+00" ]
-      -  [ "5.2750000E+01" , "2.5180000E+00" , "1.5300000E+00" , "3.1486000E-01" , "8.3800000E-03" , "5.0000000E-01" , "0.0000000E+00" , "8.0000000E+00" , "1.8000000E+01" , "1.0827170E+02" , "5.4975430E+07" , "4.8491740E+08" , "2.2696770E+08" , "8.5397400E+06" , "1.6211980E+07" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "6.6433890E-02" , "2.4827680E-01" , "4.0928270E-02" , "0.0000000E+00" , "1.2501950E-01" , "0.0000000E+00" , "1.2501950E-01" , "0.0000000E+00" ]
-      -  [ "5.6166700E+01" , "2.3130000E+00" , "8.6000000E-01" , "2.8916000E-01" , "4.3500000E-03" , "5.0000000E-01" , "0.0000000E+00" , "8.0000000E+00" , "1.8000000E+01" , "9.1481730E+01" , "3.7164920E+07" , "3.7580300E+08" , "1.7164750E+08" , "6.6179130E+06" , "1.2260530E+07" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "6.5309160E-02" , "2.5718830E-01" , "2.5830080E-02" , "0.0000000E+00" , "1.2366530E-01" , "0.0000000E+00" , "1.2366530E-01" , "0.0000000E+00" ]
-      -  [ "5.8900000E+01" , "2.0860000E+00" , "3.7000000E-01" , "2.6076000E-01" , "1.6800000E-03" , "5.0000000E-01" , "0.0000000E+00" , "8.0000000E+00" , "1.8000000E+01" , "7.1370170E+01" , "2.5445960E+07" , "2.7350080E+08" , "9.6951110E+07" , "5.1739360E+06" , "6.9249080E+06" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "6.8464710E-02" , "2.4274890E-01" , "5.1664880E-02" , "0.0000000E+00" , "1.2586490E-01" , "0.0000000E+00" , "1.2586490E-01" , "0.0000000E+00" ]
-      -  [ "6.1633300E+01" , "1.4190000E+00" , "1.1000000E-01" , "1.7738000E-01" , "3.3000000E-04" , "5.0000000E-01" , "0.0000000E+00" , "8.0000000E+00" , "1.8000000E+01" , "4.8715270E+01" , "7.8871220E+06" , "8.7270280E+07" , "3.0848400E+07" , "2.2325950E+06" , "2.2034570E+06" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "6.7002780E-02" , "2.4262280E-01" , "7.4340170E-02" , "0.0000000E+00" , "1.2211490E-01" , "0.0000000E+00" , "1.2211490E-01" , "0.0000000E+00" ]
-      -  [ "6.3000000E+01" , "9.6100000E-01" , "0.0000000E+00" , "1.7738000E-01" , "3.3000000E-04" , "5.0000000E-01" , "0.0000000E+00" , "8.0000000E+00" , "1.8000000E+01" , "1.0867000E+01" , "1.6996000E+05" , "5.0106000E+06" , "3.5294000E+06" , "1.9000000E+05" , "2.5210000E+05" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "4.4641000E-02" , "2.6025000E-01" , "7.1103000E-02" , "0.0000000E+00" , "1.2487000E-01" , "0.0000000E+00" , "1.2487000E-01" , "0.0000000E+00" ]
+      -  [ "1.50000" , "3.54200" , "13.31" , "0.00000" , "0.00000" , "0.50000" , "0.00000" , "1" , "100.0000" , "7.150200E+02" , "1.811600E+10" , "1.811600E+10" , "9.730000E+09" , "5.560000E+09" , "6.950000E+08" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "3.293100E-01" , "3.293600E-01" , "-4.799500E-05" , "0.000000E+00" , "0.000000E+00" , "0.000000E+00" , "0.000000E+00" , "0.000000E+00" ]
+      -  [ "2.86670" , "3.54200" , "13.31" , "-0.00345" , "-0.00082" , "0.50000" , "0.00000" , "1" , "100.0000" , "8.087000E+02" , "1.909124E+10" , "1.954866E+10" , "1.066947E+10" , "5.356646E+09" , "7.620976E+08" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "3.233757E-01" , "3.223265E-01" , "6.490553E-03" , "0.000000E+00" , "9.167418E-04" , "0.000000E+00" , "9.167418E-04" , "0.000000E+00" ]
+      -  [ "5.60000" , "3.85400" , "13.31" , "-0.10501" , "-0.02484" , "0.50000" , "0.00000" , "1" , "100.0000" , "6.395312E+02" , "1.123359E+10" , "1.534690E+10" , "7.833606E+09" , "3.590025E+09" , "5.595433E+08" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "2.656034E-01" , "3.070582E-01" , "1.329470E-02" , "0.000000E+00" , "2.721054E-02" , "0.000000E+00" , "2.721054E-02" , "0.000000E+00" ]
+      -  [ "8.33330" , "4.16700" , "13.31" , "0.09582" , "0.02046" , "0.50000" , "0.00000" , "2" , "100.0000" , "4.309681E+02" , "5.814917E+09" , "8.459236E+09" , "4.668971E+09" , "1.694613E+09" , "3.334979E+08" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "2.221741E-01" , "2.746126E-01" , "4.217054E-02" , "0.000000E+00" , "5.943597E-02" , "0.000000E+00" , "5.943597E-02" , "0.000000E+00" ]
+      -  [ "11.75000" , "4.55700" , "13.31" , "0.30952" , "0.06832" , "0.50000" , "0.00000" , "3" , "40.5000" , "4.484772E+02" , "4.654133E+09" , "7.173203E+09" , "4.164840E+09" , "8.467585E+08" , "2.974886E+08" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "1.757136E-01" , "2.423620E-01" , "6.817751E-02" , "0.000000E+00" , "1.016973E-01" , "0.000000E+00" , "1.016973E-01" , "0.000000E+00" ]
+      -  [ "15.85000" , "4.65200" , "11.48" , "0.59313" , "0.11573" , "0.50000" , "0.00000" , "4" , "35.1000" , "3.710411E+02" , "2.541862E+09" , "5.033464E+09" , "3.126794E+09" , "3.322433E+08" , "2.233424E+08" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "1.409635E-01" , "2.414723E-01" , "6.825152E-02" , "0.000000E+00" , "1.227673E-01" , "0.000000E+00" , "1.227673E-01" , "0.000000E+00" ]
+      -  [ "19.95000" , "4.45800" , "10.16" , "0.56599" , "0.09832" , "0.50000" , "0.00000" , "4" , "35.1000" , "3.561401E+02" , "2.021925E+09" , "4.468770E+09" , "2.581745E+09" , "2.569963E+08" , "1.844104E+08" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "1.316496E-01" , "2.358435E-01" , "7.387722E-02" , "0.000000E+00" , "1.231188E-01" , "0.000000E+00" , "1.231188E-01" , "0.000000E+00" ]
+      -  [ "24.05000" , "4.24900" , "9.01" , "0.53768" , "0.08319" , "0.50000" , "0.00000" , "5" , "30.0000" , "3.375961E+02" , "1.549288E+09" , "3.952758E+09" , "2.110947E+09" , "1.962786E+08" , "1.507819E+08" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "1.227644E-01" , "2.329233E-01" , "7.835814E-02" , "0.000000E+00" , "1.239704E-01" , "0.000000E+00" , "1.239704E-01" , "0.000000E+00" ]
+      -  [ "28.15000" , "4.00700" , "7.79" , "0.50550" , "0.06793" , "0.50000" , "0.00000" , "6" , "25.0000" , "3.085964E+02" , "1.051450E+09" , "3.377535E+09" , "1.587378E+09" , "1.386027E+08" , "1.133841E+08" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "1.095999E-01" , "2.281122E-01" , "8.734158E-02" , "0.000000E+00" , "1.236969E-01" , "0.000000E+00" , "1.236969E-01" , "0.000000E+00" ]
+      -  [ "32.25000" , "3.74800" , "6.54" , "0.47155" , "0.05339" , "0.50000" , "0.00000" , "6" , "25.0000" , "2.744040E+02" , "6.409440E+08" , "2.684937E+09" , "1.135381E+09" , "7.787362E+07" , "8.109930E+07" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "9.515387E-02" , "2.230593E-01" , "8.958070E-02" , "0.000000E+00" , "1.238844E-01" , "0.000000E+00" , "1.238844E-01" , "0.000000E+00" ]
+      -  [ "36.35000" , "3.50200" , "5.36" , "0.43966" , "0.04090" , "0.50000" , "0.00000" , "7" , "21.0000" , "2.473128E+02" , "3.782798E+08" , "2.169581E+09" , "8.702971E+08" , "5.373083E+07" , "6.216408E+07" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "8.219815E-02" , "2.246580E-01" , "8.499088E-02" , "0.000000E+00" , "1.247246E-01" , "0.000000E+00" , "1.247246E-01" , "0.000000E+00" ]
+      -  [ "40.45000" , "3.25600" , "4.19" , "0.40809" , "0.02972" , "0.50000" , "0.00000" , "7" , "21.0000" , "2.026911E+02" , "2.151307E+08" , "1.486788E+09" , "6.074306E+08" , "3.277544E+07" , "4.338790E+07" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "7.460982E-02" , "2.254737E-01" , "7.581421E-02" , "0.000000E+00" , "1.247812E-01" , "0.000000E+00" , "1.247812E-01" , "0.000000E+00" ]
+      -  [ "44.55000" , "3.01000" , "3.13" , "0.37681" , "0.02051" , "0.50000" , "0.00000" , "8" , "18.0000" , "1.690891E+02" , "1.180376E+08" , "1.114218E+09" , "5.009362E+08" , "1.988007E+07" , "3.578116E+07" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "6.675584E-02" , "2.466495E-01" , "4.058287E-02" , "0.000000E+00" , "1.248497E-01" , "0.000000E+00" , "1.248497E-01" , "0.000000E+00" ]
+      -  [ "48.65000" , "2.76400" , "2.32" , "0.34578" , "0.01398" , "0.50000" , "0.00000" , "8" , "18.0000" , "1.416271E+02" , "8.395815E+07" , "7.559659E+08" , "3.534830E+08" , "1.544502E+07" , "2.524878E+07" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "6.648728E-02" , "2.466785E-01" , "4.293825E-02" , "0.000000E+00" , "1.249297E-01" , "0.000000E+00" , "1.249297E-01" , "0.000000E+00" ]
+      -  [ "52.75000" , "2.51800" , "1.53" , "0.31486" , "0.00838" , "0.50000" , "0.00000" , "8" , "18.0000" , "1.082717E+02" , "5.497543E+07" , "4.849174E+08" , "2.269677E+08" , "8.539740E+06" , "1.621198E+07" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "6.643389E-02" , "2.482768E-01" , "4.092827E-02" , "0.000000E+00" , "1.250195E-01" , "0.000000E+00" , "1.250195E-01" , "0.000000E+00" ]
+      -  [ "56.16670" , "2.31300" , "0.86" , "0.28916" , "0.00435" , "0.50000" , "0.00000" , "8" , "18.0000" , "9.148173E+01" , "3.716492E+07" , "3.758030E+08" , "1.716475E+08" , "6.617913E+06" , "1.226053E+07" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "6.530916E-02" , "2.571883E-01" , "2.583008E-02" , "0.000000E+00" , "1.236653E-01" , "0.000000E+00" , "1.236653E-01" , "0.000000E+00" ]
+      -  [ "58.90000" , "2.08600" , "0.37" , "0.26076" , "0.00168" , "0.50000" , "0.00000" , "8" , "18.0000" , "7.137017E+01" , "2.544596E+07" , "2.735008E+08" , "9.695111E+07" , "5.173936E+06" , "6.924908E+06" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "6.846471E-02" , "2.427489E-01" , "5.166488E-02" , "0.000000E+00" , "1.258649E-01" , "0.000000E+00" , "1.258649E-01" , "0.000000E+00" ]
+      -  [ "61.63330" , "1.41900" , "0.11" , "0.17738" , "0.00033" , "0.50000" , "0.00000" , "8" , "18.0000" , "4.871527E+01" , "7.887122E+06" , "8.727028E+07" , "3.084840E+07" , "2.232595E+06" , "2.203457E+06" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "6.700278E-02" , "2.426228E-01" , "7.434017E-02" , "0.000000E+00" , "1.221149E-01" , "0.000000E+00" , "1.221149E-01" , "0.000000E+00" ]
+      -  [ "63.00000" , "0.96100" , "0.00" , "0.17738" , "0.00033" , "0.50000" , "0.00000" , "8" , "18.0000" , "1.086700E+01" , "1.699600E+05" , "5.010600E+06" , "3.529400E+06" , "1.900000E+05" , "2.521000E+05" , "0.000000E+00" , "5.000000E-01" , "5.000000E-01" , "4.464100E-02" , "2.602500E-01" , "7.110300E-02" , "0.000000E+00" , "1.248700E-01" , "0.000000E+00" , "1.248700E-01" , "0.000000E+00" ]
   StrL: 
     NumBld: 3
     OverHang: 5.0190999999999999
@@ -5191,24 +5191,24 @@ Qahse:
     DTTorSpr: 867637000
     DTTorDmp: 6215000
     BladeNum: 3
-    BladeAeroStructFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\Qahse_SimL_NREL_5MW_OC4_Semisub.sim
+    BladeAeroStructFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\Qahse_SimL_NREL_5MW_OC3_Spar.sim
     TowerHeight: 77.599999999999994
-    TowerFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\Qahse_SimL_NREL_5MW_OC4_Semisub.sim
+    TowerFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\Qahse_SimL_NREL_5MW_OC3_Spar.sim
     SubFile: 
     SumPrint: True
     AfSpanput: True
-    SumPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\StrL\Result1\
+    SumPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\StrL\Result1\
     NBlOuts: 18
     NTwOuts: 10
-    BladeFiles: [ "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\StrL\\NREL_5MW_OC4_Semisub_Blade_new.str" ]
+    BladeFiles: [ "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC3_Spar\\StrL\\NREL_5MW_OC3_Spar_Blade_new.str" ]
     BldOutSig: [ 0 , 2 ]
     BlOutNd: [ 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 ]
     TwOutNd: [ 0 , 1 , 2 , 3 , 4 , 5 , 7 , 8 , 9 , 10 ]
     OutList: [ "QD2_B1E1" , "QD2_B1F1" , "QD2_B1F2" , "QD2_B2E1" , "QD2_B2F1" , "QD2_B2F2" , "QD2_B3E1" , "QD2_B3F1" , "QD2_B3F2" , "QD2_DRTR" , "QD2_GEAZ" , "QD2_HV" , "QD2_P" , "QD2_R" , "QD2_RFRL" , "QD2_SG" , "QD2_SW" , "QD2_TFA1" , "QD2_TFA2" , "QD2_TFRL" , "QD2_TSS1" , "QD2_TSS2" , "QD2_Y" , "QD2_YAW" , "QD_B1E1" , "QD_B1F1" , "QD_B1F2" , "QD_B2E1" , "QD_B2F1" , "QD_B2F2" , "QD_B3E1" , "QD_B3F1" , "QD_B3F2" , "QD_DRTR" , "QD_GEAZ" , "QD_HV" , "QD_P" , "QD_R" , "QD_RFRL" , "QD_SG" , "QD_SW" , "QD_TFA1" , "QD_TFA2" , "QD_TFRL" , "QD_TSS1" , "QD_TSS2" , "QD_Y" , "QD_YAW" , "Q_B1E1" , "Q_B1F1" , "Q_B1F2" , "Q_B2E1" , "Q_B2F1" , "Q_B2F2" , "Q_B3E1" , "Q_B3F1" , "Q_B3F2" , "Q_DRTR" , "Q_GEAZ" , "Q_HV" , "Q_P" , "Q_R" , "Q_RFRL" , "Q_SG" , "Q_SW" , "Q_TFA1" , "Q_TFA2" , "Q_TFRL" , "Q_TSS1" , "Q_TSS2" , "Q_Y" , "Q_YAW" , "Q_TTMD" , "QD_TTMD" , "QD2_TTMD" , "OoPDefl" , "IPDefl" , "TipDzb" , "TipDxb" , "TipDyb" , "Tip2Twr" , "SpnTDxb" , "SpnTDyb" , "SpnTDzb" , "SpnRDxb" , "SpnRDyb" , "SpnRDzb" , "BlPitch" , "Azimuth" , "RotSpeed" , "RotAccel" , "GenSpeed" , "GenAccel" , "NcIMUTVxs" , "NcIMUTVys" , "NcIMUTVzs" , "NacYaw" , "YawRate" , "YawAccel" , "TTDspFA" , "TTDspSS" , "TTDspAx" , "TwHtALxt" , "TwHtALyt" , "TwHtALzt" , "TwHtTDxt" , "TwHtTDyt" , "TwHtTDzt" , "PtfmTDxt" , "PtfmTDyt" , "PtfmTDzt" , "PtfmSurge" , "PtfmSway" , "PtfmHeave" , "PtfmRoll" , "PtfmPitch" , "PtfmYaw" , "RootFxc" , "RootFyc" , "RootFzc" , "RootFxb" , "RootFyb" , "RootMxc" , "RootMyc" , "RootMzc" , "RootMxb" , "RootMyb" , "SpnMLxb" , "SpnMLyb" , "SpnMLzb" , "SpnFLxb" , "SpnFLyb" , "SpnFLzb" , "RotThrust" , "LSShftFya" , "LSShftFza" , "LSShftFys" , "LSShftFzs" , "LSShftTq" , "RotPwr" , "LSSGagMya" , "LSSGagMza" , "LSSGagMys" , "LSSGagMzs" , "HSShftTq" , "HSSBrTq" , "HSShftPwr" , "HSSGenPwr" , "YawBrFxn" , "YawBrFyn" , "YawBrFzn" , "YawBrFxp" , "YawBrFyp" , "YawBrMxn" , "YawBrMyn" , "YawBrMzn" , "YawBrMxp" , "YawBrMyp" , "TwrBsFxt" , "TwrBsFyt" , "TwrBsFzt" , "TwrBsMxt" , "TwrBsMyt" , "TwrBsMzt" , "TwHtMLxt" , "TwHtMLyt" , "TwHtMLzt" , "TwHtFLxt" , "TwHtFLyt" , "TwHtFLzt" , "PtfmFxt" , "PtfmFyt" , "PtfmFzt" , "PtfmFxi" , "PtfmFyi" , "PtfmFzi" , "PtfmMxt" , "PtfmMyt" , "PtfmMzt" , "PtfmMxi" , "PtfmMyi" , "PtfmMzi" ]
   ControL: 
     PCMode: 1
-    DLL_FileName: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\ControL\TUBCon_1.3.9_64Bit.dll
-    DLL_InFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\ControL\TUBCon_Params_V1.3.9_NREL5MW.xml
+    DLL_FileName: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\ControL\TUBCon_1.3.9_64Bit.dll
+    DLL_InFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\ControL\TUBCon_Params_V1.3.9_NREL5MW.xml
     DLL_ProcName: DISCON
     SumPrint: True
     AfSpanput: False
@@ -5220,27 +5220,22 @@ Qahse:
     TwOutNd: [  ]
     OutList: [  ]
   WindL: 
-    WindType: 3
+    WindType: 1
     HWindSpeed: 11.4
     RefHt: 87
-    PLExp: 0
+    PLExp: 0.20000000000000001
     gridY_min: -120
     gridY_max: 120
     gridY_step: 5
     gridZ_min: 0
     gridZ_max: 180
     gridZ_step: 5
-    WindSpeedNum: 5
+    WindSpeedNum: 0
     CycleWind: True
-    TurWindFilePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\SimWind\result\NREL_5MW_OC4_Semisub_Demo_wind.ts.wnd
-    BldWindFilePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\SimWind\result\NREL_5MW_OC4_Semisub_Demo_wind.wnd
-    IECWindFilePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\SimWind\result\NREL_5MW_OC4_Semisub_Demo_wind.bts
+    TurWindFilePath: 
+    BldWindFilePath: 
+    IECWindFilePath: 
     WindSpeedList: 
-      -  [ 0 , 10 ]
-      -  [ 30 , 10 ]
-      -  [ 100 , 15 ]
-      -  [ 600 , 50 ]
-      -  [ 1200 , 200 ]
   TowerStruct: 
     SectionRows: 
       -  [ "0.0000E+00" , "4.6770E+03" , "6.0500E+11" , "6.0500E+11" , "1.1500E+11" , "4.6500E+11" , "0.0000E+00" , "0.0000E+00" , "5.0000E-01" , "5.0000E-01" , "3.5167E-01" , "3.5167E-01" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "6.5000E+00" ]
@@ -5255,193 +5250,145 @@ Qahse:
       -  [ "9.0000E-01" , "2.1847E+03" , "1.1400E+11" , "1.1400E+11" , "5.3800E+10" , "8.7300E+10" , "0.0000E+00" , "0.0000E+00" , "5.0000E-01" , "5.0000E-01" , "3.5023E-01" , "3.5023E-01" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "4.1330E+00" ]
       -  [ "1.0000E+00" , "1.9638E+03" , "8.9500E+10" , "8.9500E+10" , "4.8300E+10" , "6.8800E+10" , "0.0000E+00" , "0.0000E+00" , "5.0000E-01" , "5.0000E-01" , "3.5142E-01" , "3.5142E-01" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "3.8700E+00" ]
   HydroL: 
-    WaterDepth: 200
+    WaterDepth: 320
     WaterDensity: 1025
     IsFloating: True
     AdvancedBuoyancy: 100
     WaveKinEvalMorison: 0
     WaveKinEvalPotential: 1
     WaveKinTau: 30
-    WaveLFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\Qahse_SimL_NREL_5MW_OC4_Semisub.sim
+    WaveLFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\Qahse_SimL_NREL_5MW_OC3_Spar.sim
     StaticBuoyancy: True
-    PotentialRadFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\HydroL\WAMIT\radiation.1
+    PotentialRadFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\HydroL\WAMIT\OC3_BEMuse.dat
     UseRadiation: True
     UseRadAddedMass: False
     DeltaFreqRadiation: 0.050000000000000003
     TruncTimeRadiation: 60
-    PotentialExcFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\HydroL\WAMIT\excitation.3
+    PotentialExcFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\HydroL\WAMIT\OC3_BEMuse.dat
     UseExcitation: True
     DeltaFreqExcitation: 0.050000000000000003
     DeltaDirExcitation: 2
     TruncTimeExcitation: 60
-    PotentialDiffFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\HydroL\WAMIT\difference.12d
-    DiffEvalType: NEWMAN
-    PotentialSumFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\HydroL\WAMIT\sum.12s
-    UseSumFreqs: True
+    PotentialDiffFile: 
+    DiffEvalType: NONE
+    PotentialSumFile: 
+    UseSumFreqs: False
     SubDisplacedVolume: 0
-    BuoyancyTuner: 1
+    BuoyancyTuner: 1.002
     StiffTuner: 1
     MassTuner: 1
     BeamType: 1
     SumPrint: True
     AfSpanput: False
-    SumPath: 
+    SumPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\HydroL\Result1\
     NBlOuts: 0
     NTwOuts: 0
     JointOffset: [ 0 , 0 , 0 ]
-    MarineGrowth: [ 1 , 0.10000000000000001 , 1100 ]
+    MarineGrowth: [ 0.10000000000000001 , 1100 , 320 , 2 ]
     TpInterfacePos: [ 0 , 0 , 10 ]
-    RefCogPos: [ 0 , 0 , -13.460000000000001 ]
+    RefCogPos: [ 0 , 0 , -89.915499999999994 ]
     RefHydroPos: [ 0 , 0 , 0 ]
     SubMassMatrix: 
-      -  [ 13473000 , 0 , 0 , 0 , 0 , 0 ]
-      -  [ 0 , 13473000 , 0 , 0 , 0 , 0 ]
-      -  [ 0 , 0 , 13473000 , 0 , 0 , 0 ]
-      -  [ 0 , 0 , 0 , 6827000000 , 0 , 0 ]
-      -  [ 0 , 0 , 0 , 0 , 6827000000 , 0 ]
-      -  [ 0 , 0 , 0 , 0 , 0 , 12260000000 ]
+      -  [ 7466330 , 0 , 0 , 0 , 0 , 0 ]
+      -  [ 0 , 7466330 , 0 , 0 , 0 , 0 ]
+      -  [ 0 , 0 , 7466330 , 0 , 0 , 0 ]
+      -  [ 0 , 0 , 0 , 4229230000 , 0 , 0 ]
+      -  [ 0 , 0 , 0 , 0 , 4229230000 , 0 ]
+      -  [ 0 , 0 , 0 , 0 , 0 , 164230000 ]
+    HydroQuadDampingMatrix: 
+      -  [ 0 , 0 , 0 , 0 , 0 , 0 ]
+      -  [ 0 , 0 , 0 , 0 , 0 , 0 ]
+      -  [ 0 , 0 , 0 , 0 , 0 , 0 ]
+      -  [ 0 , 0 , 0 , 0 , 0 , 0 ]
+      -  [ 0 , 0 , 0 , 0 , 0 , 0 ]
+      -  [ 0 , 0 , 0 , 0 , 0 , 0 ]
+    HydroStiffnessMatrix: 
+      -  [ 0 , 0 , 0 , 0 , 0 , 0 ]
+      -  [ 0 , 0 , 0 , 0 , 0 , 0 ]
+      -  [ 0 , 0 , 332941 , 0 , 0 , 0 ]
+      -  [ 0 , 0 , 0 , -4999180000 , 0 , 0 ]
+      -  [ 0 , 0 , 0 , 0 , -4999180000 , 0 ]
+      -  [ 0 , 0 , 0 , 0 , 0 , 98340000 ]
+    HydroDampingMatrix: 
+      -  [ 100000 , 0 , 0 , 0 , 0 , 0 ]
+      -  [ 0 , 100000 , 0 , 0 , 0 , 0 ]
+      -  [ 0 , 0 , 130000 , 0 , 0 , 0 ]
+      -  [ 0 , 0 , 0 , 0 , 0 , 0 ]
+      -  [ 0 , 0 , 0 , 0 , 0 , 0 ]
+      -  [ 0 , 0 , 0 , 0 , 0 , 13000000 ]
     HydroAddedMassMatrix: 
-      -  [ 6319948.0999999996 , 0 , -544.52130999999997 , 0 , -84184511 , 0 ]
-      -  [ 0 , 6319912.2000000002 , 0 , 84184511 , 0 , 204.23668000000001 ]
-      -  [ -182.15736000000001 , 0 , 14673705 , 0 , 1765.4784999999999 , 0 ]
-      -  [ 0 , 84181805 , 0 , 7198394600 , 0 , 10104.395 ]
-      -  [ -84190835 , 0 , -87227.366999999998 , 0 , 7198329000 , 0 ]
-      -  [ 0 , 6246.8769000000002 , 0 , -36169.082999999999 , 0 , 4742347000 ]
+      -  [ 7768500 , 0 , 0 , 0 , -484064000 , 0 ]
+      -  [ 0 , 7768480 , 0 , 484062000 , 0 , 0 ]
+      -  [ 0 , 0 , 239305 , 0 , 0 , 0 ]
+      -  [ 0 , 484056000 , 0 , 38042300000 , 0 , 0 ]
+      -  [ -484059000 , 0 , 0 , 0 , 38042700000 , 0 ]
+      -  [ 0 , 0 , 0 , 0 , 0 , 8.1677699999999996e-07 ]
+    HydroConstForce: [ 0 , 0 , 80708100 , 0 , 0 , 0 ]
     SubJoints: 
-      -  [ "1" , "0.00000" , "0.00000" , "-20.00000" ]
-      -  [ "2" , "0.00000" , "0.00000" , "10.00000" ]
-      -  [ "3" , "14.43376" , "25.00000" , "-14.00000" ]
-      -  [ "4" , "14.43376" , "25.00000" , "12.00000" ]
-      -  [ "5" , "-28.86751" , "0.00000" , "-14.00000" ]
-      -  [ "6" , "-28.86751" , "0.00000" , "12.00000" ]
-      -  [ "7" , "14.43376" , "-25.00000" , "-14.00000" ]
-      -  [ "8" , "14.43376" , "-25.00000" , "12.00000" ]
-      -  [ "9" , "14.43375" , "25.00000" , "-20.00000" ]
-      -  [ "10" , "-28.86750" , "0.00000" , "-20.00000" ]
-      -  [ "11" , "14.43375" , "-25.00000" , "-20.00000" ]
-      -  [ "12" , "9.23760" , "22.00000" , "10.00000" ]
-      -  [ "13" , "-23.67130" , "3.00000" , "10.00000" ]
-      -  [ "14" , "-23.67130" , "-3.00000" , "10.00000" ]
-      -  [ "15" , "9.23760" , "-22.00000" , "10.00000" ]
-      -  [ "16" , "14.43375" , "-19.00000" , "10.00000" ]
-      -  [ "17" , "14.43375" , "19.00000" , "10.00000" ]
-      -  [ "18" , "4.04145" , "19.00000" , "-17.00000" ]
-      -  [ "19" , "-18.47520" , "6.00000" , "-17.00000" ]
-      -  [ "20" , "-18.47520" , "-6.00000" , "-17.00000" ]
-      -  [ "21" , "4.04145" , "-19.00000" , "-17.00000" ]
-      -  [ "22" , "14.43375" , "-13.00000" , "-17.00000" ]
-      -  [ "23" , "14.43375" , "13.00000" , "-17.00000" ]
-      -  [ "24" , "1.62500" , "2.81500" , "10.00000" ]
-      -  [ "25" , "11.43376" , "19.80385" , "10.00000" ]
-      -  [ "26" , "-3.25000" , "0.00000" , "10.00000" ]
-      -  [ "27" , "-22.87000" , "0.00000" , "10.00000" ]
-      -  [ "28" , "1.62500" , "-2.81500" , "10.00000" ]
-      -  [ "29" , "11.43376" , "-19.80385" , "10.00000" ]
-      -  [ "30" , "1.62500" , "2.81500" , "-17.00000" ]
-      -  [ "31" , "8.43376" , "14.60770" , "-17.00000" ]
-      -  [ "32" , "-3.25000" , "0.00000" , "-17.00000" ]
-      -  [ "33" , "-16.87000" , "0.00000" , "-17.00000" ]
-      -  [ "34" , "1.62500" , "-2.81500" , "-17.00000" ]
-      -  [ "35" , "8.43376" , "-14.60770" , "-17.00000" ]
-      -  [ "36" , "1.62500" , "2.81500" , "-16.20000" ]
-      -  [ "37" , "11.43376" , "19.80385" , "9.13000" ]
-      -  [ "38" , "-3.25000" , "0.00000" , "-16.20000" ]
-      -  [ "39" , "-22.87000" , "0.00000" , "9.13000" ]
-      -  [ "40" , "1.62500" , "-2.81500" , "-16.20000" ]
-      -  [ "41" , "11.43376" , "-19.80385" , "9.13000" ]
-      -  [ "42" , "14.43376" , "25.00000" , "-19.94000" ]
-      -  [ "43" , "-28.86751" , "0.00000" , "-19.94000" ]
-      -  [ "44" , "14.43376" , "-25.00000" , "-19.94000" ]
-      -  [ "45" , "14.43376" , "25.00000" , "-6.170000" ]
-      -  [ "46" , "-28.86751" , "0.00000" , "-6.170000" ]
-      -  [ "47" , "14.43376" , "-25.00000" , "-6.170000" ]
-      -  [ "48" , "14.43376" , "25.00000" , "-14.89000" ]
-      -  [ "49" , "-28.86751" , "0.00000" , "-14.89000" ]
-      -  [ "50" , "14.43376" , "-25.00000" , "-14.89000" ]
+      -  [ "1" , "0.00000" , "0.00000" , "-120.00000" ]
+      -  [ "2" , "0.00000" , "0.00000" , "-70.00000" ]
+      -  [ "3" , "0.00000" , "0.00000" , "-12.00000" ]
+      -  [ "4" , "0.00000" , "0.00000" , "-11.00000" ]
+      -  [ "5" , "0.00000" , "0.00000" , "-10.00000" ]
+      -  [ "6" , "0.00000" , "0.00000" , "-9.00000" ]
+      -  [ "7" , "0.00000" , "0.00000" , "-8.00000" ]
+      -  [ "8" , "0.00000" , "0.00000" , "-7.00000" ]
+      -  [ "9" , "0.00000" , "0.00000" , "-6.00000" ]
+      -  [ "10" , "0.00000" , "0.00000" , "-5.00000" ]
+      -  [ "11" , "0.00000" , "0.00000" , "-4.00000" ]
+      -  [ "12" , "0.00000" , "0.00000" , "10.00000" ]
     RigidSubElements: 
-      -  [ "1" , "1" , "6.5" ]
-      -  [ "2" , "1" , "12" ]
-      -  [ "3" , "1" , "24" ]
-      -  [ "4" , "1" , "1.6" ]
+      -  [ "1" , "0.0001" , "9.4" ]
+      -  [ "2" , "0.0001" , "9.0375" ]
+      -  [ "3" , "0.0001" , "8.675" ]
+      -  [ "4" , "0.0001" , "8.3125" ]
+      -  [ "5" , "0.0001" , "7.95" ]
+      -  [ "6" , "0.0001" , "7.5875" ]
+      -  [ "7" , "0.0001" , "7.225" ]
+      -  [ "8" , "0.0001" , "6.8625" ]
+      -  [ "9" , "0.0001" , "6.5" ]
     HydroJointCoeff: 
-      -  [ "1" , "9" , "4.8" , "0.0" , "0.0" ]
-      -  [ "2" , "10" , "4.8" , "0.0" , "0.0" ]
-      -  [ "3" , "11" , "4.8" , "0.0" , "0.0" ]
-      -  [ "4" , "1" , "0.0" , "0.0" , "0.0" ]
-      -  [ "5" , "3" , "0.0" , "0.0" , "0.0" ]
-      -  [ "6" , "5" , "0.0" , "0.0" , "0.0" ]
-      -  [ "7" , "7" , "0.0" , "0.0" , "0.0" ]
+      -  [ "1" , "1" , "0.0" , "0.0" , "0.0" ]
+      -  [ "2" , "3" , "0.0" , "0.0" , "0.0" ]
+      -  [ "3" , "4" , "0.0" , "0.0" , "0.0" ]
+      -  [ "4" , "5" , "0.0" , "0.0" , "0.0" ]
+      -  [ "5" , "6" , "0.0" , "0.0" , "0.0" ]
+      -  [ "6" , "7" , "0.0" , "0.0" , "0.0" ]
+      -  [ "7" , "8" , "0.0" , "0.0" , "0.0" ]
+      -  [ "8" , "9" , "0.0" , "0.0" , "0.0" ]
+      -  [ "9" , "10" , "0.0" , "0.0" , "0.0" ]
+      -  [ "10" , "11" , "0.0" , "0.0" , "0.0" ]
+      -  [ "11" , "12" , "0.0" , "0.0" , "0.0" ]
     HydroMemberCoeff: 
-      -  [ "1" , "2.0" , "0.8" , "1.0" , "0" ]
-      -  [ "2" , "0.63" , "0.0" , "0.0" , "0" ]
-      -  [ "3" , "0.56" , "0.0" , "0.0" , "0" ]
-      -  [ "4" , "0.61" , "0.0" , "0.0" , "0" ]
-      -  [ "5" , "0.68" , "0.0" , "0.0" , "0" ]
+      -  [ "1" , "0.6" , "0.0" , "0.0" , "0" ]
+      -  [ "2" , "1.6" , "1.0" , "1.0" , "0" ]
     SubConstraints: 
-      -  [ "1" , "2" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "2" , "24" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "3" , "26" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "4" , "28" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "8" , "30" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "9" , "32" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "10" , "34" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "14" , "12" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "15" , "14" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "16" , "16" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "20" , "18" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "21" , "20" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "22" , "22" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "26" , "36" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "27" , "38" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "28" , "40" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "29" , "9" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "30" , "10" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
-      -  [ "31" , "11" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
+      -  [ "1" , "1" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
     SubMembers: 
-      -  [ "1" , "1" , "2" , "1" , "0" , "3" , "1" , "0" , "0" , "2" , "Main_Column" ]
-      -  [ "2" , "45" , "4" , "2" , "0" , "4" , "1" , "0" , "0" , "2" , "Upper_Column_1" ]
-      -  [ "3" , "46" , "6" , "2" , "0" , "4" , "1" , "0" , "0" , "2" , "Upper_Column_2" ]
-      -  [ "4" , "47" , "8" , "2" , "0" , "4" , "1" , "0" , "0" , "2" , "Upper_Column_3" ]
-      -  [ "29" , "3" , "45" , "2" , "0" , "4" , "1" , "0" , "0" , "2" , "Upper_Column_flooded_1" ]
-      -  [ "30" , "5" , "46" , "2" , "0" , "4" , "1" , "0" , "0" , "2" , "Upper_Column_flooded_2" ]
-      -  [ "31" , "7" , "47" , "2" , "0" , "4" , "1" , "0" , "0" , "2" , "Upper_Column_flooded_3" ]
-      -  [ "5" , "48" , "3" , "3" , "0" , "5" , "1" , "0" , "0" , "2" , "Base_Column_1" ]
-      -  [ "6" , "49" , "5" , "3" , "0" , "5" , "1" , "0" , "0" , "2" , "Base_Column_2" ]
-      -  [ "7" , "50" , "7" , "3" , "0" , "5" , "1" , "0" , "0" , "2" , "Base_Column_3" ]
-      -  [ "26" , "42" , "48" , "3" , "0" , "5" , "1" , "0" , "0" , "2" , "Base_column_flooded_1" ]
-      -  [ "27" , "43" , "49" , "3" , "0" , "5" , "1" , "0" , "0" , "2" , "Base_column_flooded_2" ]
-      -  [ "28" , "44" , "50" , "3" , "0" , "5" , "1" , "0" , "0" , "2" , "Base_column_flooded_3" ]
-      -  [ "23" , "9" , "42" , "3" , "0" , "5" , "1" , "0" , "0" , "2" , "Base_column_cap_1" ]
-      -  [ "24" , "10" , "43" , "3" , "0" , "5" , "1" , "0" , "0" , "2" , "Base_column_cap_2" ]
-      -  [ "25" , "11" , "44" , "3" , "0" , "5" , "1" , "0" , "0" , "2" , "Base_column_cap_3" ]
-      -  [ "8" , "12" , "13" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Delta_Pontoon_Upper_1" ]
-      -  [ "9" , "14" , "15" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Delta_Pontoon_Upper_2" ]
-      -  [ "10" , "16" , "17" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Delta_Pontoon_Upper_3" ]
-      -  [ "11" , "18" , "19" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Delta_Pontoon_Lower_1" ]
-      -  [ "12" , "20" , "21" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Delta_Pontoon_Lower_2" ]
-      -  [ "13" , "22" , "23" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Delta_Pontoon_Lower_3" ]
-      -  [ "14" , "24" , "25" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Y_Pontoon_Upper_1" ]
-      -  [ "15" , "26" , "27" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Y_Pontoon_Upper_2" ]
-      -  [ "16" , "28" , "29" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Y_Pontoon_Upper_3" ]
-      -  [ "17" , "30" , "31" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Y_Pontoon_Lower_1" ]
-      -  [ "18" , "32" , "33" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Y_Pontoon_Lower_2" ]
-      -  [ "19" , "34" , "35" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Y_Pontoon_Lower_3" ]
-      -  [ "20" , "36" , "37" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Cross_Brace_1" ]
-      -  [ "21" , "38" , "39" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Cross_Brace_2" ]
-      -  [ "22" , "40" , "41" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Cross_Brace_3" ]
+      -  [ "1" , "1" , "2" , "1" , "0" , "1" , "0" , "0" , "0" , "10" , "Balast" ]
+      -  [ "2" , "2" , "3" , "1" , "0" , "1" , "0" , "0" , "0" , "10" , "LowerBuoy" ]
+      -  [ "3" , "3" , "4" , "2" , "0" , "1" , "0" , "0" , "0" , "2" , "Taper1" ]
+      -  [ "4" , "4" , "5" , "3" , "0" , "1" , "0" , "0" , "0" , "2" , "Taper2" ]
+      -  [ "5" , "5" , "6" , "4" , "0" , "1" , "0" , "0" , "0" , "2" , "Taper3" ]
+      -  [ "6" , "6" , "7" , "5" , "0" , "1" , "0" , "0" , "0" , "2" , "Taper4" ]
+      -  [ "7" , "7" , "8" , "6" , "0" , "1" , "0" , "0" , "0" , "2" , "Taper5" ]
+      -  [ "8" , "8" , "9" , "7" , "0" , "1" , "0" , "0" , "0" , "2" , "Taper6" ]
+      -  [ "9" , "9" , "10" , "8" , "0" , "1" , "0" , "0" , "0" , "2" , "Taper7" ]
+      -  [ "10" , "10" , "11" , "9" , "0" , "1" , "0" , "0" , "0" , "2" , "Taper8" ]
+      -  [ "11" , "11" , "12" , "9" , "0" , "1" , "0" , "0" , "0" , "5" , "UpperBuoy" ]
     MoorElements: 
-      -  [ "1" , "1.086306E+02" , "6.148892E+08" , "7.536117E+08" , "0.000" , "0.077" ]
+      -  [ "1" , "7.773997E+01" , "2.668367E+08" , "3.842403E+08" , "0.000" , "0.090" ]
     MoorMembers: 
-      -  [ "1" , "FLT_-40.868_0.0_-14.0" , "GRD_-837.6_0" , "835.5" , "1" , "1" , "1" , "0" , "30" , "Mooring1" ]
-      -  [ "2" , "FLT_20.434_35.393_-14.0" , "GRD_418.8_725.4" , "835.5" , "1" , "1" , "1" , "0" , "30" , "Mooring2" ]
-      -  [ "3" , "FLT_20.434_-35.393_-14.0" , "GRD_418.8_-725.4" , "835.5" , "1" , "1" , "1" , "0" , "30" , "Mooring3" ]
+      -  [ "1" , "FLT_5.2_0.0_-70.0" , "GRD_853.87_0" , "902.2" , "1" , "2" , "1" , "0" , "30" , "Mooring1" ]
+      -  [ "2" , "FLT_-2.6_4.5_-70.0" , "GRD_-426.93_739.47" , "902.2" , "1" , "2" , "1" , "0" , "30" , "Mooring2" ]
+      -  [ "3" , "FLT_-2.6_-4.5_-70.0" , "GRD_-426.93_-739.47" , "902.2" , "1" , "2" , "1" , "0" , "30" , "Mooring3" ]
     BldOutSig: [ 0 ]
     BlOutNd: [  ]
     TwOutNd: [  ]
-    OutList: [  ]
+    OutList: [ "HydroFxt" , "HydroFyt" , "HydroFzt" , "HydroMxt" , "HydroMyt" , "HydroMzt" ]
   WaveL: 
     WaveType: JONSWAP
-    WaterDepth: 200
+    WaterDepth: 320
     Gravity: 9.8100000000000005
     WaveStretching: WHEELER
     TimeOffset: 0
@@ -5471,9 +5418,9 @@ Qahse:
     OchiF2: 0
     OchiLambda1: 0
     OchiLambda2: 0
-    SpectrumFilePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\HydroL\data\wave_spectrum.dat
-    ComponentFilePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\HydroL\data\wave_components.dat
-    TimeSeriesFilePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\HydroL\data\wave_timeseries.dat
+    SpectrumFilePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\HydroL\data\wave_spectrum.dat
+    ComponentFilePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\HydroL\data\wave_components.dat
+    TimeSeriesFilePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\HydroL\data\wave_timeseries.dat
     DFTCutIn: 0.029999999999999999
     DFTCutOut: 0.5
     DFTSample: 2
@@ -5488,5 +5435,5 @@ Qahse:
     ProfileCurrentExponent: 1
     SumPrint: True
     SaveComponents: True
-    SavePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\HydroL\result
+    SavePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC3_Spar\HydroL\result
     SaveName: Qahse_WaveL_JONSWAP_DEMO

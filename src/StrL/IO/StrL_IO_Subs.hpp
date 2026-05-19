@@ -277,7 +277,7 @@ inline void WriteBladeAeroStructInputYaml(const BladeAeroStructInput &input, con
 {
 	BladeAeroStructSerializer writer(input);
 	writer.WriteYamlFile(path);
-	writer.AddNode("SectionRows", input.sectionRows, 2);
+	writer.AddNode("SectionRows", input.sectionRows, 3);
 	writer.SaveYamlFile(path);
 }
 
@@ -285,7 +285,7 @@ inline void WriteTowerStructInputYaml(const TowerStructInput &input, const std::
 {
 	TowerStructSerializer writer(input);
 	writer.WriteYamlFile(path);
-	writer.AddNode("SectionRows", input.sectionRows, 2);
+	writer.AddNode("SectionRows", input.sectionRows, 3);
 	writer.SaveYamlFile(path);
 }
 

@@ -223,13 +223,13 @@ inline void AddEmbeddedWamitData(Serializer &writer, const std::optional<HydroLW
 	if (!wamit || !HasWamitRows(*wamit))
 		return;
 	writer.AddNode("Wamit.RadiationInputPath", wamit->radiation.inputPath.string());
-	writer.AddNode("Wamit.RadiationRows", RadiationRows(wamit->radiation.radiation), 8);
+	writer.AddNode("Wamit.RadiationRows", RadiationRows(wamit->radiation.radiation), 4);
 	writer.AddNode("Wamit.ExcitationInputPath", wamit->excitation.inputPath.string());
-	writer.AddNode("Wamit.ExcitationRows", ExcitationRows(wamit->excitation.excitation), 8);
+	writer.AddNode("Wamit.ExcitationRows", ExcitationRows(wamit->excitation.excitation), 4);
 	writer.AddNode("Wamit.DifferenceInputPath", wamit->difference.inputPath.string());
-	writer.AddNode("Wamit.DifferenceRows", QtfRows(wamit->difference.qtf), 8);
+	writer.AddNode("Wamit.DifferenceRows", QtfRows(wamit->difference.qtf), 4);
 	writer.AddNode("Wamit.SumInputPath", wamit->sum.inputPath.string());
-	writer.AddNode("Wamit.SumRows", QtfRows(wamit->sum.qtf), 8);
+	writer.AddNode("Wamit.SumRows", QtfRows(wamit->sum.qtf), 4);
 }
 
 inline HydroLInput ReadHydroLInput(const std::string &path)
@@ -303,7 +303,7 @@ inline void AddRows(Serializer &writer,
                     const std::vector<std::vector<std::string>> &rows)
 {
 	if (!rows.empty())
-		writer.AddNode(key, rows, 2);
+		writer.AddNode(key, rows, 3);
 }
 
 inline void AddMatrix(Serializer &writer,
@@ -311,7 +311,7 @@ inline void AddMatrix(Serializer &writer,
                       const Eigen::MatrixXd &matrix)
 {
 	if (matrix.size() != 0)
-		writer.AddNode(key, matrix, 2);
+		writer.AddNode(key, matrix, 3);
 }
 
 inline void WriteHydroLInputYaml(const HydroLInput &input, const std::string &path)

@@ -160,7 +160,7 @@ namespace windl_io_detail
 	{
 		WindLInputSerializer writer(input);
 		writer.WriteYamlFile(path);
-		writer.AddNode("WindSpeedList", TimeSpeedRows(input.windSpeedList), 2);
+		writer.AddNode("WindSpeedList", TimeSpeedRows(input.windSpeedList), 3);
 		writer.SaveYamlFile(path);
 	}
 

@@ -177,6 +177,85 @@ void CompactResolvedForSimYamlTest(SimLResolvedInput &input)
 		TruncateVector(airfoil.geometry.coordinates, 12);
 	}
 }
+
+void ExpectSelfContainedSimYamlShape(const std::filesystem::path &simYaml,
+                                     const SimLResolvedInput &expected)
+{
+	ASSERT_TRUE(std::filesystem::is_regular_file(simYaml));
+	const YML simDoc(simYaml.string(), false);
+	int qahseRootCount = 0;
+	for (const auto &node : simDoc.nodeList)
+		if (!node->parent && node->name == "Qahse")
+			++qahseRootCount;
+	EXPECT_EQ(qahseRootCount, 1);
+	EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Information"));
+	EXPECT_FALSE(simDoc.read("Information.YMLVersion").empty());
+	EXPECT_FALSE(simDoc.read("Information.LastModifiedTime").empty());
+
+	EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.SimL"));
+	EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.AeroL"));
+	EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.StrL"));
+	EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.ControL"));
+	EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.WindL"));
+	EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.BladeAeroStruct"));
+	EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.AeroL", "AirfoilData"));
+	if (expected.modules.towerStruct)
+		EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.TowerStruct"));
+	if (expected.modules.hydroL)
+	{
+		EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.HydroL"));
+		EXPECT_FALSE(module_io::YamlHasKey(simYaml.string(), "Qahse.HydroL", "Wamit"));
+	}
+	if (expected.modules.waveL)
+		EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.WaveL"));
+}
+
+void ExpectSelfContainedSimYamlDataEqual(const std::filesystem::path &simYaml,
+                                         const SimLResolvedInput &expected)
+{
+	auto expectedSim = expected.simL;
+	expectedSim.strFile = simYaml.string();
+	expectedSim.windFile = simYaml.string();
+	expectedSim.aeroFile = simYaml.string();
+	expectedSim.controlFile = simYaml.string();
+	if (expected.modules.hydroL)
+		expectedSim.hydroLFile = simYaml.string();
+	ExpectSimEqual(ReadSimLInput(simYaml.string()), expectedSim);
+
+	auto expectedAero = expected.modules.aeroL;
+	expectedAero.bladeAeroStructFile = simYaml.string();
+	expectedAero.bladeAeroStruct = expected.modules.bladeAeroStruct;
+	const auto aeroFromSameFile = ReadAeroLInput(simYaml.string());
+	ExpectAeroEqual(aeroFromSameFile, expectedAero);
+	ExpectAirfoilDataEqual(aeroFromSameFile.airfoilData, expected.modules.aeroL.airfoilData);
+	ASSERT_TRUE(aeroFromSameFile.bladeAeroStruct.has_value());
+	ExpectBladeAeroStructEqual(*aeroFromSameFile.bladeAeroStruct, expected.modules.bladeAeroStruct);
+	ExpectBladeAeroStructEqual(ReadBladeAeroStructInput(simYaml.string()), expected.modules.bladeAeroStruct);
+
+	auto expectedStr = expected.modules.strL;
+	expectedStr.bladeAeroStructFile = simYaml.string();
+	if (expected.modules.towerStruct)
+	{
+		expectedStr.towerFile = simYaml.string();
+		ExpectTowerStructEqual(ReadTowerStructInput(simYaml.string()), *expected.modules.towerStruct);
+	}
+	ExpectStrEqual(ReadStrLInput(simYaml.string()), expectedStr);
+	ExpectControlEqual(ReadControLInput(simYaml.string()), expected.modules.controL);
+	ExpectWindLEqual(windl_io_detail::ReadWindLInputFile(simYaml.string()), expected.modules.windL);
+
+	if (expected.modules.hydroL)
+	{
+		auto expectedHydro = *expected.modules.hydroL;
+		expectedHydro.waveLFile = simYaml.string();
+		const auto hydroFromSameFile = ReadHydroLInput(simYaml.string());
+		expectedHydro.wamit.reset();
+		EXPECT_FALSE(hydroFromSameFile.wamit.has_value());
+		ExpectHydroEqual(hydroFromSameFile, expectedHydro);
+	}
+
+	if (expected.modules.waveL)
+		ExpectWaveLEqual(wavel_io_detail::ReadWaveLInputFile(simYaml.string()), *expected.modules.waveL);
+}
 } // namespace
 
 TEST(SimLIO, ReadSemisubAndYamlRoundTrip)
@@ -396,12 +475,7 @@ TEST(SimLIO, WritesSelfContainedSimYamlAndModulesReadFromIt)
 		const auto simYaml = outDir / (simPath.stem().string() + ".sim");
 		WriteSimLResolvedInputFile(resolved, simYaml.string());
 
-		EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.SimL"));
-		EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.AeroL"));
-		EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.StrL"));
-		EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.ControL"));
-		EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.WindL"));
-		EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.BladeAeroStruct"));
+		ExpectSelfContainedSimYamlShape(simYaml, resolved);
 
 		const auto fromSim = ReadSimLResolvedInputFile(simYaml.string());
 		EXPECT_DOUBLE_EQ(fromSim.simL.tMax, resolved.simL.tMax);
@@ -438,6 +512,24 @@ TEST(SimLIO, WritesSelfContainedSimYamlAndModulesReadFromIt)
 			EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.WaveL"));
 			ExpectWaveLEqual(wavel_io_detail::ReadWaveLInputFile(simYaml.string()), *resolved.modules.waveL);
 		}
+	}
+}
+
+TEST(SimLIO, ConvertsAllDemoMainFilesToAdjacentSimAndVerifies)
+{
+	const auto cases = SimLCases();
+	ASSERT_GE(cases.size(), 5u);
+
+	for (const auto &simPath : cases)
+	{
+		SCOPED_TRACE(simPath.string());
+		const auto resolved = ReadSimLResolvedInputFile(simPath.string());
+		auto simYaml = simPath;
+		simYaml.replace_extension(".sim");
+		WriteSimLResolvedInputFile(resolved, simYaml.string());
+
+		ExpectSelfContainedSimYamlShape(simYaml, resolved);
+		ExpectSelfContainedSimYamlDataEqual(simYaml, resolved);
 	}
 }
 

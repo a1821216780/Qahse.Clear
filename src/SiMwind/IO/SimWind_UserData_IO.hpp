@@ -168,7 +168,7 @@ inline void WriteUserShear(const UserShearData &data, const std::string &path)
 		writer.AddNode("StdScale1", data.stdScale1);
 		writer.AddNode("StdScale2", data.stdScale2);
 		writer.AddNode("StdScale3", data.stdScale3);
-		writer.AddNode("Data", rows, 2);
+		writer.AddNode("Data", rows, 3);
 		writer.SaveYamlFile(path);
 		return;
 	}
@@ -228,7 +228,7 @@ inline void WriteUserSpectra(const UserSpectraData &data, const std::string &pat
 		writer.AddNode("SpecScale1", data.specScale1);
 		writer.AddNode("SpecScale2", data.specScale2);
 		writer.AddNode("SpecScale3", data.specScale3);
-		writer.AddNode("Data", rows, 2);
+		writer.AddNode("Data", rows, 3);
 		writer.SaveYamlFile(path);
 		return;
 	}
@@ -329,8 +329,8 @@ inline void WriteUserWindSpeed(const UserWindSpeedData &data, const std::string 
 		writer.AddNode("nComp", nComp);
 		writer.AddNode("nPoints", nPoints);
 		writer.AddNode("RefPtID", data.refPtID);
-		writer.AddNode("Points", pointRows, 2);
-		writer.AddNode("TimeSeries", seriesRows, 2);
+		writer.AddNode("Points", pointRows, 3);
+		writer.AddNode("TimeSeries", seriesRows, 3);
 		writer.SaveYamlFile(path);
 		return;
 	}

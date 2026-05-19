@@ -13,7 +13,6 @@
 #include "HydroL/IO/HydroL_IO_Subs.hpp"
 #include "HydroL/Wamit.hpp"
 #include "IO/Yaml.hpp"
-#include "IO/ZFile.hpp"
 #include "SimL/IO/SimL_IO_Subs.hpp"
 #include "StrL/IO/StrL_IO_Subs.hpp"
 #include "WaveL/IO/WaveL_IO_Subs.hpp"
@@ -70,6 +69,7 @@ SimLResolvedInput MakeSelfContainedPathView(SimLResolvedInput input, const std::
 		input.simL.hydroLFile = selfPath;
 
 	input.modules.aeroL.bladeAeroStructFile = selfPath;
+	input.modules.aeroL.bladeAeroStruct = input.modules.bladeAeroStruct;
 	input.modules.strL.bladeAeroStructFile = selfPath;
 	if (input.modules.towerStruct)
 		input.modules.strL.towerFile = selfPath;
@@ -80,23 +80,15 @@ SimLResolvedInput MakeSelfContainedPathView(SimLResolvedInput input, const std::
 	return input;
 }
 
-void AppendYamlFile(std::vector<std::string> &target, const std::filesystem::path &path)
-{
-	auto lines = ZFile::ReadAllLines(path.string());
-	if (!target.empty() && !target.back().empty())
-		target.emplace_back();
-	target.insert(target.end(), lines.begin(), lines.end());
-}
-
 template <typename Writer>
-void WriteAndAppend(std::vector<std::string> &lines,
-                    const std::filesystem::path &dir,
-                    const std::string &name,
-                    Writer writer)
+void WriteAndMerge(YML &yaml,
+                   const std::filesystem::path &dir,
+                   const std::string &name,
+                   Writer writer)
 {
 	const auto path = dir / name;
 	writer(path.string());
-	AppendYamlFile(lines, path);
+	yaml.AddYAML(YML(path.string(), false));
 }
 
 void ValidateResolvedInput(const SimLResolvedInput &resolved)
@@ -154,8 +146,10 @@ SimLModuleInputs ResolveSimLModuleInputs(const SimLInput &input)
 
 	if (modules.aeroL.airfoilData.empty())
 		modules.aeroL.airfoilData = ReadAeroLAirfoilFiles(modules.aeroL);
-	modules.bladeAeroStruct = ReadBladeAeroStructInput(
-		HasRoot(input, "Qahse.BladeAeroStruct") ? input.inputPath.string() : modules.aeroL.bladeAeroStructFile);
+	modules.bladeAeroStruct = modules.aeroL.bladeAeroStruct
+		? *modules.aeroL.bladeAeroStruct
+		: ReadBladeAeroStructInput(
+			HasRoot(input, "Qahse.BladeAeroStruct") ? input.inputPath.string() : modules.aeroL.bladeAeroStructFile);
 	if (!modules.strL.towerFile.empty() || HasRoot(input, "Qahse.TowerStruct"))
 	{
 		modules.towerStruct = ReadTowerStructInput(
@@ -206,45 +200,45 @@ void WriteSimLResolvedInputFile(const SimLResolvedInput &input, const std::strin
 	std::filesystem::remove_all(tempDir, ec);
 	std::filesystem::create_directories(tempDir);
 
-	std::vector<std::string> lines;
-	WriteAndAppend(lines, tempDir, "SimL.yml", [&](const std::string &tmp) {
+	YML yaml;
+	WriteAndMerge(yaml, tempDir, "SimL.yml", [&](const std::string &tmp) {
 		WriteSimLInput(resolved.simL, tmp);
 	});
-	WriteAndAppend(lines, tempDir, "AeroL.yml", [&](const std::string &tmp) {
+	WriteAndMerge(yaml, tempDir, "AeroL.yml", [&](const std::string &tmp) {
 		WriteAeroLInput(resolved.modules.aeroL, tmp);
 	});
-	WriteAndAppend(lines, tempDir, "StrL.yml", [&](const std::string &tmp) {
+	WriteAndMerge(yaml, tempDir, "StrL.yml", [&](const std::string &tmp) {
 		WriteStrLInput(resolved.modules.strL, tmp);
 	});
-	WriteAndAppend(lines, tempDir, "ControL.yml", [&](const std::string &tmp) {
+	WriteAndMerge(yaml, tempDir, "ControL.yml", [&](const std::string &tmp) {
 		WriteControLInput(resolved.modules.controL, tmp);
 	});
-	WriteAndAppend(lines, tempDir, "WindL.yml", [&](const std::string &tmp) {
+	WriteAndMerge(yaml, tempDir, "WindL.yml", [&](const std::string &tmp) {
 		windl_io_detail::WriteWindLInputYaml(resolved.modules.windL, tmp);
 	});
-	WriteAndAppend(lines, tempDir, "BladeAeroStruct.yml", [&](const std::string &tmp) {
+	WriteAndMerge(yaml, tempDir, "BladeAeroStruct.yml", [&](const std::string &tmp) {
 		WriteBladeAeroStructInputYaml(resolved.modules.bladeAeroStruct, tmp);
 	});
 	if (resolved.modules.towerStruct)
 	{
-		WriteAndAppend(lines, tempDir, "TowerStruct.yml", [&](const std::string &tmp) {
+		WriteAndMerge(yaml, tempDir, "TowerStruct.yml", [&](const std::string &tmp) {
 			WriteTowerStructInputYaml(*resolved.modules.towerStruct, tmp);
 		});
 	}
 	if (resolved.modules.hydroL)
 	{
-		WriteAndAppend(lines, tempDir, "HydroL.yml", [&](const std::string &tmp) {
+		WriteAndMerge(yaml, tempDir, "HydroL.yml", [&](const std::string &tmp) {
 			WriteHydroLInput(*resolved.modules.hydroL, tmp);
 		});
 	}
 	if (resolved.modules.waveL)
 	{
-		WriteAndAppend(lines, tempDir, "WaveL.yml", [&](const std::string &tmp) {
+		WriteAndMerge(yaml, tempDir, "WaveL.yml", [&](const std::string &tmp) {
 			wavel_io_detail::WriteWaveLInputYaml(*resolved.modules.waveL, tmp);
 		});
 	}
 
-	ZFile::WriteAllLines(path, lines);
+	yaml.save(path);
 	std::filesystem::remove_all(tempDir, ec);
 }
 

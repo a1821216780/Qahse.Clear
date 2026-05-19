@@ -2,10 +2,12 @@
 
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
 #include "IO/ModuleIO.hpp"
+#include "StrL/StrL_Type.hpp"
 
 struct AirfoilLookupInterpolators;
 
@@ -101,6 +103,7 @@ struct AeroLInput
 	AirfoilFileSet airfoils;
 	std::vector<AirfoilData> airfoilData;
 	std::string bladeAeroStructFile;
+	std::optional<BladeAeroStructInput> bladeAeroStruct;
 
 	bool unsteadyAero = false;
 	bool twoPointLiftDrag = false;

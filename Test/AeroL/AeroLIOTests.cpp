@@ -27,10 +27,17 @@ TEST(AeroLIO, ReadSemisubAndYamlRoundTrip)
 	const auto aero = ReadAeroLInput(SemisubAeroFile().string());
 	EXPECT_FALSE(aero.airfoils.files.empty());
 	EXPECT_TRUE(std::filesystem::is_regular_file(aero.bladeAeroStructFile));
+	ASSERT_TRUE(aero.bladeAeroStruct.has_value());
+	EXPECT_FALSE(aero.bladeAeroStruct->sections.empty());
 
 	const auto yaml = TestOutputDir() / "AeroL" / "aerol.yaml";
 	WriteAeroLInput(aero, yaml.string());
-	ExpectAeroEqual(ReadAeroLInput(yaml.string()), aero);
+	EXPECT_TRUE(module_io::YamlHasKey(yaml.string(), "Qahse.AeroL"));
+	EXPECT_TRUE(module_io::YamlHasKey(yaml.string(), "Qahse.BladeAeroStruct"));
+	const auto roundTrip = ReadAeroLInput(yaml.string());
+	ExpectAeroEqual(roundTrip, aero);
+	ASSERT_TRUE(roundTrip.bladeAeroStruct.has_value());
+	EXPECT_EQ(roundTrip.bladeAeroStruct->sectionRows, aero.bladeAeroStruct->sectionRows);
 }
 
 TEST(AeroLIO, ParsesAirfoilPolarAndGeometryFiles)
@@ -82,7 +89,8 @@ TEST(AeroLIO, AirfoilLookupInterpolatesFromCachedColumns)
 TEST(AeroLIO, BladePolarFileIdsReferToAeroLAirfoilList)
 {
 	const auto aero = ReadAeroLInput(SemisubAeroFile().string());
-	const auto blade = ReadBladeAeroStructInput(aero.bladeAeroStructFile);
+	ASSERT_TRUE(aero.bladeAeroStruct.has_value());
+	const auto &blade = *aero.bladeAeroStruct;
 	ASSERT_FALSE(blade.sections.empty());
 	ASSERT_FALSE(aero.airfoils.files.empty());
 

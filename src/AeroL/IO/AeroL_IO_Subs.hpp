@@ -11,6 +11,7 @@
 #include "IO/Serializer.hpp"
 #include "IO/ZFile.hpp"
 #include "IO/ZPath.hpp"
+#include "StrL/IO/StrL_IO_Subs.hpp"
 
 namespace aerol_io_detail
 {
@@ -178,6 +179,23 @@ inline void Validate(const AeroLInput &input)
 		throw std::runtime_error("AeroL BladeAeroStructFile does not exist: " + input.bladeAeroStructFile);
 }
 
+inline std::optional<BladeAeroStructInput> TryReadBladeAeroStructFromPath(const std::string &path)
+{
+	if (path.empty() || !std::filesystem::is_regular_file(path))
+		return std::nullopt;
+	std::error_code ec;
+	if (std::filesystem::file_size(path, ec) == 0 || ec)
+		return std::nullopt;
+	try
+	{
+		return ReadBladeAeroStructInput(path);
+	}
+	catch (...)
+	{
+		return std::nullopt;
+	}
+}
+
 inline std::vector<std::vector<double>> PolarRows(const std::vector<AirfoilPolarPoint> &polar)
 {
 	std::vector<std::vector<double>> rows;
@@ -239,17 +257,17 @@ inline void AddEmbeddedAirfoilData(Serializer &writer, const std::vector<Airfoil
 		writer.AddNode(root + ".GeometryFile", airfoil.geometryFile);
 		writer.AddNode(root + ".InterpolationOrder", airfoil.interpolationOrder);
 		writer.AddNode(root + ".DeclaredPolarCount", airfoil.declaredPolarCount);
-		writer.AddNode(root + ".PolarRows", PolarRows(airfoil.polar), 8);
+		writer.AddNode(root + ".PolarRows", PolarRows(airfoil.polar), 5);
 		writer.AddNode(root + ".PolarSetCount", static_cast<int>(airfoil.polarSets.size()));
 		for (std::size_t set = 0; set < airfoil.polarSets.size(); ++set)
-			writer.AddNode(root + ".PolarSets." + std::to_string(set), PolarRows(airfoil.polarSets[set]), 8);
+			writer.AddNode(root + ".PolarSets." + std::to_string(set), PolarRows(airfoil.polarSets[set]), 6);
 
 		writer.AddNode(root + ".Geometry.InputPath", airfoil.geometry.inputPath.string());
 		writer.AddNode(root + ".Geometry.Name", airfoil.geometry.name);
 		writer.AddNode(root + ".Geometry.DeclaredCoordinateCount", airfoil.geometry.declaredCoordinateCount);
 		writer.AddNode(root + ".Geometry.HasExplicitReference", airfoil.geometry.hasExplicitReference);
 		writer.AddNode(root + ".Geometry.Reference", std::vector<double>{airfoil.geometry.reference.x, airfoil.geometry.reference.y});
-		writer.AddNode(root + ".Geometry.Coordinates", CoordinateRows(airfoil.geometry.coordinates), 8);
+		writer.AddNode(root + ".Geometry.Coordinates", CoordinateRows(airfoil.geometry.coordinates), 6);
 	}
 }
 
@@ -322,7 +340,30 @@ inline AeroLInput ReadAeroLInput(const std::string &path)
 		input.airfoilData = ReadEmbeddedAirfoilData(reader, path);
 	ResolvePaths(input);
 	Validate(input);
+	if (reader.IsYaml() && module_io::YamlHasKey(path, strl_io_detail::kBladeYamlRoot))
+		input.bladeAeroStruct = ReadBladeAeroStructInput(path);
+	else
+		input.bladeAeroStruct = TryReadBladeAeroStructFromPath(input.bladeAeroStructFile);
 	return input;
+}
+
+inline void AddBladeAeroStructYamlRoot(const AeroLInput &input, const std::string &path)
+{
+	std::optional<BladeAeroStructInput> blade = input.bladeAeroStruct;
+	if (!blade)
+		blade = TryReadBladeAeroStructFromPath(input.bladeAeroStructFile);
+	if (!blade)
+		return;
+
+	const auto outputPath = std::filesystem::path(path);
+	const auto tempPath = outputPath.parent_path() /
+	                      (outputPath.filename().string() + ".BladeAeroStruct.tmp.yml");
+	WriteBladeAeroStructInputYaml(*blade, tempPath.string());
+	YML yaml(path, false);
+	yaml.AddYAML(YML(tempPath.string(), false));
+	yaml.save(path);
+	std::error_code ec;
+	std::filesystem::remove(tempPath, ec);
 }
 
 inline void WriteAeroLInputYaml(const AeroLInput &input, const std::string &path)
@@ -334,6 +375,7 @@ inline void WriteAeroLInputYaml(const AeroLInput &input, const std::string &path
 	AddEmbeddedAirfoilData(writer, input.airfoilData);
 	module_io::AddOutputYamlNodes(writer, input.output);
 	writer.SaveYamlFile(path);
+	AddBladeAeroStructYamlRoot(input, path);
 }
 
 inline void WriteAeroLInput(const AeroLInput &input,
