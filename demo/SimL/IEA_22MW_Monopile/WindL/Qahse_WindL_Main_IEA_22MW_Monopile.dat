@@ -1,0 +1,23 @@
+﻿------- Qahse.WindL main file ------------------------------------------------
+IEA_22MW_Monopile
+
+1      WindType       - 风文件类型 (1=steady; 2=user define; 3=TurbSim wnd; 4=Bladed wnd; 5=TurbSim bts)
+true   CreadW         - 是否循环读取风文件
+
+11.4   HWindSpeed     - Horizontal windspeed (m/s)
+87     RefHt          - Reference height (m)
+0.2    PLexp          - Power law exponent (-)
+
+-120   gridY_min
+120    gridY_max
+5      gridY_step
+0      gridZ_min
+180    gridZ_max
+5      gridZ_step
+0      WindSpeedNum   - Wind Speed Num(format is "t windspeed")
+
+""     TurWindFilePath
+""     BldWindFilePath
+""     IECWindFilePath
+
+END of input file

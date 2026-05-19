@@ -5,7 +5,7 @@ NREL 5MW OC4 DeepCWind 半潜式平台；
 ============================  基础类型与水环境  ========================================
           1   PCMode       - 变桨模型 {0: 不采用控制器,  1: 外部Bladeddll控制器} 
 "./TUBCon_1.3.9_64Bit.dll"     DLL_FileName   - Name/location of the dynamic library {.dll [Windows] or .so [Linux]} in the Bladed-DLL format (-) [used only with Bladed Interface]
-"./DISCON.IN"    DLL_InFile   - Name of input file sent to the DLL (-) [used only with Bladed Interface,可能是.in和xml文件]
+"./TUBCon_Params_V1.3.9_NREL5MW.xml"    DLL_InFile   - Name of input file sent to the DLL (-) [used only with Bladed Interface,可能是.in和xml文件]
 "DISCON"      DLL_ProcName - Name of procedure in DLL to be called (-) [case sensitive; used only with DLL Interface]
 
 

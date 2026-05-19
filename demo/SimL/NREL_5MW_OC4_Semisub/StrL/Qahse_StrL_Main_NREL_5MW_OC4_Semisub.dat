@@ -46,13 +46,13 @@ true              DrivetrainDof         - 是否启用传动链扭转动力学�
 6215000            DTTorDmp - 传动链等效扭转阻尼 [N*m*s/rad]
 
 ======  叶片结构文件  ======================================================
-"NREL_5MW_OC4_Semisub_Blade_new.str"    BladeFile       - 叶片结构属性文件
+"NREL_5MW_OC4_Semisub_Blade_new.str"    BladeAeroStructFile       - 叶片气动-结构一体化属性文件
 
 
 ======  塔架和浮体结构文件  ======================================================
 77.6              TowerHeight           - 塔架结构高度 [m]
-"OC4_DeepCWindSemi_Tower.str"    TowerFile - 塔架结构属性文件
-"../HydroL/OC4_DeepCWindSemi_Sub_LPMD.str"    SubFile - 浮体/水动力/系泊结构文件
+"NREL_5MW_OC4_Semisub_Tower.str"    TowerFile - 塔架结构属性文件
+""    SubFile - 兼容旧字段；浮体/水动力/系泊结构由 HydroL 管理
 
 ---------------------- OUTPUT --------------------------------------------------
 true                                        SumPrint  - 是否生成Str输出文件 "<rootname>.EL.out"?  (flag)
@@ -63,7 +63,7 @@ true                                        AfSpanput - 输出模式选择是节
 18                                            NBlOuts   - Number of blade node outputs [0 - BlOutNd-1] (-)
 0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18               BlOutNd   - Blade nodes whose values will be output  (-)（从0开确实算）
 10                                               NTwOuts   - Number of tower node outputs [0 - BlOutNd-1]  (-)
-0,1,2,3,4,5,,7,8,9,10              TwOutNd   - Tower nodes whose values will be output  (-)（从0开确实算）
+0,1,2,3,4,5,7,8,9,10              TwOutNd   - Tower nodes whose values will be output  (-)（从0开确实算）
               OutList     - The next line(s) contains a list of output parameters.  See OutListParameters.xlsx for a listing of available output channels, (-)
 !以下变量是输出的自由度
                                   "QD2_B1E1 ","QD2_B1F1 ","QD2_B1F2 ","QD2_B2E1 ","QD2_B2F1 ","QD2_B2F2 ","QD2_B3E1 ","QD2_B3F1 ", 
@@ -128,7 +128,7 @@ true                                        AfSpanput - 输出模式选择是节
 "TwrBsFxt",
 "TwrBsFyt",
 "TwrBsFzt",
-"TwrBsMxt
+"TwrBsMxt",
 "TwrBsMyt",
 "TwrBsMzt",
 "TwHtMLxt",

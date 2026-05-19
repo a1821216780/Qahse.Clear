@@ -1,0 +1,44 @@
+﻿------- Qahse.SimL  主文件 -------------------------------------------
+IEA_15MW_VolturnUS_S
+
+---------------------- SIMULATION CONTROL -------------------------------------- 
+600                    TMax         - 总的仿真时长
+0.05                   DT           - 仿真的时间间隔
+false                  AfShowlog    - 是否在仿真的过程当中输出叶片的转矩和转速以及变桨信息
+50                     Dtput        - 多少个DT_Out，输出一次时间（）
+4                      SimulateType -  {1=Power Production;2=Idirng;3=Parked;4=Start}
+0                      RamupTime   - 一般的，积分器的前几秒会因为刚刚进入仿真而不稳定，该时间为稳定时间
+---------------------- WINDTURBINE CONTROL -------------------------------------
+2                      WTType       - 风力机类型{0：陆上固定式，1：SubFEML(陆上风力机地震等模拟),2:HydroL 海上漂浮式}
+1                      Solver       - {0:RK4,1:HHT-α)
+false                  Linearization - {true:开启模型线性化的功能，否则关闭}
+                 
+---------------------- ENVIRONMENTAL CONDITIONS --------------------------------
+9.81                   Gravity     - 重力加速度 (m/s^2)
+1.225                  AirDens     - 空气密度 (kg/m^3)
+1025                   WtrDens     - 水密度 (kg/m^3)
+1.464e-05              KinVisc     - 流体的运动粘度 (m^2/s)
+335                    SpdSound    - 声速 (m/s)
+
+
+---------------------- INPUT FILES ---------------------------------------------
+"./StrL/Qahse_StrL_Main_IEA_15MW_VolturnUS_S.dat"        StrFile          - StrL 输入文件
+"./WindL/Qahse_WindL_Main_IEA_15MW_VolturnUS_S.dat"        WindFile         - windL 输入文件
+"./AeroL/Qahse_AeroL_Main_IEA_15MW_VolturnUS_S.dat"        AeroFile         - AeroL 输入文件
+"./ControL/Qahse_ControL_Main_IEA_15MW_VolturnUS_S.dat"  ControlFile      - ControL 输入文件
+"./HydroL/Qahse_HydroL_Main_IEA_15MW_VolturnUS_S.dat"      HydroLFile       - HydroL输入文件[used only WTType=2]
+""          SubFEMLFile      - SubFEML输入文件[used only WTType=1]
+""       MlinLFile        - MlinL 输入文件[used only Linearization=true]
+
+----------------------  Qahse VTK  ---------------------------------
+false                           AfVTK                   - 是否开启 VTK 输出
+0.5                             DT_VTK                  - 每多少s输出一个VTK文件（最小为DT,越小的DT_VTK以为着越高的帧率）
+2                               VTK_type                - VTK 的输出类型 {1:表示输出体类型 2：表示输出点线类型，线类型支持更高的帧率}
+50                              VTK_SideNum             - VTK 描述模型柱体的侧面节点数量，越大越接近真实体的描述
+
+
+---------------------- OUTPUT --------------------------------------------------
+0.001                     DT_Out      - 每多少s输出一个数据（if DT_Out<0.0125 , DT_Out=DT）
+0                         TStart      - 什么时候开始输出数据
+0                         OutType     - 输出的文件类型{0：文本形式；1：二进制形式}
+"./IEA_15MW_VolturnUS_S"  SumPath     - 输出文件的路径

@@ -1,0 +1,80 @@
+#pragma once
+
+#include <Eigen/Dense>
+
+#include <filesystem>
+#include <string>
+#include <vector>
+
+#include "IO/ModuleIO.hpp"
+
+enum class HydroLDiffEvalType
+{
+	NONE = 0,
+	EXPLICIT_QTF = 1,
+	NEWMAN = 2,
+	MEAN_DRIFT = 3
+};
+
+struct HydroLInput
+{
+	std::filesystem::path inputPath;
+
+	double waterDepth = 0.0;
+	double waterDensity = 1025.0;
+	bool isFloating = false;
+	int advancedBuoyancy = 0;
+	int waveKinEvalMorison = 0;
+	int waveKinEvalPotential = 1;
+	double waveKinTau = 30.0;
+	std::string waveLFile;
+
+	bool staticBuoyancy = true;
+	std::string potentialRadFile;
+	bool useRadiation = false;
+	bool useRadAddedMass = false;
+	double deltaFreqRadiation = 0.0;
+	double truncTimeRadiation = 0.0;
+
+	std::string potentialExcFile;
+	bool useExcitation = false;
+	double deltaFreqExcitation = 0.0;
+	double deltaDirExcitation = 0.0;
+	double truncTimeExcitation = 0.0;
+
+	std::string potentialDiffFile;
+	HydroLDiffEvalType diffEvalType = HydroLDiffEvalType::NONE;
+	std::string potentialSumFile;
+	bool useSumFreqs = false;
+
+	double subDisplacedVolume = 0.0;
+	double buoyancyTuner = 1.0;
+	double stiffTuner = 1.0;
+	double massTuner = 1.0;
+	int beamType = 1;
+
+	Eigen::MatrixXd jointOffset;
+	Eigen::MatrixXd marineGrowth;
+	Eigen::MatrixXd tpInterfacePos;
+	Eigen::MatrixXd refCogPos;
+	Eigen::MatrixXd refHydroPos;
+	Eigen::MatrixXd subMassMatrix;
+	Eigen::MatrixXd hydroQuadDampingMatrix;
+	Eigen::MatrixXd hydroStiffnessMatrix;
+	Eigen::MatrixXd hydroDampingMatrix;
+	Eigen::MatrixXd hydroAddedMassMatrix;
+	Eigen::MatrixXd hydroConstForce;
+
+	std::vector<std::vector<std::string>> subJoints;
+	std::vector<std::vector<std::string>> rigidSubElements;
+	std::vector<std::vector<std::string>> rigidRectSubElements;
+	std::vector<std::vector<std::string>> subElements;
+	std::vector<std::vector<std::string>> hydroJointCoeff;
+	std::vector<std::vector<std::string>> hydroMemberCoeff;
+	std::vector<std::vector<std::string>> subConstraints;
+	std::vector<std::vector<std::string>> subMembers;
+	std::vector<std::vector<std::string>> moorElements;
+	std::vector<std::vector<std::string>> moorMembers;
+
+	OutputConfig output;
+};

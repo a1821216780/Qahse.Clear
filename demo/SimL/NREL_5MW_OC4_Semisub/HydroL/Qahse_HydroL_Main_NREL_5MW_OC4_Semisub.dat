@@ -14,18 +14,18 @@ true              IsFloating            - 是否为漂浮式基础；固定式�
 
 ======  势流模型文件和频域载荷  ======================================================
 true              StaticBuoyancy        - 是否采用基于平均海平面的静浮力；用于 Morison 构件浮力与势流绕射力组合 [bool]
-"radiation.1"     PotentialRadFile      - 辐射问题频域水动力系数文件；文件后缀用于识别 WAMIT/QBlade 格式
+"./WAMIT/radiation.1"     PotentialRadFile      - 辐射问题频域水动力系数文件；文件后缀用于识别 WAMIT/QBlade 格式
 true              UseRadiation          - 是否启用辐射记忆效应 [bool]
 0.05              DeltaFreqRadiation    - 辐射核频率离散步长 [rad/s]
 60.0              TruncTimeRadiation    - 辐射卷积核时域截断时间 [s]
-"excitation.3"    PotentialExcFile      - 一阶波浪激励力频域文件
+"./WAMIT/excitation.3"    PotentialExcFile      - 一阶波浪激励力频域文件
 true              UseExcitation         - 是否启用一阶波浪激励力 [bool]
 0.05              DeltaFreqExcitation   - 激励力频率离散步长 [rad/s]
 2.00              DeltaDirExcitation    - 激励力入射方向离散步长 [deg]
 60.0              TruncTimeExcitation   - 激励力时域核截断时间 [s]
-"difference.12d"  PotentialDiffFile     - 二阶差频波浪载荷文件
+"./WAMIT/difference.12d"  PotentialDiffFile     - 二阶差频波浪载荷文件
 2                 DiffEvalType          - 二阶差频载荷评估方式 {0=none; 1=explicit; 2=Newman approximation; 3=mean drift;}
-"sum.12s"         PotentialSumFile      - 二阶和频波浪载荷文件
+"./WAMIT/sum.12s"         PotentialSumFile      - 二阶和频波浪载荷文件
 true             UseSumFreqs           - 是否启用二阶和频载荷 [bool]
 
 ======  节点坐标整体偏移  ======================================================

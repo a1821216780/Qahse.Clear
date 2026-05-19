@@ -44,6 +44,15 @@ std::filesystem::path RepoRoot()
 	return FindRepoRoot(std::filesystem::current_path());
 }
 
+std::filesystem::path NrelWindLDemoPath()
+{
+	const auto root = RepoRoot();
+	auto path = root / "demo" / "NREL_5MW_OC4_Semisub" / "WindL" / "Qahse_WindL_Main_NREL_5MW_OC4_Semisub.dat";
+	if (std::filesystem::is_regular_file(path))
+		return path;
+	return root / "demo" / "SimL" / "NREL_5MW_OC4_Semisub" / "WindL" / "Qahse_WindL_Main_NREL_5MW_OC4_Semisub.dat";
+}
+
 std::filesystem::path SimWindOutputDir()
 {
 	auto dir = RepoRoot() / "build" / "test" / "simwind";
@@ -1099,7 +1108,7 @@ TEST(WindL_SimWind, ImportedFieldSamplingMirrorsAndSupportsCubic)
 
 TEST(WindL_Runtime, ParsesNrelWindLCaseAndResolvesSimWindPaths)
 {
-	const auto path = RepoRoot() / "demo" / "NREL_5MW_OC4_Semisub" / "WindL" / "Qahse_WindL_Main_NREL_5MW_OC4_Semisub.dat";
+	const auto path = NrelWindLDemoPath();
 	const auto input = ReadWindLInput(path.string());
 
 	EXPECT_EQ(input.windType, WindLWindType::TURBSIM_WND);

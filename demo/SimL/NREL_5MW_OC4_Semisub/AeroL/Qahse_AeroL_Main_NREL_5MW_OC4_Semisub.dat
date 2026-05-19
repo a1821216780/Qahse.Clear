@@ -19,10 +19,10 @@ HAWT              RotorType              - 风轮类型 {HAWT=水平轴风力机
 335               SpdSound               - 声速 [m/s]
 
 ================================  翼型信息  ==============================================
-8                 NumAFfiles             - 翼型气动数据文件数量 [-]
+8                NumAFfiles             - 翼型气动数据文件数量 [-]
 1                 InterpOrd              - 用于准稳态表查找的翼型插值顺序 {1=linear; 2=cubic spline;}
                   AFNames - 翼型气动数据文件路径，以下共 NumAFfiles 行
-"./Airfoils/Cylinder1.dat"        
+"./Airfoils/Cylinder1.dat"
 "./Airfoils/Cylinder2.dat"
 "./Airfoils/DU40_A17.dat"
 "./Airfoils/DU35_A17.dat"

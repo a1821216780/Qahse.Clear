@@ -59,6 +59,17 @@ std::filesystem::path RepoRoot()
 	return std::filesystem::current_path();
 }
 
+std::filesystem::path NrelWindLDemoPath()
+{
+	const auto root = RepoRoot();
+	auto path = root / "demo" / "NREL_5MW_OC4_Semisub" / "WindL" /
+	            "Qahse_WindL_Main_NREL_5MW_OC4_Semisub.dat";
+	if (std::filesystem::is_regular_file(path))
+		return path;
+	return root / "demo" / "SimL" / "NREL_5MW_OC4_Semisub" / "WindL" /
+	       "Qahse_WindL_Main_NREL_5MW_OC4_Semisub.dat";
+}
+
 /// @brief 内置测试文件的搜索目录。
 /// 优先使用 Test/WindL 下的独立副本，其次回退到 demo/WindL。
 std::string FindTestFile(const char *filename)
@@ -413,8 +424,7 @@ TEST(WindLIO_YAML, WindLTextToYamlUsesSerializerDirectKeys)
 
 TEST(WindLIO_QWD, ReadDesignedWindLInputMatrixRows)
 {
-	const auto path = RepoRoot() / "demo" / "NREL_5MW_OC4_Semisub" / "WindL" /
-	                  "Qahse_WindL_Main_NREL_5MW_OC4_Semisub.dat";
+	const auto path = NrelWindLDemoPath();
 	if (!std::filesystem::is_regular_file(path))
 		GTEST_SKIP() << "WindL designed demo input is not available";
 

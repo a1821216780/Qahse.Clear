@@ -22,11 +22,11 @@ false                  Linearization - {true:开启模型线性化的功能，�
 
 
 ---------------------- INPUT FILES ---------------------------------------------
-"./strl/Qahse_StrL_Main_NREL_5MW_OC4_Semisub.dat"        StrFile          - StrL 输入文件
-"./Windl/Qahse_WindL_Main_NREL_5MW_OC4_Semisub.dat"        WindFile         - windL 输入文件
-"./Aerol/Qahse_AeroL_Main_NREL_5MW_OC4_Semisub.dat"        AeroFile         - AeroL 输入文件
+"./StrL/Qahse_StrL_Main_NREL_5MW_OC4_Semisub.dat"        StrFile          - StrL 输入文件
+"./WindL/Qahse_WindL_Main_NREL_5MW_OC4_Semisub.dat"        WindFile         - windL 输入文件
+"./AeroL/Qahse_AeroL_Main_NREL_5MW_OC4_Semisub.dat"        AeroFile         - AeroL 输入文件
 "./ControL/Qahse_ControL_Main_NREL_5MW_OC4_Semisub.dat"  ControlFile      - ControL 输入文件
-"./Hydrol/Qahse_HydroL_Main_NREL_5MW_OC4_Semisub.dat"      HydroLFile       - HydroL输入文件[used only WTType=2]
+"./HydroL/Qahse_HydroL_Main_NREL_5MW_OC4_Semisub.dat"      HydroLFile       - HydroL输入文件[used only WTType=2]
 ""          SubFEMLFile      - SubFEML输入文件[used only WTType=1]
 ""       MlinLFile        - MlinL 输入文件[used only Linearization=true]
 

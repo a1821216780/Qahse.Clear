@@ -12,7 +12,7 @@ true              StaticBuoyancy        - 是否采用基于平均海平面的�
 ======  势流模型文件和频域载荷  ======================================================
 true              StaticBuoyancy        - 是否采用基于平均海平面的静浮力；用于 Morison 构件浮力与势流绕射力组合 [bool]
 "OC3_BEMuse.dat"  PotentialRadFile      - 辐射问题频域水动力系数文件；文件后缀用于识别 WAMIT/QBlade 格式
-		POT_EXC_FILE
+"OC3_BEMuse.dat"  PotentialExcFile      - 一阶波浪激励力频域文件
 true              UseRadiation          - 是否启用辐射记忆效应 [bool]
 0.05              DeltaFreqRadiation    - 辐射核频率离散步长 [rad/s]
 60.0              TruncTimeRadiation    - 辐射卷积核时域截断时间 [s]

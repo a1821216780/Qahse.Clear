@@ -45,6 +45,30 @@
     <Filter Include="Header Files\HydroL">
       <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000012}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\AeroL">
+      <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000015}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\AeroL">
+      <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000016}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ControL">
+      <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000017}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ControL">
+      <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000018}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SimL">
+      <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000019}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SimL">
+      <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000020}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\StrL">
+      <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000021}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\StrL">
+      <UniqueIdentifier>{B1C2D3E4-0001-0001-0001-000000000022}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Test\test_main.cpp">
@@ -110,6 +134,24 @@
     <ClCompile Include="..\Test\IO\YamlTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Test\IO\ModuleIOTests.cpp">
+      <Filter>Source Files\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Test\AeroL\AeroLIOTests.cpp">
+      <Filter>Source Files\AeroL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Test\ControL\ControLIOTests.cpp">
+      <Filter>Source Files\ControL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Test\HydroL\HydroLIOTests.cpp">
+      <Filter>Source Files\HydroL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Test\SimL\SimLIOTests.cpp">
+      <Filter>Source Files\SimL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Test\StrL\StrLIOTests.cpp">
+      <Filter>Source Files\StrL</Filter>
+    </ClCompile>
     <ClCompile Include="..\Test\WindL\WindLIOTests.cpp">
       <Filter>Source Files\WindL</Filter>
     </ClCompile>
@@ -133,6 +175,27 @@
     </ClCompile>
     <ClCompile Include="..\src\SiMwind\SimWind.cpp">
       <Filter>Source Files\SiMwind</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AeroL\AeroL.cpp">
+      <Filter>Source Files\AeroL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\AeroL\Airfoil.cpp">
+      <Filter>Source Files\AeroL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ControL\ControL.cpp">
+      <Filter>Source Files\ControL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\HydroL\HydroL.cpp">
+      <Filter>Source Files\HydroL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\HydroL\Wamit.cpp">
+      <Filter>Source Files\HydroL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\SimL\SimL.cpp">
+      <Filter>Source Files\SimL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\StrL\StrL.cpp">
+      <Filter>Source Files\StrL</Filter>
     </ClCompile>
     <ClCompile Include="..\src\WindL\WindL.cpp">
       <Filter>Source Files\WindL</Filter>
@@ -181,6 +244,33 @@
     </ClInclude>
     <ClInclude Include="..\src\IO\Yaml.hpp">
       <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\IO\ModuleIO.hpp">
+      <Filter>Header Files\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Test\ModuleIOTestHelpers.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AeroL\AeroL_Type.hpp">
+      <Filter>Header Files\AeroL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AeroL\AeroL.hpp">
+      <Filter>Header Files\AeroL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AeroL\Airfoil.hpp">
+      <Filter>Header Files\AeroL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AeroL\IO\AeroL_IO_Subs.hpp">
+      <Filter>Header Files\AeroL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ControL\ControL_Type.hpp">
+      <Filter>Header Files\ControL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ControL\ControL.hpp">
+      <Filter>Header Files\ControL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ControL\IO\ControL_IO_Subs.hpp">
+      <Filter>Header Files\ControL</Filter>
     </ClInclude>
     <ClInclude Include="..\src\SiMwind\SimWind_Type.hpp">
       <Filter>Header Files\SiMwind</Filter>
@@ -236,8 +326,29 @@
     <ClInclude Include="..\src\HydroL\HydroL.hpp">
       <Filter>Header Files\HydroL</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\HydroL\Wamit.hpp">
+      <Filter>Header Files\HydroL</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\HydroL\IO\HydroL_IO_Subs.hpp">
       <Filter>Header Files\HydroL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\SimL\SimL_Type.hpp">
+      <Filter>Header Files\SimL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\SimL\SimL.hpp">
+      <Filter>Header Files\SimL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\SimL\IO\SimL_IO_Subs.hpp">
+      <Filter>Header Files\SimL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\StrL\StrL_Type.hpp">
+      <Filter>Header Files\StrL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\StrL\StrL.hpp">
+      <Filter>Header Files\StrL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\StrL\IO\StrL_IO_Subs.hpp">
+      <Filter>Header Files\StrL</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Params.h">
       <Filter>Header Files</Filter>

@@ -1,0 +1,242 @@
+------- OpenWECD.Qahse(HawtC3) AeroL  主文件   By 赵子祯 ------------------------------------------------
+IEA_22MW_Monopile 模型
+
+================================  计算选项   ==============================================
+2                 ApOfMb                 - 计算选项 {0=读取结构/塔架/叶片等模型参数; 1=计算叶片Cp; 2=计算叶片功率、推力和变桨曲线表;}
+
+======  风力机风轮和塔基信息  ===================================== [used only when ApOfMb=0, 1 and 2]
+HAWT              RotorType              - 风轮类型 {HAWT=水平轴风力机; VAWT=垂直轴风力机;}
+1.5               HubRad                 - 轮毂半径 [m]，如果与叶片文件定义不同会报错
+3                 BladeNum               - 叶片数量
+3                 CutInWindSpeed         - 切入风速 [m/s]
+25                CutOutWindSpeed        - 切出风速 [m/s]
+5000              RatedPower             - 额定功率 [kW]
+13                RatedRotorSpeed        - 额定转速 [rpm]
+
+================================  环境参数  ==================== [used only when ApOfMb=0, 1 and 2]
+1.225             AirDens                - 空气密度 [kg/m^3]
+1.464E-05         KinVisc                - 空气运动黏度 [m^2/s]
+335               SpdSound               - 声速 [m/s]
+
+================================  翼型信息  ==============================================
+97               NumAFfiles             - 翼型气动数据文件数量 [-]
+1                 InterpOrd              - 用于准稳态表查找的翼型插值顺序 {1=linear; 2=cubic spline;}
+                  AFNames - 翼型气动数据文件路径，以下共 NumAFfiles 行
+"./Airfoils/Default_RE3.00E+06.dat"
+"./Airfoils/circular_FB90_blend_t96.5_RE5.44E+06.dat"
+"./Airfoils/circular_FB90_blend_t93.0_RE7.88E+06.dat"
+"./Airfoils/FB90_FB80_blend_t89.2_RE1.00E+07.dat"
+"./Airfoils/FB90_FB80_blend_t83.5_RE1.00E+07.dat"
+"./Airfoils/FB80_FB70_blend_t77.8_RE1.00E+07.dat"
+"./Airfoils/FB80_FB70_blend_t71.8_RE1.00E+07.dat"
+"./Airfoils/FB70_FB60_blend_t66.3_RE1.00E+07.dat"
+"./Airfoils/FB70_FB60_blend_t61.0_RE1.00E+07.dat"
+"./Airfoils/FB60_SNL-FFA-W3-560FB_blend_t56.4_RE1.00E+07.dat"
+"./Airfoils/SNL-FFA-W3-560FB_SNL-FFA-W3-480FB_blend_t52.8_RE9.26E+06.dat"
+"./Airfoils/SNL-FFA-W3-560FB_SNL-FFA-W3-480FB_blend_t49.2_RE8.49E+06.dat"
+"./Airfoils/SNL-FFA-W3-480FB_SNL-FFA-W3-420FB_blend_t45.8_RE8.37E+06.dat"
+"./Airfoils/SNL-FFA-W3-480FB_SNL-FFA-W3-420FB_blend_t43.1_RE9.41E+06.dat"
+"./Airfoils/SNL-FFA-W3-420FB_FFA-W3-360_blend_t40.9_RE1.03E+07.dat"
+"./Airfoils/SNL-FFA-W3-420FB_FFA-W3-360_blend_t39.6_RE1.11E+07.dat"
+"./Airfoils/SNL-FFA-W3-420FB_FFA-W3-360_blend_t38.2_RE1.18E+07.dat"
+"./Airfoils/SNL-FFA-W3-420FB_FFA-W3-360_blend_t36.9_RE1.25E+07.dat"
+"./Airfoils/FFA-W3-360_FFA-W3-330blend_blend_t35.8_RE1.33E+07.dat"
+"./Airfoils/FFA-W3-360_FFA-W3-330blend_blend_t35.2_RE1.41E+07.dat"
+"./Airfoils/FFA-W3-360_FFA-W3-330blend_blend_t34.7_RE1.49E+07.dat"
+"./Airfoils/FFA-W3-360_FFA-W3-330blend_blend_t34.1_RE1.57E+07.dat"
+"./Airfoils/FFA-W3-360_FFA-W3-330blend_blend_t33.5_RE1.64E+07.dat"
+"./Airfoils/FFA-W3-330blend_FFA-W3-301_blend_t33.0_RE1.70E+07.dat"
+"./Airfoils/FFA-W3-330blend_FFA-W3-301_blend_t32.8_RE1.71E+07.dat"
+"./Airfoils/FFA-W3-330blend_FFA-W3-301_blend_t32.6_RE1.72E+07.dat"
+"./Airfoils/FFA-W3-330blend_FFA-W3-301_blend_t32.4_RE1.72E+07.dat"
+"./Airfoils/FFA-W3-330blend_FFA-W3-301_blend_t32.2_RE1.73E+07.dat"
+"./Airfoils/FFA-W3-330blend_FFA-W3-301_blend_t32.0_RE1.73E+07.dat"
+"./Airfoils/FFA-W3-330blend_FFA-W3-301_blend_t31.8_RE1.74E+07.dat"
+"./Airfoils/FFA-W3-330blend_FFA-W3-301_blend_t31.7_RE1.75E+07.dat"
+"./Airfoils/FFA-W3-330blend_FFA-W3-301_blend_t31.5_RE1.75E+07.dat"
+"./Airfoils/FFA-W3-330blend_FFA-W3-301_blend_t31.3_RE1.76E+07.dat"
+"./Airfoils/FFA-W3-330blend_FFA-W3-301_blend_t31.1_RE1.77E+07.dat"
+"./Airfoils/FFA-W3-330blend_FFA-W3-301_blend_t30.9_RE1.77E+07.dat"
+"./Airfoils/FFA-W3-330blend_FFA-W3-301_blend_t30.7_RE1.78E+07.dat"
+"./Airfoils/FFA-W3-330blend_FFA-W3-301_blend_t30.5_RE1.79E+07.dat"
+"./Airfoils/FFA-W3-330blend_FFA-W3-301_blend_t30.3_RE1.79E+07.dat"
+"./Airfoils/FFA-W3-301_FFA-W3-270blend_blend_t30.1_RE1.80E+07.dat"
+"./Airfoils/FFA-W3-301_FFA-W3-270blend_blend_t29.8_RE1.79E+07.dat"
+"./Airfoils/FFA-W3-301_FFA-W3-270blend_blend_t29.6_RE1.78E+07.dat"
+"./Airfoils/FFA-W3-301_FFA-W3-270blend_blend_t29.4_RE1.78E+07.dat"
+"./Airfoils/FFA-W3-301_FFA-W3-270blend_blend_t29.2_RE1.77E+07.dat"
+"./Airfoils/FFA-W3-301_FFA-W3-270blend_blend_t28.9_RE1.76E+07.dat"
+"./Airfoils/FFA-W3-301_FFA-W3-270blend_blend_t28.7_RE1.75E+07.dat"
+"./Airfoils/FFA-W3-301_FFA-W3-270blend_blend_t28.5_RE1.75E+07.dat"
+"./Airfoils/FFA-W3-301_FFA-W3-270blend_blend_t28.2_RE1.74E+07.dat"
+"./Airfoils/FFA-W3-301_FFA-W3-270blend_blend_t28.0_RE1.73E+07.dat"
+"./Airfoils/FFA-W3-301_FFA-W3-270blend_blend_t27.8_RE1.73E+07.dat"
+"./Airfoils/FFA-W3-301_FFA-W3-270blend_blend_t27.5_RE1.72E+07.dat"
+"./Airfoils/FFA-W3-301_FFA-W3-270blend_blend_t27.3_RE1.71E+07.dat"
+"./Airfoils/FFA-W3-301_FFA-W3-270blend_blend_t27.1_RE1.70E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t26.9_RE1.70E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t26.8_RE1.69E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t26.6_RE1.69E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t26.5_RE1.68E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t26.3_RE1.68E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t26.2_RE1.67E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t26.1_RE1.67E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t25.9_RE1.66E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t25.8_RE1.66E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t25.6_RE1.65E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t25.5_RE1.65E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t25.3_RE1.64E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t25.2_RE1.64E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t25.1_RE1.63E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t24.9_RE1.63E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t24.8_RE1.62E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t24.6_RE1.62E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t24.5_RE1.61E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t24.4_RE1.61E+07.dat"
+"./Airfoils/FFA-W3-270blend_FFA-W3-241_blend_t24.2_RE1.60E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t24.1_RE1.60E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t24.0_RE1.57E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t23.8_RE1.55E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t23.7_RE1.52E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t23.6_RE1.50E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t23.5_RE1.47E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t23.3_RE1.45E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t23.2_RE1.42E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t23.1_RE1.40E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t23.0_RE1.37E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t22.8_RE1.35E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t22.7_RE1.32E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t22.6_RE1.30E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t22.5_RE1.27E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t22.3_RE1.25E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t22.2_RE1.22E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t22.1_RE1.20E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t22.0_RE1.17E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t21.8_RE1.15E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t21.7_RE1.12E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t21.6_RE1.10E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t21.5_RE1.07E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t21.3_RE1.05E+07.dat"
+"./Airfoils/FFA-W3-241_FFA-W3-211_blend_t21.2_RE1.02E+07.dat"
+"./Airfoils/70% free transition, 30% fully turbulent_RE1.00E+07.dat"
+
+======  叶片/风轮气动参数  =====================================================================
+"../StrL/IEA_22_280_RWT_Blade_FPM_new.str"    BladeAeroStructFile - 叶片气动-结构耦合文件路径
+
+======  气动力模型参数  ======================================================
+false             UnsteadyAero           - 是否考虑非定常非环量气动力 [bool]
+true              TwoPointLiftDrag       - 是否考虑两点升阻力修正模型 [bool]
+false             Himmelskamp            - 是否考虑 Himmelskamp 旋转失速延迟修正 [bool] [HAWT only]
+false             TowerShadow            - 是否考虑塔影效应 [bool]
+0.50              TowerDrag              - 塔架阻力系数 [-]
+
+======  动态失速模型参数  ======================================================
+1                 DynStallType           - 动态失速模型类型 {0=none; 1=OYE; 2=IAG; 3=GORMONT-BERG; 4=ATEFLAP;}
+8                 TfOye                  - OYE 动态失速模型的 Tf 时间常数 [used only when DynStallType=1]
+6                 AmGb                   - GORMONT-BERG 动态失速模型的 Am 经验常数 [used only when DynStallType=3]
+3                 TfAte                  - ATEFLAP 动态失速模型的 Tf 时间常数 [used only when DynStallType=4]
+2                 TpAte                  - ATEFLAP 动态失速模型的 Tp 时间常数 [used only when DynStallType=4]
+0.30 0.70 0.70 0.53 0.75 1.70 3.00 6.00 6.00 0.20 0.10 1.50 1.50 0.00    IagParams    - IAG 动态失速模型参数，参数顺序按 QBlade/HawtC 文档或界面定义 [used only when DynStallType=2]
+
+======  尾流类型  ======================================================
+1                 WakeType               - 尾流模型类型 {0=free vortex wake; 1=unsteady BEM;} [unsteady BEM only for HAWT]
+
+======  自由涡尾流参数  ====================================================== [used only when WakeType=0]
+0                 WakeIntType            - 尾流涡元时间推进/积分格式 {0=EF; 1=ET; 2=PC; 3=PC2B;}
+true              WakeRollup             - 是否计算尾流自诱导卷起 [bool]
+true              TrailingVort           - 是否包含尾随涡元 [bool]
+true              ShedVort               - 是否包含脱落涡元 [bool]
+0                 ConvectionType         - 尾流对流速度模型类型 {0=BL; 1=HH; 2=LOC;}
+1.00              WakeRelaxation         - 尾流松弛因子 [0-1]
+1.00              FirstWakeRow           - 第一排尾流涡元长度 [-]
+200000            MaxWakeSize            - 最大尾流涡元数量 [-]
+100               MaxWakeDist            - 尾流从转子平面向下游传播的最大距离，按转子直径归一化 [-]
+0.00100           WakeReduction          - 尾流缩减因子 [-]
+0                 WakeLengthType         - 尾流长度计算方式 {0=counted in rotor revolutions; 1=counted in time steps;}
+1000000.00        ConversionLength       - 线涡尾流转换为粒子尾流的距离阈值 [-]
+0.50              NearWakeLength         - 近尾流区长度 [-]
+2.00              Zone1Length            - 尾流区域1长度 [-]
+4.00              Zone2Length            - 尾流区域2长度 [-]
+6.00              Zone3Length            - 尾流区域3长度 [-]
+2                 Zone1Factor            - 尾流区域1流向细分因子，整数 [-]
+2                 Zone2Factor            - 尾流区域2流向细分因子，整数 [-]
+2                 Zone3Factor            - 尾流区域3流向细分因子，整数 [-]
+1                 Zone1FactorS           - 尾流区域1展向细分因子，整数 [-]
+1                 Zone2FactorS           - 尾流区域2展向细分因子，整数 [-]
+1                 Zone3FactorS           - 尾流区域3展向细分因子，整数 [-]
+
+======  涡核参数  ====================================================== [used only when WakeType=0]
+0.05              BoundCoreRadius        - 叶片附着涡的固定涡核半径，按局部弦长归一化 [0-1]
+0.05              WakeCoreRadius         - 自由尾流涡元的初始涡核半径，按局部弦长归一化 [0-1]
+800.00            VortexViscosity        - 湍流涡黏性系数
+false             VortexStrain           - 是否计算自由尾流涡元的拉伸变形 [bool]
+50                MaxStrain              - 自由尾流涡元的最大拉伸变形阈值，超过该阈值后从尾流中移除该涡元 [-]
+
+======  Gamma 环量迭代参数  ====================================================== [used only when WakeType=0]
+0.00050           GammaEpsilon           - Gamma 环量相对收敛判据
+100               GammaIterations        - Gamma 环量最大迭代次数，整数 [-]
+
+======  非定常 BEM 参数  ====================================================== [used only when WakeType=1]
+12                PolarDisc              - 非定常 BEM 中极坐标网格离散数量，整数 [-]
+true              BemTipLoss             - 是否使用 BEM 叶尖损失修正 [bool]
+0.00              BemSpeedUp             - BEM 初始收敛加速时间 [s]
+
+======  计算Cp曲线  ===================================== [used only when ApOfMb=1]
+3                 MinLambda              - 最小叶尖速比
+25                MaxLambda              - 最大叶尖速比
+0.1               LambdaStep             - 叶尖速比间隔
+-0.1              MinPitch               - 最小变桨角 [rad]
+1.57              MaxPitch               - 最大变桨角 [rad]
+0.005             PitchStep              - 变桨角间隔 [rad]
+"./Result/test_AeroL_cp.out"                 CpResultFilePath - 计算Cp曲线的结果文件
+
+======  计算功率曲线  ===================================== [used only when ApOfMb=2]
+3                 MinWindSpeed           - 最小风速 [m/s]
+25                MaxWindSpeed           - 最大风速 [m/s]
+0.01              WindSpeedStep          - 风速间隔 [m/s]
+0.0               OrigPitch              - 初始桨距角 [rad]
+3                 OmegaMin               - 切入转速 [rpm]
+96                GenEfficiency          - 发电机效率 [%]
+1.57              PitchUp                - 最大桨距角 [rad]
+0.0               PitchDown              - 最小桨距角 [rad]
+true              IfPitch                - 是否启用变桨
+0.0               FixedPitch             - 固定桨距角 [rad] [used only when IfPitch=false]
+0.0               FixedRotationalSpeed   - 固定转速 [rpm] [used only when IfPitch=false]
+"./Result/test_AeroL_PowerCurve.out"         PowerCurveResultFilePath - 计算功率曲线的结果文件目录
+
+======  Outputs  ====================================================================================
+true              SumPrint               - 是否生成 AeroL 输出文件 "<rootname>.AL.out" [bool]
+false             AfSpanput              - 输出模式选择：false=按输出变量输出; true=按叶片/塔架节点输出
+0                 BldOutSig              - 输出的叶片编号，默认只有0
+"./Result1/"      SumPath                - 输出文件夹路径
+7                 NumBladeOutNodes       - 叶片输出节点数量 [0 - BladeOutNode - 1]
+0,4,5,9,13,16,18  BladeOutNodes          - 输出的叶片节点编号，从0开始
+3                 NumTowerOutNodes       - 塔架输出节点数量 [0 - TowerOutNode - 1]
+1,1,5             TowerOutNodes          - 输出的塔架节点编号，从0开始；当前包含重复节点1，需确认是否有意重复
+                  OutList                - 以下为输出通道列表
+BkNjPhi
+BkNjFl
+BkNjFd
+BkNjMm
+BkNjVRel
+RtArea
+RtAeroCp
+RtAeroCq
+RtAeroCt
+BkNjVUndx
+BkNjVUndy
+BkNjVUndz
+BkNjVDisx
+BkNjVDisy
+BkNjVDisz
+BkNjSTVx
+BkNjSTVy
+BkNjSTVz
+BkNjTheta
+BPitch
+BkNjAxInd
+BkNjTnInd
+BAzimuth
+
+END 不允许删除！
+---------------------------------------------------------------------------------------
