@@ -91,6 +91,10 @@ struct HydroLInput
 	std::string waveLFile;
 
 	bool staticBuoyancy = true;
+	double unitLengthWamit = 1.0;
+	double diffractionOffset = 0.0;
+	double deltaTIrf = 0.025;
+	bool constrainedFloater = false;
 	std::string potentialRadFile;
 	bool useRadiation = false;
 	bool useRadAddedMass = false;
@@ -118,6 +122,7 @@ struct HydroLInput
 	Eigen::MatrixXd jointOffset;
 	Eigen::MatrixXd marineGrowth;
 	Eigen::MatrixXd tpInterfacePos;
+	Eigen::MatrixXd tpOrientation;
 	Eigen::MatrixXd refCogPos;
 	Eigen::MatrixXd refHydroPos;
 	Eigen::MatrixXd subMassMatrix;

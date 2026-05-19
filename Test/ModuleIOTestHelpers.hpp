@@ -167,6 +167,10 @@ inline void ExpectHydroEqual(const HydroLInput &actual, const HydroLInput &expec
 	EXPECT_EQ(actual.advancedBuoyancy, expected.advancedBuoyancy);
 	EXPECT_EQ(NormalizedPath(actual.waveLFile), NormalizedPath(expected.waveLFile));
 	EXPECT_EQ(actual.staticBuoyancy, expected.staticBuoyancy);
+	EXPECT_DOUBLE_EQ(actual.unitLengthWamit, expected.unitLengthWamit);
+	EXPECT_DOUBLE_EQ(actual.diffractionOffset, expected.diffractionOffset);
+	EXPECT_DOUBLE_EQ(actual.deltaTIrf, expected.deltaTIrf);
+	EXPECT_EQ(actual.constrainedFloater, expected.constrainedFloater);
 	EXPECT_EQ(NormalizedPath(actual.potentialRadFile), NormalizedPath(expected.potentialRadFile));
 	EXPECT_EQ(actual.useRadiation, expected.useRadiation);
 	EXPECT_EQ(actual.useRadAddedMass, expected.useRadAddedMass);
@@ -181,6 +185,7 @@ inline void ExpectHydroEqual(const HydroLInput &actual, const HydroLInput &expec
 	EXPECT_EQ(actual.beamType, expected.beamType);
 	EXPECT_EQ(actual.transitionMass, expected.transitionMass);
 	ExpectMatrixNear(actual.jointOffset, expected.jointOffset);
+	ExpectMatrixNear(actual.tpOrientation, expected.tpOrientation);
 	ExpectMatrixNear(actual.subMassMatrix, expected.subMassMatrix);
 	ExpectMatrixNear(actual.hydroAddedMassMatrix, expected.hydroAddedMassMatrix);
 	EXPECT_EQ(actual.subJoints, expected.subJoints);

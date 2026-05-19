@@ -45,6 +45,10 @@ protected:
 			Field("WaveKinTau", data.waveKinTau),
 			Field("WaveLFile", data.waveLFile),
 			Field("StaticBuoyancy", data.staticBuoyancy));
+		ReadOrWriteAny({"UnitLengthWAMIT", "UNITLENGTH_WAMIT"}, data.unitLengthWamit);
+		ReadOrWriteAny({"DiffractionOffset", "DIFFRACTION_OFFSET"}, data.diffractionOffset);
+		ReadOrWriteAny({"DeltaTIrf", "DELTA_T_IRF"}, data.deltaTIrf);
+		ReadOrWriteAny({"ConstrainedFloater", "CONSTRAINEDFLOATER"}, data.constrainedFloater);
 		ReadOrWriteAny({"PotentialRadFile", "POT_RAD_FILE"}, data.potentialRadFile);
 		ReadOrWriteAny({"UseRadiation", "USE_RADIATION"}, data.useRadiation);
 		ReadOrWriteAny({"UseRadAddedMass", "USE_RAD_ADDED_MASS"}, data.useRadAddedMass);
@@ -101,6 +105,15 @@ inline void ResolvePaths(HydroLInput &input)
 
 inline void Validate(const HydroLInput &input)
 {
+	if (input.unitLengthWamit <= 0.0)
+		throw std::runtime_error("HydroL UnitLengthWAMIT must be positive");
+	if (input.deltaTIrf <= 0.0)
+		throw std::runtime_error("HydroL DeltaTIrf must be positive");
+	if (input.tpOrientation.size() != 0 &&
+	    (input.tpOrientation.rows() != 2 || input.tpOrientation.cols() != 3))
+	{
+		throw std::runtime_error("HydroL TpOrientation must be a 2x3 matrix");
+	}
 	if (!module_io::FileExistsOrEmpty(input.waveLFile))
 		throw std::runtime_error("HydroL WaveLFile does not exist: " + input.waveLFile);
 	const bool hasEmbeddedRadiation = input.wamit && !input.wamit->radiation.radiation.empty();
@@ -218,6 +231,29 @@ inline std::optional<HydroLWamitData> ReadEmbeddedWamitData(Serializer &reader)
 	return data;
 }
 
+inline Eigen::MatrixXd DefaultTpOrientation()
+{
+	Eigen::MatrixXd matrix(2, 3);
+	matrix << 1.0, 0.0, 0.0,
+	          0.0, 1.0, 0.0;
+	return matrix;
+}
+
+inline Eigen::MatrixXd ReadMatrixBlockAny(const Serializer &reader,
+                                          const std::string &path,
+                                          const std::string &root,
+                                          std::initializer_list<std::string> keys,
+                                          std::size_t minColumns = 1)
+{
+	for (const auto &key : keys)
+	{
+		const auto matrix = module_io::ReadMatrixBlock(reader, path, root, key, minColumns);
+		if (matrix.size() != 0)
+			return matrix;
+	}
+	return {};
+}
+
 inline void AddEmbeddedWamitData(Serializer &writer, const std::optional<HydroLWamitData> &wamit)
 {
 	if (!wamit || !HasWamitRows(*wamit))
@@ -253,6 +289,9 @@ inline HydroLInput ReadHydroLInput(const std::string &path)
 	input.jointOffset = module_io::ReadMatrixBlock(reader, path, kYamlRoot, "JointOffset", 3);
 	input.marineGrowth = module_io::ReadMatrixBlock(reader, path, kYamlRoot, "MarineGrowth", 3);
 	input.tpInterfacePos = module_io::ReadMatrixBlock(reader, path, kYamlRoot, "TpInterfacePos", 3);
+	input.tpOrientation = ReadMatrixBlockAny(reader, path, kYamlRoot, {"TpOrientation", "TP_ORIENTATION"}, 3);
+	if (input.tpOrientation.size() == 0)
+		input.tpOrientation = DefaultTpOrientation();
 	input.refCogPos = module_io::ReadMatrixBlock(reader, path, kYamlRoot, "RefCogPos", 3);
 	input.refHydroPos = module_io::ReadMatrixBlock(reader, path, kYamlRoot, "RefHydroPos", 3);
 	input.subMassMatrix = module_io::ReadMatrixBlock(reader, path, kYamlRoot, "SubMassMatrix", 6);
@@ -351,6 +390,7 @@ inline void WriteHydroLInputYaml(const HydroLInput &input, const std::string &pa
 	AddMatrix(writer, "JointOffset", XyzHeaders(), input.jointOffset);
 	AddMatrix(writer, "MarineGrowth", {"ID", "Thickness", "Density"}, input.marineGrowth);
 	AddMatrix(writer, "TpInterfacePos", XyzHeaders(), input.tpInterfacePos);
+	AddMatrix(writer, "TpOrientation", XyzHeaders(), input.tpOrientation);
 	AddMatrix(writer, "RefCogPos", XyzHeaders(), input.refCogPos);
 	AddMatrix(writer, "RefHydroPos", XyzHeaders(), input.refHydroPos);
 	AddMatrix(writer, "SubMassMatrix", DofHeaders(), input.subMassMatrix);

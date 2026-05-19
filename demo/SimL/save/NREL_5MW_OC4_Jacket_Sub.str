@@ -5,6 +5,10 @@ NREL 5MW OC4 固定式导管架基础；由 QBladeCE Sub 输入文件转换
 50                WaterDepth - 水深(m)
 1025              WaterDensity          - 设计海水密度；用于浸水/进水构件质量和水动力计算 [kg/m^3]
 false             IsFloating            - 是否为漂浮式基础；固定式节点坐标以海床为原点，漂浮式节点坐标以平均海平面中性点为原点 [bool]
+1.0               UnitLengthWAMIT       - WAMIT length scale used to dimensionalize potential-flow coefficients
+0.0               DiffractionOffset     - optional diffraction time offset for diagnostic output (s)
+0.025             DeltaTIrf             - IRF time step for standalone HydroL use; coupled SimL may use SimL DT
+false             ConstrainedFloater    - debug option to constrain floating platform motion
 ======  节点坐标整体偏移  ======================================================
                   JointOffset           - 以下整体偏移仅作用于基础/浮体节点坐标，不作用于塔架接口点或质心参考点 [m]
 XPOS	YPOS	ZPOS
@@ -19,6 +23,11 @@ Thickness	Density		Start (below MSL)	End (below MSL)
                   TpInterfacePos        - 基础或浮体与塔架/转子-机舱组件的接口位置 [m]
 X[m]		Y[m]		Z[m]
 0 		0 		70.15
+======  过渡段局部坐标轴  ======================================================
+                  TpOrientation         - TP local axes; row 1 is local X axis, row 2 is local Y axis
+X[m]        Y[m]        Z[m]
+1        0        0
+0        1        0
 ======  质心参考点  ======================================================
                   RefCogPos             - 质量矩阵的评价参考点，即质心参考位置 [m]
 X[m]		Y[m]		Z[m]

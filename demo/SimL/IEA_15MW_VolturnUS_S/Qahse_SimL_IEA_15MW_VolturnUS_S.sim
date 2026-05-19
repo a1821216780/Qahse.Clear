@@ -1,7 +1,7 @@
 Information: 
   YMLVersion: 2.0.016
   Author: YML module by Zhao Zizhen @copyright
-  LastModifiedTime: 2026-05-19 18:27:49
+  LastModifiedTime: 2026-05-19 22:11:38
 Qahse: 
   SimL: 
     TMax: 600
@@ -31600,6 +31600,10 @@ Qahse:
     WaveKinTau: 30
     WaveLFile: F:\Qahse.Clear\demo\SimL\IEA_15MW_VolturnUS_S\Qahse_SimL_IEA_15MW_VolturnUS_S.sim
     StaticBuoyancy: True
+    UnitLengthWAMIT: 1
+    DiffractionOffset: 0
+    DeltaTIrf: 0.025000000000000001
+    ConstrainedFloater: False
     PotentialRadFile: F:\Qahse.Clear\demo\SimL\IEA_15MW_VolturnUS_S\HydroL\WAMIT\IEA-15-240-RWT-UMaineSemi.1
     UseRadiation: True
     UseRadAddedMass: True
@@ -31630,6 +31634,10 @@ Qahse:
     MarineGrowth: [ 1 , 0.10000000000000001 , 1100 ]
     TpInterfacePosHeader: [ "X" , "Y" , "Z" ]
     TpInterfacePos: [ 0 , 0 , 15 ]
+    TpOrientationHeader: [ "X" , "Y" , "Z" ]
+    TpOrientation: 
+      -  [ 1 , 0 , 0 ]
+      -  [ 0 , 1 , 0 ]
     RefCogPosHeader: [ "X" , "Y" , "Z" ]
     RefCogPos: [ 0 , 0 , -14.4 ]
     RefHydroPosHeader: [ "X" , "Y" , "Z" ]

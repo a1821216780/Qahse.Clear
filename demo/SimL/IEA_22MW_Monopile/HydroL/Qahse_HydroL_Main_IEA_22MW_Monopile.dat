@@ -13,6 +13,10 @@ false             IsFloating            - 是否为漂浮式基础；固定式�
 1                 WaveKinEvalPotential  - 势流载荷波浪运动学评估方式
 30                WaveKinTau            - 滞后位置波浪运动学评估的时间常数 [s]
 "./Qahse_WaveL_JONSWAP_DEMO.dat"  WaveLFile    - WaveL 输入文件
+1.0               UnitLengthWAMIT       - WAMIT length scale used to dimensionalize potential-flow coefficients
+0.0               DiffractionOffset     - optional diffraction time offset for diagnostic output (s)
+0.025             DeltaTIrf             - IRF time step for standalone HydroL use; coupled SimL may use SimL DT
+false             ConstrainedFloater    - debug option to constrain floating platform motion
 1.00              BuoyancyTuner         - 浮力调谐系数 [-]
 ======  坐标参考说明  ======================================================
                   PositionConvention    - 以下位置均采用 (x,y,z) 坐标 [m]；漂浮式结构以平均海平面中性点为原点，固定式结构以海床为原点
@@ -20,6 +24,11 @@ false             IsFloating            - 是否为漂浮式基础；固定式�
                   TpInterfacePos        - 基础或浮体与塔架/转子-机舱组件的接口位置 [m]
 X[m]		Y[m]		Z[m]
 0 		0 		49
+======  过渡段局部坐标轴  ======================================================
+                  TpOrientation         - TP local axes; row 1 is local X axis, row 2 is local Y axis
+X[m]		Y[m]		Z[m]
+1		0		0
+0		1		0
 ======  过渡段集中质量  ======================================================
 ADDMASS_10        TransitionMass        - 节点10处附加/过渡段集中质量，质量值 100000.0 [kg]
 ======  基础/浮体节点表  ======================================================

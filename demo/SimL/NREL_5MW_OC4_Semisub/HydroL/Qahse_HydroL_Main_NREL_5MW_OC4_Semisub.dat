@@ -10,6 +10,10 @@ true              IsFloating            - 是否为漂浮式基础；固定式�
 1                 WaveKinEvalPotential  - 势流载荷波浪运动学评估方式 {0=构件局部位置; 1=固定参考位置; 2=滞后位置;}
 30                WaveKinTau            - 滞后位置波浪运动学评估的时间常数 [s]
 "./Qahse_WaveL_JONSWAP_DEMO.dat"  WaveLFile    -外部波浪场的输入文件
+1.0               UnitLengthWAMIT       - WAMIT length scale used to dimensionalize potential-flow coefficients
+0.0               DiffractionOffset     - optional diffraction time offset for diagnostic output (s)
+0.025             DeltaTIrf             - IRF time step for standalone HydroL use; coupled SimL may use SimL DT
+false             ConstrainedFloater    - debug option to constrain floating platform motion
 
 
 ======  势流模型文件和频域载荷  ======================================================
@@ -43,6 +47,11 @@ ID	Thickn	Density
                   TpInterfacePos        - 基础或浮体与塔架/转子-机舱组件的接口位置 [m]
 X[m]		Y[m]		Z[m]
 0 		0 		10
+======  过渡段局部坐标轴  ======================================================
+                  TpOrientation         - TP local axes; row 1 is local X axis, row 2 is local Y axis
+X[m]		Y[m]		Z[m]
+1		0		0
+0		1		0
 ======  质心参考点  ======================================================
                   RefCogPos             - 质量矩阵的评价参考点，即质心参考位置 [m]
 X[m]		Y[m]		Z[m]

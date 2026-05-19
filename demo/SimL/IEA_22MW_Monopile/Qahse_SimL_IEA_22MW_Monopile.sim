@@ -1,7 +1,7 @@
 Information: 
   YMLVersion: 2.0.016
   Author: YML module by Zhao Zizhen @copyright
-  LastModifiedTime: 2026-05-19 18:28:57
+  LastModifiedTime: 2026-05-19 22:12:52
 Qahse: 
   SimL: 
     TMax: 600
@@ -42473,6 +42473,10 @@ Qahse:
     WaveKinTau: 30
     WaveLFile: F:\Qahse.Clear\demo\SimL\IEA_22MW_Monopile\Qahse_SimL_IEA_22MW_Monopile.sim
     StaticBuoyancy: True
+    UnitLengthWAMIT: 1
+    DiffractionOffset: 0
+    DeltaTIrf: 0.025000000000000001
+    ConstrainedFloater: False
     PotentialRadFile: 
     UseRadiation: False
     UseRadAddedMass: False
@@ -42510,6 +42514,10 @@ Qahse:
       -  [ 9 , 9 , 10 , 9 , 0 , 1 , 1 , 0 , 0 , 2 ]
     TpInterfacePosHeader: [ "X" , "Y" , "Z" ]
     TpInterfacePos: [ 0 , 0 , 49 ]
+    TpOrientationHeader: [ "X" , "Y" , "Z" ]
+    TpOrientation: 
+      -  [ 1 , 0 , 0 ]
+      -  [ 0 , 1 , 0 ]
     TransitionMass: [ "ADDMASS_10" ]
     SubJointsHeader: [ "JointId" , "JointX" , "JointY" , "JointZ" , "Column5" ]
     SubJoints: 

@@ -28,6 +28,14 @@ TEST(HydroLIO, ReadSemisubAndYamlRoundTrip)
 	const auto wave = wavel_io_detail::ReadWaveLInputFile(hydro.waveLFile);
 	EXPECT_TRUE(hydro.isFloating);
 	EXPECT_DOUBLE_EQ(hydro.waterDepth, wave.waterDepth);
+	EXPECT_DOUBLE_EQ(hydro.unitLengthWamit, 1.0);
+	EXPECT_DOUBLE_EQ(hydro.diffractionOffset, 0.0);
+	EXPECT_DOUBLE_EQ(hydro.deltaTIrf, 0.025);
+	EXPECT_FALSE(hydro.constrainedFloater);
+	ASSERT_EQ(hydro.tpOrientation.rows(), 2);
+	ASSERT_EQ(hydro.tpOrientation.cols(), 3);
+	EXPECT_DOUBLE_EQ(hydro.tpOrientation(0, 0), 1.0);
+	EXPECT_DOUBLE_EQ(hydro.tpOrientation(1, 1), 1.0);
 
 	const auto yaml = TestOutputDir() / "HydroL" / "hydrol.yaml";
 	WriteHydroLInput(hydro, yaml.string());

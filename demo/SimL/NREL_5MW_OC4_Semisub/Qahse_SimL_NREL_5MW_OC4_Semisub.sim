@@ -1,7 +1,7 @@
 Information: 
   YMLVersion: 2.0.016
   Author: YML module by Zhao Zizhen @copyright
-  LastModifiedTime: 2026-05-19 18:27:23
+  LastModifiedTime: 2026-05-19 22:11:13
 Qahse: 
   SimL: 
     TMax: 600
@@ -5326,6 +5326,10 @@ Qahse:
     WaveKinTau: 30
     WaveLFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\Qahse_SimL_NREL_5MW_OC4_Semisub.sim
     StaticBuoyancy: True
+    UnitLengthWAMIT: 1
+    DiffractionOffset: 0
+    DeltaTIrf: 0.025000000000000001
+    ConstrainedFloater: False
     PotentialRadFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\HydroL\WAMIT\radiation.1
     UseRadiation: True
     UseRadAddedMass: False
@@ -5356,6 +5360,10 @@ Qahse:
     MarineGrowth: [ 1 , 0.10000000000000001 , 1100 ]
     TpInterfacePosHeader: [ "X" , "Y" , "Z" ]
     TpInterfacePos: [ 0 , 0 , 10 ]
+    TpOrientationHeader: [ "X" , "Y" , "Z" ]
+    TpOrientation: 
+      -  [ 1 , 0 , 0 ]
+      -  [ 0 , 1 , 0 ]
     RefCogPosHeader: [ "X" , "Y" , "Z" ]
     RefCogPos: [ 0 , 0 , -13.460000000000001 ]
     RefHydroPosHeader: [ "X" , "Y" , "Z" ]

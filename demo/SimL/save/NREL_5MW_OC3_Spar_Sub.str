@@ -9,6 +9,10 @@ true              StaticBuoyancy        - 是否采用基于平均海平面的�
 0                 WaveKinEvalMorison    - Morison 构件波浪运动学评估方式 {0=构件局部位置; 1=固定参考位置; 2=滞后位置;}
 1                 WaveKinEvalPotential  - 势流载荷波浪运动学评估方式 {0=构件局部位置; 1=固定参考位置; 2=滞后位置;}
 30                WaveKinTau            - 滞后位置波浪运动学评估的时间常数 [s]
+1.0               UnitLengthWAMIT       - WAMIT length scale used to dimensionalize potential-flow coefficients
+0.0               DiffractionOffset     - optional diffraction time offset for diagnostic output (s)
+0.025             DeltaTIrf             - IRF time step for standalone HydroL use; coupled SimL may use SimL DT
+false             ConstrainedFloater    - debug option to constrain floating platform motion
 ======  势流模型文件和频域载荷  ======================================================
 true              StaticBuoyancy        - 是否采用基于平均海平面的静浮力；用于 Morison 构件浮力与势流绕射力组合 [bool]
 "OC3_BEMuse.dat"  PotentialRadFile      - 辐射问题频域水动力系数文件；文件后缀用于识别 WAMIT/QBlade 格式
@@ -24,6 +28,11 @@ true              UseExcitation         - 是否启用一阶波浪激励力 [boo
                   TpInterfacePos        - 基础或浮体与塔架/转子-机舱组件的接口位置 [m]
 X[m]		Y[m]		Z[m]
 0 		0 		10
+======  过渡段局部坐标轴  ======================================================
+                  TpOrientation         - TP local axes; row 1 is local X axis, row 2 is local Y axis
+X[m]		Y[m]		Z[m]
+1		0		0
+0		1		0
 ======  质心参考点  ======================================================
                   RefCogPos             - 质量矩阵的评价参考点，即质心参考位置 [m]
 0 		0 		-89.9155
