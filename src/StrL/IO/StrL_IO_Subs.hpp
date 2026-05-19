@@ -39,13 +39,39 @@ public:
 protected:
 	void SerializeFields() override
 	{
+		Fields(
+			Field("TowerNum", data.towerNum),
+			Field("TowerYdeg", data.towerYdeg));
 		ReadOrWriteAny({"NumBld", "BldNum", "BladeNum"}, data.numBld);
+		ReadOrWriteAny({"HubRad", "HubRadius"}, data.hubRadius);
 		ReadOrWriteAny({"OverHang", "RotorOverhang"}, data.rotorOverhang);
 		Fields(
-			Field("ShaftTilt", data.shaftTilt),
 			Field("PreCone", data.preCone),
+			Field("ShaftTilt", data.shaftTilt),
+			Field("Twr2Shft", data.twr2Shft),
+			Field("HubMass", data.hubMass),
+			Field("HubIner", data.hubIner),
+			Field("Gravity", data.gravity),
 			Field("Azimuth", data.azimuth),
+			Field("AzimB1Up", data.azimB1Up),
+			Field("RotSpeed", data.rotSpeed),
+			Field("NacYaw", data.nacYaw),
+			Field("NACCAX", data.naccAx),
+			Field("NACCAY", data.naccAy),
+			Field("NACCAZ", data.naccAz),
+			Field("NACCDX", data.naccDx),
+			Field("NACCDY", data.naccDy),
+			Field("NACCDZ", data.naccDz),
+			Field("YawBrMass", data.yawBrMass),
+			Field("NacMass", data.nacMass),
+			Field("NacCmX", data.nacCmX),
+			Field("NacCmY", data.nacCmY),
+			Field("NacCmZ", data.nacCmZ),
+			Field("NacYawIner", data.nacYawIner),
+			Field("GearboxRatio", data.gearboxRatio),
+			Field("GearboxEff", data.gearboxEff),
 			Field("DrivetrainDof", data.drivetrainDof),
+			Field("GenIner", data.genIner),
 			Field("DTTorSpr", data.dtTorSpr),
 			Field("DTTorDmp", data.dtTorDmp));
 		ReadOrWriteAny({"BladeNum", "Bldnum", "NumBld"}, data.bladeNum);
@@ -215,6 +241,7 @@ inline BladeAeroStructInput ReadBladeAeroStructInput(const std::string &path)
 	reader.ReadFile(path);
 	BladeAeroStructInput input = reader.data;
 	input.inputPath = std::filesystem::absolute(path).lexically_normal();
+	input.rayleighDampAniso = module_io::ReadDoubleList(reader, path, kBladeYamlRoot, {"BladeRayleighDampAniso"});
 	input.sectionRows = module_io::ReadRows(reader, path, kBladeYamlRoot, "SectionRows", 9);
 	if (input.sectionRows.empty())
 		input.sectionRows = module_io::ReadRows(reader, path, kBladeYamlRoot, "RadialPos", 9);
@@ -243,6 +270,17 @@ public:
 		SetValueFirst(true);
 		SetYamlRoot(kTowerYamlRoot);
 	}
+
+protected:
+	void SerializeFields() override
+	{
+		Fields(
+			Field("TowerRayleighDamp", data.rayleighDamp),
+			Field("TowerStiffTuner", data.stiffTuner),
+			Field("TowerMassTuner", data.massTuner),
+			Field("TowerBeamType", data.beamType),
+			Field("TowerDiscCount", data.discCount));
+	}
 };
 
 inline TowerStructInput ReadTowerStructInput(const std::string &path)
@@ -254,6 +292,7 @@ inline TowerStructInput ReadTowerStructInput(const std::string &path)
 	reader.ReadFile(path);
 	TowerStructInput input = reader.data;
 	input.inputPath = std::filesystem::absolute(path).lexically_normal();
+	input.rgbColor = module_io::ReadMatrixBlock(reader, path, kTowerYamlRoot, "RgbColor", 3);
 	input.sectionRows = module_io::ReadRows(reader, path, kTowerYamlRoot, "SectionRows", 5);
 	if (input.sectionRows.empty())
 		input.sectionRows = module_io::ReadRows(reader, path, kTowerYamlRoot, "SpanFrac", 5);
@@ -262,6 +301,41 @@ inline TowerStructInput ReadTowerStructInput(const std::string &path)
 	if (input.sectionRows.empty())
 		throw std::runtime_error("Tower struct file has no section rows: " + path);
 	return input;
+}
+
+inline std::vector<std::string> BladeSectionHeaders(const std::vector<std::vector<std::string>> &rows)
+{
+	const auto columns = module_io::MaxColumnCount(rows);
+	std::vector<std::string> headers{
+		"RadialPos_m", "Chord_m", "Twist_deg", "OffsetY_m", "OffsetX_m",
+		"PitchAxisY", "PitchAxisX", "PolarFileID", "RelThickness_pct"};
+	const std::vector<std::string> eulerBeamColumns{
+		"MassDensity", "EIx", "EIy", "EA", "GJ", "GA", "StructPitch",
+		"KsX", "KsY", "RgX", "RgY", "Xcm", "Ycm", "Xce", "Yce", "Xcs", "Ycs"};
+	const std::vector<std::string> fpmColumns{
+		"Xcb", "Ycb", "Pitch",
+		"K11", "K12", "K13", "K14", "K15", "K16",
+		"K22", "K23", "K24", "K25", "K26",
+		"K33", "K34", "K35", "K36",
+		"K44", "K45", "K46",
+		"K55", "K56", "K66",
+		"M11", "M12", "M13", "M14", "M15", "M16",
+		"M22", "M23", "M24", "M25", "M26",
+		"M33", "M34", "M35", "M36",
+		"M44", "M45", "M46",
+		"M55", "M56", "M66"};
+	const auto &extra = columns > headers.size() + eulerBeamColumns.size() ? fpmColumns : eulerBeamColumns;
+	headers.insert(headers.end(), extra.begin(), extra.end());
+	return headers;
+}
+
+inline std::vector<std::string> TowerSectionHeaders(const std::vector<std::vector<std::string>> &rows)
+{
+	(void)rows;
+	return {
+		"SpanFrac", "MassDensity", "EIx", "EIy", "EA", "GJ", "GA", "StructPitch",
+		"KsX", "KsY", "RgX", "RgY", "Xcm", "Ycm", "Xce", "Yce", "Xcs", "Ycs",
+		"Diameter", "DragParam"};
 }
 
 inline void WriteStrLInputYaml(const StrLInput &input, const std::string &path)
@@ -277,7 +351,8 @@ inline void WriteBladeAeroStructInputYaml(const BladeAeroStructInput &input, con
 {
 	BladeAeroStructSerializer writer(input);
 	writer.WriteYamlFile(path);
-	writer.AddNode("SectionRows", input.sectionRows, 3);
+	writer.AddNode("BladeRayleighDampAniso", input.rayleighDampAniso);
+	module_io::AddStringTableYamlNodes(writer, "SectionRows", BladeSectionHeaders(input.sectionRows), input.sectionRows, 3);
 	writer.SaveYamlFile(path);
 }
 
@@ -285,7 +360,8 @@ inline void WriteTowerStructInputYaml(const TowerStructInput &input, const std::
 {
 	TowerStructSerializer writer(input);
 	writer.WriteYamlFile(path);
-	writer.AddNode("SectionRows", input.sectionRows, 3);
+	module_io::AddMatrixYamlNodes(writer, "RgbColor", {"R", "G", "B"}, input.rgbColor, 3);
+	module_io::AddStringTableYamlNodes(writer, "SectionRows", TowerSectionHeaders(input.sectionRows), input.sectionRows, 3);
 	writer.SaveYamlFile(path);
 }
 

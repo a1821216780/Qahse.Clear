@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "../WindL_Type.hpp"
+#include "../../IO/ModuleIO.hpp"
 #include "../../IO/Serializer.hpp"
 #include "../../IO/ZFile.hpp"
 #include "../../IO/ZPath.hpp"
@@ -160,7 +161,8 @@ namespace windl_io_detail
 	{
 		WindLInputSerializer writer(input);
 		writer.WriteYamlFile(path);
-		writer.AddNode("WindSpeedList", TimeSpeedRows(input.windSpeedList), 3);
+		module_io::AddNumericTableYamlNodes(writer, "WindSpeedList",
+			{"Time_s", "WindSpeed_mps"}, TimeSpeedRows(input.windSpeedList), 3);
 		writer.SaveYamlFile(path);
 	}
 

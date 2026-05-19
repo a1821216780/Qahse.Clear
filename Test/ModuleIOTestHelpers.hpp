@@ -110,6 +110,7 @@ inline void ExpectOutputEqual(const OutputConfig &actual, const OutputConfig &ex
 	EXPECT_EQ(actual.sumPrint, expected.sumPrint);
 	EXPECT_EQ(actual.afSpanput, expected.afSpanput);
 	EXPECT_EQ(actual.bldOutSig, expected.bldOutSig);
+	EXPECT_EQ(actual.twrOutSig, expected.twrOutSig);
 	EXPECT_EQ(actual.blade.count, expected.blade.count);
 	EXPECT_EQ(actual.blade.nodes, expected.blade.nodes);
 	EXPECT_EQ(actual.tower.count, expected.tower.count);
@@ -178,7 +179,10 @@ inline void ExpectHydroEqual(const HydroLInput &actual, const HydroLInput &expec
 	EXPECT_EQ(actual.useSumFreqs, expected.useSumFreqs);
 	EXPECT_DOUBLE_EQ(actual.buoyancyTuner, expected.buoyancyTuner);
 	EXPECT_EQ(actual.beamType, expected.beamType);
+	EXPECT_EQ(actual.transitionMass, expected.transitionMass);
 	ExpectMatrixNear(actual.jointOffset, expected.jointOffset);
+	ExpectMatrixNear(actual.rgbColor, expected.rgbColor);
+	ExpectMatrixNear(actual.transitionBlock, expected.transitionBlock);
 	ExpectMatrixNear(actual.subMassMatrix, expected.subMassMatrix);
 	ExpectMatrixNear(actual.hydroAddedMassMatrix, expected.hydroAddedMassMatrix);
 	EXPECT_EQ(actual.subJoints, expected.subJoints);
@@ -189,6 +193,7 @@ inline void ExpectHydroEqual(const HydroLInput &actual, const HydroLInput &expec
 	EXPECT_EQ(actual.subMembers, expected.subMembers);
 	EXPECT_EQ(actual.moorElements, expected.moorElements);
 	EXPECT_EQ(actual.moorMembers, expected.moorMembers);
+	EXPECT_EQ(actual.outputPoints, expected.outputPoints);
 	ExpectOutputEqual(actual.output, expected.output);
 }
 
@@ -220,12 +225,37 @@ inline void ExpectSimEqual(const SimLInput &actual, const SimLInput &expected)
 
 inline void ExpectStrEqual(const StrLInput &actual, const StrLInput &expected)
 {
+	EXPECT_EQ(actual.towerNum, expected.towerNum);
+	EXPECT_DOUBLE_EQ(actual.towerYdeg, expected.towerYdeg);
 	EXPECT_EQ(actual.numBld, expected.numBld);
+	EXPECT_DOUBLE_EQ(actual.hubRadius, expected.hubRadius);
 	EXPECT_DOUBLE_EQ(actual.rotorOverhang, expected.rotorOverhang);
 	EXPECT_DOUBLE_EQ(actual.shaftTilt, expected.shaftTilt);
 	EXPECT_DOUBLE_EQ(actual.preCone, expected.preCone);
+	EXPECT_DOUBLE_EQ(actual.twr2Shft, expected.twr2Shft);
+	EXPECT_DOUBLE_EQ(actual.hubMass, expected.hubMass);
+	EXPECT_DOUBLE_EQ(actual.hubIner, expected.hubIner);
+	EXPECT_DOUBLE_EQ(actual.gravity, expected.gravity);
 	EXPECT_DOUBLE_EQ(actual.azimuth, expected.azimuth);
+	EXPECT_DOUBLE_EQ(actual.azimB1Up, expected.azimB1Up);
+	EXPECT_DOUBLE_EQ(actual.rotSpeed, expected.rotSpeed);
+	EXPECT_DOUBLE_EQ(actual.nacYaw, expected.nacYaw);
+	EXPECT_DOUBLE_EQ(actual.naccAx, expected.naccAx);
+	EXPECT_DOUBLE_EQ(actual.naccAy, expected.naccAy);
+	EXPECT_DOUBLE_EQ(actual.naccAz, expected.naccAz);
+	EXPECT_DOUBLE_EQ(actual.naccDx, expected.naccDx);
+	EXPECT_DOUBLE_EQ(actual.naccDy, expected.naccDy);
+	EXPECT_DOUBLE_EQ(actual.naccDz, expected.naccDz);
+	EXPECT_DOUBLE_EQ(actual.yawBrMass, expected.yawBrMass);
+	EXPECT_DOUBLE_EQ(actual.nacMass, expected.nacMass);
+	EXPECT_DOUBLE_EQ(actual.nacCmX, expected.nacCmX);
+	EXPECT_DOUBLE_EQ(actual.nacCmY, expected.nacCmY);
+	EXPECT_DOUBLE_EQ(actual.nacCmZ, expected.nacCmZ);
+	EXPECT_DOUBLE_EQ(actual.nacYawIner, expected.nacYawIner);
+	EXPECT_DOUBLE_EQ(actual.gearboxRatio, expected.gearboxRatio);
+	EXPECT_DOUBLE_EQ(actual.gearboxEff, expected.gearboxEff);
 	EXPECT_EQ(actual.drivetrainDof, expected.drivetrainDof);
+	EXPECT_DOUBLE_EQ(actual.genIner, expected.genIner);
 	EXPECT_DOUBLE_EQ(actual.dtTorSpr, expected.dtTorSpr);
 	EXPECT_DOUBLE_EQ(actual.dtTorDmp, expected.dtTorDmp);
 	EXPECT_EQ(actual.bladeNum, expected.bladeNum);

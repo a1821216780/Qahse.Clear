@@ -223,13 +223,21 @@ inline void AddEmbeddedWamitData(Serializer &writer, const std::optional<HydroLW
 	if (!wamit || !HasWamitRows(*wamit))
 		return;
 	writer.AddNode("Wamit.RadiationInputPath", wamit->radiation.inputPath.string());
-	writer.AddNode("Wamit.RadiationRows", RadiationRows(wamit->radiation.radiation), 4);
+	module_io::AddNumericTableYamlNodes(writer, "Wamit.RadiationRows",
+		{"Period", "Row", "Column", "AddedMass", "Damping", "HasDamping"},
+		RadiationRows(wamit->radiation.radiation), 4);
 	writer.AddNode("Wamit.ExcitationInputPath", wamit->excitation.inputPath.string());
-	writer.AddNode("Wamit.ExcitationRows", ExcitationRows(wamit->excitation.excitation), 4);
+	module_io::AddNumericTableYamlNodes(writer, "Wamit.ExcitationRows",
+		{"Period", "HeadingDeg", "Dof", "Magnitude", "PhaseDeg", "Real", "Imaginary"},
+		ExcitationRows(wamit->excitation.excitation), 4);
 	writer.AddNode("Wamit.DifferenceInputPath", wamit->difference.inputPath.string());
-	writer.AddNode("Wamit.DifferenceRows", QtfRows(wamit->difference.qtf), 4);
+	module_io::AddNumericTableYamlNodes(writer, "Wamit.DifferenceRows",
+		{"Period1", "Period2", "Heading1Deg", "Heading2Deg", "Dof", "Magnitude", "PhaseDeg", "Real", "Imaginary"},
+		QtfRows(wamit->difference.qtf), 4);
 	writer.AddNode("Wamit.SumInputPath", wamit->sum.inputPath.string());
-	writer.AddNode("Wamit.SumRows", QtfRows(wamit->sum.qtf), 4);
+	module_io::AddNumericTableYamlNodes(writer, "Wamit.SumRows",
+		{"Period1", "Period2", "Heading1Deg", "Heading2Deg", "Dof", "Magnitude", "PhaseDeg", "Real", "Imaginary"},
+		QtfRows(wamit->sum.qtf), 4);
 }
 
 inline HydroLInput ReadHydroLInput(const std::string &path)
@@ -253,6 +261,9 @@ inline HydroLInput ReadHydroLInput(const std::string &path)
 	input.hydroDampingMatrix = module_io::ReadMatrixBlock(reader, path, kYamlRoot, "HydroDampingMatrix", 6);
 	input.hydroAddedMassMatrix = module_io::ReadMatrixBlock(reader, path, kYamlRoot, "HydroAddedMassMatrix", 6);
 	input.hydroConstForce = module_io::ReadMatrixBlock(reader, path, kYamlRoot, "HydroConstForce", 6);
+	input.rgbColor = module_io::ReadMatrixBlock(reader, path, kYamlRoot, "RgbColor", 3);
+	input.transitionBlock = module_io::ReadMatrixBlock(reader, path, kYamlRoot, "TransitionBlock", 3);
+	input.transitionMass = module_io::ReadStringList(reader, path, kYamlRoot, {"TransitionMass"});
 
 	input.subJoints = module_io::ReadRows(reader, path, kYamlRoot, "SubJoints", 4);
 	input.rigidSubElements = module_io::ReadRows(reader, path, kYamlRoot, "RigidSubElements", 3);
@@ -289,6 +300,7 @@ inline HydroLInput ReadHydroLInput(const std::string &path)
 	input.subMembers = module_io::ReadRows(reader, path, kYamlRoot, "SubMembers", 10);
 	input.moorElements = module_io::ReadRows(reader, path, kYamlRoot, "MoorElements", 5);
 	input.moorMembers = module_io::ReadRows(reader, path, kYamlRoot, "MoorMembers", 9);
+	input.outputPoints = module_io::ReadStringList(reader, path, kYamlRoot, {"OutputPoint", "OutputPoints"});
 
 	module_io::ReadOutputConfig(reader, path, kYamlRoot, input.output);
 	if (reader.IsYaml())
@@ -300,45 +312,69 @@ inline HydroLInput ReadHydroLInput(const std::string &path)
 
 inline void AddRows(Serializer &writer,
                     const std::string &key,
+                    const std::vector<std::string> &headers,
                     const std::vector<std::vector<std::string>> &rows)
 {
 	if (!rows.empty())
-		writer.AddNode(key, rows, 3);
+		module_io::AddStringTableYamlNodes(writer, key, headers, rows, 3);
 }
 
 inline void AddMatrix(Serializer &writer,
                       const std::string &key,
+                      const std::vector<std::string> &headers,
                       const Eigen::MatrixXd &matrix)
 {
 	if (matrix.size() != 0)
-		writer.AddNode(key, matrix, 3);
+		module_io::AddMatrixYamlNodes(writer, key, headers, matrix, 3);
+}
+
+inline std::vector<std::string> XyzHeaders()
+{
+	return {"X", "Y", "Z"};
+}
+
+inline std::vector<std::string> DofHeaders()
+{
+	return {"Surge", "Sway", "Heave", "Roll", "Pitch", "Yaw"};
+}
+
+inline std::vector<std::string> HydroStructureHeaders()
+{
+	return {
+		"ElemId", "MassDensity", "EIx", "EIy", "EA", "GJ", "GA", "StructPitch",
+		"KsX", "KsY", "RgX", "RgY", "Xcm", "Ycm", "Xce", "Yce", "Xcs", "Ycs",
+		"Diameter", "Damping"};
 }
 
 inline void WriteHydroLInputYaml(const HydroLInput &input, const std::string &path)
 {
 	HydroLInputSerializer writer(input);
 	writer.WriteYamlFile(path);
-	AddMatrix(writer, "JointOffset", input.jointOffset);
-	AddMatrix(writer, "MarineGrowth", input.marineGrowth);
-	AddMatrix(writer, "TpInterfacePos", input.tpInterfacePos);
-	AddMatrix(writer, "RefCogPos", input.refCogPos);
-	AddMatrix(writer, "RefHydroPos", input.refHydroPos);
-	AddMatrix(writer, "SubMassMatrix", input.subMassMatrix);
-	AddMatrix(writer, "HydroQuadDampingMatrix", input.hydroQuadDampingMatrix);
-	AddMatrix(writer, "HydroStiffnessMatrix", input.hydroStiffnessMatrix);
-	AddMatrix(writer, "HydroDampingMatrix", input.hydroDampingMatrix);
-	AddMatrix(writer, "HydroAddedMassMatrix", input.hydroAddedMassMatrix);
-	AddMatrix(writer, "HydroConstForce", input.hydroConstForce);
-	AddRows(writer, "SubJoints", input.subJoints);
-	AddRows(writer, "RigidSubElements", input.rigidSubElements);
-	AddRows(writer, "RigidRectSubElements", input.rigidRectSubElements);
-	AddRows(writer, "SubElements", input.subElements);
-	AddRows(writer, "HydroJointCoeff", input.hydroJointCoeff);
-	AddRows(writer, "HydroMemberCoeff", input.hydroMemberCoeff);
-	AddRows(writer, "SubConstraints", input.subConstraints);
-	AddRows(writer, "SubMembers", input.subMembers);
-	AddRows(writer, "MoorElements", input.moorElements);
-	AddRows(writer, "MoorMembers", input.moorMembers);
+	AddMatrix(writer, "JointOffset", XyzHeaders(), input.jointOffset);
+	AddMatrix(writer, "MarineGrowth", {"ID", "Thickness", "Density"}, input.marineGrowth);
+	AddMatrix(writer, "TpInterfacePos", XyzHeaders(), input.tpInterfacePos);
+	AddMatrix(writer, "RefCogPos", XyzHeaders(), input.refCogPos);
+	AddMatrix(writer, "RefHydroPos", XyzHeaders(), input.refHydroPos);
+	AddMatrix(writer, "SubMassMatrix", DofHeaders(), input.subMassMatrix);
+	AddMatrix(writer, "HydroQuadDampingMatrix", DofHeaders(), input.hydroQuadDampingMatrix);
+	AddMatrix(writer, "HydroStiffnessMatrix", DofHeaders(), input.hydroStiffnessMatrix);
+	AddMatrix(writer, "HydroDampingMatrix", DofHeaders(), input.hydroDampingMatrix);
+	AddMatrix(writer, "HydroAddedMassMatrix", DofHeaders(), input.hydroAddedMassMatrix);
+	AddMatrix(writer, "HydroConstForce", DofHeaders(), input.hydroConstForce);
+	AddMatrix(writer, "RgbColor", {"R", "G", "B"}, input.rgbColor);
+	AddMatrix(writer, "TransitionBlock", {"Width", "Length", "Height"}, input.transitionBlock);
+	writer.AddNode("TransitionMass", input.transitionMass);
+	AddRows(writer, "SubJoints", {"JointId", "JointX", "JointY", "JointZ"}, input.subJoints);
+	AddRows(writer, "RigidSubElements", {"ElemId", "MassDensityFlag", "Diameter"}, input.rigidSubElements);
+	AddRows(writer, "RigidRectSubElements", {"ElemId", "MassDensityFlag", "XDim", "YDim", "Diameter"}, input.rigidRectSubElements);
+	AddRows(writer, "SubElements", HydroStructureHeaders(), input.subElements);
+	AddRows(writer, "HydroJointCoeff", {"CoeffId", "JointId", "CdAxial", "CaAxial", "CpAxial", "Name"}, input.hydroJointCoeff);
+	AddRows(writer, "HydroMemberCoeff", {"CoeffId", "CdNormal", "CaNormal", "CpNormal", "McFc", "Name"}, input.hydroMemberCoeff);
+	AddRows(writer, "SubConstraints", {"ConstraintId", "JointId", "Joint2Id", "TpConstraint", "GroundConstraint", "IsSpring", "DofX", "DofY", "DofZ", "DofRx", "DofRy", "DofRz"}, input.subConstraints);
+	AddRows(writer, "SubMembers", {"MemberId", "Joint1Id", "Joint2Id", "ElementId", "ElementRot", "HydroCoeffId", "IsBuoyant", "MarineGrowthId", "FloodedArea", "ElementDisc", "Name", "RgbR", "RgbG", "RgbB"}, input.subMembers);
+	AddRows(writer, "MoorElements", {"MoorId", "MassPerLength", "EIy", "EA", "Damping", "Diameter"}, input.moorElements);
+	AddRows(writer, "MoorMembers", {"Id", "Conn1", "Conn2", "Length", "MoorId", "HydroCoeffId", "IsBuoyant", "MarineGrowthId", "ElementDisc", "Name"}, input.moorMembers);
+	writer.AddNode("OutputPoints", input.outputPoints);
 	module_io::AddOutputYamlNodes(writer, input.output);
 	writer.SaveYamlFile(path);
 }

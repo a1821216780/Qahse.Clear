@@ -113,6 +113,7 @@ struct HydroLInput
 	double stiffTuner = 1.0;
 	double massTuner = 1.0;
 	int beamType = 1;
+	std::vector<std::string> transitionMass;
 
 	Eigen::MatrixXd jointOffset;
 	Eigen::MatrixXd marineGrowth;
@@ -125,6 +126,8 @@ struct HydroLInput
 	Eigen::MatrixXd hydroDampingMatrix;
 	Eigen::MatrixXd hydroAddedMassMatrix;
 	Eigen::MatrixXd hydroConstForce;
+	Eigen::MatrixXd rgbColor;
+	Eigen::MatrixXd transitionBlock;
 
 	std::vector<std::vector<std::string>> subJoints;
 	std::vector<std::vector<std::string>> rigidSubElements;
@@ -136,6 +139,7 @@ struct HydroLInput
 	std::vector<std::vector<std::string>> subMembers;
 	std::vector<std::vector<std::string>> moorElements;
 	std::vector<std::vector<std::string>> moorMembers;
+	std::vector<std::string> outputPoints;
 
 	std::optional<HydroLWamitData> wamit;
 	OutputConfig output;

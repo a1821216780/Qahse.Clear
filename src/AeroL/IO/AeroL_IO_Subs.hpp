@@ -257,17 +257,20 @@ inline void AddEmbeddedAirfoilData(Serializer &writer, const std::vector<Airfoil
 		writer.AddNode(root + ".GeometryFile", airfoil.geometryFile);
 		writer.AddNode(root + ".InterpolationOrder", airfoil.interpolationOrder);
 		writer.AddNode(root + ".DeclaredPolarCount", airfoil.declaredPolarCount);
-		writer.AddNode(root + ".PolarRows", PolarRows(airfoil.polar), 5);
+		module_io::AddNumericTableYamlNodes(writer, root + ".PolarRows",
+			{"Alpha_deg", "Cl", "Cd", "Cm"}, PolarRows(airfoil.polar), 5);
 		writer.AddNode(root + ".PolarSetCount", static_cast<int>(airfoil.polarSets.size()));
 		for (std::size_t set = 0; set < airfoil.polarSets.size(); ++set)
-			writer.AddNode(root + ".PolarSets." + std::to_string(set), PolarRows(airfoil.polarSets[set]), 6);
+			module_io::AddNumericTableYamlNodes(writer, root + ".PolarSets." + std::to_string(set),
+				{"Alpha_deg", "Cl", "Cd", "Cm"}, PolarRows(airfoil.polarSets[set]), 6);
 
 		writer.AddNode(root + ".Geometry.InputPath", airfoil.geometry.inputPath.string());
 		writer.AddNode(root + ".Geometry.Name", airfoil.geometry.name);
 		writer.AddNode(root + ".Geometry.DeclaredCoordinateCount", airfoil.geometry.declaredCoordinateCount);
 		writer.AddNode(root + ".Geometry.HasExplicitReference", airfoil.geometry.hasExplicitReference);
 		writer.AddNode(root + ".Geometry.Reference", std::vector<double>{airfoil.geometry.reference.x, airfoil.geometry.reference.y});
-		writer.AddNode(root + ".Geometry.Coordinates", CoordinateRows(airfoil.geometry.coordinates), 6);
+		module_io::AddNumericTableYamlNodes(writer, root + ".Geometry.Coordinates",
+			{"X", "Y"}, CoordinateRows(airfoil.geometry.coordinates), 6);
 	}
 }
 

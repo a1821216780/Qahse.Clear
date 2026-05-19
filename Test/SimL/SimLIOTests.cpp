@@ -106,6 +106,7 @@ void ExpectWaveLEqual(const WaveLInput &actual, const WaveLInput &expected)
 void ExpectBladeAeroStructEqual(const BladeAeroStructInput &actual, const BladeAeroStructInput &expected)
 {
 	EXPECT_DOUBLE_EQ(actual.rayleighDamp, expected.rayleighDamp);
+	EXPECT_EQ(actual.rayleighDampAniso, expected.rayleighDampAniso);
 	EXPECT_DOUBLE_EQ(actual.stiffTuner, expected.stiffTuner);
 	EXPECT_DOUBLE_EQ(actual.massTuner, expected.massTuner);
 	EXPECT_EQ(actual.beamType, expected.beamType);
@@ -129,6 +130,12 @@ void ExpectBladeAeroStructEqual(const BladeAeroStructInput &actual, const BladeA
 
 void ExpectTowerStructEqual(const TowerStructInput &actual, const TowerStructInput &expected)
 {
+	EXPECT_DOUBLE_EQ(actual.rayleighDamp, expected.rayleighDamp);
+	EXPECT_DOUBLE_EQ(actual.stiffTuner, expected.stiffTuner);
+	EXPECT_DOUBLE_EQ(actual.massTuner, expected.massTuner);
+	EXPECT_EQ(actual.beamType, expected.beamType);
+	EXPECT_EQ(actual.discCount, expected.discCount);
+	ExpectMatrixNear(actual.rgbColor, expected.rgbColor);
 	EXPECT_EQ(actual.sectionRows, expected.sectionRows);
 }
 
@@ -199,12 +206,26 @@ void ExpectSelfContainedSimYamlShape(const std::filesystem::path &simYaml,
 	EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.WindL"));
 	EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.BladeAeroStruct"));
 	EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.AeroL", "AirfoilData"));
+	EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.BladeAeroStruct", "SectionRowsHeader"));
+	const auto bladeHeader = module_io::ReadYamlStringArray(simYaml.string(), "Qahse.BladeAeroStruct", "SectionRowsHeader");
+	ASSERT_GE(bladeHeader.size(), 9u);
+	EXPECT_EQ(bladeHeader[0], "RadialPos_m");
+	EXPECT_EQ(bladeHeader[7], "PolarFileID");
+	EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.AeroL", "AirfoilData.0.PolarRowsHeader"));
+	EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.AeroL", "AirfoilData.0.Geometry.CoordinatesHeader"));
 	if (expected.modules.towerStruct)
+	{
 		EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.TowerStruct"));
+		EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.TowerStruct", "SectionRowsHeader"));
+	}
 	if (expected.modules.hydroL)
 	{
 		EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.HydroL"));
 		EXPECT_FALSE(module_io::YamlHasKey(simYaml.string(), "Qahse.HydroL", "Wamit"));
+		if (!expected.modules.hydroL->subJoints.empty())
+			EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.HydroL", "SubJointsHeader"));
+		if (expected.modules.hydroL->subMassMatrix.size() != 0)
+			EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.HydroL", "SubMassMatrixHeader"));
 	}
 	if (expected.modules.waveL)
 		EXPECT_TRUE(module_io::YamlHasKey(simYaml.string(), "Qahse.WaveL"));

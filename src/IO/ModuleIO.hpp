@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstddef>
 #include <filesystem>
 #include <sstream>
 #include <stdexcept>
@@ -26,6 +27,7 @@ struct OutputConfig
 	bool sumPrint = true;
 	bool afSpanput = false;
 	std::vector<int> bldOutSig{0};
+	std::vector<int> twrOutSig{0};
 	std::string sumPath;
 	NodeOutputConfig blade;
 	NodeOutputConfig tower;
@@ -211,6 +213,75 @@ inline std::string ReadAnyRaw(const Serializer &reader, std::initializer_list<st
 	return {};
 }
 
+inline std::vector<std::string> ReadValueTokensBeforeKey(const Serializer &reader, const std::string &key)
+{
+	if (reader.IsYaml())
+		return {};
+
+	const std::string needle = ZString::ToUpper(key);
+	for (const auto &line : reader.RawLines())
+	{
+		const auto tokens = TokenizeLoose(line);
+		for (std::size_t i = 0; i < tokens.size(); ++i)
+		{
+			if (ZString::ToUpper(tokens[i]) == needle)
+				return {tokens.begin(), tokens.begin() + static_cast<std::ptrdiff_t>(i)};
+		}
+	}
+	return {};
+}
+
+inline std::vector<std::vector<std::string>> ReadRepeatedValueTokensBeforeKey(const Serializer &reader,
+                                                                              const std::string &key)
+{
+	std::vector<std::vector<std::string>> values;
+	if (reader.IsYaml())
+		return values;
+
+	const std::string needle = ZString::ToUpper(key);
+	for (const auto &line : reader.RawLines())
+	{
+		const auto tokens = TokenizeLoose(line);
+		for (std::size_t i = 0; i < tokens.size(); ++i)
+		{
+			if (ZString::ToUpper(tokens[i]) == needle)
+			{
+				if (i > 0)
+					values.emplace_back(tokens.begin(), tokens.begin() + static_cast<std::ptrdiff_t>(i));
+				break;
+			}
+		}
+	}
+	return values;
+}
+
+inline std::string JoinTokens(const std::vector<std::string> &tokens, const std::string &separator = " ")
+{
+	std::ostringstream out;
+	for (std::size_t i = 0; i < tokens.size(); ++i)
+	{
+		if (i != 0)
+			out << separator;
+		out << tokens[i];
+	}
+	return out.str();
+}
+
+inline std::string ReadAnyRawListValue(const Serializer &reader, std::initializer_list<std::string> keys)
+{
+	std::string value = ReadAnyRaw(reader, keys);
+	if (!ZString::Trim(value).empty() || reader.IsYaml())
+		return value;
+
+	for (const auto &key : keys)
+	{
+		auto tokens = ReadValueTokensBeforeKey(reader, key);
+		if (!tokens.empty())
+			return JoinTokens(tokens);
+	}
+	return {};
+}
+
 inline std::vector<int> ReadIntList(const Serializer &reader,
                                     const std::string &path,
                                     const std::string &root,
@@ -225,7 +296,7 @@ inline std::vector<int> ReadIntList(const Serializer &reader,
 				return values;
 		}
 	}
-	return ParseIntList(ReadAnyRaw(reader, keys));
+	return ParseIntList(ReadAnyRawListValue(reader, keys));
 }
 
 inline std::vector<double> ReadDoubleList(const Serializer &reader,
@@ -242,7 +313,37 @@ inline std::vector<double> ReadDoubleList(const Serializer &reader,
 				return values;
 		}
 	}
-	return ParseDoubleList(ReadAnyRaw(reader, keys));
+	return ParseDoubleList(ReadAnyRawListValue(reader, keys));
+}
+
+inline std::vector<std::string> ReadStringList(const Serializer &reader,
+                                               const std::string &path,
+                                               const std::string &root,
+                                               std::initializer_list<std::string> keys)
+{
+	if (reader.IsYaml())
+	{
+		for (const auto &key : keys)
+		{
+			auto values = ReadYamlStringArray(path, root, key);
+			if (!values.empty())
+				return values;
+		}
+	}
+
+	for (const auto &key : keys)
+	{
+		std::vector<std::string> values;
+		for (const auto &tokens : ReadRepeatedValueTokensBeforeKey(reader, key))
+		{
+			auto value = JoinTokens(tokens);
+			if (!value.empty())
+				values.push_back(std::move(value));
+		}
+		if (!values.empty())
+			return values;
+	}
+	return {};
 }
 
 inline std::string JoinIntList(const std::vector<int> &values)
@@ -276,6 +377,64 @@ inline std::vector<std::string> JoinRows(const std::vector<std::vector<std::stri
 	for (const auto &row : rows)
 		result.push_back(JoinStringRow(row));
 	return result;
+}
+
+template <typename RowT>
+inline std::size_t MaxColumnCount(const std::vector<RowT> &rows)
+{
+	std::size_t columns = 0;
+	for (const auto &row : rows)
+		columns = std::max(columns, row.size());
+	return columns;
+}
+
+inline std::vector<std::string> TableHeader(std::vector<std::string> headers,
+                                            std::size_t columnCount)
+{
+	if (columnCount == 0)
+		return headers;
+	if (headers.size() > columnCount)
+		headers.resize(columnCount);
+	while (headers.size() < columnCount)
+		headers.push_back("Column" + std::to_string(headers.size() + 1));
+	return headers;
+}
+
+template <typename T>
+inline void AddNumericTableYamlNodes(Serializer &writer,
+                                     const std::string &key,
+                                     const std::vector<std::string> &headers,
+                                     const std::vector<std::vector<T>> &rows,
+                                     int level = 3)
+{
+	if (rows.empty())
+		return;
+	writer.AddNode(key + "Header", TableHeader(headers, MaxColumnCount(rows)));
+	writer.AddNode(key, rows, level);
+}
+
+inline void AddStringTableYamlNodes(Serializer &writer,
+                                    const std::string &key,
+                                    const std::vector<std::string> &headers,
+                                    const std::vector<std::vector<std::string>> &rows,
+                                    int level = 3)
+{
+	if (rows.empty())
+		return;
+	writer.AddNode(key + "Header", TableHeader(headers, MaxColumnCount(rows)));
+	writer.AddNode(key, rows, level);
+}
+
+inline void AddMatrixYamlNodes(Serializer &writer,
+                               const std::string &key,
+                               const std::vector<std::string> &headers,
+                               const Eigen::MatrixXd &matrix,
+                               int level = 3)
+{
+	if (matrix.size() == 0)
+		return;
+	writer.AddNode(key + "Header", TableHeader(headers, static_cast<std::size_t>(matrix.cols())));
+	writer.AddNode(key, matrix, level);
 }
 
 inline int FindLineContaining(const std::vector<std::string> &lines, const std::string &key)
@@ -484,6 +643,8 @@ inline void FinalizeOutputConfig(OutputConfig &output)
 	TrimNodeOutput(output.tower);
 	if (output.bldOutSig.empty())
 		output.bldOutSig.push_back(0);
+	if (output.twrOutSig.empty())
+		output.twrOutSig.push_back(0);
 }
 
 inline void ReadOutputConfig(Serializer &reader,
@@ -503,6 +664,9 @@ inline void ReadOutputConfig(Serializer &reader,
 	auto bldOutSig = ReadIntList(reader, path, root, {"BldOutSig"});
 	if (!bldOutSig.empty())
 		output.bldOutSig = std::move(bldOutSig);
+	auto twrOutSig = ReadIntList(reader, path, root, {"TwrOutSig"});
+	if (!twrOutSig.empty())
+		output.twrOutSig = std::move(twrOutSig);
 	output.blade.nodes = ReadIntList(reader, path, root, {"BlOutNd", "BladeOutNodes"});
 	output.tower.nodes = ReadIntList(reader, path, root, {"TwOutNd", "TowerOutNodes"});
 	output.outList = ReadOutputList(reader, path, root);
@@ -513,6 +677,7 @@ inline void ReadOutputConfig(Serializer &reader,
 inline void AddOutputYamlNodes(Serializer &writer, const OutputConfig &output)
 {
 	writer.AddNode("BldOutSig", output.bldOutSig);
+	writer.AddNode("TwrOutSig", output.twrOutSig);
 	writer.AddNode("NBlOuts", output.blade.count);
 	writer.AddNode("BlOutNd", output.blade.nodes);
 	writer.AddNode("NTwOuts", output.tower.count);

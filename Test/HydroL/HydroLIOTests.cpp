@@ -34,6 +34,29 @@ TEST(HydroLIO, ReadSemisubAndYamlRoundTrip)
 	ExpectHydroEqual(ReadHydroLInput(yaml.string()), hydro);
 }
 
+TEST(HydroLIO, ReadsVariantSpecificMassOutputAndVisualizationBlocks)
+{
+	const auto root = RepoRoot() / "demo" / "SimL";
+	const auto mono = ReadHydroLInput((root / "IEA_22MW_Monopile" / "HydroL" /
+		"Qahse_HydroL_Main_IEA_22MW_Monopile.dat").string());
+	EXPECT_EQ(mono.transitionMass, std::vector<std::string>({"ADDMASS_10"}));
+	ASSERT_EQ(mono.rgbColor.rows(), 1);
+	ASSERT_EQ(mono.rgbColor.cols(), 3);
+	EXPECT_DOUBLE_EQ(mono.rgbColor(0, 0), 255.0);
+	ASSERT_EQ(mono.transitionBlock.rows(), 1);
+	ASSERT_EQ(mono.transitionBlock.cols(), 3);
+
+	const auto spar = ReadHydroLInput((root / "NREL_5MW_OC3_Spar" / "HydroL" /
+		"Qahse_HydroL_Main_NREL_5MW_OC3_Spar.dat").string());
+	EXPECT_EQ(spar.outputPoints.size(), 9u);
+	EXPECT_EQ(spar.outputPoints.front(), "SUB_1_0.2");
+	EXPECT_EQ(spar.outputPoints.back(), "MOO_3_1.0");
+
+	const auto yaml = TestOutputDir() / "HydroL" / "hydrol_variant.yaml";
+	WriteHydroLInput(spar, yaml.string());
+	ExpectHydroEqual(ReadHydroLInput(yaml.string()), spar);
+}
+
 TEST(HydroLIO, ParsesReferencedWamitFiles)
 {
 	const auto hydro = ReadHydroLInput(SemisubHydroFile().string());

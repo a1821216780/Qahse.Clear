@@ -11,6 +11,7 @@
 
 #include "../SimWind_Type.hpp"
 #include "../../IO/LocaleString.hpp"
+#include "../../IO/ModuleIO.hpp"
 #include "../../IO/Serializer.hpp"
 #include "../../IO/ZFile.hpp"
 #include "../../IO/ZString.hpp"
@@ -125,6 +126,15 @@ inline char ComponentName(int index)
 	if (index == 2) return 'w';
 	return static_cast<char>('a' + index);
 }
+
+inline std::vector<std::string> UserWindTimeSeriesHeaders(int nPoints, int nComp)
+{
+	std::vector<std::string> headers{"Time_s"};
+	for (int p = 0; p < nPoints; ++p)
+		for (int c = 0; c < nComp; ++c)
+			headers.push_back("Point" + std::to_string(p + 1) + ComponentName(c));
+	return headers;
+}
 } // namespace simwind_user_data_io_detail
 
 inline UserShearData ReadUserShear(const std::string &path)
@@ -168,7 +178,9 @@ inline void WriteUserShear(const UserShearData &data, const std::string &path)
 		writer.AddNode("StdScale1", data.stdScale1);
 		writer.AddNode("StdScale2", data.stdScale2);
 		writer.AddNode("StdScale3", data.stdScale3);
-		writer.AddNode("Data", rows, 3);
+		module_io::AddNumericTableYamlNodes(writer, "Data",
+			{"Height_m", "WindSpeed_mps", "WindDirection_deg", "StandardDeviation_mps", "LengthScale_m"},
+			rows, 3);
 		writer.SaveYamlFile(path);
 		return;
 	}
@@ -228,7 +240,8 @@ inline void WriteUserSpectra(const UserSpectraData &data, const std::string &pat
 		writer.AddNode("SpecScale1", data.specScale1);
 		writer.AddNode("SpecScale2", data.specScale2);
 		writer.AddNode("SpecScale3", data.specScale3);
-		writer.AddNode("Data", rows, 3);
+		module_io::AddNumericTableYamlNodes(writer, "Data",
+			{"Frequency_Hz", "uPSD", "vPSD", "wPSD"}, rows, 3);
 		writer.SaveYamlFile(path);
 		return;
 	}
@@ -329,8 +342,8 @@ inline void WriteUserWindSpeed(const UserWindSpeedData &data, const std::string 
 		writer.AddNode("nComp", nComp);
 		writer.AddNode("nPoints", nPoints);
 		writer.AddNode("RefPtID", data.refPtID);
-		writer.AddNode("Points", pointRows, 3);
-		writer.AddNode("TimeSeries", seriesRows, 3);
+		module_io::AddNumericTableYamlNodes(writer, "Points", {"PointY_m", "PointZ_m"}, pointRows, 3);
+		module_io::AddNumericTableYamlNodes(writer, "TimeSeries", UserWindTimeSeriesHeaders(nPoints, nComp), seriesRows, 3);
 		writer.SaveYamlFile(path);
 		return;
 	}

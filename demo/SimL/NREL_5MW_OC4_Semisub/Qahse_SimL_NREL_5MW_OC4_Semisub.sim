@@ -1,7 +1,7 @@
 Information: 
   YMLVersion: 2.0.016
   Author: YML module by Zhao Zizhen @copyright
-  LastModifiedTime: 2026-05-19 14:38:33
+  LastModifiedTime: 2026-05-19 15:57:39
 Qahse: 
   SimL: 
     TMax: 600
@@ -34,6 +34,7 @@ Qahse:
     OutType: 0
     SumPath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\NREL_5MW_OC4_Semisub
     BldOutSig: [ 0 ]
+    TwrOutSig: [ 0 ]
     NBlOuts: 0
     BlOutNd: [  ]
     NTwOuts: 0
@@ -122,7 +123,7 @@ Qahse:
     NBlOuts: 7
     NTwOuts: 3
     AFNames: [ "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\AeroL\\Airfoils\\Cylinder1.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\AeroL\\Airfoils\\Cylinder2.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\AeroL\\Airfoils\\DU40_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\AeroL\\Airfoils\\DU35_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\AeroL\\Airfoils\\DU30_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\AeroL\\Airfoils\\DU25_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\AeroL\\Airfoils\\DU21_A17.dat" , "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\AeroL\\Airfoils\\NACA64_A17.dat" ]
-    IagParams: [  ]
+    IagParams: [ 0.29999999999999999 , 0.69999999999999996 , 0.69999999999999996 , 0.53000000000000003 , 0.75 , 1.7 , 3 , 6 , 6 , 0.20000000000000001 , 0.10000000000000001 , 1.5 , 1.5 , 0 ]
     AirfoilDataCount: 8
     AirfoilData: 
       0: 
@@ -136,12 +137,14 @@ Qahse:
         GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\Cylinder1_coords.txt
         InterpolationOrder: 1
         DeclaredPolarCount: 3
+        PolarRowsHeader: [ "Alpha_deg" , "Cl" , "Cd" , "Cm" ]
         PolarRows: 
           -  [ -180 , 0 , 0.5 , 0 ]
           -  [ 0 , 0 , 0.5 , 0 ]
           -  [ 180 , 0 , 0.5 , 0 ]
         PolarSetCount: 1
         PolarSets: 
+          0Header: [ "Alpha_deg" , "Cl" , "Cd" , "Cm" ]
           0: 
             -  [ -180 , 0 , 0.5 , 0 ]
             -  [ 0 , 0 , 0.5 , 0 ]
@@ -152,6 +155,7 @@ Qahse:
           DeclaredCoordinateCount: 400
           HasExplicitReference: True
           Reference: [ 0.25 , 0 ]
+          CoordinatesHeader: [ "X" , "Y" ]
           Coordinates: 
             -  [ 1 , 0 ]
             -  [ 0.99660000000000004 , 0.058209999999999998 ]
@@ -563,12 +567,14 @@ Qahse:
         GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\Cylinder2_coords.txt
         InterpolationOrder: 1
         DeclaredPolarCount: 3
+        PolarRowsHeader: [ "Alpha_deg" , "Cl" , "Cd" , "Cm" ]
         PolarRows: 
           -  [ -180 , 0 , 0.34999999999999998 , 0 ]
           -  [ 0 , 0 , 0.34999999999999998 , 0 ]
           -  [ 180 , 0 , 0.34999999999999998 , 0 ]
         PolarSetCount: 1
         PolarSets: 
+          0Header: [ "Alpha_deg" , "Cl" , "Cd" , "Cm" ]
           0: 
             -  [ -180 , 0 , 0.34999999999999998 , 0 ]
             -  [ 0 , 0 , 0.34999999999999998 , 0 ]
@@ -579,6 +585,7 @@ Qahse:
           DeclaredCoordinateCount: 400
           HasExplicitReference: True
           Reference: [ 0.25 , 0 ]
+          CoordinatesHeader: [ "X" , "Y" ]
           Coordinates: 
             -  [ 1 , 0 ]
             -  [ 0.99660000000000004 , 0.058209999999999998 ]
@@ -990,6 +997,7 @@ Qahse:
         GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU40_A17_coords.txt
         InterpolationOrder: 1
         DeclaredPolarCount: 136
+        PolarRowsHeader: [ "Alpha_deg" , "Cl" , "Cd" , "Cm" ]
         PolarRows: 
           -  [ -180 , 0 , 0.060199999999999997 , 0 ]
           -  [ -175 , 0.218 , 0.069900000000000004 , 0.093399999999999997 ]
@@ -1129,6 +1137,7 @@ Qahse:
           -  [ 180 , 0 , 0.060199999999999997 , 0 ]
         PolarSetCount: 1
         PolarSets: 
+          0Header: [ "Alpha_deg" , "Cl" , "Cd" , "Cm" ]
           0: 
             -  [ -180 , 0 , 0.060199999999999997 , 0 ]
             -  [ -175 , 0.218 , 0.069900000000000004 , 0.093399999999999997 ]
@@ -1272,6 +1281,7 @@ Qahse:
           DeclaredCoordinateCount: 400
           HasExplicitReference: True
           Reference: [ 0.25 , 0 ]
+          CoordinatesHeader: [ "X" , "Y" ]
           Coordinates: 
             -  [ 1 , 0.00347 ]
             -  [ 0.99660000000000004 , 0.0045500000000000002 ]
@@ -1683,6 +1693,7 @@ Qahse:
         GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU35_A17_coords.txt
         InterpolationOrder: 1
         DeclaredPolarCount: 135
+        PolarRowsHeader: [ "Alpha_deg" , "Cl" , "Cd" , "Cm" ]
         PolarRows: 
           -  [ -180 , 0 , 0.0407 , 0 ]
           -  [ -175 , 0.223 , 0.050700000000000002 , 0.093700000000000006 ]
@@ -1821,6 +1832,7 @@ Qahse:
           -  [ 180 , 0 , 0.0407 , 0 ]
         PolarSetCount: 1
         PolarSets: 
+          0Header: [ "Alpha_deg" , "Cl" , "Cd" , "Cm" ]
           0: 
             -  [ -180 , 0 , 0.0407 , 0 ]
             -  [ -175 , 0.223 , 0.050700000000000002 , 0.093700000000000006 ]
@@ -1963,6 +1975,7 @@ Qahse:
           DeclaredCoordinateCount: 400
           HasExplicitReference: True
           Reference: [ 0.25 , 0 ]
+          CoordinatesHeader: [ "X" , "Y" ]
           Coordinates: 
             -  [ 1 , 0.0028300000000000001 ]
             -  [ 0.99660000000000004 , 0.0037799999999999999 ]
@@ -2374,6 +2387,7 @@ Qahse:
         GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU30_A17_coords.txt
         InterpolationOrder: 1
         DeclaredPolarCount: 143
+        PolarRowsHeader: [ "Alpha_deg" , "Cl" , "Cd" , "Cm" ]
         PolarRows: 
           -  [ -180 , 0 , 0.026700000000000002 , 0 ]
           -  [ -175 , 0.27400000000000002 , 0.036999999999999998 , 0.13789999999999999 ]
@@ -2520,6 +2534,7 @@ Qahse:
           -  [ 180 , 0 , 0.026700000000000002 , 0 ]
         PolarSetCount: 1
         PolarSets: 
+          0Header: [ "Alpha_deg" , "Cl" , "Cd" , "Cm" ]
           0: 
             -  [ -180 , 0 , 0.026700000000000002 , 0 ]
             -  [ -175 , 0.27400000000000002 , 0.036999999999999998 , 0.13789999999999999 ]
@@ -2670,6 +2685,7 @@ Qahse:
           DeclaredCoordinateCount: 400
           HasExplicitReference: True
           Reference: [ 0.25 , 0 ]
+          CoordinatesHeader: [ "X" , "Y" ]
           Coordinates: 
             -  [ 1 , 0.0024599999999999999 ]
             -  [ 0.99660000000000004 , 0.0033999999999999998 ]
@@ -3081,6 +3097,7 @@ Qahse:
         GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU25_A17_coords.txt
         InterpolationOrder: 1
         DeclaredPolarCount: 140
+        PolarRowsHeader: [ "Alpha_deg" , "Cl" , "Cd" , "Cm" ]
         PolarRows: 
           -  [ -180 , 0 , 0.020199999999999999 , 0 ]
           -  [ -175 , 0.36799999999999999 , 0.032399999999999998 , 0.1845 ]
@@ -3224,6 +3241,7 @@ Qahse:
           -  [ 180 , 0 , 0.020199999999999999 , 0 ]
         PolarSetCount: 1
         PolarSets: 
+          0Header: [ "Alpha_deg" , "Cl" , "Cd" , "Cm" ]
           0: 
             -  [ -180 , 0 , 0.020199999999999999 , 0 ]
             -  [ -175 , 0.36799999999999999 , 0.032399999999999998 , 0.1845 ]
@@ -3371,6 +3389,7 @@ Qahse:
           DeclaredCoordinateCount: 400
           HasExplicitReference: True
           Reference: [ 0.25 , 0 ]
+          CoordinatesHeader: [ "X" , "Y" ]
           Coordinates: 
             -  [ 1 , 0.0021299999999999999 ]
             -  [ 0.99660000000000004 , 0.00314 ]
@@ -3782,6 +3801,7 @@ Qahse:
         GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\DU21_A17_coords.txt
         InterpolationOrder: 1
         DeclaredPolarCount: 142
+        PolarRowsHeader: [ "Alpha_deg" , "Cl" , "Cd" , "Cm" ]
         PolarRows: 
           -  [ -180 , 0 , 0.018499999999999999 , 0 ]
           -  [ -175 , 0.39400000000000002 , 0.0332 , 0.1978 ]
@@ -3927,6 +3947,7 @@ Qahse:
           -  [ 180 , 0 , 0.018499999999999999 , 0 ]
         PolarSetCount: 1
         PolarSets: 
+          0Header: [ "Alpha_deg" , "Cl" , "Cd" , "Cm" ]
           0: 
             -  [ -180 , 0 , 0.018499999999999999 , 0 ]
             -  [ -175 , 0.39400000000000002 , 0.0332 , 0.1978 ]
@@ -4076,6 +4097,7 @@ Qahse:
           DeclaredCoordinateCount: 400
           HasExplicitReference: True
           Reference: [ 0.25 , 0 ]
+          CoordinatesHeader: [ "X" , "Y" ]
           Coordinates: 
             -  [ 1 , 0.0019400000000000001 ]
             -  [ 0.99660000000000004 , 0.0030400000000000002 ]
@@ -4487,6 +4509,7 @@ Qahse:
         GeometryFile: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\AeroL\Airfoils\NACA64_A17_coords.txt
         InterpolationOrder: 1
         DeclaredPolarCount: 127
+        PolarRowsHeader: [ "Alpha_deg" , "Cl" , "Cd" , "Cm" ]
         PolarRows: 
           -  [ -180 , 0 , 0.019800000000000002 , 0 ]
           -  [ -175 , 0.374 , 0.034099999999999998 , 0.188 ]
@@ -4617,6 +4640,7 @@ Qahse:
           -  [ 180 , 0 , 0.019800000000000002 , 0 ]
         PolarSetCount: 1
         PolarSets: 
+          0Header: [ "Alpha_deg" , "Cl" , "Cd" , "Cm" ]
           0: 
             -  [ -180 , 0 , 0.019800000000000002 , 0 ]
             -  [ -175 , 0.374 , 0.034099999999999998 , 0.188 ]
@@ -4751,6 +4775,7 @@ Qahse:
           DeclaredCoordinateCount: 400
           HasExplicitReference: True
           Reference: [ 0.25 , 0 ]
+          CoordinatesHeader: [ "X" , "Y" ]
           Coordinates: 
             -  [ 1 , 0 ]
             -  [ 0.98999999999999999 , 0.0033800000000000002 ]
@@ -5152,6 +5177,7 @@ Qahse:
             -  [ 0.98999999999999999 , 0.00191 ]
             -  [ 1 , 0 ]
     BldOutSig: [ 0 ]
+    TwrOutSig: [ 0 ]
     BlOutNd: [ 0 , 4 , 5 , 9 , 13 , 16 , 18 ]
     TwOutNd: [ 1 , 1 , 5 ]
     OutList: [ "BkNjPhi" , "BkNjFl" , "BkNjFd" , "BkNjMm" , "BkNjVRel" , "RtArea" , "RtAeroCp" , "RtAeroCq" , "RtAeroCt" , "BkNjVUndx" , "BkNjVUndy" , "BkNjVUndz" , "BkNjVDisx" , "BkNjVDisy" , "BkNjVDisz" , "BkNjSTVx" , "BkNjSTVy" , "BkNjSTVz" , "BkNjTheta" , "BPitch" , "BkNjAxInd" , "BkNjTnInd" , "BAzimuth" ]
@@ -5161,6 +5187,8 @@ Qahse:
     BladeMassTuner: 1
     BladeBeamType: 1
     BladeDiscCount: 30
+    BladeRayleighDampAniso: [  ]
+    SectionRowsHeader: [ "RadialPos_m" , "Chord_m" , "Twist_deg" , "OffsetY_m" , "OffsetX_m" , "PitchAxisY" , "PitchAxisX" , "PolarFileID" , "RelThickness_pct" , "MassDensity" , "EIx" , "EIy" , "EA" , "GJ" , "GA" , "StructPitch" , "KsX" , "KsY" , "RgX" , "RgY" , "Xcm" , "Ycm" , "Xce" , "Yce" , "Xcs" , "Ycs" ]
     SectionRows: 
       -  [ "1.5000000E+00" , "3.5420000E+00" , "1.3310000E+01" , "0.0000000E+00" , "0.0000000E+00" , "5.0000000E-01" , "0.0000000E+00" , "1.0000000E+00" , "1.0000000E+02" , "7.1502000E+02" , "1.8116000E+10" , "1.8116000E+10" , "9.7300000E+09" , "5.5600000E+09" , "6.9500000E+08" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "3.2931000E-01" , "3.2936000E-01" , "-4.7995000E-05" , "0.0000000E+00" , "0.0000000E+00" , "0.0000000E+00" , "0.0000000E+00" , "0.0000000E+00" ]
       -  [ "2.8667000E+00" , "3.5420000E+00" , "1.3310000E+01" , "-3.4500000E-03" , "-8.2000000E-04" , "5.0000000E-01" , "0.0000000E+00" , "1.0000000E+00" , "1.0000000E+02" , "8.0870000E+02" , "1.9091240E+10" , "1.9548660E+10" , "1.0669470E+10" , "5.3566460E+09" , "7.6209760E+08" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "3.2337570E-01" , "3.2232650E-01" , "6.4905530E-03" , "0.0000000E+00" , "9.1674180E-04" , "0.0000000E+00" , "9.1674180E-04" , "0.0000000E+00" ]
@@ -5182,12 +5210,37 @@ Qahse:
       -  [ "6.1633300E+01" , "1.4190000E+00" , "1.1000000E-01" , "1.7738000E-01" , "3.3000000E-04" , "5.0000000E-01" , "0.0000000E+00" , "8.0000000E+00" , "1.8000000E+01" , "4.8715270E+01" , "7.8871220E+06" , "8.7270280E+07" , "3.0848400E+07" , "2.2325950E+06" , "2.2034570E+06" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "6.7002780E-02" , "2.4262280E-01" , "7.4340170E-02" , "0.0000000E+00" , "1.2211490E-01" , "0.0000000E+00" , "1.2211490E-01" , "0.0000000E+00" ]
       -  [ "6.3000000E+01" , "9.6100000E-01" , "0.0000000E+00" , "1.7738000E-01" , "3.3000000E-04" , "5.0000000E-01" , "0.0000000E+00" , "8.0000000E+00" , "1.8000000E+01" , "1.0867000E+01" , "1.6996000E+05" , "5.0106000E+06" , "3.5294000E+06" , "1.9000000E+05" , "2.5210000E+05" , "0.0000000E+00" , "5.0000000E-01" , "5.0000000E-01" , "4.4641000E-02" , "2.6025000E-01" , "7.1103000E-02" , "0.0000000E+00" , "1.2487000E-01" , "0.0000000E+00" , "1.2487000E-01" , "0.0000000E+00" ]
   StrL: 
+    TowerNum: 1
+    TowerYdeg: 90
     NumBld: 3
+    HubRad: 1.5
     OverHang: 5.0190999999999999
-    ShaftTilt: 5
     PreCone: 2.5
+    ShaftTilt: 5
+    Twr2Shft: 1.9625600000000001
+    HubMass: 56780
+    HubIner: 115926
+    Gravity: 9.8100000000000005
     Azimuth: 0
+    AzimB1Up: 0
+    RotSpeed: 12.1
+    NacYaw: 0
+    NACCAX: 11
+    NACCAY: 6
+    NACCAZ: 6
+    NACCDX: 0.59999999999999998
+    NACCDY: 0.59999999999999998
+    NACCDZ: 0.59999999999999998
+    YawBrMass: 0
+    NacMass: 240000
+    NacCmX: 1.8999999999999999
+    NacCmY: 0
+    NacCmZ: 1.75
+    NacYawIner: 2607890
+    GearboxRatio: 97
+    GearboxEff: 1
     DrivetrainDof: True
+    GenIner: 534.11599999999999
     DTTorSpr: 867637000
     DTTorDmp: 6215000
     BladeNum: 3
@@ -5202,6 +5255,7 @@ Qahse:
     NTwOuts: 10
     BladeFiles: [ "F:\\Qahse.Clear\\demo\\SimL\\NREL_5MW_OC4_Semisub\\StrL\\NREL_5MW_OC4_Semisub_Blade_new.str" ]
     BldOutSig: [ 0 , 2 ]
+    TwrOutSig: [ 0 ]
     BlOutNd: [ 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 ]
     TwOutNd: [ 0 , 1 , 2 , 3 , 4 , 5 , 7 , 8 , 9 , 10 ]
     OutList: [ "QD2_B1E1" , "QD2_B1F1" , "QD2_B1F2" , "QD2_B2E1" , "QD2_B2F1" , "QD2_B2F2" , "QD2_B3E1" , "QD2_B3F1" , "QD2_B3F2" , "QD2_DRTR" , "QD2_GEAZ" , "QD2_HV" , "QD2_P" , "QD2_R" , "QD2_RFRL" , "QD2_SG" , "QD2_SW" , "QD2_TFA1" , "QD2_TFA2" , "QD2_TFRL" , "QD2_TSS1" , "QD2_TSS2" , "QD2_Y" , "QD2_YAW" , "QD_B1E1" , "QD_B1F1" , "QD_B1F2" , "QD_B2E1" , "QD_B2F1" , "QD_B2F2" , "QD_B3E1" , "QD_B3F1" , "QD_B3F2" , "QD_DRTR" , "QD_GEAZ" , "QD_HV" , "QD_P" , "QD_R" , "QD_RFRL" , "QD_SG" , "QD_SW" , "QD_TFA1" , "QD_TFA2" , "QD_TFRL" , "QD_TSS1" , "QD_TSS2" , "QD_Y" , "QD_YAW" , "Q_B1E1" , "Q_B1F1" , "Q_B1F2" , "Q_B2E1" , "Q_B2F1" , "Q_B2F2" , "Q_B3E1" , "Q_B3F1" , "Q_B3F2" , "Q_DRTR" , "Q_GEAZ" , "Q_HV" , "Q_P" , "Q_R" , "Q_RFRL" , "Q_SG" , "Q_SW" , "Q_TFA1" , "Q_TFA2" , "Q_TFRL" , "Q_TSS1" , "Q_TSS2" , "Q_Y" , "Q_YAW" , "Q_TTMD" , "QD_TTMD" , "QD2_TTMD" , "OoPDefl" , "IPDefl" , "TipDzb" , "TipDxb" , "TipDyb" , "Tip2Twr" , "SpnTDxb" , "SpnTDyb" , "SpnTDzb" , "SpnRDxb" , "SpnRDyb" , "SpnRDzb" , "BlPitch" , "Azimuth" , "RotSpeed" , "RotAccel" , "GenSpeed" , "GenAccel" , "NcIMUTVxs" , "NcIMUTVys" , "NcIMUTVzs" , "NacYaw" , "YawRate" , "YawAccel" , "TTDspFA" , "TTDspSS" , "TTDspAx" , "TwHtALxt" , "TwHtALyt" , "TwHtALzt" , "TwHtTDxt" , "TwHtTDyt" , "TwHtTDzt" , "PtfmTDxt" , "PtfmTDyt" , "PtfmTDzt" , "PtfmSurge" , "PtfmSway" , "PtfmHeave" , "PtfmRoll" , "PtfmPitch" , "PtfmYaw" , "RootFxc" , "RootFyc" , "RootFzc" , "RootFxb" , "RootFyb" , "RootMxc" , "RootMyc" , "RootMzc" , "RootMxb" , "RootMyb" , "SpnMLxb" , "SpnMLyb" , "SpnMLzb" , "SpnFLxb" , "SpnFLyb" , "SpnFLzb" , "RotThrust" , "LSShftFya" , "LSShftFza" , "LSShftFys" , "LSShftFzs" , "LSShftTq" , "RotPwr" , "LSSGagMya" , "LSSGagMza" , "LSSGagMys" , "LSSGagMzs" , "HSShftTq" , "HSSBrTq" , "HSShftPwr" , "HSSGenPwr" , "YawBrFxn" , "YawBrFyn" , "YawBrFzn" , "YawBrFxp" , "YawBrFyp" , "YawBrMxn" , "YawBrMyn" , "YawBrMzn" , "YawBrMxp" , "YawBrMyp" , "TwrBsFxt" , "TwrBsFyt" , "TwrBsFzt" , "TwrBsMxt" , "TwrBsMyt" , "TwrBsMzt" , "TwHtMLxt" , "TwHtMLyt" , "TwHtMLzt" , "TwHtFLxt" , "TwHtFLyt" , "TwHtFLzt" , "PtfmFxt" , "PtfmFyt" , "PtfmFzt" , "PtfmFxi" , "PtfmFyi" , "PtfmFzi" , "PtfmMxt" , "PtfmMyt" , "PtfmMzt" , "PtfmMxi" , "PtfmMyi" , "PtfmMzi" ]
@@ -5214,6 +5268,7 @@ Qahse:
     AfSpanput: False
     SumPath: 
     BldOutSig: [ 0 ]
+    TwrOutSig: [ 0 ]
     NBlOuts: 0
     BlOutNd: [  ]
     NTwOuts: 0
@@ -5235,6 +5290,7 @@ Qahse:
     TurWindFilePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\SimWind\result\NREL_5MW_OC4_Semisub_Demo_wind.ts.wnd
     BldWindFilePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\SimWind\result\NREL_5MW_OC4_Semisub_Demo_wind.wnd
     IECWindFilePath: F:\Qahse.Clear\demo\SimL\NREL_5MW_OC4_Semisub\SimWind\result\NREL_5MW_OC4_Semisub_Demo_wind.bts
+    WindSpeedListHeader: [ "Time_s" , "WindSpeed_mps" ]
     WindSpeedList: 
       -  [ 0 , 10 ]
       -  [ 30 , 10 ]
@@ -5242,6 +5298,12 @@ Qahse:
       -  [ 600 , 50 ]
       -  [ 1200 , 200 ]
   TowerStruct: 
+    TowerRayleighDamp: 0.012699999999999999
+    TowerStiffTuner: 1
+    TowerMassTuner: 0.997
+    TowerBeamType: 1
+    TowerDiscCount: 20
+    SectionRowsHeader: [ "SpanFrac" , "MassDensity" , "EIx" , "EIy" , "EA" , "GJ" , "GA" , "StructPitch" , "KsX" , "KsY" , "RgX" , "RgY" , "Xcm" , "Ycm" , "Xce" , "Yce" , "Xcs" , "Ycs" , "Diameter" ]
     SectionRows: 
       -  [ "0.0000E+00" , "4.6770E+03" , "6.0500E+11" , "6.0500E+11" , "1.1500E+11" , "4.6500E+11" , "0.0000E+00" , "0.0000E+00" , "5.0000E-01" , "5.0000E-01" , "3.5167E-01" , "3.5167E-01" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "6.5000E+00" ]
       -  [ "1.0000E-01" , "4.3552E+03" , "5.1700E+11" , "5.1700E+11" , "1.0700E+11" , "3.9800E+11" , "0.0000E+00" , "0.0000E+00" , "5.0000E-01" , "5.0000E-01" , "3.5079E-01" , "3.5079E-01" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "0.0000E+00" , "6.2370E+00" ]
@@ -5288,11 +5350,17 @@ Qahse:
     SumPath: 
     NBlOuts: 0
     NTwOuts: 0
+    JointOffsetHeader: [ "X" , "Y" , "Z" ]
     JointOffset: [ 0 , 0 , 0 ]
+    MarineGrowthHeader: [ "ID" , "Thickness" , "Density" ]
     MarineGrowth: [ 1 , 0.10000000000000001 , 1100 ]
+    TpInterfacePosHeader: [ "X" , "Y" , "Z" ]
     TpInterfacePos: [ 0 , 0 , 10 ]
+    RefCogPosHeader: [ "X" , "Y" , "Z" ]
     RefCogPos: [ 0 , 0 , -13.460000000000001 ]
+    RefHydroPosHeader: [ "X" , "Y" , "Z" ]
     RefHydroPos: [ 0 , 0 , 0 ]
+    SubMassMatrixHeader: [ "Surge" , "Sway" , "Heave" , "Roll" , "Pitch" , "Yaw" ]
     SubMassMatrix: 
       -  [ 13473000 , 0 , 0 , 0 , 0 , 0 ]
       -  [ 0 , 13473000 , 0 , 0 , 0 , 0 ]
@@ -5300,6 +5368,7 @@ Qahse:
       -  [ 0 , 0 , 0 , 6827000000 , 0 , 0 ]
       -  [ 0 , 0 , 0 , 0 , 6827000000 , 0 ]
       -  [ 0 , 0 , 0 , 0 , 0 , 12260000000 ]
+    HydroAddedMassMatrixHeader: [ "Surge" , "Sway" , "Heave" , "Roll" , "Pitch" , "Yaw" ]
     HydroAddedMassMatrix: 
       -  [ 6319948.0999999996 , 0 , -544.52130999999997 , 0 , -84184511 , 0 ]
       -  [ 0 , 6319912.2000000002 , 0 , 84184511 , 0 , 204.23668000000001 ]
@@ -5307,6 +5376,8 @@ Qahse:
       -  [ 0 , 84181805 , 0 , 7198394600 , 0 , 10104.395 ]
       -  [ -84190835 , 0 , -87227.366999999998 , 0 , 7198329000 , 0 ]
       -  [ 0 , 6246.8769000000002 , 0 , -36169.082999999999 , 0 , 4742347000 ]
+    TransitionMass: [  ]
+    SubJointsHeader: [ "JointId" , "JointX" , "JointY" , "JointZ" ]
     SubJoints: 
       -  [ "1" , "0.00000" , "0.00000" , "-20.00000" ]
       -  [ "2" , "0.00000" , "0.00000" , "10.00000" ]
@@ -5358,11 +5429,13 @@ Qahse:
       -  [ "48" , "14.43376" , "25.00000" , "-14.89000" ]
       -  [ "49" , "-28.86751" , "0.00000" , "-14.89000" ]
       -  [ "50" , "14.43376" , "-25.00000" , "-14.89000" ]
+    RigidSubElementsHeader: [ "ElemId" , "MassDensityFlag" , "Diameter" ]
     RigidSubElements: 
       -  [ "1" , "1" , "6.5" ]
       -  [ "2" , "1" , "12" ]
       -  [ "3" , "1" , "24" ]
       -  [ "4" , "1" , "1.6" ]
+    HydroJointCoeffHeader: [ "CoeffId" , "JointId" , "CdAxial" , "CaAxial" , "CpAxial" ]
     HydroJointCoeff: 
       -  [ "1" , "9" , "4.8" , "0.0" , "0.0" ]
       -  [ "2" , "10" , "4.8" , "0.0" , "0.0" ]
@@ -5371,12 +5444,14 @@ Qahse:
       -  [ "5" , "3" , "0.0" , "0.0" , "0.0" ]
       -  [ "6" , "5" , "0.0" , "0.0" , "0.0" ]
       -  [ "7" , "7" , "0.0" , "0.0" , "0.0" ]
+    HydroMemberCoeffHeader: [ "CoeffId" , "CdNormal" , "CaNormal" , "CpNormal" , "McFc" ]
     HydroMemberCoeff: 
       -  [ "1" , "2.0" , "0.8" , "1.0" , "0" ]
       -  [ "2" , "0.63" , "0.0" , "0.0" , "0" ]
       -  [ "3" , "0.56" , "0.0" , "0.0" , "0" ]
       -  [ "4" , "0.61" , "0.0" , "0.0" , "0" ]
       -  [ "5" , "0.68" , "0.0" , "0.0" , "0" ]
+    SubConstraintsHeader: [ "ConstraintId" , "JointId" , "Joint2Id" , "TpConstraint" , "GroundConstraint" , "IsSpring" , "DofX" , "DofY" , "DofZ" , "DofRx" , "DofRy" , "DofRz" ]
     SubConstraints: 
       -  [ "1" , "2" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
       -  [ "2" , "24" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
@@ -5397,6 +5472,7 @@ Qahse:
       -  [ "29" , "9" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
       -  [ "30" , "10" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
       -  [ "31" , "11" , "0" , "1" , "0" , "0" , "1" , "1" , "1" , "1" , "1" , "1" ]
+    SubMembersHeader: [ "MemberId" , "Joint1Id" , "Joint2Id" , "ElementId" , "ElementRot" , "HydroCoeffId" , "IsBuoyant" , "MarineGrowthId" , "FloodedArea" , "ElementDisc" , "Name" ]
     SubMembers: 
       -  [ "1" , "1" , "2" , "1" , "0" , "3" , "1" , "0" , "0" , "2" , "Main_Column" ]
       -  [ "2" , "45" , "4" , "2" , "0" , "4" , "1" , "0" , "0" , "2" , "Upper_Column_1" ]
@@ -5429,13 +5505,17 @@ Qahse:
       -  [ "20" , "36" , "37" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Cross_Brace_1" ]
       -  [ "21" , "38" , "39" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Cross_Brace_2" ]
       -  [ "22" , "40" , "41" , "4" , "0" , "2" , "1" , "0" , "0" , "10" , "Cross_Brace_3" ]
+    MoorElementsHeader: [ "MoorId" , "MassPerLength" , "EIy" , "EA" , "Damping" , "Diameter" ]
     MoorElements: 
       -  [ "1" , "1.086306E+02" , "6.148892E+08" , "7.536117E+08" , "0.000" , "0.077" ]
+    MoorMembersHeader: [ "Id" , "Conn1" , "Conn2" , "Length" , "MoorId" , "HydroCoeffId" , "IsBuoyant" , "MarineGrowthId" , "ElementDisc" , "Name" ]
     MoorMembers: 
       -  [ "1" , "FLT_-40.868_0.0_-14.0" , "GRD_-837.6_0" , "835.5" , "1" , "1" , "1" , "0" , "30" , "Mooring1" ]
       -  [ "2" , "FLT_20.434_35.393_-14.0" , "GRD_418.8_725.4" , "835.5" , "1" , "1" , "1" , "0" , "30" , "Mooring2" ]
       -  [ "3" , "FLT_20.434_-35.393_-14.0" , "GRD_418.8_-725.4" , "835.5" , "1" , "1" , "1" , "0" , "30" , "Mooring3" ]
+    OutputPoints: [  ]
     BldOutSig: [ 0 ]
+    TwrOutSig: [ 0 ]
     BlOutNd: [  ]
     TwOutNd: [  ]
     OutList: [  ]

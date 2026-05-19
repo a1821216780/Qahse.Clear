@@ -25,3 +25,23 @@ TEST(ModuleIO, YamlRowParserReadsTwoDimensionalStringTables)
 	EXPECT_EQ(rows[1][1], "3.5");
 	EXPECT_EQ(rows[1][2], "JointB");
 }
+
+TEST(ModuleIO, YamlTableWriterAddsCompanionHeaderWithoutChangingRows)
+{
+	const auto path = TestOutputDir() / "IO" / "rows_with_header.yaml";
+	Serializer writer = Serializer::OpenYamlWriter("Qahse.ModuleIO");
+	module_io::AddStringTableYamlNodes(writer, "Rows", {"Id", "Value", "Name"}, {
+		{"1", "2.5", "JointA"},
+		{"2", "3.5", "JointB"},
+	});
+	writer.SaveYamlFile(path.string());
+
+	const auto headers = module_io::ReadYamlStringArray(path.string(), "Qahse.ModuleIO", "RowsHeader");
+	ASSERT_EQ(headers.size(), 3u);
+	EXPECT_EQ(headers[0], "Id");
+	EXPECT_EQ(headers[2], "Name");
+
+	const auto rows = module_io::ReadYamlRows(path.string(), "Qahse.ModuleIO", "Rows");
+	ASSERT_EQ(rows.size(), 2u);
+	EXPECT_EQ(rows[1][2], "JointB");
+}

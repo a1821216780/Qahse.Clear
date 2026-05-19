@@ -29,6 +29,9 @@ TEST(AeroLIO, ReadSemisubAndYamlRoundTrip)
 	EXPECT_TRUE(std::filesystem::is_regular_file(aero.bladeAeroStructFile));
 	ASSERT_TRUE(aero.bladeAeroStruct.has_value());
 	EXPECT_FALSE(aero.bladeAeroStruct->sections.empty());
+	ASSERT_EQ(aero.iagParams.size(), 14u);
+	EXPECT_DOUBLE_EQ(aero.iagParams.front(), 0.30);
+	EXPECT_DOUBLE_EQ(aero.iagParams.back(), 0.0);
 
 	const auto yaml = TestOutputDir() / "AeroL" / "aerol.yaml";
 	WriteAeroLInput(aero, yaml.string());
