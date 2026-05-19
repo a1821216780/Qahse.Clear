@@ -1,9 +1,17 @@
 #pragma once
 
 #include <filesystem>
+#include <optional>
 #include <string>
+#include <vector>
 
+#include "AeroL/AeroL_Type.hpp"
+#include "ControL/ControL_Type.hpp"
+#include "HydroL/HydroL_Type.hpp"
 #include "IO/ModuleIO.hpp"
+#include "StrL/StrL_Type.hpp"
+#include "WaveL/WaveL_Type.hpp"
+#include "WindL/WindL_Type.hpp"
 
 struct VtkOutputConfig
 {
@@ -44,4 +52,26 @@ struct SimLInput
 
 	VtkOutputConfig vtk;
 	OutputConfig output;
+};
+
+struct SimLModuleInputs
+{
+	std::vector<std::string> warnings;
+
+	AeroLInput aeroL;
+	StrLInput strL;
+	ControLInput controL;
+	WindLInput windL;
+
+	std::optional<HydroLInput> hydroL;
+	std::optional<WaveLInput> waveL;
+
+	BladeAeroStructInput bladeAeroStruct;
+	std::optional<TowerStructInput> towerStruct;
+};
+
+struct SimLResolvedInput
+{
+	SimLInput simL;
+	SimLModuleInputs modules;
 };

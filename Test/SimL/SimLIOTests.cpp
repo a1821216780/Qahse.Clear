@@ -9,6 +9,7 @@
 #include "ControL/IO/ControL_IO_Subs.hpp"
 #include "HydroL/IO/HydroL_IO_Subs.hpp"
 #include "SimL/IO/SimL_IO_Subs.hpp"
+#include "SimL/SimL.hpp"
 #include "StrL/IO/StrL_IO_Subs.hpp"
 #include "WaveL/IO/WaveL_IO_Subs.hpp"
 #include "WindL/IO/WindL_IO_Subs.hpp"
@@ -29,13 +30,15 @@ TEST(SimLIO, ReadSemisubAndYamlRoundTrip)
 
 TEST(SimLIO, RecursivelyReadsCurrentSemisubReferences)
 {
-	const auto sim = ReadSimLInput(SemisubMainFile().string());
-	const auto aero = ReadAeroLInput(sim.aeroFile);
-	const auto str = ReadStrLInput(sim.strFile);
-	const auto hydro = ReadHydroLInput(sim.hydroLFile);
-	const auto control = ReadControLInput(sim.controlFile);
-	const auto wind = windl_io_detail::ReadWindLInputFile(sim.windFile);
-	const auto wave = wavel_io_detail::ReadWaveLInputFile(hydro.waveLFile);
+	const auto resolved = ReadSimLResolvedInputFile(SemisubMainFile().string());
+	const auto &aero = resolved.modules.aeroL;
+	const auto &str = resolved.modules.strL;
+	ASSERT_TRUE(resolved.modules.hydroL.has_value());
+	ASSERT_TRUE(resolved.modules.waveL.has_value());
+	const auto &hydro = *resolved.modules.hydroL;
+	const auto &control = resolved.modules.controL;
+	const auto &wind = resolved.modules.windL;
+	const auto &wave = *resolved.modules.waveL;
 
 	EXPECT_FALSE(aero.airfoils.files.empty());
 	EXPECT_TRUE(std::filesystem::is_regular_file(str.bladeAeroStructFile));
@@ -44,6 +47,24 @@ TEST(SimLIO, RecursivelyReadsCurrentSemisubReferences)
 	EXPECT_DOUBLE_EQ(hydro.waterDepth, wave.waterDepth);
 	EXPECT_EQ(control.pcMode, 1);
 	EXPECT_EQ(static_cast<int>(wind.windType), 3);
+	EXPECT_FALSE(resolved.modules.aeroL.airfoilData.empty());
+	EXPECT_FALSE(resolved.modules.bladeAeroStruct.sections.empty());
+	ASSERT_TRUE(resolved.modules.towerStruct.has_value());
+	EXPECT_FALSE(resolved.modules.towerStruct->sectionRows.empty());
+	ASSERT_TRUE(resolved.modules.hydroL->wamit.has_value());
+	EXPECT_FALSE(resolved.modules.hydroL->wamit->radiation.radiation.empty());
+}
+
+TEST(SimLIO, LoadFromFileStoresResolvedModuleInputs)
+{
+	const auto sim = SimL::LoadFromFile(SemisubMainFile().string());
+	EXPECT_DOUBLE_EQ(sim.Input().tMax, 600.0);
+	EXPECT_FALSE(sim.Modules().aeroL.airfoilData.empty());
+	EXPECT_FALSE(sim.Modules().bladeAeroStruct.sections.empty());
+	ASSERT_TRUE(sim.Modules().hydroL.has_value());
+	ASSERT_TRUE(sim.Modules().waveL.has_value());
+	EXPECT_DOUBLE_EQ(sim.Modules().hydroL->waterDepth, sim.Modules().waveL->waterDepth);
+	EXPECT_NE(sim.Summary().find("airfoils="), std::string::npos);
 }
 
 TEST(SimLIO, TextTemplateWriteUpdatesBoundFields)
@@ -109,28 +130,32 @@ TEST(SimLIO, ReadAllSimLDemosRecursively)
 	for (const auto &simPath : cases)
 	{
 		SCOPED_TRACE(simPath.string());
-		const auto sim = ReadSimLInput(simPath.string());
-		const auto aero = ReadAeroLInput(sim.aeroFile);
-		const auto str = ReadStrLInput(sim.strFile);
-		const auto control = ReadControLInput(sim.controlFile);
-		const auto wind = windl_io_detail::ReadWindLInputFile(sim.windFile);
+		const auto resolved = ReadSimLResolvedInputFile(simPath.string());
+		const auto &sim = resolved.simL;
+		const auto &aero = resolved.modules.aeroL;
+		const auto &str = resolved.modules.strL;
+		const auto &control = resolved.modules.controL;
+		const auto &wind = resolved.modules.windL;
 
 		EXPECT_TRUE(std::filesystem::is_regular_file(aero.bladeAeroStructFile));
 		EXPECT_TRUE(std::filesystem::is_regular_file(str.bladeAeroStructFile));
 		EXPECT_TRUE(std::filesystem::is_regular_file(str.towerFile));
 		EXPECT_GE(aero.airfoils.files.size(), 1u);
+		EXPECT_EQ(resolved.modules.aeroL.airfoilData.size(), aero.airfoils.files.size());
+		EXPECT_FALSE(resolved.modules.bladeAeroStruct.sections.empty());
 		EXPECT_GE(str.output.blade.nodes.size(), static_cast<std::size_t>(str.output.blade.count));
 		EXPECT_GE(str.output.tower.nodes.size(), static_cast<std::size_t>(str.output.tower.count));
 		EXPECT_GE(static_cast<int>(wind.windType), 1);
 
 		if (sim.wtType == 2)
 		{
-			const auto hydro = ReadHydroLInput(sim.hydroLFile);
+			ASSERT_TRUE(resolved.modules.hydroL.has_value());
+			const auto &hydro = *resolved.modules.hydroL;
 			EXPECT_GT(hydro.waterDepth, 0.0);
 			if (!hydro.waveLFile.empty())
 			{
-				const auto wave = wavel_io_detail::ReadWaveLInputFile(hydro.waveLFile);
-				EXPECT_DOUBLE_EQ(hydro.waterDepth, wave.waterDepth);
+				ASSERT_TRUE(resolved.modules.waveL.has_value());
+				EXPECT_DOUBLE_EQ(hydro.waterDepth, resolved.modules.waveL->waterDepth);
 			}
 		}
 		(void)control;
